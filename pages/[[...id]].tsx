@@ -13,7 +13,7 @@ import { RunButton } from '../components/RunButton';
 import { TabBar } from '../components/TabBar';
 import { useRouter } from 'next/router';
 import { Output } from '../components/Output';
-import { CogIcon } from '@heroicons/react/solid';
+import { CogIcon, DownloadIcon, PlusIcon } from '@heroicons/react/solid';
 import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
 import { useFirebaseRef } from '../hooks/useFirebaseRef';
@@ -21,6 +21,7 @@ import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
 import { useSettings } from '../components/SettingsContext';
+import download from '../scripts/download';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -137,6 +138,21 @@ export default function Home(): JSX.Element {
     if (outputEditor.current) outputEditor.current.layout();
   };
 
+  const handleDownloadFile = () => {
+    if (!editor.current) {
+      alert("Editor hasn't loaded yet. Please wait.");
+      return;
+    }
+
+    const fileNames = {
+      cpp: 'main.cpp',
+      java: 'Main.java',
+      py: 'main.py',
+    };
+
+    download(fileNames[lang], editor.current.getValue());
+  };
+
   useEffect(() => {
     function handleResize() {
       layoutEditors();
@@ -155,17 +171,41 @@ export default function Home(): JSX.Element {
 
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
-          <button
-            type="button"
-            className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-            onClick={() => setIsSettingsModalOpen(true)}
-          >
-            <CogIcon
-              className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-              aria-hidden="true"
-            />
-            Settings
-          </button>
+          <div className="flex items-center divide-x divide-gray-700">
+            <a
+              href="/"
+              target="_blank"
+              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+            >
+              <PlusIcon
+                className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              New File
+            </a>
+            <button
+              type="button"
+              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+              onClick={() => handleDownloadFile()}
+            >
+              <DownloadIcon
+                className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              Download File
+            </button>
+            <button
+              type="button"
+              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+              onClick={() => setIsSettingsModalOpen(true)}
+            >
+              <CogIcon
+                className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              Settings
+            </button>
+          </div>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
         </div>
         <div className="flex-1 min-h-0">
