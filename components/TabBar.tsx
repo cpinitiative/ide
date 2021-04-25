@@ -6,10 +6,14 @@ export interface TabBarProps {
     value: string;
   }[];
   activeTab: string;
-  onTabSelect: (tab: { label: string, value: string }) => void;
+  onTabSelect: (tab: { label: string; value: string }) => void;
 }
 
-export const TabBar = ({ tabs, activeTab, onTabSelect }: TabBarProps): JSX.Element => {
+export const TabBar = ({
+  tabs,
+  activeTab,
+  onTabSelect,
+}: TabBarProps): JSX.Element => {
   return (
     <div className="flex bg-black">
       <div className="flex-1">

@@ -3,7 +3,7 @@ import 'firebase/database';
 import 'firebase/analytics';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import type firebaseType from "firebase";
+import type firebaseType from 'firebase';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA',
@@ -27,13 +27,15 @@ if (!firebase.apps?.length) {
   if (typeof window !== 'undefined' && firebase.analytics) firebase.analytics();
 }
 
-function getFirebaseRef(hash: (string | null | undefined)): firebaseType.database.Reference {
+function getFirebaseRef(
+  hash: string | null | undefined
+): firebaseType.database.Reference {
   let ref = firebase.database().ref();
   if (hash) {
     ref = ref.child('-' + hash);
   } else {
     ref = ref.push(); // generate unique location.
-    window.history.replaceState({}, "", '/' + ref.key!.substr(1));
+    window.history.replaceState({}, '', '/' + ref.key!.substr(1));
   }
   return ref;
 }
@@ -50,7 +52,6 @@ export const useFirebaseRef = () => {
     } else {
       setRef(getFirebaseRef(router.query.id));
     }
-
   }, [router.isReady]);
   return ref;
 };

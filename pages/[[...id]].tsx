@@ -10,7 +10,7 @@ import { CogIcon } from '@heroicons/react/solid';
 import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
 import { useFirebaseRef } from '../hooks/useFirebaseRef';
-import JudgeResult, {JudgeSuccessResult} from "../types/judge";
+import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -29,7 +29,7 @@ function decode(bytes: string | null) {
   }
 }
 
-type Language = "cpp" | "java" | "py";
+type Language = 'cpp' | 'java' | 'py';
 
 export default function Home() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function Home() {
   const [lang, setLang] = useReducer((prev: Language, next: Language) => {
     window.history.replaceState(
       {},
-      "",
+      '',
       window.location.href.split('?')[0] + '?lang=' + next
     );
     return next;

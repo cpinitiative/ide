@@ -1,14 +1,14 @@
 import { TabBar } from './TabBar';
-import Editor, {EditorProps} from '@monaco-editor/react';
+import Editor, { EditorProps } from '@monaco-editor/react';
 import { useState, useEffect } from 'react';
-import {JudgeSuccessResult} from "../types/judge";
+import { JudgeSuccessResult } from '../types/judge';
 
 export interface OutputProps {
   result: JudgeSuccessResult | null;
-  onMount: EditorProps["onMount"];
+  onMount: EditorProps['onMount'];
 }
 
-type OutputTab = "stdout" | "stderr" | "compile_output" | "message";
+type OutputTab = 'stdout' | 'stderr' | 'compile_output' | 'message';
 
 export const Output = ({ result, onMount }: OutputProps) => {
   const tabs = [
