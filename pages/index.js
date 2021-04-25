@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { RunButton } from "../components/RunButton";
 import { TabBar } from "../components/TabBar";
 import Editor from "@monaco-editor/react";
+import { Output } from "../components/Output";
 
 export default function Home() {
   const editor = useRef(null);
@@ -140,36 +141,12 @@ int main() {
                 </div>
                 <div className="cursor-[row-resize] bg-black" {...getGutterProps('row', 1)} />
                 <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
-                  <TabBar
-                    tabs={[
-                      { label: 'stdout', value: 'stdout' },
-                      { label: 'stderr', value: 'stderr' },
-                      { label: 'compile output', value: 'compile output' },
-                      { label: 'sandbox message', value: 'sandbox message' },
-                    ]}
-                    activeTab={"stdout"}
-                    onTabSelect={tab => {}}
-                  />
-                  <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
-                    <Editor
-                      theme="vs-dark"
-                      language={"plaintext"}
-                      value={output}
-                      saveViewState={false}
-                      path="output"
-                      options={{
-                        minimap: { enabled: false },
-                        readOnly: true,
-                        automaticLayout: false,
-                      }}
-                      onMount={e => {
-                        outputEditor.current = e;
-                        setTimeout(() => {
-                          e.layout();
-                        }, 0);
-                      }}
-                    />
-                  </div>
+                  <Output result={result} onMount={e => {
+                    outputEditor.current = e;
+                    setTimeout(() => {
+                      e.layout();
+                    }, 0);
+                  }} />
                 </div>
               </div>
             )}
