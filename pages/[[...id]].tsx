@@ -31,7 +31,7 @@ function decode(bytes: string | null) {
 
 type Language = 'cpp' | 'java' | 'py';
 
-export default function Home() {
+export default function Home(): JSX.Element {
   const router = useRouter();
   const editor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const inputEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -57,6 +57,8 @@ export default function Home() {
         setLang(router.query.lang);
       }
     }
+    // we only want to run it once when router is ready
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 
   const handleRunCode = () => {
@@ -203,7 +205,6 @@ export default function Home() {
                   <TabBar
                     tabs={[{ label: 'input', value: 'input' }]}
                     activeTab={'input'}
-                    onTabSelect={tab => {}}
                   />
                   <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
                     <FirepadEditor

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*!
  * Firepad is an open-source, collaborative code and text editor. It was designed
  * to be embedded inside larger applications. Since it uses Firebase as a backend,

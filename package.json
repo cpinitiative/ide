@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint --ext js,jsx,ts,tsx --fix components/ pages/ scripts/"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.1",

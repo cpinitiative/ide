@@ -12,7 +12,7 @@ const FirepadEditor = ({
   defaultValue,
   firebaseRef,
   ...props
-}: FirepadEditorProps) => {
+}: FirepadEditorProps): JSX.Element => {
   const [
     editor,
     setEditor,
@@ -35,6 +35,8 @@ const FirepadEditor = ({
     }
 
     return () => firepad.dispose();
+    // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, editor]);
 
   return (

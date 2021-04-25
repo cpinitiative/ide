@@ -10,13 +10,14 @@ export interface OutputProps {
 
 type OutputTab = 'stdout' | 'stderr' | 'compile_output' | 'message';
 
-export const Output = ({ result, onMount }: OutputProps) => {
-  const tabs = [
-    { label: 'stdout', value: 'stdout' },
-    { label: 'stderr', value: 'stderr' },
-    { label: 'compile output', value: 'compile_output' },
-    { label: 'sandbox message', value: 'message' },
-  ];
+const tabs = [
+  { label: 'stdout', value: 'stdout' },
+  { label: 'stderr', value: 'stderr' },
+  { label: 'compile output', value: 'compile_output' },
+  { label: 'sandbox message', value: 'message' },
+];
+
+export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
   // todo make this type better...
   const [option, setOption] = useState<OutputTab>('stdout');
 
