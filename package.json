@@ -28,11 +28,6 @@
     "tailwindcss": "^2.1.2"
   },
   "postinstall": "patch-package",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
