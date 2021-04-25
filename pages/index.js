@@ -1,13 +1,14 @@
 import Head from 'next/head'
 import Split from 'react-split-grid'
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { RunButton } from "../components/RunButton";
 import { TabBar } from "../components/TabBar";
 import Editor from "@monaco-editor/react";
 import { Output } from "../components/Output";
-import classNames from "classnames";
 import { CogIcon } from "@heroicons/react/solid";
 import dynamic from 'next/dynamic'
+import defaultCode from "../scripts/defaultCode";
+import { useFirebaseRef } from "../hooks/useFirebaseRef";
 
 const FirepadEditor = dynamic(
   () => import('../components/FirepadEditor'),
@@ -28,11 +29,9 @@ function decode(bytes) {
 }
 
 export default function Home() {
-  const [editor, setEditor] = useState(null);
+  const editor = useRef(null);
   const inputEditor = useRef(null);
   const outputEditor = useRef(null);
-  const [editorValue, setEditorValue] = useState({cpp: "", java: "", py: ""});
-  const [stdin, setStdin] = useState("");
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [lang, setLang] = useState("cpp");
@@ -41,9 +40,9 @@ export default function Home() {
     setIsRunning(true);
     setResult(null);
     const data = {
-      source_code: encode(editorValue[lang]),
+      source_code: encode(editor.current.getValue()),
       language_id: {cpp: 54, java: 62, py: 71}[lang],
-      stdin: encode(stdin),
+      stdin: encode(inputEditor.current.getValue()),
       compiler_options: "",
       command_line_arguments: "",
       redirect_stderr_to_stdout: false,
@@ -72,6 +71,14 @@ export default function Home() {
     }).finally(() => setIsRunning(false));
   };
 
+  const firebaseRef = useFirebaseRef();
+  const firebaseRefs = useMemo(() => ({
+    cpp: firebaseRef?.child(`editor-cpp`),
+    java: firebaseRef?.child(`editor-java`),
+    py: firebaseRef?.child(`editor-py`),
+    input: firebaseRef?.child('input'),
+  }), [firebaseRef]);
+
   return (
     <div className="h-full">
       <Head>
@@ -94,7 +101,7 @@ export default function Home() {
         <div className="flex-1 min-h-0">
           <Split
             onDragEnd={() => {
-              if (editor) editor.layout();
+              if (editor.current) editor.current.layout();
               if (inputEditor.current) inputEditor.current.layout();
               if (outputEditor.current) outputEditor.current.layout();
             }}
@@ -117,23 +124,20 @@ export default function Home() {
                     <FirepadEditor
                       theme="vs-dark"
                       language={{cpp: "cpp", java: "java", py: "python"}[lang]}
-                      // value={editorValue[lang]}
                       path={lang}
-                      // onChange={(v, e) => {
-                      //   setEditorValue({...editorValue, [lang]: v});
-                      // }}
-                      saveViewState={false}
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
                       }}
                       onMount={e => {
-                        setEditor(e);
+                        editor.current = e;
                         setTimeout(() => {
                           e.layout();
                           e.focus();
                         }, 0);
                       }}
+                      defaultValue={defaultCode[lang]}
+                      firebaseRef={firebaseRefs[lang]}
                     />
                   </div>
                 </div>
@@ -148,13 +152,11 @@ export default function Home() {
                     onTabSelect={tab => {}}
                   />
                   <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
-                    <Editor
+                    <FirepadEditor
                       theme="vs-dark"
                       language={"plaintext"}
-                      value={stdin}
                       saveViewState={false}
                       path="input"
-                      onChange={(v, e) => setStdin(v)}
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
@@ -165,6 +167,8 @@ export default function Home() {
                           e.layout();
                         }, 0);
                       }}
+                      defaultValue=""
+                      firebaseRef={firebaseRefs.input}
                     />
                   </div>
                 </div>

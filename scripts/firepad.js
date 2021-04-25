@@ -1447,8 +1447,6 @@ firepad.FirebaseAdapter = (function (global) {
       return;
     }
 
-    console.log(this.document_, operation);
-
     // Sanity check that this operation is valid.
     assert(this.document_.targetLength === operation.baseLength, "sendOperation() called with invalid operation.");
 
@@ -6457,10 +6455,10 @@ firepad.Firepad = (function(global) {
   };
 
   Firepad.prototype.addPoweredByLogo_ = function() {
-    var poweredBy = utils.elt('a', null, { 'class': 'powered-by-firepad'} );
-    poweredBy.setAttribute('href', 'http://www.firepad.io/');
-    poweredBy.setAttribute('target', '_blank');
-    this.firepadWrapper_.appendChild(poweredBy)
+    // var poweredBy = utils.elt('a', null, { 'class': 'powered-by-firepad'} );
+    // poweredBy.setAttribute('href', 'http://www.firepad.io/');
+    // poweredBy.setAttribute('target', '_blank');
+    // this.firepadWrapper_.appendChild(poweredBy)
   };
 
   Firepad.prototype.initializeKeyMap_ = function() {

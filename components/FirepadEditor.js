@@ -1,25 +1,25 @@
 import Editor from "@monaco-editor/react";
 import { useState, useEffect } from "react";
-import { useFirebaseRef } from "../hooks/useFirebaseRef";
 import Firepad from "../scripts/firepad";
-import defaultCode from "../scripts/defaultCode";
 
-const FirepadEditor = ({ onMount, ...props }) => {
-  const firebaseRef = useFirebaseRef();
+const FirepadEditor = ({ onMount, defaultValue, firebaseRef, ...props }) => {
   const [editor, setEditor] = useState(null);
 
   useEffect(() => {
     if (!firebaseRef || !editor) return;
 
-    const lang = "cpp";
-    console.log(editor);
-    const firepad = Firepad.fromMonaco(firebaseRef.child("editor-"+lang), editor);
+    // we reset the value here since firepad initialization can't have any text in it
+    // firepad will fetch the text from firebase and update monaco
+    editor.setValue("");
+    const firepad = Firepad.fromMonaco(firebaseRef, editor);
 
     firepad.on('ready', function() {
       if (editor.getValue().length === 0) {
-        editor.setValue(defaultCode[lang]);
+        editor.setValue(defaultValue);
       }
     });
+
+    return () => firepad.dispose();
   }, [firebaseRef, editor]);
 
   return (
