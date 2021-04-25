@@ -4,7 +4,7 @@ import { PlayIcon } from "@heroicons/react/solid";
 export const RunButton = ({ onClick, isRunning }) => (
   <button
     type="button"
-    className="relative inline-flex items-center px-4 py-2 w-32 border border-transparent shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
+    className="relative inline-flex items-center px-4 py-2 w-32 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
     onClick={onClick}
   >
     {isRunning ? (
@@ -28,7 +28,7 @@ export const RunButton = ({ onClick, isRunning }) => (
         />
       </svg>
     ) : <>
-    <PlayIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+    <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
       <span className="text-center flex-1">Run Code</span>
     </>
     }

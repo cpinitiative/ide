@@ -5,6 +5,8 @@ import { RunButton } from "../components/RunButton";
 import { TabBar } from "../components/TabBar";
 import Editor from "@monaco-editor/react";
 import { Output } from "../components/Output";
+import classNames from "classnames";
+import { CogIcon } from "@heroicons/react/solid";
 
 function encode(str) {
   return btoa(unescape(encodeURIComponent(str || "")));
@@ -23,25 +25,121 @@ export default function Home() {
   const editor = useRef(null);
   const inputEditor = useRef(null);
   const outputEditor = useRef(null);
-  const [editorValue, setEditorValue] = useState(`#include <bits/stdc++.h>
+  const [editorValue, setEditorValue] = useState({
+    cpp: `// Source: https://usaco.guide/general/io
 
+#include <iostream>
 using namespace std;
 
 int main() {
-\tcout << "Hello World!" << endl;
-\treturn 0;
+    int a, b, c; cin >> a >> b >> c;
+    cout << "sum is " << a+b+c << "\\n";
 }
-`);
+`,
+    java: `// Source: https://usaco.guide/general/io
+
+/** Simple yet moderately fast I/O routines.
+ *
+ * Example usage:
+ *
+ * Kattio io = new Kattio();
+ *
+ * while (io.hasMoreTokens()) {
+ *    int n = io.nextInt();
+ *    double d = io.nextDouble();
+ *    double ans = d*n;
+ *
+ *    io.println("Answer: " + ans);
+ * }
+ *
+ * io.close();
+ *
+ *
+ * Some notes:
+ *
+ * - When done, you should always do io.close() or io.flush() on the
+ *   Kattio-instance, otherwise, you may lose output.
+ *
+ * - The nextInt(), nextDouble(), and nextLong() methods will throw an
+ *   exception if there is no more data in the input, so it is generally
+ *   a good idea to use hasMoreTokens() to check for end-of-file.
+ *
+ * @author: Kattis
+ */
+
+import java.util.*;
+import java.io.*;
+
+class Kattio extends PrintWriter {
+    private BufferedReader r;
+    private StringTokenizer st = new StringTokenizer("");
+    private String token;
+
+    // standard input
+    public Kattio() { this(System.in,System.out); }
+    public Kattio(InputStream i, OutputStream o) {
+        super(o);
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    // USACO-style file input
+    public Kattio(String problemName) throws IOException { 
+        super(new FileWriter(problemName+".out"));
+        r = new BufferedReader(new FileReader(problemName+".in"));
+    }
+
+    private String peek() {
+        if (token == null)
+            try {
+                while (!st.hasMoreTokens()) {
+                    String line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    public boolean hasMoreTokens() { return peek() != null; }
+    private String next() {
+        String ans = peek(); 
+        token = null;
+        return ans;
+    }
+    
+    public int nextInt() { return Integer.parseInt(next()); }
+    public double nextDouble() { return Double.parseDouble(next()); }
+    public long nextLong() { return Long.parseLong(next()); }
+}
+
+public class Main {
+    static Kattio io = new Kattio();
+    public static void main(String[] args) {
+        int a = io.nextInt();
+        int b = io.nextInt();
+        int c = io.nextInt();
+        io.print("sum is ");
+        io.println(a + b + c);
+        io.close(); // make sure to include this line -- closes io and flushes the output
+    }
+}
+`,
+    py: `# Source: https://usaco.guide/general/io
+
+a,b,c = map(int, input().split())
+print("sum is",a+b+c)
+`
+  });
   const [stdin, setStdin] = useState("");
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [lang, setLang] = useState("cpp");
 
   const handleRunCode = () => {
     setIsRunning(true);
     setResult(null);
     const data = {
-      source_code: encode(editorValue),
-      language_id: "54", // C++
+      source_code: encode(editorValue[lang]),
+      language_id: {cpp: 54, java: 62, py: 71}[lang],
       stdin: encode(stdin),
       compiler_options: "",
       command_line_arguments: "",
@@ -81,7 +179,15 @@ int main() {
       </Head>
 
       <div className="h-full flex flex-col">
-        <div className="flex-shrink-0 bg-[#1E1E1E]">
+        <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
+          <button
+            type="button"
+            className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+            onClick={() => {}}
+          >
+            <CogIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+            Settings
+          </button>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
         </div>
         <div className="flex-1 min-h-0">
@@ -99,21 +205,23 @@ int main() {
                 <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
                   <TabBar
                     tabs={[
-                      { label: 'Main.cpp', value: 'file' },
+                      { label: 'Main.cpp', value: 'cpp' },
+                      { label: 'Main.java', value: 'java' },
+                      { label: 'Main.py', value: 'py' },
                     ]}
-                    activeTab={"file"}
-                    onTabSelect={tab => {}}
+                    activeTab={lang}
+                    onTabSelect={tab => setLang(tab.value)}
                   />
                   <div className="flex-1 overflow-hidden">
                     <Editor
                       theme="vs-dark"
-                      language={"cpp"}
-                      value={editorValue}
-                      path="code"
+                      language={{cpp: "cpp", java: "java", py: "python"}[lang]}
+                      value={editorValue[lang]}
+                      path={lang}
                       onChange={(v, e) => {
                         console.log(editor.current);
                         console.log(editor.current);
-                        setEditorValue(v)
+                        setEditorValue({...editorValue, [lang]: v});
                       }}
                       saveViewState={false}
                       options={{

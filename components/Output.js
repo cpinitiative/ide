@@ -1,21 +1,25 @@
 import { TabBar } from "./TabBar";
 import Editor from "@monaco-editor/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const Output = ({ result, onMount }) => {
+  const tabs = [
+    { label: 'stdout', value: 'stdout' },
+    { label: 'stderr', value: 'stderr' },
+    { label: 'compile output', value: 'compile_output' },
+    { label: 'sandbox message', value: 'message' },
+  ];
   const [option, setOption] = useState("stdout");
 
-  console.log(result?.[option]);
+  useEffect(() => {
+    const option = tabs.find(tab => result?.[tab.value])?.value;
+    if (option) setOption(option);
+  }, [result]);
 
   return (
     <>
       <TabBar
-        tabs={[
-          { label: 'stdout', value: 'stdout' },
-          { label: 'stderr', value: 'stderr' },
-          { label: 'compile output', value: 'compile_output' },
-          { label: 'sandbox message', value: 'message' },
-        ]}
+        tabs={tabs}
         activeTab={option}
         onTabSelect={tab => {
           setOption(tab.value)
