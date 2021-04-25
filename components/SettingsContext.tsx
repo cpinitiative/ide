@@ -1,4 +1,12 @@
-import { createContext, useContext, useMemo, useReducer } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+} from 'react';
+import { useFirebaseRef } from '../hooks/useFirebaseRef';
+import type firebaseType from 'firebase';
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES: { label: string; value: Language }[] = [
@@ -24,12 +32,15 @@ export interface Settings {
   compilerOptions: { [key in Language]: string };
 }
 
-export const SettingsContext = createContext<{
+type SettingsContextType = {
   settings: Settings;
   setSettings: (updates: Partial<Settings>) => void;
-} | null>(null);
+};
+
+export const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export const SettingsProvider: React.FC = ({ children }) => {
+  const firebaseRef = useFirebaseRef();
   const [settings, setSettings] = useReducer(
     (prev: Settings, next: Partial<Settings>) => {
       return {
@@ -48,12 +59,30 @@ export const SettingsProvider: React.FC = ({ children }) => {
     }
   );
 
+  useEffect(() => {
+    if (firebaseRef) {
+      const handleNewSetting = (snap: firebaseType.database.DataSnapshot) => {
+        setSettings(snap.val());
+      };
+      firebaseRef.child('settings').on('value', handleNewSetting);
+      return () => firebaseRef.child('settings').off('value', handleNewSetting);
+    }
+  }, [firebaseRef]);
+
   const value = useMemo(
     () => ({
       settings,
-      setSettings,
+      setSettings: (data: Partial<Settings>) => {
+        if (firebaseRef) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { editorMode, ...otherSettings } = data;
+          firebaseRef.child('settings').update(otherSettings);
+        } else {
+          alert("Firebase hasn't loaded yet, please wait");
+        }
+      },
     }),
-    [settings]
+    [settings, firebaseRef]
   );
 
   return (
@@ -63,7 +92,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
   );
 };
 
-export const useSettings = () => {
+export const useSettings = (): SettingsContextType => {
   const context = useContext(SettingsContext);
   if (!context) {
     throw new Error(

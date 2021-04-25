@@ -1,9 +1,14 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useReducer, useRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
 import { XIcon } from '@heroicons/react/outline';
-import { EDITOR_MODES, LANGUAGES, useSettings } from './SettingsContext';
+import {
+  EDITOR_MODES,
+  LANGUAGES,
+  Settings,
+  useSettings,
+} from './SettingsContext';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -14,7 +19,50 @@ export const SettingsModal = ({
   isOpen,
   onClose,
 }: SettingsDialogProps): JSX.Element => {
-  const { settings, setSettings } = useSettings();
+  const {
+    settings: realSettings,
+    setSettings: setRealSettings,
+  } = useSettings();
+  const dirtyRef = useRef<boolean>(false);
+  const [settings, setSettings] = useReducer(
+    (prev: Settings, next: Partial<Settings>) => {
+      return {
+        ...prev,
+        ...next,
+      };
+    },
+    realSettings
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      setSettings(realSettings);
+      dirtyRef.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const closeWithoutSaving = () => {
+    if (dirtyRef.current) {
+      if (
+        confirm('Are you sure you want to exit without saving your changes?')
+      ) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  };
+
+  const saveAndClose = () => {
+    setRealSettings(settings);
+    onClose();
+  };
+
+  const onChange = (data: Partial<Settings>): void => {
+    dirtyRef.current = true;
+    setSettings(data);
+  };
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -62,13 +110,17 @@ export const SettingsModal = ({
                 >
                   Settings
                 </Dialog.Title>
+
+                <p className="text-sm text-gray-600 mt-2">
+                  Compiler options are synced across users.
+                </p>
               </div>
 
               <div className="p-4 sm:p-6 sm:pt-4 space-y-6">
                 <div>
                   <RadioGroup
                     value={settings.editorMode}
-                    onChange={mode => setSettings({ editorMode: mode })}
+                    onChange={mode => onChange({ editorMode: mode })}
                   >
                     <RadioGroup.Label className="font-medium text-gray-800 mb-4">
                       Editor Mode
@@ -132,7 +184,7 @@ export const SettingsModal = ({
                         value={settings.compilerOptions[value]}
                         placeholder="None"
                         onChange={e =>
-                          setSettings({
+                          onChange({
                             compilerOptions: {
                               ...settings.compilerOptions,
                               [value]: e.target.value,
@@ -144,13 +196,20 @@ export const SettingsModal = ({
                   </div>
                 ))}
 
-                <div>
+                <div className="flex items-center space-x-4">
+                  <button
+                    type="button"
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => closeWithoutSaving()}
+                  >
+                    Cancel
+                  </button>
                   <button
                     type="button"
                     className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    onClick={() => onClose()}
+                    onClick={() => saveAndClose()}
                   >
-                    Done
+                    Save
                   </button>
                 </div>
               </div>
@@ -158,7 +217,7 @@ export const SettingsModal = ({
                 <button
                   type="button"
                   className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={() => onClose()}
+                  onClick={() => closeWithoutSaving()}
                 >
                   <span className="sr-only">Close</span>
                   <XIcon className="h-6 w-6" aria-hidden="true" />

@@ -1,7 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/analytics';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useRouter } from 'next/router';
 import type firebaseType from 'firebase';
 
@@ -27,6 +27,10 @@ if (!firebase.apps?.length) {
   if (typeof window !== 'undefined' && firebase.analytics) firebase.analytics();
 }
 
+export const FirebaseRefContext = createContext<
+  firebaseType.database.Reference | null | undefined
+>(undefined);
+
 function getFirebaseRef(
   hash: string | null | undefined
 ): firebaseType.database.Reference {
@@ -40,9 +44,10 @@ function getFirebaseRef(
   return ref;
 }
 
-export const useFirebaseRef = () => {
+export const FirebaseRefProvider: React.FC = ({ children }) => {
   const router = useRouter();
   const [ref, setRef] = useState<firebaseType.database.Reference | null>(null);
+
   useEffect(() => {
     if (!router.isReady) return;
 
@@ -52,5 +57,20 @@ export const useFirebaseRef = () => {
       setRef(getFirebaseRef(router.query.id));
     }
   }, [router.isReady]);
+
+  return (
+    <FirebaseRefContext.Provider value={ref}>
+      {children}
+    </FirebaseRefContext.Provider>
+  );
+};
+
+export const useFirebaseRef = (): firebaseType.database.Reference | null => {
+  const ref = useContext(FirebaseRefContext);
+  if (ref === undefined) {
+    throw new Error(
+      'useFirebaseRef() must be used inside a FirebaseRefProvider'
+    );
+  }
   return ref;
 };
