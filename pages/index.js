@@ -6,6 +6,19 @@ import { TabBar } from "../components/TabBar";
 import Editor from "@monaco-editor/react";
 import { Output } from "../components/Output";
 
+function encode(str) {
+  return btoa(unescape(encodeURIComponent(str || "")));
+}
+
+function decode(bytes) {
+  const escaped = escape(atob(bytes || ""));
+  try {
+    return decodeURIComponent(escaped);
+  } catch (err) {
+    return unescape(escaped);
+  }
+}
+
 export default function Home() {
   const editor = useRef(null);
   const inputEditor = useRef(null);
@@ -25,16 +38,17 @@ int main() {
 
   const handleRunCode = () => {
     setIsRunning(true);
+    setResult(null);
     const data = {
-      source_code: editorValue,
+      source_code: encode(editorValue),
       language_id: "54", // C++
-      stdin: stdin,
+      stdin: encode(stdin),
       compiler_options: "",
       command_line_arguments: "",
       redirect_stderr_to_stdout: false,
     };
 
-    fetch(`https://judge0.usaco.guide/submissions?base64_encoded=false&wait=true`, {
+    fetch(`https://judge0.usaco.guide/submissions?base64_encoded=true&wait=true`, {
       method: "POST",
       async: true,
       headers: {
@@ -43,7 +57,15 @@ int main() {
       body: JSON.stringify(data),
     }).then(resp => resp.json())
       .then(data => {
-        setResult(data);
+        if (data.error) {
+          alert(data.error);
+        } else {
+          data.stdout = decode(data.stdout);
+          data.stderr = decode(data.stderr);
+          data.compile_output = decode(data.compile_output);
+          data.message = decode(data.message);
+          setResult(data);
+        }
     }).catch(e => {
       console.error(e);
     }).finally(() => setIsRunning(false));
@@ -151,6 +173,14 @@ int main() {
               </div>
             )}
           />
+        </div>
+        <div className="flex-shrink-0 relative text-sm bg-purple-900 text-purple-200 font-medium font-mono">
+          <p className="text-center">
+            v0.1.0. &copy; Nathan Wang
+          </p>
+          {result && (
+            <span className="absolute right-0 top-0 bottom-0 pr-4">{result.status.description}, {result.time ?? "-"}s, {result.memory ?? "-"}KB</span>
+          )}
         </div>
       </div>
     </div>
