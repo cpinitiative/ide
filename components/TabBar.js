@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import classNames from 'classnames';
 
 export const TabBar = ({ tabs, activeTab, onTabSelect }) => {
   return (
@@ -20,5 +20,5 @@ export const TabBar = ({ tabs, activeTab, onTabSelect }) => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};

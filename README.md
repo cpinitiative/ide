@@ -11,7 +11,11 @@ Note: To fix https://github.com/FirebaseExtended/firepad/issues/315, a very ques
 Replace something like
 
 ```javascript
-var n=this.configurationService.getValue("files.eol",{overrideIdentifier:t,resource:e});return n&&"auto"!==n?n:d.isLinux||d.isMacintosh?"\n":"\r\n"
+var n = this.configurationService.getValue('files.eol', {
+  overrideIdentifier: t,
+  resource: e,
+});
+return n && 'auto' !== n ? n : d.isLinux || d.isMacintosh ? '\n' : '\r\n';
 ```
 
 with

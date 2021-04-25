@@ -1,14 +1,16 @@
-html, body, #__next {
-    height: 100%;
+html,
+body,
+#__next {
+  height: 100%;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(1turn);
-    }
+  to {
+    transform: rotate(1turn);
+  }
 }
 
 .animate-spin {
-    -webkit-animation: spin 1s linear infinite;
-    animation: spin 1s linear infinite;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }

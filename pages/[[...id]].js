@@ -1,26 +1,25 @@
-import Head from 'next/head'
-import Split from 'react-split-grid'
-import React, { useRef, useState, useMemo, useEffect, useReducer } from "react";
-import { RunButton } from "../components/RunButton";
-import { TabBar } from "../components/TabBar";
-import { useRouter } from 'next/router'
-import { Output } from "../components/Output";
-import { CogIcon } from "@heroicons/react/solid";
-import dynamic from 'next/dynamic'
-import defaultCode from "../scripts/defaultCode";
-import { useFirebaseRef } from "../hooks/useFirebaseRef";
+import Head from 'next/head';
+import Split from 'react-split-grid';
+import React, { useRef, useState, useMemo, useEffect, useReducer } from 'react';
+import { RunButton } from '../components/RunButton';
+import { TabBar } from '../components/TabBar';
+import { useRouter } from 'next/router';
+import { Output } from '../components/Output';
+import { CogIcon } from '@heroicons/react/solid';
+import dynamic from 'next/dynamic';
+import defaultCode from '../scripts/defaultCode';
+import { useFirebaseRef } from '../hooks/useFirebaseRef';
 
-const FirepadEditor = dynamic(
-  () => import('../components/FirepadEditor'),
-  { ssr: false }
-)
+const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
+  ssr: false,
+});
 
 function encode(str) {
-  return btoa(unescape(encodeURIComponent(str || "")));
+  return btoa(unescape(encodeURIComponent(str || '')));
 }
 
 function decode(bytes) {
-  const escaped = escape(atob(bytes || ""));
+  const escaped = escape(atob(bytes || ''));
   try {
     return decodeURIComponent(escaped);
   } catch (err) {
@@ -29,20 +28,28 @@ function decode(bytes) {
 }
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
   const editor = useRef(null);
   const inputEditor = useRef(null);
   const outputEditor = useRef(null);
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [lang, setLang] = useReducer((prev, next) => {
-    window.history.replaceState({}, null, window.location.href.split("?")[0]+"?lang="+next);
+    window.history.replaceState(
+      {},
+      null,
+      window.location.href.split('?')[0] + '?lang=' + next
+    );
     return next;
-  }, "cpp");
+  }, 'cpp');
 
   useEffect(() => {
     if (router.isReady) {
-      if (router.query.lang === "cpp" || router.query.lang === "java" || router.query.lang === "py") {
+      if (
+        router.query.lang === 'cpp' ||
+        router.query.lang === 'java' ||
+        router.query.lang === 'py'
+      ) {
         setLang(router.query.lang);
       }
     }
@@ -53,21 +60,25 @@ export default function Home() {
     setResult(null);
     const data = {
       source_code: encode(editor.current.getValue()),
-      language_id: {cpp: 54, java: 62, py: 71}[lang],
+      language_id: { cpp: 54, java: 62, py: 71 }[lang],
       stdin: encode(inputEditor.current.getValue()),
-      compiler_options: "",
-      command_line_arguments: "",
+      compiler_options: '',
+      command_line_arguments: '',
       redirect_stderr_to_stdout: false,
     };
 
-    fetch(`https://judge0.usaco.guide/submissions?base64_encoded=true&wait=true`, {
-      method: "POST",
-      async: true,
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).then(resp => resp.json())
+    fetch(
+      `https://judge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
+      {
+        method: 'POST',
+        async: true,
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then(resp => resp.json())
       .then(data => {
         if (data.error) {
           alert(data.error);
@@ -78,18 +89,23 @@ export default function Home() {
           data.message = decode(data.message);
           setResult(data);
         }
-    }).catch(e => {
-      console.error(e);
-    }).finally(() => setIsRunning(false));
+      })
+      .catch(e => {
+        console.error(e);
+      })
+      .finally(() => setIsRunning(false));
   };
 
   const firebaseRef = useFirebaseRef();
-  const firebaseRefs = useMemo(() => ({
-    cpp: firebaseRef?.child(`editor-cpp`),
-    java: firebaseRef?.child(`editor-java`),
-    py: firebaseRef?.child(`editor-py`),
-    input: firebaseRef?.child('input'),
-  }), [firebaseRef]);
+  const firebaseRefs = useMemo(
+    () => ({
+      cpp: firebaseRef?.child(`editor-cpp`),
+      java: firebaseRef?.child(`editor-java`),
+      py: firebaseRef?.child(`editor-py`),
+      input: firebaseRef?.child('input'),
+    }),
+    [firebaseRef]
+  );
 
   const layoutEditors = () => {
     if (editor.current) editor.current.layout();
@@ -120,7 +136,10 @@ export default function Home() {
             className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
             onClick={() => {}}
           >
-            <CogIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+            <CogIcon
+              className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            />
             Settings
           </button>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
@@ -128,11 +147,11 @@ export default function Home() {
         <div className="flex-1 min-h-0">
           <Split
             onDragEnd={() => layoutEditors()}
-            render={({
-                       getGridProps,
-                       getGutterProps,
-                     }) => (
-              <div className="grid grid-cols-[1fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full" {...getGridProps()}>
+            render={({ getGridProps, getGutterProps }) => (
+              <div
+                className="grid grid-cols-[1fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full"
+                {...getGridProps()}
+              >
                 <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
                   <TabBar
                     tabs={[
@@ -146,7 +165,9 @@ export default function Home() {
                   <div className="flex-1 overflow-hidden">
                     <FirepadEditor
                       theme="vs-dark"
-                      language={{cpp: "cpp", java: "java", py: "python"}[lang]}
+                      language={
+                        { cpp: 'cpp', java: 'java', py: 'python' }[lang]
+                      }
                       path={lang}
                       options={{
                         minimap: { enabled: false },
@@ -165,21 +186,21 @@ export default function Home() {
                   </div>
                 </div>
                 <div
-                  className="row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10" {...getGutterProps('column', 1)}>
-                  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition"/>
+                  className="row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10"
+                  {...getGutterProps('column', 1)}
+                >
+                  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                 </div>
                 <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
                   <TabBar
-                    tabs={[
-                      { label: 'input', value: 'input' },
-                    ]}
-                    activeTab={"input"}
+                    tabs={[{ label: 'input', value: 'input' }]}
+                    activeTab={'input'}
                     onTabSelect={tab => {}}
                   />
                   <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
                     <FirepadEditor
                       theme="vs-dark"
-                      language={"plaintext"}
+                      language={'plaintext'}
                       saveViewState={false}
                       path="input"
                       options={{
@@ -197,16 +218,22 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div className="cursor-[row-resize] my-[-6px] group relative z-10" {...getGutterProps('row', 1)}>
-                  <div className="absolute w-full top-[6px] bottom-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition"/>
+                <div
+                  className="cursor-[row-resize] my-[-6px] group relative z-10"
+                  {...getGutterProps('row', 1)}
+                >
+                  <div className="absolute w-full top-[6px] bottom-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                 </div>
                 <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
-                  <Output result={result} onMount={e => {
-                    outputEditor.current = e;
-                    setTimeout(() => {
-                      e.layout();
-                    }, 0);
-                  }} />
+                  <Output
+                    result={result}
+                    onMount={e => {
+                      outputEditor.current = e;
+                      setTimeout(() => {
+                        e.layout();
+                      }, 0);
+                    }}
+                  />
                 </div>
               </div>
             )}
@@ -217,10 +244,13 @@ export default function Home() {
             v0.1.0. &copy; Competitive Programming Initiative
           </p>
           {result && (
-            <span className="absolute right-0 top-0 bottom-0 pr-4">{result.status.description}, {result.time ?? "-"}s, {result.memory ?? "-"}KB</span>
+            <span className="absolute right-0 top-0 bottom-0 pr-4">
+              {result.status.description}, {result.time ?? '-'}s,{' '}
+              {result.memory ?? '-'}KB
+            </span>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

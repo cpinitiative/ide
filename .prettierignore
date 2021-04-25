@@ -1,0 +1,8 @@
+.next
+package.json
+yarn.lock
+public
+node_modules
+patches
+scripts/firepad.js
+styles/firepad.css
