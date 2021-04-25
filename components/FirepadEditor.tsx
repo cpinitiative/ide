@@ -1,23 +1,19 @@
-import loader from '@monaco-editor/loader';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
-
 import Editor, { EditorProps } from '@monaco-editor/react';
 import { useState, useEffect } from 'react';
 import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
+import { EditorWithVim } from './EditorWithVim';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
+  useEditorWithVim?: boolean;
 }
 
 const FirepadEditor = ({
   onMount,
   defaultValue,
   firebaseRef,
+  useEditorWithVim = false,
   ...props
 }: FirepadEditorProps): JSX.Element => {
   const [
@@ -46,14 +42,18 @@ const FirepadEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, editor]);
 
+  const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
+
   return (
-    <Editor
-      {...props}
-      onMount={(e, m) => {
-        setEditor(e);
-        if (onMount) onMount(e, m);
-      }}
-    />
+    <div className="tw-forms-disable tw-forms-disable-all-descendants h-full">
+      <EditorComponent
+        {...props}
+        onMount={(e, m) => {
+          setEditor(e);
+          if (onMount) onMount(e, m);
+        }}
+      />
+    </div>
   );
 };
 

@@ -35,7 +35,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
           setOption(tab.value as OutputTab);
         }}
       />
-      <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
+      <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden tw-forms-disable tw-forms-disable-all-descendants">
         <Editor
           theme="vs-dark"
           language={'plaintext'}

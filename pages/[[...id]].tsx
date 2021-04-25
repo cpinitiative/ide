@@ -11,6 +11,9 @@ import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
 import { useFirebaseRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
+import { SettingsModal } from '../components/SettingsModal';
+import type { Language } from '../components/SettingsContext';
+import { useSettings } from '../components/SettingsContext';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -29,8 +32,6 @@ function decode(bytes: string | null) {
   }
 }
 
-type Language = 'cpp' | 'java' | 'py';
-
 export default function Home(): JSX.Element {
   const router = useRouter();
   const editor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -46,6 +47,8 @@ export default function Home(): JSX.Element {
     );
     return next;
   }, 'cpp');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { settings } = useSettings();
 
   useEffect(() => {
     if (router.isReady) {
@@ -73,7 +76,7 @@ export default function Home(): JSX.Element {
       source_code: encode(editor.current.getValue()),
       language_id: { cpp: 54, java: 62, py: 71 }[lang],
       stdin: encode(inputEditor.current.getValue()),
-      compiler_options: '',
+      compiler_options: settings.compilerOptions[lang],
       command_line_arguments: '',
       redirect_stderr_to_stdout: false,
     };
@@ -139,7 +142,7 @@ export default function Home(): JSX.Element {
   return (
     <div className="h-full">
       <Head>
-        <title>Real-Time IDE</title>
+        <title>Real-Time Collaborative Online IDE</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -148,7 +151,7 @@ export default function Home(): JSX.Element {
           <button
             type="button"
             className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-            onClick={() => {}}
+            onClick={() => setIsSettingsModalOpen(true)}
           >
             <CogIcon
               className="-ml-1 mr-2 h-5 w-5 text-gray-400"
@@ -196,6 +199,7 @@ export default function Home(): JSX.Element {
                       }}
                       defaultValue={defaultCode[lang]}
                       firebaseRef={firebaseRefs[lang]}
+                      useEditorWithVim={true}
                     />
                   </div>
                 </div>
@@ -253,6 +257,8 @@ export default function Home(): JSX.Element {
           />
         </div>
         <div className="flex-shrink-0 relative text-sm bg-purple-900 text-purple-200 font-medium font-mono">
+          {/* For vim */}
+          <span className="absolute left-0 top-0 bottom-0 pl-4 status-node" />
           <p className="text-center">
             v0.1.0. &copy; Competitive Programming Initiative
           </p>
@@ -264,6 +270,11 @@ export default function Home(): JSX.Element {
           )}
         </div>
       </div>
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </div>
   );
 }

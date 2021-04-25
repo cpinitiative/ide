@@ -14,3 +14,10 @@ body,
   -webkit-animation: spin 1s linear infinite;
   animation: spin 1s linear infinite;
 }
+
+.tw-forms-disable input {
+  --tw-ring-color: transparent !important;
+}
+.tw-forms-disable-all-descendants * {
+  --tw-ring-color: transparent !important;
+}
