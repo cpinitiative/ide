@@ -91,6 +91,21 @@ export default function Home() {
     input: firebaseRef?.child('input'),
   }), [firebaseRef]);
 
+  const layoutEditors = () => {
+    if (editor.current) editor.current.layout();
+    if (inputEditor.current) inputEditor.current.layout();
+    if (outputEditor.current) outputEditor.current.layout();
+  };
+
+  useEffect(() => {
+    function handleResize() {
+      layoutEditors();
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="h-full">
       <Head>
@@ -112,11 +127,7 @@ export default function Home() {
         </div>
         <div className="flex-1 min-h-0">
           <Split
-            onDragEnd={() => {
-              if (editor.current) editor.current.layout();
-              if (inputEditor.current) inputEditor.current.layout();
-              if (outputEditor.current) outputEditor.current.layout();
-            }}
+            onDragEnd={() => layoutEditors()}
             render={({
                        getGridProps,
                        getGutterProps,
