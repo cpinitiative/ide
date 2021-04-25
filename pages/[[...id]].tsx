@@ -1,4 +1,5 @@
 import Head from 'next/head';
+/// <reference path="../types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
 import React, { useRef, useState, useMemo, useEffect, useReducer } from 'react';
 import { RunButton } from '../components/RunButton';
@@ -9,16 +10,17 @@ import { CogIcon } from '@heroicons/react/solid';
 import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
 import { useFirebaseRef } from '../hooks/useFirebaseRef';
+import JudgeResult, {JudgeSuccessResult} from "../types/judge";
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
 });
 
-function encode(str) {
+function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
 }
 
-function decode(bytes) {
+function decode(bytes: string | null) {
   const escaped = escape(atob(bytes || ''));
   try {
     return decodeURIComponent(escaped);
@@ -27,17 +29,19 @@ function decode(bytes) {
   }
 }
 
+type Language = "cpp" | "java" | "py";
+
 export default function Home() {
   const router = useRouter();
-  const editor = useRef(null);
-  const inputEditor = useRef(null);
-  const outputEditor = useRef(null);
-  const [result, setResult] = useState(null);
+  const editor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const inputEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const outputEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [result, setResult] = useState<JudgeSuccessResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [lang, setLang] = useReducer((prev, next) => {
+  const [lang, setLang] = useReducer((prev: Language, next: Language) => {
     window.history.replaceState(
       {},
-      null,
+      "",
       window.location.href.split('?')[0] + '?lang=' + next
     );
     return next;
@@ -56,6 +60,11 @@ export default function Home() {
   }, [router.isReady]);
 
   const handleRunCode = () => {
+    if (!editor.current || !inputEditor.current) {
+      // editor is still loading
+      return;
+    }
+
     setIsRunning(true);
     setResult(null);
     const data = {
@@ -71,7 +80,6 @@ export default function Home() {
       `https://judge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
       {
         method: 'POST',
-        async: true,
         headers: {
           'content-type': 'application/json',
         },
@@ -79,7 +87,7 @@ export default function Home() {
       }
     )
       .then(resp => resp.json())
-      .then(data => {
+      .then((data: JudgeResult) => {
         if (data.error) {
           alert(data.error);
         } else {
@@ -160,7 +168,7 @@ export default function Home() {
                       { label: 'Main.py', value: 'py' },
                     ]}
                     activeTab={lang}
-                    onTabSelect={tab => setLang(tab.value)}
+                    onTabSelect={tab => setLang(tab.value as Language)}
                   />
                   <div className="flex-1 overflow-hidden">
                     <FirepadEditor

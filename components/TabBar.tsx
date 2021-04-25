@@ -1,6 +1,15 @@
 import classNames from 'classnames';
 
-export const TabBar = ({ tabs, activeTab, onTabSelect }) => {
+export interface TabBarProps {
+  tabs: {
+    label: string;
+    value: string;
+  }[];
+  activeTab: string;
+  onTabSelect: (tab: { label: string, value: string }) => void;
+}
+
+export const TabBar = ({ tabs, activeTab, onTabSelect }: TabBarProps): JSX.Element => {
   return (
     <div className="flex bg-black">
       <div className="flex-1">
