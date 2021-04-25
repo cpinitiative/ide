@@ -2,6 +2,7 @@ import firebase from "firebase/app";
 import "firebase/database";
 import "firebase/analytics";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA",
@@ -24,22 +25,23 @@ if (!firebase.apps?.length) {
   if (typeof window !== "undefined" && firebase.analytics) firebase.analytics();
 }
 
-function getFirebaseRef() {
-  var ref = firebase.database().ref();
-  var hash = window.location.hash.replace(/#/g, '');
+function getFirebaseRef(hash) {
+  let ref = firebase.database().ref();
   if (hash) {
-    ref = ref.child(hash);
+    ref = ref.child("-" + hash);
   } else {
     ref = ref.push(); // generate unique location.
-    window.location = window.location + '#' + ref.key; // add it as a hash to the URL.
+    window.history.replaceState({}, null, "/" + ref.key.substr(1));
   }
   return ref;
 }
 
 export const useFirebaseRef = () => {
+  const router = useRouter()
   const [ref, setRef] = useState(null);
   useEffect(() => {
-    setRef(getFirebaseRef());
-  }, []);
+    if (!router.isReady) return;
+    setRef(getFirebaseRef(router.query.id));
+  }, [router.isReady]);
   return ref;
 }

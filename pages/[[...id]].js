@@ -1,9 +1,9 @@
 import Head from 'next/head'
 import Split from 'react-split-grid'
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo, useEffect, useReducer } from "react";
 import { RunButton } from "../components/RunButton";
 import { TabBar } from "../components/TabBar";
-import Editor from "@monaco-editor/react";
+import { useRouter } from 'next/router'
 import { Output } from "../components/Output";
 import { CogIcon } from "@heroicons/react/solid";
 import dynamic from 'next/dynamic'
@@ -29,12 +29,24 @@ function decode(bytes) {
 }
 
 export default function Home() {
+  const router = useRouter()
   const editor = useRef(null);
   const inputEditor = useRef(null);
   const outputEditor = useRef(null);
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [lang, setLang] = useState("cpp");
+  const [lang, setLang] = useReducer((prev, next) => {
+    window.history.replaceState({}, null, window.location.href.split("?")[0]+"?lang="+next);
+    return next;
+  }, "cpp");
+
+  useEffect(() => {
+    if (router.isReady) {
+      if (router.query.lang === "cpp" || router.query.lang === "java" || router.query.lang === "py") {
+        setLang(router.query.lang);
+      }
+    } 
+  }, [router.isReady]);
 
   const handleRunCode = () => {
     setIsRunning(true);
