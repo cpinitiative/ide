@@ -132,7 +132,7 @@ export default function Home() {
                        getGridProps,
                        getGutterProps,
                      }) => (
-              <div className="grid grid-cols-[1fr,10px,1fr] grid-rows-[1fr,10px,1fr] h-full" {...getGridProps()}>
+              <div className="grid grid-cols-[1fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full" {...getGridProps()}>
                 <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
                   <TabBar
                     tabs={[
@@ -165,7 +165,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div
-                  className="row-span-full col-start-2 cursor-[col-resize] bg-black" {...getGutterProps('column', 1)} />
+                  className="row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10" {...getGutterProps('column', 1)}>
+                  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition"/>
+                </div>
                 <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
                   <TabBar
                     tabs={[
@@ -195,7 +197,9 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div className="cursor-[row-resize] bg-black" {...getGutterProps('row', 1)} />
+                <div className="cursor-[row-resize] my-[-6px] group relative z-10" {...getGutterProps('row', 1)}>
+                  <div className="absolute w-full top-[6px] bottom-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition"/>
+                </div>
                 <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
                   <Output result={result} onMount={e => {
                     outputEditor.current = e;
