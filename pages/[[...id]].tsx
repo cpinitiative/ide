@@ -88,10 +88,14 @@ export default function Home(): JSX.Element {
         body: JSON.stringify(data),
       }
     )
-      .then(resp => resp.json())
-      .then((data: JudgeResult) => {
-        if (data.error) {
-          alert(data.error);
+      .then(async resp => {
+        const data: JudgeResult = await resp.json();
+
+        if (data.error || !resp.ok) {
+          alert(
+            'Error: ' +
+              (data.error || resp.status + ' - ' + JSON.stringify(data))
+          );
         } else {
           data.stdout = decode(data.stdout);
           data.stderr = decode(data.stderr);

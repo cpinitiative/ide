@@ -1,3 +1,10 @@
+import loader from '@monaco-editor/loader';
+loader.config({
+  paths: {
+    vs: '/vs',
+  },
+});
+
 import Editor, { EditorProps } from '@monaco-editor/react';
 import { useState, useEffect } from 'react';
 import Firepad from '../scripts/firepad';

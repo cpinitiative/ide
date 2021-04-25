@@ -46,9 +46,8 @@ export const useFirebaseRef = () => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    // Since we're using [[...id]], it can actually be an array if the user does something dumb
     if (Array.isArray(router.query.id)) {
-      setRef(getFirebaseRef(null));
+      setRef(getFirebaseRef(router.query.id[0]));
     } else {
       setRef(getFirebaseRef(router.query.id));
     }
