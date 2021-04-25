@@ -7,6 +7,12 @@ import Editor from "@monaco-editor/react";
 import { Output } from "../components/Output";
 import classNames from "classnames";
 import { CogIcon } from "@heroicons/react/solid";
+import dynamic from 'next/dynamic'
+
+const FirepadEditor = dynamic(
+  () => import('../components/FirepadEditor'),
+  { ssr: false }
+)
 
 function encode(str) {
   return btoa(unescape(encodeURIComponent(str || "")));
@@ -22,113 +28,10 @@ function decode(bytes) {
 }
 
 export default function Home() {
-  const editor = useRef(null);
+  const [editor, setEditor] = useState(null);
   const inputEditor = useRef(null);
   const outputEditor = useRef(null);
-  const [editorValue, setEditorValue] = useState({
-    cpp: `// Source: https://usaco.guide/general/io
-
-#include <iostream>
-using namespace std;
-
-int main() {
-    int a, b, c; cin >> a >> b >> c;
-    cout << "sum is " << a+b+c << "\\n";
-}
-`,
-    java: `// Source: https://usaco.guide/general/io
-
-/** Simple yet moderately fast I/O routines.
- *
- * Example usage:
- *
- * Kattio io = new Kattio();
- *
- * while (io.hasMoreTokens()) {
- *    int n = io.nextInt();
- *    double d = io.nextDouble();
- *    double ans = d*n;
- *
- *    io.println("Answer: " + ans);
- * }
- *
- * io.close();
- *
- *
- * Some notes:
- *
- * - When done, you should always do io.close() or io.flush() on the
- *   Kattio-instance, otherwise, you may lose output.
- *
- * - The nextInt(), nextDouble(), and nextLong() methods will throw an
- *   exception if there is no more data in the input, so it is generally
- *   a good idea to use hasMoreTokens() to check for end-of-file.
- *
- * @author: Kattis
- */
-
-import java.util.*;
-import java.io.*;
-
-class Kattio extends PrintWriter {
-    private BufferedReader r;
-    private StringTokenizer st = new StringTokenizer("");
-    private String token;
-
-    // standard input
-    public Kattio() { this(System.in,System.out); }
-    public Kattio(InputStream i, OutputStream o) {
-        super(o);
-        r = new BufferedReader(new InputStreamReader(i));
-    }
-    // USACO-style file input
-    public Kattio(String problemName) throws IOException { 
-        super(new FileWriter(problemName+".out"));
-        r = new BufferedReader(new FileReader(problemName+".in"));
-    }
-
-    private String peek() {
-        if (token == null)
-            try {
-                while (!st.hasMoreTokens()) {
-                    String line = r.readLine();
-                    if (line == null) return null;
-                    st = new StringTokenizer(line);
-                }
-                token = st.nextToken();
-            } catch (IOException e) { }
-        return token;
-    }
-    public boolean hasMoreTokens() { return peek() != null; }
-    private String next() {
-        String ans = peek(); 
-        token = null;
-        return ans;
-    }
-    
-    public int nextInt() { return Integer.parseInt(next()); }
-    public double nextDouble() { return Double.parseDouble(next()); }
-    public long nextLong() { return Long.parseLong(next()); }
-}
-
-public class Main {
-    static Kattio io = new Kattio();
-    public static void main(String[] args) {
-        int a = io.nextInt();
-        int b = io.nextInt();
-        int c = io.nextInt();
-        io.print("sum is ");
-        io.println(a + b + c);
-        io.close(); // make sure to include this line -- closes io and flushes the output
-    }
-}
-`,
-    py: `# Source: https://usaco.guide/general/io
-
-a,b,c = map(int, input().split())
-print("sum is",a+b+c)
-`
-  });
+  const [editorValue, setEditorValue] = useState({cpp: "", java: "", py: ""});
   const [stdin, setStdin] = useState("");
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -169,8 +72,6 @@ print("sum is",a+b+c)
     }).finally(() => setIsRunning(false));
   };
 
-  const output = result?.stdout;
-
   return (
     <div className="h-full">
       <Head>
@@ -193,7 +94,7 @@ print("sum is",a+b+c)
         <div className="flex-1 min-h-0">
           <Split
             onDragEnd={() => {
-              if (editor.current) editor.current.layout();
+              if (editor) editor.layout();
               if (inputEditor.current) inputEditor.current.layout();
               if (outputEditor.current) outputEditor.current.layout();
             }}
@@ -213,23 +114,21 @@ print("sum is",a+b+c)
                     onTabSelect={tab => setLang(tab.value)}
                   />
                   <div className="flex-1 overflow-hidden">
-                    <Editor
+                    <FirepadEditor
                       theme="vs-dark"
                       language={{cpp: "cpp", java: "java", py: "python"}[lang]}
-                      value={editorValue[lang]}
+                      // value={editorValue[lang]}
                       path={lang}
-                      onChange={(v, e) => {
-                        console.log(editor.current);
-                        console.log(editor.current);
-                        setEditorValue({...editorValue, [lang]: v});
-                      }}
+                      // onChange={(v, e) => {
+                      //   setEditorValue({...editorValue, [lang]: v});
+                      // }}
                       saveViewState={false}
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
                       }}
                       onMount={e => {
-                        editor.current = e;
+                        setEditor(e);
                         setTimeout(() => {
                           e.layout();
                           e.focus();
