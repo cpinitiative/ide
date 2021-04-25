@@ -45,7 +45,7 @@ export default function Home() {
       if (router.query.lang === "cpp" || router.query.lang === "java" || router.query.lang === "py") {
         setLang(router.query.lang);
       }
-    } 
+    }
   }, [router.isReady]);
 
   const handleRunCode = () => {
@@ -199,7 +199,7 @@ export default function Home() {
         </div>
         <div className="flex-shrink-0 relative text-sm bg-purple-900 text-purple-200 font-medium font-mono">
           <p className="text-center">
-            v0.1.0. &copy; Nathan Wang
+            v0.1.0. &copy; Competitive Programming Initiative
           </p>
           {result && (
             <span className="absolute right-0 top-0 bottom-0 pr-4">{result.status.description}, {result.time ?? "-"}s, {result.memory ?? "-"}KB</span>
