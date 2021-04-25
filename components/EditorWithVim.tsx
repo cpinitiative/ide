@@ -1,10 +1,4 @@
-import loader from '@monaco-editor/loader';
 import MonacoEditor from '@monaco-editor/react';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
 import { EditorProps } from '@monaco-editor/react';
 import { useSettings } from './SettingsContext';
 import { useEffect, useState } from 'react';

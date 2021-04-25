@@ -1,3 +1,10 @@
+import loader from '@monaco-editor/loader';
+loader.config({
+  paths: {
+    vs: '/vs',
+  },
+});
+
 import Head from 'next/head';
 /// <reference path="../types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
