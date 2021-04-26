@@ -68,23 +68,25 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    firebase.auth().signInAnonymously()
-      .catch((error) => {
+    firebase
+      .auth()
+      .signInAnonymously()
+      .catch(error => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        alert("Error signing in: " + errorCode + " " + errorMessage);
+        alert('Error signing in: ' + errorCode + ' ' + errorMessage);
       });
-    
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      console.log(user);
+
+    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        let name = 'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
+        let name =
+          'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
         if (!user.displayName) {
-          user.updateProfile({ displayName: name, });
+          user.updateProfile({ displayName: name });
         } else {
           name = user.displayName;
         }
-        
+
         const uid = user.uid;
 
         let ref: firebaseType.database.Reference;
@@ -94,34 +96,42 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
           ref = getFirebaseRef(router.query.id);
         }
 
-        ref.child("settings").child("default_permission").once("value", snap => {
-          let permission: "OWNER" | "READ_WRITE" | "READ";
-          if (snap.exists()) {
-            permission = snap.val();
-          } else {
-            // new doc, make me the owner
-            permission = "OWNER";
+        ref
+          .child('settings')
+          .child('default_permission')
+          .once('value', snap => {
+            let permission: 'OWNER' | 'READ_WRITE' | 'READ';
+            if (snap.exists()) {
+              permission = snap.val();
+            } else {
+              // new doc, make me the owner
+              permission = 'OWNER';
 
-            ref.child("settings").child("default_permission").set("READ_WRITE");
-          }
-
-          const userRef = ref.child('users').child(uid);
-          userRef.once("value", snap => {
-            if (!snap.val()?.permission) {
-              // first time on this doc, need to add to user list
-              userRef.update({
-                name: name,
-                color: colorFromUserId(userRef.key),
-                permission,
-              });
+              ref
+                .child('settings')
+                .child('default_permission')
+                .set('READ_WRITE');
             }
-          });
-          const connectionRef = userRef.child('connections').push(firebase.database.ServerValue.TIMESTAMP);
-          connectionRef.onDisconnect().remove();
 
-          setRef(ref);
-          setUserRef(userRef);
-        });
+            const userRef = ref.child('users').child(uid);
+            userRef.once('value', snap => {
+              if (!snap.val()?.permission) {
+                // first time on this doc, need to add to user list
+                userRef.update({
+                  name: name,
+                  color: colorFromUserId(userRef.key),
+                  permission,
+                });
+              }
+            });
+            const connectionRef = userRef
+              .child('connections')
+              .push(firebase.database.ServerValue.TIMESTAMP);
+            connectionRef.onDisconnect().remove();
+
+            setRef(ref);
+            setUserRef(userRef);
+          });
       }
     });
 

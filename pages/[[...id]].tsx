@@ -36,13 +36,14 @@ import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
-import { useSettings } from '../components/SettingsContext';
+import { EDITOR_MODES, useSettings } from '../components/SettingsContext';
 import download from '../scripts/download';
-import { Menu, Transition } from '@headlessui/react';
+import { Menu, RadioGroup, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { UserList } from '../components/UserList/UserList';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import firebaseType from 'firebase';
+import { SharingPermissions } from '../components/SharingPermissions';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -79,7 +80,8 @@ export default function Home(): JSX.Element {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
-  const [readOnly, setReadOnly] = useState(true);
+  const [permission, setPermission] = useState('LOADING');
+  const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const onlineUsers = useOnlineUsers();
 
   useEffect(() => {
@@ -101,10 +103,12 @@ export default function Home(): JSX.Element {
     if (userRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {
         const permission = snap.val().permission;
-        if (permission === 'OWNER' || permission === 'READ_WRITE') {
-          setReadOnly(false);
+
+        if (permission === 'PRIVATE') {
+          alert('This file is private.');
+          window.location.href = '/';
         } else {
-          setReadOnly(true);
+          setPermission(permission);
         }
       };
       userRef.on('value', handleChange);
@@ -515,10 +519,10 @@ export default function Home(): JSX.Element {
                       <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                     </div>
                     <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
-                      <div className="flex-1">
-                        <UserList />
+                      <UserList className="flex-1 max-w-full" />
+                      <div className="flex-shrink-0">
+                        {permission === 'OWNER' && <SharingPermissions />}
                       </div>
-                      <div className="flex-shrink-0"></div>
                     </div>
                   </>
                 )}
