@@ -5,6 +5,7 @@ module.exports = {
     'components/**/*.js',
     'pages/**/*.ts',
     'components/**/*.ts',
+    'pages/**/[[...id]].tsx',
     'pages/**/*.tsx',
     'components/**/*.tsx',
   ],

@@ -27,6 +27,8 @@ import {
   ShareIcon,
   TemplateIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/solid';
 import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
@@ -38,6 +40,7 @@ import { useSettings } from '../components/SettingsContext';
 import download from '../scripts/download';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
+import { UserList } from '../components/UserList';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -73,6 +76,7 @@ export default function Home(): JSX.Element {
   }, 'cpp');
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
+  const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
@@ -342,14 +346,34 @@ export default function Home(): JSX.Element {
             </button>
           </div>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
+          <div className="flex-1" />
+          <div>
+            <button
+              type="button"
+              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+              onClick={() => setShowSidebar(!showSidebar)}
+            >
+              {showSidebar ? (
+                <ChevronRightIcon
+                  className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              ) : (
+                <ChevronLeftIcon
+                  className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              )}
+              {showSidebar ? 'Hide User List' : 'Show User List'}
+            </button>
+          </div>
         </div>
         <div className="flex-1 min-h-0">
           <Split
             onDragEnd={() => layoutEditors()}
             render={({ getGridProps, getGutterProps }) => (
               <div
-                // className="grid grid-cols-[3fr,3px,2fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden"
-                className="grid grid-cols-[1fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden"
+                className={`grid grid-cols-[3fr,3px,2fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden`}
                 {...getGridProps()}
               >
                 <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
@@ -392,7 +416,11 @@ export default function Home(): JSX.Element {
                 >
                   <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                 </div>
-                <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
+                <div
+                  className={`flex flex-col min-w-0 min-h-0 overflow-hidden ${
+                    showSidebar ? 'col-span-1' : 'col-span-3'
+                  }`}
+                >
                   <TabBar
                     tabs={[{ label: 'input', value: 'input' }]}
                     activeTab={'input'}
@@ -419,12 +447,18 @@ export default function Home(): JSX.Element {
                   </div>
                 </div>
                 <div
-                  className="cursor-[row-resize] my-[-6px] group relative z-10"
+                  className={`cursor-[row-resize] my-[-6px] group relative z-10 ${
+                    showSidebar ? 'col-span-1' : 'col-span-3'
+                  }`}
                   {...getGutterProps('row', 1)}
                 >
                   <div className="absolute w-full top-[6px] bottom-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                 </div>
-                <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
+                <div
+                  className={`flex flex-col min-w-0 min-h-0 overflow-hidden ${
+                    showSidebar ? 'col-span-1' : 'col-span-3'
+                  }`}
+                >
                   <Output
                     result={result}
                     onMount={e => {
@@ -435,36 +469,22 @@ export default function Home(): JSX.Element {
                     }}
                   />
                 </div>
-                {/*<div*/}
-                {/*  className="row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10"*/}
-                {/*  {...getGutterProps('column', 3)}*/}
-                {/*>*/}
-                {/*  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />*/}
-                {/*</div>*/}
-                {/*<div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">*/}
-                {/*  <div className="flex-1">*/}
-                {/*    <UserList />*/}
-                {/*  </div>*/}
-                {/*  <div className="flex-shrink-0">*/}
-                {/*    <ShareInfo*/}
-                {/*      displayUrl={`/${firebaseRef?.key?.substr(*/}
-                {/*        1*/}
-                {/*      )}?lang=${lang}`}*/}
-                {/*    />*/}
-
-                {/*    <button*/}
-                {/*      type="button"*/}
-                {/*      className="relative flex w-full items-center px-4 py-3 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"*/}
-                {/*      onClick={() => setIsSettingsModalOpen(true)}*/}
-                {/*    >*/}
-                {/*      <CogIcon*/}
-                {/*        className="-ml-1 mr-2 h-5 w-5 text-gray-400"*/}
-                {/*        aria-hidden="true"*/}
-                {/*      />*/}
-                {/*      Settings*/}
-                {/*    </button>*/}
-                {/*  </div>*/}
-                {/*</div>*/}
+                {showSidebar && (
+                  <>
+                    <div
+                      className="row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10"
+                      {...getGutterProps('column', 3)}
+                    >
+                      <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
+                    </div>
+                    <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
+                      <div className="flex-1">
+                        <UserList />
+                      </div>
+                      <div className="flex-shrink-0"></div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           />
