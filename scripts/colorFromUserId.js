@@ -43,5 +43,5 @@ module.exports = function colorFromUserId(userId) {
   }
   const hue = a / 360;
 
-  return hsl2hex(hue, 0.75, 0.2);
+  return hsl2hex(hue, 0.75, 0.6);
 };
