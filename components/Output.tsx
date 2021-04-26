@@ -46,6 +46,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             minimap: { enabled: false },
             readOnly: true,
             automaticLayout: false,
+            insertSpaces: false,
           }}
           onMount={onMount}
         />

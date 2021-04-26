@@ -396,10 +396,10 @@ export default function Home(): JSX.Element {
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
+                        insertSpaces: false,
                       }}
                       onMount={e => {
                         editor.current = e;
-                        e.getModel().updateOptions({ insertSpaces: false });
                         setTimeout(() => {
                           e.layout();
                           e.focus();
@@ -435,10 +435,10 @@ export default function Home(): JSX.Element {
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
+                        insertSpaces: false,
                       }}
                       onMount={e => {
                         inputEditor.current = e;
-                        e.getModel().updateOptions({ insertSpaces: false });
                         setTimeout(() => {
                           e.layout();
                         }, 0);
@@ -465,7 +465,6 @@ export default function Home(): JSX.Element {
                     result={result}
                     onMount={e => {
                       outputEditor.current = e;
-                      e.getModel().updateOptions({ insertSpaces: false });
                       setTimeout(() => {
                         e.layout();
                       }, 0);
