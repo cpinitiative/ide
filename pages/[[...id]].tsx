@@ -211,6 +211,13 @@ export default function Home(): JSX.Element {
     }
   };
 
+  const handleToggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+    setTimeout(() => {
+      layoutEditors();
+    }, 0);
+  };
+
   return (
     <div className="h-full">
       <Head>
@@ -353,7 +360,7 @@ export default function Home(): JSX.Element {
             <button
               type="button"
               className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-              onClick={() => setShowSidebar(!showSidebar)}
+              onClick={() => handleToggleSidebar()}
             >
               {showSidebar ? (
                 <ChevronRightIcon
