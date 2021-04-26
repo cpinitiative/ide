@@ -1658,6 +1658,17 @@ firepad.FirebaseAdapter = (function (global) {
   };
 
   FirebaseAdapter.prototype.saveCheckpoint_ = function() {
+    // delete [-200, -100) before this point
+    let updateObject = {};
+    for (let idx = this.revision_ - 200; idx < this.revision_ - 100; idx++) {
+      if (idx >= 0) {
+        updateObject[revisionToId(idx)] = null;
+      }
+    }
+    if (Object.keys(updateObject).length > 0) {
+      this.ref_.child('history').update(updateObject);
+    }
+
     this.ref_.child('checkpoint').set({
       a: this.userId_,
       o: this.document_.toJSON(),
