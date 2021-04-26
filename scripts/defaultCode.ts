@@ -5,8 +5,8 @@ export default {
 using namespace std;
 
 int main() {
-    int a, b, c; cin >> a >> b >> c;
-    cout << "sum is " << a+b+c << "\\n";
+\tint a, b, c; cin >> a >> b >> c;
+\tcout << "sum is " << a+b+c << "\\n";
 }
 `,
   java: `// Source: https://usaco.guide/general/io
@@ -44,56 +44,56 @@ import java.util.*;
 import java.io.*;
 
 class Kattio extends PrintWriter {
-    private BufferedReader r;
-    private StringTokenizer st = new StringTokenizer("");
-    private String token;
+\tprivate BufferedReader r;
+\tprivate StringTokenizer st = new StringTokenizer("");
+\tprivate String token;
 
-    // standard input
-    public Kattio() { this(System.in,System.out); }
-    public Kattio(InputStream i, OutputStream o) {
-        super(o);
-        r = new BufferedReader(new InputStreamReader(i));
-    }
-    // USACO-style file input
-    public Kattio(String problemName) throws IOException { 
-        super(new FileWriter(problemName+".out"));
-        r = new BufferedReader(new FileReader(problemName+".in"));
-    }
+\t// standard input
+\tpublic Kattio() { this(System.in,System.out); }
+\tpublic Kattio(InputStream i, OutputStream o) {
+\t\tsuper(o);
+\t\tr = new BufferedReader(new InputStreamReader(i));
+\t}
+\t// USACO-style file input
+\tpublic Kattio(String problemName) throws IOException { 
+\t\tsuper(new FileWriter(problemName+".out"));
+\t\tr = new BufferedReader(new FileReader(problemName+".in"));
+\t}
 
-    private String peek() {
-        if (token == null)
-            try {
-                while (!st.hasMoreTokens()) {
-                    String line = r.readLine();
-                    if (line == null) return null;
-                    st = new StringTokenizer(line);
-                }
-                token = st.nextToken();
-            } catch (IOException e) { }
-        return token;
-    }
-    public boolean hasMoreTokens() { return peek() != null; }
-    private String next() {
-        String ans = peek(); 
-        token = null;
-        return ans;
-    }
-    
-    public int nextInt() { return Integer.parseInt(next()); }
-    public double nextDouble() { return Double.parseDouble(next()); }
-    public long nextLong() { return Long.parseLong(next()); }
+\tprivate String peek() {
+\t\tif (token == null)
+\t\t\ttry {
+\t\t\t\twhile (!st.hasMoreTokens()) {
+\t\t\t\t\tString line = r.readLine();
+\t\t\t\t\tif (line == null) return null;
+\t\t\t\t\tst = new StringTokenizer(line);
+\t\t\t\t}
+\t\t\t\ttoken = st.nextToken();
+\t\t\t} catch (IOException e) { }
+\t\treturn token;
+\t}
+\tpublic boolean hasMoreTokens() { return peek() != null; }
+\tprivate String next() {
+\t\tString ans = peek(); 
+\t\ttoken = null;
+\t\treturn ans;
+\t}
+\t
+\tpublic int nextInt() { return Integer.parseInt(next()); }
+\tpublic double nextDouble() { return Double.parseDouble(next()); }
+\tpublic long nextLong() { return Long.parseLong(next()); }
 }
 
 public class Main {
-    static Kattio io = new Kattio();
-    public static void main(String[] args) {
-        int a = io.nextInt();
-        int b = io.nextInt();
-        int c = io.nextInt();
-        io.print("sum is ");
-        io.println(a + b + c);
-        io.close(); // make sure to include this line -- closes io and flushes the output
-    }
+\tstatic Kattio io = new Kattio();
+\tpublic static void main(String[] args) {
+\t\tint a = io.nextInt();
+\t\tint b = io.nextInt();
+\t\tint c = io.nextInt();
+\t\tio.print("sum is ");
+\t\tio.println(a + b + c);
+\t\tio.close(); // make sure to include this line -- closes io and flushes the output
+\t}
 }
 `,
   py: `# Source: https://usaco.guide/general/io
