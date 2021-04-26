@@ -1449,6 +1449,8 @@ firepad.FirebaseAdapter = (function (global) {
       return;
     }
 
+    console.log(this.document_, operation);
+
     // Sanity check that this operation is valid.
     assert(this.document_.targetLength === operation.baseLength, "sendOperation() called with invalid operation.");
 
@@ -3305,7 +3307,7 @@ var MonacoAdapter = function () {
         /** Insert Operation */
         var pos = _this.monacoModel.getPositionAt(index);
 
-        _this.monaco.executeEdits('my-source', [{
+        _this.monaco.getModel().pushEditOperations(_this.monaco.getSelections(), [{
           range: new monaco.Range(
             pos.lineNumber, pos.column,
             pos.lineNumber, pos.column
@@ -3313,6 +3315,14 @@ var MonacoAdapter = function () {
           text: op.text,
           forceMoveMarkers: true
         }]);
+        // _this.monaco.executeEdits('my-source', [{
+        //   range: new monaco.Range(
+        //     pos.lineNumber, pos.column,
+        //     pos.lineNumber, pos.column
+        //   ),
+        //   text: op.text,
+        //   forceMoveMarkers: true
+        // }]);
 
         index += op.text.length;
       } else if (op.isDelete()) {
@@ -3320,7 +3330,7 @@ var MonacoAdapter = function () {
         var from = _this.monacoModel.getPositionAt(index);
         var to = _this.monacoModel.getPositionAt(index + op.chars);
 
-        _this.monaco.executeEdits('my-source', [{
+        _this.monaco.getModel().pushEditOperations(_this.monaco.getSelections(), [{
           range: new monaco.Range(
             from.lineNumber, from.column,
             to.lineNumber, to.column
@@ -3328,6 +3338,14 @@ var MonacoAdapter = function () {
           text: '',
           forceMoveMarkers: true
         }]);
+        // _this.monaco.executeEdits('my-source', [{
+        //   range: new monaco.Range(
+        //     from.lineNumber, from.column,
+        //     to.lineNumber, to.column
+        //   ),
+        //   text: '',
+        //   forceMoveMarkers: true
+        // }]);
       }
     });
 

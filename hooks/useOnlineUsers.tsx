@@ -6,8 +6,12 @@ export type User = {
   color: string;
   id: string;
   name: string;
-  permission: "OWNER" | "READ_WRITE" | "READ";
-  connections: {[key: string]: number};
+  permission: 'OWNER' | 'READ_WRITE' | 'READ';
+  connections: { [key: string]: number };
+};
+
+export const isUserOnline = (user: User): boolean => {
+  return Object.keys(user?.connections || {}).length > 0;
 };
 
 export function useOnlineUsers(): User[] | null {

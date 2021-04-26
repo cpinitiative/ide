@@ -32,7 +32,7 @@ import {
 } from '@heroicons/react/solid';
 import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
-import { useFirebaseRef } from '../hooks/useFirebaseRef';
+import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
@@ -40,8 +40,9 @@ import { useSettings } from '../components/SettingsContext';
 import download from '../scripts/download';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
-import { UserList } from '../components/UserList';
+import { UserList } from '../components/UserList/UserList';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import firebaseType from 'firebase';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -78,6 +79,7 @@ export default function Home(): JSX.Element {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
+  const [readOnly, setReadOnly] = useState(true);
   const onlineUsers = useOnlineUsers();
 
   useEffect(() => {
@@ -93,6 +95,22 @@ export default function Home(): JSX.Element {
     // we only want to run it once when router is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
+
+  const userRef = useUserRef();
+  useEffect(() => {
+    if (userRef) {
+      const handleChange = (snap: firebaseType.database.DataSnapshot) => {
+        const permission = snap.val().permission;
+        if (permission === 'OWNER' || permission === 'READ_WRITE') {
+          setReadOnly(false);
+        } else {
+          setReadOnly(true);
+        }
+      };
+      userRef.on('value', handleChange);
+      return () => userRef.off('value', handleChange);
+    }
+  }, [userRef]);
 
   const handleRunCode = () => {
     if (!editor.current || !inputEditor.current) {
@@ -355,6 +373,11 @@ export default function Home(): JSX.Element {
             </button>
           </div>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
+          {readOnly && (
+            <span className="px-4 text-gray-500 text-sm font-medium">
+              View Only
+            </span>
+          )}
           <div className="flex-1" />
           <div>
             <button
@@ -407,6 +430,7 @@ export default function Home(): JSX.Element {
                         minimap: { enabled: false },
                         automaticLayout: false,
                         insertSpaces: false,
+                        readOnly,
                       }}
                       onMount={e => {
                         editor.current = e;
@@ -446,6 +470,7 @@ export default function Home(): JSX.Element {
                         minimap: { enabled: false },
                         automaticLayout: false,
                         insertSpaces: false,
+                        readOnly,
                       }}
                       onMount={e => {
                         inputEditor.current = e;
