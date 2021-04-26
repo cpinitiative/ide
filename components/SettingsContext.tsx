@@ -77,6 +77,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { editorMode, ...otherSettings } = data;
           firebaseRef.child('settings').update(otherSettings);
+          setSettings(data);
         } else {
           alert("Firebase hasn't loaded yet, please wait");
         }
