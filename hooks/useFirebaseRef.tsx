@@ -1,5 +1,6 @@
 import firebase from 'firebase/app';
 import 'firebase/database';
+import 'firebase/auth';
 import 'firebase/analytics';
 import React, {
   useState,
@@ -67,22 +68,64 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    let ref;
-    if (Array.isArray(router.query.id)) {
-      ref = getFirebaseRef(router.query.id[0]);
-    } else {
-      ref = getFirebaseRef(router.query.id);
-    }
-    const userRef = ref.child('users').push();
-    userRef.set({
-      name: 'Anonymous ' + animals[Math.floor(animals.length * Math.random())],
-      color: colorFromUserId(userRef.key),
+    firebase.auth().signInAnonymously()
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert("Error signing in: " + errorCode + " " + errorMessage);
+      });
+    
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      console.log(user);
+      if (user) {
+        let name = 'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
+        if (!user.displayName) {
+          user.updateProfile({ displayName: name, });
+        } else {
+          name = user.displayName;
+        }
+        
+        const uid = user.uid;
+
+        let ref: firebaseType.database.Reference;
+        if (Array.isArray(router.query.id)) {
+          ref = getFirebaseRef(router.query.id[0]);
+        } else {
+          ref = getFirebaseRef(router.query.id);
+        }
+
+        ref.child("settings").child("default_permission").once("value", snap => {
+          let permission: "OWNER" | "READ_WRITE" | "READ";
+          if (snap.exists()) {
+            permission = snap.val();
+          } else {
+            // new doc, make me the owner
+            permission = "OWNER";
+
+            ref.child("settings").child("default_permission").set("READ_WRITE");
+          }
+
+          const userRef = ref.child('users').child(uid);
+          userRef.once("value", snap => {
+            if (!snap.val()?.permission) {
+              // first time on this doc, need to add to user list
+              userRef.update({
+                name: name,
+                color: colorFromUserId(userRef.key),
+                permission,
+              });
+            }
+          });
+          const connectionRef = userRef.child('connections').push(firebase.database.ServerValue.TIMESTAMP);
+          connectionRef.onDisconnect().remove();
+
+          setRef(ref);
+          setUserRef(userRef);
+        });
+      }
     });
 
-    setRef(ref);
-    setUserRef(userRef);
-
-    userRef.onDisconnect().remove();
+    return () => unsubscribe();
 
     // we only want to run this once when the router is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps

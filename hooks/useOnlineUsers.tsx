@@ -6,6 +6,8 @@ export type User = {
   color: string;
   id: string;
   name: string;
+  permission: "OWNER" | "READ_WRITE" | "READ";
+  connections: {[key: string]: number};
 };
 
 export function useOnlineUsers(): User[] | null {
