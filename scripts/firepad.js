@@ -6500,7 +6500,7 @@ firepad.Firepad = (function(global) {
     }
     var hue = a/360;
 
-    return hsl2hex(hue, 1, 0.75);
+    return hsl2hex(hue, 0.75, 0.2);
   }
 
   function rgb2hex (r, g, b) {
