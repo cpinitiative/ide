@@ -36,14 +36,19 @@ import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
-import { EDITOR_MODES, useSettings } from '../components/SettingsContext';
+import { useSettings } from '../components/SettingsContext';
 import download from '../scripts/download';
-import { Menu, RadioGroup, Transition } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { UserList } from '../components/UserList/UserList';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import firebaseType from 'firebase';
 import { SharingPermissions } from '../components/SharingPermissions';
+import { useAtom } from 'jotai';
+import {
+  actualUserPermissionAtom,
+  userPermissionAtom,
+} from '../atoms/workspace';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -80,7 +85,8 @@ export default function Home(): JSX.Element {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
-  const [permission, setPermission] = useState('LOADING');
+  const [, setUserPermission] = useAtom(userPermissionAtom);
+  const [permission] = useAtom(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const onlineUsers = useOnlineUsers();
 
@@ -102,13 +108,14 @@ export default function Home(): JSX.Element {
   useEffect(() => {
     if (userRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {
+        if (!snap.exists()) return;
         const permission = snap.val().permission;
-        setPermission(permission);
+        setUserPermission(permission);
       };
       userRef.on('value', handleChange);
       return () => userRef.off('value', handleChange);
     }
-  }, [userRef]);
+  }, [userRef, setUserPermission]);
 
   const handleRunCode = () => {
     if (!editor.current || !inputEditor.current) {

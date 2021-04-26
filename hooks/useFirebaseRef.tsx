@@ -13,6 +13,8 @@ import { useRouter } from 'next/router';
 import type firebaseType from 'firebase';
 import animals from '../scripts/animals';
 import colorFromUserId from '../scripts/colorFromUserId';
+import { useAtom } from 'jotai';
+import { defaultPermissionAtom } from '../atoms/workspace';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA',
@@ -64,6 +66,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
     userRef,
     setUserRef,
   ] = useState<firebaseType.database.Reference | null>(null);
+  const [, setDefaultPermission] = useAtom(defaultPermissionAtom);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -99,7 +102,8 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
         ref
           .child('settings')
           .child('default_permission')
-          .once('value', snap => {
+          .once('value')
+          .then(snap => {
             let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
             if (snap.exists()) {
               permission = snap.val();
@@ -112,28 +116,36 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
                 .child('default_permission')
                 .set('READ_WRITE');
             }
+            setDefaultPermission(snap.val() || 'READ_WRITE');
 
             const userRef = ref.child('users').child(uid);
-            userRef.once('value', snap => {
-              if (!snap.val()?.permission) {
+            userRef.once('value').then(snap => {
+              if (permission === 'PRIVATE' && !snap.val()?.permission) {
+                alert('This file is private.');
+                window.location.href = '/';
+              }
+              if (!snap.val()?.name) {
                 // first time on this doc, need to add to user list
-                if (permission === 'PRIVATE') {
-                  alert('This file is private.');
-                  window.location.href = '/';
-                } else {
-                  userRef.update({
-                    name: name,
-                    color: colorFromUserId(userRef.key),
-                    permission,
-                  });
-                }
+                userRef.update({
+                  name: name,
+                  color: colorFromUserId(userRef.key),
+                  ...(permission === 'OWNER' ? { permission } : {}),
+                  connections: {
+                    first: firebase.database.ServerValue.TIMESTAMP,
+                  },
+                });
+                userRef
+                  .child('connections')
+                  .child('first')
+                  .onDisconnect()
+                  .remove();
+              } else {
+                const connectionRef = userRef
+                  .child('connections')
+                  .push(firebase.database.ServerValue.TIMESTAMP);
+                connectionRef.onDisconnect().remove();
               }
             });
-
-            const connectionRef = userRef
-              .child('connections')
-              .push(firebase.database.ServerValue.TIMESTAMP);
-            connectionRef.onDisconnect().remove();
 
             setRef(ref);
             setUserRef(userRef);

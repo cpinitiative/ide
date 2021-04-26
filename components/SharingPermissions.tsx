@@ -1,7 +1,9 @@
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React from 'react';
 import { useFirebaseRef } from '../hooks/useFirebaseRef';
+import { useAtom } from 'jotai';
+import { defaultPermissionAtom } from '../atoms/workspace';
 
 const sharingOptions = [
   {
@@ -19,10 +21,11 @@ const sharingOptions = [
 ];
 
 export const SharingPermissions = (): JSX.Element => {
-  const [value, setValue] = useState('READ_WRITE');
+  const [value, setValue] = useAtom(defaultPermissionAtom);
   const firebaseRef = useFirebaseRef();
 
-  const handleChange = (newVal: string) => {
+  // note: users don't currently subscribe to these changes, so they'll have to reload the page
+  const handleChange = (newVal: 'READ_WRITE' | 'READ' | 'PRIVATE') => {
     if (!firebaseRef) {
       alert('Firebase loading, please wait');
       return;

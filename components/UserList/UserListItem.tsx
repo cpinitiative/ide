@@ -4,16 +4,26 @@ import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { DotsVerticalIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
+import { useAtom } from 'jotai';
+import {
+  actualUserPermissionAtom,
+  defaultPermissionAtom,
+} from '../../atoms/workspace';
 
 const permissionLabels = {
   OWNER: 'Owner',
   READ_WRITE: 'Read & Write',
   READ: 'View Only',
+  PRIVATE: 'No Access',
 };
 
-export const UserListItem = ({ user }: { user: User }): JSX.Element => {
+export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
   const userRef = useUserRef();
   const firebaseRef = useFirebaseRef();
+  const [permission] = useAtom(actualUserPermissionAtom);
+  const [defaultPermission] = useAtom(defaultPermissionAtom);
+
+  if (!permission || !defaultPermission) return null;
 
   const handleUpdateUserPermission = (
     user: User,
@@ -57,11 +67,13 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element => {
             isUserOnline(user) ? 'text-gray-400' : 'text-gray-500'
           }`}
         >
-          {permissionLabels[user.permission]}
+          {user.permission
+            ? permissionLabels[user.permission]
+            : `Default (${permissionLabels[defaultPermission]})`}
         </p>
       </div>
 
-      {user.id !== userRef?.key && (
+      {user.id !== userRef?.key && permission === 'OWNER' && (
         <Menu as="div" className="relative inline-block text-left self-center">
           {({ open }) => (
             <>
