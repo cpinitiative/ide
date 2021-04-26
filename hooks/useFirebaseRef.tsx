@@ -1,9 +1,17 @@
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/analytics';
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  useMemo,
+} from 'react';
 import { useRouter } from 'next/router';
 import type firebaseType from 'firebase';
+import animals from '../scripts/animals';
+import colorFromUserId from '../scripts/colorFromUserId';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA',
@@ -28,7 +36,11 @@ if (!firebase.apps?.length) {
 }
 
 export const FirebaseRefContext = createContext<
-  firebaseType.database.Reference | null | undefined
+  | {
+      docRef: firebaseType.database.Reference | null;
+      userRef: firebaseType.database.Reference | null;
+    }
+  | undefined
 >(undefined);
 
 function getFirebaseRef(
@@ -47,19 +59,39 @@ function getFirebaseRef(
 export const FirebaseRefProvider: React.FC = ({ children }) => {
   const router = useRouter();
   const [ref, setRef] = useState<firebaseType.database.Reference | null>(null);
+  const [
+    userRef,
+    setUserRef,
+  ] = useState<firebaseType.database.Reference | null>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
 
+    let ref;
     if (Array.isArray(router.query.id)) {
-      setRef(getFirebaseRef(router.query.id[0]));
+      ref = getFirebaseRef(router.query.id[0]);
     } else {
-      setRef(getFirebaseRef(router.query.id));
+      ref = getFirebaseRef(router.query.id);
     }
+    const userRef = ref.child('users').push();
+    userRef.set({
+      name: 'Anonymous ' + animals[Math.floor(animals.length * Math.random())],
+      color: colorFromUserId(userRef.key),
+    });
+
+    setRef(ref);
+    setUserRef(userRef);
+
+    userRef.onDisconnect().remove();
+
+    // we only want to run this once when the router is ready
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 
+  const value = useMemo(() => ({ docRef: ref, userRef }), [ref, userRef]);
+
   return (
-    <FirebaseRefContext.Provider value={ref}>
+    <FirebaseRefContext.Provider value={value}>
       {children}
     </FirebaseRefContext.Provider>
   );
@@ -72,5 +104,13 @@ export const useFirebaseRef = (): firebaseType.database.Reference | null => {
       'useFirebaseRef() must be used inside a FirebaseRefProvider'
     );
   }
-  return ref;
+  return ref?.docRef;
+};
+
+export const useUserRef = (): firebaseType.database.Reference | null => {
+  const ref = useContext(FirebaseRefContext);
+  if (ref === undefined) {
+    throw new Error('useUserRef() must be used inside a FirebaseRefProvider');
+  }
+  return ref?.userRef;
 };

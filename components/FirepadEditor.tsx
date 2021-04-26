@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
 import { EditorWithVim } from './EditorWithVim';
+import { useUserRef } from '../hooks/useFirebaseRef';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -20,14 +21,17 @@ const FirepadEditor = ({
     editor,
     setEditor,
   ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const userRef = useUserRef();
 
   useEffect(() => {
-    if (!firebaseRef || !editor) return;
+    if (!firebaseRef || !editor || !userRef) return;
 
     // we reset the value here since firepad initialization can't have any text in it
     // firepad will fetch the text from firebase and update monaco
     editor.setValue('');
-    const firepad = Firepad.fromMonaco(firebaseRef, editor);
+    const firepad = Firepad.fromMonaco(firebaseRef, editor, {
+      userId: userRef.key,
+    });
 
     if (defaultValue) {
       firepad.on('ready', function () {
@@ -40,7 +44,7 @@ const FirepadEditor = ({
     return () => firepad.dispose();
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseRef, editor]);
+  }, [firebaseRef, userRef, editor]);
 
   const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
 

@@ -22,6 +22,8 @@ import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
 import { useSettings } from '../components/SettingsContext';
 import download from '../scripts/download';
+import { UserList } from '../components/UserList';
+import { ShareInfo } from '../components/ShareInfo';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -194,17 +196,17 @@ export default function Home(): JSX.Element {
               />
               Download File
             </button>
-            <button
-              type="button"
-              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-              onClick={() => setIsSettingsModalOpen(true)}
-            >
-              <CogIcon
-                className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
-              Settings
-            </button>
+            {/*<button*/}
+            {/*  type="button"*/}
+            {/*  className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"*/}
+            {/*  onClick={() => setIsSettingsModalOpen(true)}*/}
+            {/*>*/}
+            {/*  <CogIcon*/}
+            {/*    className="-ml-1 mr-2 h-5 w-5 text-gray-400"*/}
+            {/*    aria-hidden="true"*/}
+            {/*  />*/}
+            {/*  Settings*/}
+            {/*</button>*/}
           </div>
           <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
         </div>
@@ -213,7 +215,7 @@ export default function Home(): JSX.Element {
             onDragEnd={() => layoutEditors()}
             render={({ getGridProps, getGutterProps }) => (
               <div
-                className="grid grid-cols-[1fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full"
+                className="grid grid-cols-[3fr,3px,2fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden"
                 {...getGridProps()}
               >
                 <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
@@ -299,11 +301,41 @@ export default function Home(): JSX.Element {
                     }}
                   />
                 </div>
+                <div
+                  className="row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10"
+                  {...getGutterProps('column', 3)}
+                >
+                  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
+                </div>
+                <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
+                  <div className="flex-1">
+                    <UserList />
+                  </div>
+                  <div className="flex-shrink-0">
+                    <ShareInfo
+                      displayUrl={`/${firebaseRef?.key?.substr(
+                        1
+                      )}?lang=${lang}`}
+                    />
+
+                    <button
+                      type="button"
+                      className="relative flex w-full items-center px-4 py-3 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+                      onClick={() => setIsSettingsModalOpen(true)}
+                    >
+                      <CogIcon
+                        className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                      Settings
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           />
         </div>
-        <div className="flex-shrink-0 relative text-sm bg-purple-900 text-purple-200 font-medium font-mono">
+        <div className="flex-shrink-0 relative text-sm bg-purple-900 bg-opacity-25 text-purple-200 font-medium font-mono">
           {/* For vim */}
           <span className="absolute left-0 top-0 bottom-0 pl-4 status-node" />
           <p className="text-center">
