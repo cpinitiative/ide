@@ -103,13 +103,7 @@ export default function Home(): JSX.Element {
     if (userRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {
         const permission = snap.val().permission;
-
-        if (permission === 'PRIVATE') {
-          alert('This file is private.');
-          window.location.href = '/';
-        } else {
-          setPermission(permission);
-        }
+        setPermission(permission);
       };
       userRef.on('value', handleChange);
       return () => userRef.off('value', handleChange);

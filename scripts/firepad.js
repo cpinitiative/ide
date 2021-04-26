@@ -1449,8 +1449,6 @@ firepad.FirebaseAdapter = (function (global) {
       return;
     }
 
-    console.log(this.document_, operation);
-
     // Sanity check that this operation is valid.
     assert(this.document_.targetLength === operation.baseLength, "sendOperation() called with invalid operation.");
 

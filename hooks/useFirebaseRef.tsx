@@ -100,7 +100,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
           .child('settings')
           .child('default_permission')
           .once('value', snap => {
-            let permission: 'OWNER' | 'READ_WRITE' | 'READ';
+            let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
             if (snap.exists()) {
               permission = snap.val();
             } else {
@@ -117,13 +117,19 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
             userRef.once('value', snap => {
               if (!snap.val()?.permission) {
                 // first time on this doc, need to add to user list
-                userRef.update({
-                  name: name,
-                  color: colorFromUserId(userRef.key),
-                  permission,
-                });
+                if (permission === 'PRIVATE') {
+                  alert('This file is private.');
+                  window.location.href = '/';
+                } else {
+                  userRef.update({
+                    name: name,
+                    color: colorFromUserId(userRef.key),
+                    permission,
+                  });
+                }
               }
             });
+
             const connectionRef = userRef
               .child('connections')
               .push(firebase.database.ServerValue.TIMESTAMP);
