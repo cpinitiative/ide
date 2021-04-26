@@ -41,6 +41,7 @@ import download from '../scripts/download';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { UserList } from '../components/UserList';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -77,6 +78,7 @@ export default function Home(): JSX.Element {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
+  const onlineUsers = useOnlineUsers();
 
   useEffect(() => {
     if (router.isReady) {
@@ -364,7 +366,8 @@ export default function Home(): JSX.Element {
                   aria-hidden="true"
                 />
               )}
-              {showSidebar ? 'Hide User List' : 'Show User List'}
+              {onlineUsers?.length} User{onlineUsers?.length === 1 ? '' : 's'}{' '}
+              Online
             </button>
           </div>
         </div>
