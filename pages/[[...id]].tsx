@@ -50,6 +50,7 @@ import {
   loadingAtom,
   userPermissionAtom,
 } from '../atoms/workspace';
+import { Chat } from '../components/Chat';
 
 const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
   ssr: false,
@@ -525,8 +526,9 @@ export default function Home(): JSX.Element {
                       <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                     </div>
                     <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
-                      <UserList className="flex-1 max-w-full" />
-                      <div className="flex-shrink-0">
+                      <UserList className="max-w-full" />
+                      <Chat className="flex-1 px-4" />
+                      <div className="flex-shrink-0 mt-6">
                         {permission === 'OWNER' && <SharingPermissions />}
                       </div>
                     </div>

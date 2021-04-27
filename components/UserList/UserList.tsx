@@ -30,7 +30,7 @@ export const UserList = ({
   return (
     <div className={classNames('flex flex-col', className)}>
       <div className="font-medium px-4">Users</div>
-      <ul className="divide-y divide-gray-700 px-4 overflow-y-auto flex-1">
+      <ul className="divide-y divide-gray-700 px-4 flex-1">
         {(sortedUsers || []).map(user => (
           <UserListItem user={user} key={user.id} />
         ))}

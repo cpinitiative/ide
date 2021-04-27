@@ -1,0 +1,93 @@
+import classNames from 'classnames';
+import React, { FormEvent, useEffect, useState } from 'react';
+import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
+import firebase from 'firebase/app';
+import firebaseType from 'firebase';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { ChatMessageItem } from './ChatMessageItem';
+
+export interface ChatMessage {
+  timestamp: number;
+  userId: string;
+  message: string;
+  key: string;
+}
+
+export const Chat = ({ className }: { className?: string }): JSX.Element => {
+  const firebaseRef = useFirebaseRef();
+  const userRef = useUserRef();
+  const onlineUsers = useOnlineUsers();
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    if (!firebaseRef || !userRef) {
+      alert('Firebase not loaded, please wait');
+    } else {
+      firebaseRef.child('chat').push({
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        userId: userRef.key,
+        message,
+      });
+      setMessage('');
+    }
+  };
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
+
+  useEffect(() => {
+    if (firebaseRef) {
+      const handleChange = (snap: firebaseType.database.DataSnapshot) => {
+        setChatMessages(
+          Object.keys(snap.val() || {}).map(key => ({
+            key,
+            ...snap.val()[key],
+          }))
+        );
+      };
+      firebaseRef.child('chat').on('value', handleChange);
+      return () => firebaseRef.child('chat').off('value', handleChange);
+    }
+  }, [firebaseRef]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSubmit();
+    }
+  };
+
+  return (
+    <div className={classNames(className, 'flex flex-col')}>
+      <div className="font-medium">Chat</div>
+      <div className="flex-1 space-y-1 mt-1">
+        {chatMessages ? (
+          chatMessages.map(message => (
+            <ChatMessageItem
+              user={
+                onlineUsers?.find(user => user.id === message.userId) || null
+              }
+              chatMessage={message}
+              key={message.key}
+            />
+          ))
+        ) : (
+          <p>No chat messages.</p>
+        )}
+      </div>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 text-sm"
+          placeholder="Send a message (Ctrl + Enter to send)"
+          rows={3}
+          wrap="soft"
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <button className="mt-1 block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+          Send
+        </button>
+      </form>
+    </div>
+  );
+};
