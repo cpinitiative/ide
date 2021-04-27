@@ -41,7 +41,7 @@ import download from '../scripts/download';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { UserList } from '../components/UserList/UserList';
-import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { isUserOnline, useOnlineUsers } from '../hooks/useOnlineUsers';
 import firebaseType from 'firebase';
 import { SharingPermissions } from '../components/SharingPermissions';
 import { useAtom } from 'jotai';
@@ -92,6 +92,7 @@ export default function Home(): JSX.Element {
   const [loading] = useAtom(loadingAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const onlineUsers = useOnlineUsers();
+  const onlineUserCount = onlineUsers?.filter(isUserOnline).length;
 
   useEffect(() => {
     if (router.isReady) {
@@ -407,8 +408,7 @@ export default function Home(): JSX.Element {
                   aria-hidden="true"
                 />
               )}
-              {onlineUsers?.length} User{onlineUsers?.length === 1 ? '' : 's'}{' '}
-              Online
+              {onlineUserCount} User{onlineUserCount === 1 ? '' : 's'} Online
             </button>
           </div>
         </div>

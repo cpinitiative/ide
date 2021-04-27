@@ -60,19 +60,20 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
     <div className={classNames(className, 'flex flex-col')}>
       <div className="font-medium">Chat</div>
       <div className="flex-1 space-y-1 mt-1">
-        {chatMessages ? (
-          chatMessages.map(message => (
-            <ChatMessageItem
-              user={
-                onlineUsers?.find(user => user.id === message.userId) || null
-              }
-              chatMessage={message}
-              key={message.key}
-            />
-          ))
-        ) : (
-          <p>No chat messages.</p>
-        )}
+        {chatMessages &&
+          (chatMessages.length > 0 ? (
+            chatMessages.map(message => (
+              <ChatMessageItem
+                user={
+                  onlineUsers?.find(user => user.id === message.userId) || null
+                }
+                chatMessage={message}
+                key={message.key}
+              />
+            ))
+          ) : (
+            <p>No chat messages.</p>
+          ))}
       </div>
       <form onSubmit={handleSubmit}>
         <textarea
