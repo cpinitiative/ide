@@ -18,7 +18,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   const userRef = useUserRef();
   const onlineUsers = useOnlineUsers();
   const [message, setMessage] = useState('');
-  const chatRef = useRef<HTMLDivElement>();
+  const chatRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();

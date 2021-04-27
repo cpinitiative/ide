@@ -9,6 +9,9 @@ import {
   Settings,
   useSettings,
 } from './SettingsContext';
+import { SharingPermissions } from './SharingPermissions';
+import { useAtom } from 'jotai';
+import { actualUserPermissionAtom } from '../atoms/workspace';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -33,6 +36,7 @@ export const SettingsModal = ({
     },
     realSettings
   );
+  const [userPermission] = useAtom(actualUserPermissionAtom);
 
   useEffect(() => {
     if (isOpen) {
@@ -195,6 +199,10 @@ export const SettingsModal = ({
                     </div>
                   </div>
                 ))}
+
+{userPermission === "OWNER" && (
+                <SharingPermissions value={settings.defaultPermission} onChange={val => onChange({ defaultPermission: val })} />
+)}
 
                 <div className="flex items-center space-x-4">
                   <button

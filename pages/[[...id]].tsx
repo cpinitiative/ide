@@ -527,10 +527,7 @@ export default function Home(): JSX.Element {
                     </div>
                     <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-auto">
                       <UserList className="max-w-full max-h-64" />
-                      <Chat className="flex-1 px-4 pt-4 min-h-0" />
-                      <div className="flex-shrink-0 mt-6">
-                        {permission === 'OWNER' && <SharingPermissions />}
-                      </div>
+                      <Chat className="flex-1 p-4 min-h-0" />
                     </div>
                   </>
                 )}

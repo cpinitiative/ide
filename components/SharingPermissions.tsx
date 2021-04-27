@@ -1,9 +1,6 @@
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
 import React from 'react';
-import { useFirebaseRef } from '../hooks/useFirebaseRef';
-import { useAtom } from 'jotai';
-import { defaultPermissionAtom } from '../atoms/workspace';
 
 const sharingOptions = [
   {
@@ -20,27 +17,17 @@ const sharingOptions = [
   },
 ];
 
-export const SharingPermissions = (): JSX.Element => {
-  const [value, setValue] = useAtom(defaultPermissionAtom);
-  const firebaseRef = useFirebaseRef();
-
-  // note: users don't currently subscribe to these changes, so they'll have to reload the page
-  const handleChange = (newVal: 'READ_WRITE' | 'READ' | 'PRIVATE') => {
-    if (!firebaseRef) {
-      alert('Firebase loading, please wait');
-      return;
-    }
-    firebaseRef.child('settings').child('default_permission').set(newVal);
-    setValue(newVal);
-  };
-
+export const SharingPermissions = ({ value, onChange }: {
+  value: string;
+  onChange: (newVal: string) => void;
+}): JSX.Element => {
   return (
     <>
-      <RadioGroup value={value} onChange={handleChange}>
-        <RadioGroup.Label as="div" className="font-medium px-4 mb-2">
+      <RadioGroup value={value} onChange={onChange}>
+        <RadioGroup.Label as="div" className="font-medium mb-2">
           Sharing Permissions
         </RadioGroup.Label>
-        <div className="rounded-md space-y-2 px-4 pb-4">
+        <div className="rounded-md space-y-2">
           {sharingOptions.map(setting => (
             <RadioGroup.Option
               key={setting.value}
@@ -49,37 +36,32 @@ export const SharingPermissions = (): JSX.Element => {
             >
               {({ active, checked }) => (
                 <>
-                  <span
+                <span
+                  className={classNames(
+                    checked
+                      ? 'bg-indigo-600 border-transparent'
+                      : 'bg-white border-gray-300',
+                    active
+                      ? 'ring-2 ring-offset-2 ring-indigo-500'
+                      : '',
+                    'h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center'
+                  )}
+                  aria-hidden="true"
+                >
+                  <span className="rounded-full bg-white w-1.5 h-1.5" />
+                </span>
+                <div className="ml-2 flex flex-col">
+                  <RadioGroup.Label
+                    as="span"
                     className={classNames(
-                      checked
-                        ? 'bg-indigo-700 border-transparent'
-                        : 'bg-gray-700 border-gray-500',
-                      active
-                        ? 'ring-2 ring-offset-2 ring-offset-[#1E1E1E] ring-indigo-600'
-                        : '',
-                      'h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center'
+                      checked ? 'text-gray-800' : 'text-gray-600',
+                      'block text-sm font-medium'
                     )}
-                    aria-hidden="true"
                   >
-                    <span
-                      className={classNames(
-                        'rounded-full w-1.5 h-1.5',
-                        checked && 'bg-gray-200'
-                      )}
-                    />
-                  </span>
-                  <div className="ml-2 flex flex-col">
-                    <RadioGroup.Label
-                      as="span"
-                      className={classNames(
-                        checked ? 'text-gray-300' : 'text-gray-400',
-                        'block text-sm font-medium'
-                      )}
-                    >
-                      {setting.label}
-                    </RadioGroup.Label>
-                  </div>
-                </>
+                    {setting.label}
+                  </RadioGroup.Label>
+                </div>
+              </>
               )}
             </RadioGroup.Option>
           ))}

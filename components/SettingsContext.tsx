@@ -30,6 +30,7 @@ export const EDITOR_MODES = ['Normal', 'Vim' /*'Emacs'*/];
 export interface Settings {
   editorMode: 'Normal' | 'Vim' | 'Emacs';
   compilerOptions: { [key in Language]: string };
+  defaultPermission: string;
 }
 
 type SettingsContextType = {
@@ -56,6 +57,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
         java: '',
         py: '',
       },
+      defaultPermission: "READ_WRITE",
     }
   );
 

@@ -101,7 +101,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
 
         ref
           .child('settings')
-          .child('default_permission')
+          .child('defaultPermission')
           .once('value')
           .then(snap => {
             let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
@@ -113,7 +113,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
 
               ref
                 .child('settings')
-                .child('default_permission')
+                .child('defaultPermission')
                 .set('READ_WRITE');
             }
             setDefaultPermission(snap.val() || 'READ_WRITE');
