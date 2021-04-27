@@ -21,13 +21,15 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
 
   const handleSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();
+    if (message.trim() === '') return;
+
     if (!firebaseRef || !userRef) {
       alert('Firebase not loaded, please wait');
     } else {
       firebaseRef.child('chat').push({
         timestamp: firebase.database.ServerValue.TIMESTAMP,
         userId: userRef.key,
-        message,
+        message: message.trim(),
       });
       setMessage('');
     }
@@ -51,7 +53,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   }, [firebaseRef]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
       handleSubmit();
     }
   };
@@ -77,10 +79,9 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
       </div>
       <form onSubmit={handleSubmit}>
         <textarea
-          className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 text-sm"
-          placeholder="Send a message (Ctrl + Enter to send)"
+          className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 focus:placeholder-gray-400 text-sm"
+          placeholder="Send a message"
           rows={3}
-          wrap="soft"
           value={message}
           onChange={e => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
