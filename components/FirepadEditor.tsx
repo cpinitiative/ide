@@ -29,6 +29,8 @@ const FirepadEditor = ({
   useEffect(() => {
     if (!firebaseRef || !editor || !userRef) return;
 
+    setLoading(true);
+
     // we reset the value here since firepad initialization can't have any text in it
     // firepad will fetch the text from firebase and update monaco
     editor.setValue('');
