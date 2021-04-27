@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import firebase from 'firebase/app';
 import firebaseType from 'firebase';
@@ -18,6 +18,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   const userRef = useUserRef();
   const onlineUsers = useOnlineUsers();
   const [message, setMessage] = useState('');
+  const chatRef = useRef<HTMLDivElement>();
 
   const handleSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();
@@ -46,6 +47,9 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
             ...snap.val()[key],
           }))
         );
+        if (chatRef.current) {
+          chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
       };
       firebaseRef.child('chat').on('value', handleChange);
       return () => firebaseRef.child('chat').off('value', handleChange);
@@ -61,7 +65,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="font-medium">Chat</div>
-      <div className="flex-1 space-y-1 mt-1">
+      <div className="flex-1 space-y-1 mt-1 min-h-0 overflow-y-auto" ref={chatRef}>
         {chatMessages &&
           (chatMessages.length > 0 ? (
             chatMessages.map(message => (

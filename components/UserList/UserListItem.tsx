@@ -39,7 +39,7 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
   };
 
   return (
-    <li key={user.id} className="py-4 flex">
+    <li key={user.id} className="py-2 flex">
       <span className="relative h-5 w-5">
         <span
           className="inline-block h-5 w-5 rounded"
