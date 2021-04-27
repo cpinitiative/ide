@@ -61,7 +61,12 @@ export const SharingPermissions = (): JSX.Element => {
                     )}
                     aria-hidden="true"
                   >
-                    <span className="rounded-full bg-gray-200 w-1.5 h-1.5" />
+                    <span
+                      className={classNames(
+                        'rounded-full w-1.5 h-1.5',
+                        checked && 'bg-gray-200'
+                      )}
+                    />
                   </span>
                   <div className="ml-2 flex flex-col">
                     <RadioGroup.Label

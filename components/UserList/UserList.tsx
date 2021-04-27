@@ -27,8 +27,6 @@ export const UserList = ({
     });
   }, [users]);
 
-  console.log(sortedUsers);
-
   return (
     <div className={classNames('flex flex-col', className)}>
       <div className="font-medium px-4">Users</div>
