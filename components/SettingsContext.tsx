@@ -31,6 +31,7 @@ export interface Settings {
   editorMode: 'Normal' | 'Vim' | 'Emacs';
   compilerOptions: { [key in Language]: string };
   defaultPermission: string;
+  workspaceName?: string;
 }
 
 type SettingsContextType = {

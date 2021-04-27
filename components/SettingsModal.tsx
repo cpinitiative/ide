@@ -115,8 +115,8 @@ export const SettingsModal = ({
                   Settings
                 </Dialog.Title>
 
-                <p className="text-sm text-gray-600 mt-2">
-                  Compiler options are synced across users.
+                <p className="text-sm text-gray-600 mt-1">
+                  Editor mode is not synced across users.
                 </p>
               </div>
 
@@ -171,6 +171,29 @@ export const SettingsModal = ({
                   </RadioGroup>
                 </div>
 
+                <div>
+                  <label
+                    htmlFor={`workspace_name`}
+                    className="block font-medium text-gray-700"
+                  >
+                    Workspace Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      name={`workspace_name`}
+                      id={`workspace_name`}
+                      className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm"
+                      value={settings.workspaceName || ''}
+                      onChange={e =>
+                        onChange({
+                          workspaceName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
                 {LANGUAGES.map(({ label, value }) => (
                   <div key={value}>
                     <label
@@ -184,7 +207,7 @@ export const SettingsModal = ({
                         type="text"
                         name={`compiler_options_${value}`}
                         id={`compiler_options_${value}`}
-                        className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black font-mono"
+                        className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black font-mono text-sm"
                         value={settings.compilerOptions[value]}
                         placeholder="None"
                         onChange={e =>

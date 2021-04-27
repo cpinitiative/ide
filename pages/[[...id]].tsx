@@ -43,7 +43,6 @@ import classNames from 'classnames';
 import { UserList } from '../components/UserList/UserList';
 import { isUserOnline, useOnlineUsers } from '../hooks/useOnlineUsers';
 import firebaseType from 'firebase';
-import { SharingPermissions } from '../components/SharingPermissions';
 import { useAtom } from 'jotai';
 import {
   actualUserPermissionAtom,
@@ -248,7 +247,10 @@ export default function Home(): JSX.Element {
   return (
     <div className="h-full">
       <Head>
-        <title>Real-Time Collaborative Online IDE</title>
+        <title>
+          {settings.workspaceName ? `${settings.workspaceName} · ` : ''}
+          Real-Time Collaborative Online IDE
+        </title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

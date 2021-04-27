@@ -81,7 +81,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
               />
             ))
           ) : (
-            <p>No chat messages.</p>
+            <p className="text-gray-400">No chat messages.</p>
           ))}
       </div>
       <form onSubmit={handleSubmit}>
