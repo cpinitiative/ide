@@ -17,7 +17,10 @@ const sharingOptions = [
   },
 ];
 
-export const SharingPermissions = ({ value, onChange }: {
+export const SharingPermissions = ({
+  value,
+  onChange,
+}: {
   value: string;
   onChange: (newVal: string) => void;
 }): JSX.Element => {
@@ -36,32 +39,30 @@ export const SharingPermissions = ({ value, onChange }: {
             >
               {({ active, checked }) => (
                 <>
-                <span
-                  className={classNames(
-                    checked
-                      ? 'bg-indigo-600 border-transparent'
-                      : 'bg-white border-gray-300',
-                    active
-                      ? 'ring-2 ring-offset-2 ring-indigo-500'
-                      : '',
-                    'h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center'
-                  )}
-                  aria-hidden="true"
-                >
-                  <span className="rounded-full bg-white w-1.5 h-1.5" />
-                </span>
-                <div className="ml-2 flex flex-col">
-                  <RadioGroup.Label
-                    as="span"
+                  <span
                     className={classNames(
-                      checked ? 'text-gray-800' : 'text-gray-600',
-                      'block text-sm font-medium'
+                      checked
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center'
                     )}
+                    aria-hidden="true"
                   >
-                    {setting.label}
-                  </RadioGroup.Label>
-                </div>
-              </>
+                    <span className="rounded-full bg-white w-1.5 h-1.5" />
+                  </span>
+                  <div className="ml-2 flex flex-col">
+                    <RadioGroup.Label
+                      as="span"
+                      className={classNames(
+                        checked ? 'text-gray-800' : 'text-gray-600',
+                        'block text-sm font-medium'
+                      )}
+                    >
+                      {setting.label}
+                    </RadioGroup.Label>
+                  </div>
+                </>
               )}
             </RadioGroup.Option>
           ))}

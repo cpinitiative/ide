@@ -200,9 +200,12 @@ export const SettingsModal = ({
                   </div>
                 ))}
 
-{userPermission === "OWNER" && (
-                <SharingPermissions value={settings.defaultPermission} onChange={val => onChange({ defaultPermission: val })} />
-)}
+                {userPermission === 'OWNER' && (
+                  <SharingPermissions
+                    value={settings.defaultPermission}
+                    onChange={val => onChange({ defaultPermission: val })}
+                  />
+                )}
 
                 <div className="flex items-center space-x-4">
                   <button

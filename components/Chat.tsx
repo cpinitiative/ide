@@ -65,7 +65,10 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="font-medium">Chat</div>
-      <div className="flex-1 space-y-1 mt-1 min-h-0 overflow-y-auto" ref={chatRef}>
+      <div
+        className="flex-1 space-y-1 mt-1 min-h-0 overflow-y-auto"
+        ref={chatRef}
+      >
         {chatMessages &&
           (chatMessages.length > 0 ? (
             chatMessages.map(message => (

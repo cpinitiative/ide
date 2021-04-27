@@ -57,7 +57,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
         java: '',
         py: '',
       },
-      defaultPermission: "READ_WRITE",
+      defaultPermission: 'READ_WRITE',
     }
   );
 
@@ -72,8 +72,8 @@ export const SettingsProvider: React.FC = ({ children }) => {
   }, [firebaseRef]);
 
   useEffect(() => {
-    const editorMode = window.localStorage.getItem("editorMode");
-    if (editorMode === "Vim" || editorMode === "Normal") {
+    const editorMode = window.localStorage.getItem('editorMode');
+    if (editorMode === 'Vim' || editorMode === 'Normal') {
       setSettings({ editorMode });
     }
   }, []);
@@ -85,7 +85,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
         if (firebaseRef) {
           const { editorMode, ...otherSettings } = data;
           firebaseRef.child('settings').update(otherSettings);
-          if (editorMode) localStorage.setItem("editorMode", editorMode);
+          if (editorMode) localStorage.setItem('editorMode', editorMode);
           setSettings(data);
         } else {
           alert("Firebase hasn't loaded yet, please wait");
