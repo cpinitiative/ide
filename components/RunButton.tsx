@@ -5,19 +5,19 @@ export interface RunButtonProps {
   onClick:
     | ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void)
     | undefined;
-  isRunning: boolean;
+  showLoading: boolean;
 }
 
 export const RunButton = ({
   onClick,
-  isRunning,
+  showLoading,
 }: RunButtonProps): JSX.Element => (
   <button
     type="button"
     className="relative inline-flex items-center px-4 py-2 w-32 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
     onClick={onClick}
   >
-    {isRunning ? (
+    {showLoading ? (
       <svg
         fill="none"
         viewBox="0 0 24 24"

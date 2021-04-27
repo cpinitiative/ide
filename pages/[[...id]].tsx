@@ -47,6 +47,7 @@ import { SharingPermissions } from '../components/SharingPermissions';
 import { useAtom } from 'jotai';
 import {
   actualUserPermissionAtom,
+  loadingAtom,
   userPermissionAtom,
 } from '../atoms/workspace';
 
@@ -87,6 +88,7 @@ export default function Home(): JSX.Element {
   const [showSidebar, setShowSidebar] = useState(false);
   const [, setUserPermission] = useAtom(userPermissionAtom);
   const [permission] = useAtom(actualUserPermissionAtom);
+  const [loading] = useAtom(loadingAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const onlineUsers = useOnlineUsers();
 
@@ -377,8 +379,11 @@ export default function Home(): JSX.Element {
               {showCopied ? 'URL Copied!' : 'Share'}
             </button>
           </div>
-          <RunButton onClick={() => handleRunCode()} isRunning={isRunning} />
-          {readOnly && (
+          <RunButton
+            onClick={() => handleRunCode()}
+            showLoading={isRunning || loading}
+          />
+          {!loading && readOnly && (
             <span className="px-4 text-gray-500 text-sm font-medium">
               View Only
             </span>

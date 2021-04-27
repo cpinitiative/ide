@@ -9,3 +9,5 @@ export const userPermissionAtom = atom<'OWNER' | 'READ_WRITE' | 'READ' | null>(
 export const actualUserPermissionAtom = atom<
   'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE' | null
 >(get => get(userPermissionAtom) || get(defaultPermissionAtom));
+
+export const loadingAtom = atom(true);
