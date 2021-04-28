@@ -11,6 +11,7 @@ import {
 } from '../../atoms/workspace';
 import { useFirebaseRef } from '../../hooks/useFirebaseRef';
 import { LazyFirepadEditor } from '../LazyFirepadEditor';
+import MonacoEditor from '@monaco-editor/react';
 
 export const CodeInterface = ({
   className,
@@ -85,6 +86,7 @@ export const CodeInterface = ({
           useEditorWithVim={true}
         />
       </div>
+      <p className="text-sm font-mono text-gray-200 pl-4 status-node" />
     </div>
   );
 };

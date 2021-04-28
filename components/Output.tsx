@@ -1,6 +1,6 @@
 import { TabBar } from './TabBar';
 import Editor, { EditorProps } from '@monaco-editor/react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JudgeSuccessResult } from '../types/judge';
 
 export interface OutputProps {
@@ -50,6 +50,14 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
           }}
           onMount={onMount}
         />
+      </div>
+      <div className="text-sm font-mono text-right pr-4 text-gray-200">
+        {result && (
+          <>
+            {result.status.description}, {result.time ?? '-'}s,{' '}
+            {result.memory ?? '-'}KB
+          </>
+        )}
       </div>
     </>
   );

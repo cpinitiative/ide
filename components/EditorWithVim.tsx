@@ -1,6 +1,6 @@
 import MonacoEditor from '@monaco-editor/react';
 import { EditorProps } from '@monaco-editor/react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { editorModeAtomWithPersistence } from '../atoms/userSettings';
 
