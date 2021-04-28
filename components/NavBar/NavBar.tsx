@@ -1,13 +1,7 @@
-import { Menu, Transition } from '@headlessui/react';
 import {
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CogIcon,
-  DownloadIcon,
-  PlusIcon,
   ShareIcon,
-  TemplateIcon,
 } from '@heroicons/react/solid';
 import React, { useState } from 'react';
 import { isUserOnline, useOnlineUsers } from '../../hooks/useOnlineUsers';
