@@ -1,8 +1,8 @@
 # Realtime Collaborative IDE
 
-A proof-of-concept realtime collaborative IDE with code execution and input/output. Designed primarily for Competitive Programming.
+A realtime collaborative IDE with code execution and input/output. Designed primarily for Competitive Programming and USACO.
 
-IDE and code execution taken from [Judge0 IDE](https://ide.judge0.com/). Realtime collaboration with [Firepad](https://firepad.io/).
+Code execution supported through [Judge0](https://judge0.com/). Realtime collaboration with [Firepad](https://firepad.io/).
 
 ---
 

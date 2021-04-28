@@ -56,7 +56,7 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
       {props.runButton}
       <div className="flex items-center divide-x divide-gray-700">
         <a
-          href="mailto:nathan.r.wang@gmail.com"
+          href="https://github.com/cpinitiative/ide/issues"
           target="_blank"
           className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium hidden md:block"
           rel="noreferrer"
