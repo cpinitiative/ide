@@ -12,14 +12,13 @@ import {
 import { SharingPermissions } from './SharingPermissions';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../atoms/workspace';
-import { firebaseUserAtom } from '../atoms/firebaseAtoms';
+import { firebaseUserAtom, userRefAtom } from '../atoms/firebaseAtoms';
 import {
   EditorMode,
   editorModeAtomWithPersistence,
   userNameAtom,
 } from '../atoms/userSettings';
-import { useUpdateAtom } from 'jotai/utils';
-import { useUserRef } from '../hooks/useFirebaseRef';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -34,7 +33,7 @@ export const SettingsModal = ({
     settings: realWorkspaceSettings,
     setSettings: setRealWorkspaceSettings,
   } = useSettings();
-  const userRef = useUserRef();
+  const userRef = useAtomValue(userRefAtom);
   const dirtyRef = useRef<boolean>(false);
   const [workspaceSettings, setWorkspaceSettings] = useReducer(
     (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {

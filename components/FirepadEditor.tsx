@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
 import { EditorWithVim } from './EditorWithVim';
-import { useUserRef } from '../hooks/useFirebaseRef';
 import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
+import { useAtomValue } from 'jotai/utils';
+import { userRefAtom } from '../atoms/firebaseAtoms';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -23,7 +24,7 @@ const FirepadEditor = ({
     editor,
     setEditor,
   ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const userRef = useUserRef();
+  const userRef = useAtomValue(userRefAtom);
   const [, setLoading] = useAtom(loadingAtom);
 
   useEffect(() => {

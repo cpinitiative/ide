@@ -1,5 +1,4 @@
 import { isUserOnline, User } from '../../hooks/useOnlineUsers';
-import { useFirebaseRef, useUserRef } from '../../hooks/useFirebaseRef';
 import React, { Fragment, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Menu, Transition } from '@headlessui/react';
@@ -11,6 +10,8 @@ import {
   defaultPermissionAtom,
 } from '../../atoms/workspace';
 import { usePopper } from 'react-popper';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseRefAtom, userRefAtom } from '../../atoms/firebaseAtoms';
 
 const permissionLabels = {
   OWNER: 'Owner',
@@ -20,8 +21,8 @@ const permissionLabels = {
 };
 
 export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
-  const userRef = useUserRef();
-  const firebaseRef = useFirebaseRef();
+  const userRef = useAtomValue(userRefAtom);
+  const firebaseRef = useAtomValue(firebaseRefAtom);
   const [permission] = useAtom(actualUserPermissionAtom);
   const [defaultPermission] = useAtom(defaultPermissionAtom);
 

@@ -14,13 +14,12 @@ import { TabBar } from '../components/TabBar';
 import { useRouter } from 'next/router';
 import { Output } from '../components/Output';
 import defaultCode from '../scripts/defaultCode';
-import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
 import { useSettings } from '../components/SettingsContext';
 import { UserList } from '../components/UserList/UserList';
-import firebaseType from 'firebase';
+import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
   actualUserPermissionAtom,
@@ -41,6 +40,8 @@ import { CodeInterface } from '../components/CodeInterface/CodeInterface';
 import { LazyFirepadEditor } from '../components/LazyFirepadEditor';
 import classNames from 'classnames';
 import { DotsHorizontalIcon } from '@heroicons/react/solid';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseRefAtom, userRefAtom } from '../atoms/firebaseAtoms';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -83,7 +84,7 @@ export default function Home(): JSX.Element {
   >('code');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
 
-  const firebaseRef = useFirebaseRef();
+  const firebaseRef = useAtomValue(firebaseRefAtom);
   const firebaseRefs = useMemo(
     () => ({
       cpp: firebaseRef?.child(`editor-cpp`),
@@ -108,7 +109,7 @@ export default function Home(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 
-  const userRef = useUserRef();
+  const userRef = useAtomValue(userRefAtom);
   useEffect(() => {
     if (userRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {

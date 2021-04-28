@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
-import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import firebase from 'firebase/app';
-import firebaseType from 'firebase';
+import type firebaseType from 'firebase';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { ChatMessageItem } from './ChatMessageItem';
 import { useAtomValue } from 'jotai/utils';
 import { actualUserPermissionAtom } from '../atoms/workspace';
+import { firebaseRefAtom, userRefAtom } from '../atoms/firebaseAtoms';
 
 export interface ChatMessage {
   timestamp: number;
@@ -16,8 +16,8 @@ export interface ChatMessage {
 }
 
 export const Chat = ({ className }: { className?: string }): JSX.Element => {
-  const firebaseRef = useFirebaseRef();
-  const userRef = useUserRef();
+  const firebaseRef = useAtomValue(firebaseRefAtom);
+  const userRef = useAtomValue(userRefAtom);
   const onlineUsers = useOnlineUsers();
   const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
   const [message, setMessage] = useState('');

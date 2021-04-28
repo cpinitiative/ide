@@ -1,6 +1,7 @@
-import { useFirebaseRef } from './useFirebaseRef';
 import { useEffect, useState } from 'react';
-import firebaseType from 'firebase';
+import type firebaseType from 'firebase';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseRefAtom } from '../atoms/firebaseAtoms';
 
 export type User = {
   color: string;
@@ -15,7 +16,7 @@ export const isUserOnline = (user: User): boolean => {
 };
 
 export function useOnlineUsers(): User[] | null {
-  const firebaseRef = useFirebaseRef();
+  const firebaseRef = useAtomValue(firebaseRefAtom);
 
   const [users, setUsers] = useState<User[] | null>(null);
 

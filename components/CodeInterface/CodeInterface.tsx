@@ -9,9 +9,9 @@ import {
   currentLangAtom,
   mainMonacoEditorAtom,
 } from '../../atoms/workspace';
-import { useFirebaseRef } from '../../hooks/useFirebaseRef';
 import { LazyFirepadEditor } from '../LazyFirepadEditor';
-import MonacoEditor from '@monaco-editor/react';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseRefAtom } from '../../atoms/firebaseAtoms';
 
 export const CodeInterface = ({
   className,
@@ -27,7 +27,7 @@ export const CodeInterface = ({
   ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [, setMainMonacoEditor] = useAtom(mainMonacoEditorAtom);
 
-  const firebaseRef = useFirebaseRef();
+  const firebaseRef = useAtomValue(firebaseRefAtom);
   const firebaseRefs = useMemo(
     () => ({
       cpp: firebaseRef?.child(`editor-cpp`),

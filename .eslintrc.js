@@ -35,7 +35,10 @@ module.exports = {
         'jsx-a11y/anchor-is-valid': 'off',
 
         // Why would you want unused vars?
-        '@typescript-eslint/no-unused-vars': ['error'],
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          { argsIgnorePattern: '^_' },
+        ],
 
         '@typescript-eslint/no-empty-function': 'off',
 

@@ -3,16 +3,16 @@ import '../styles/globals.css';
 import '../styles/firepad.css';
 import { AppProps } from 'next/app';
 import { SettingsProvider } from '../components/SettingsContext';
-import { FirebaseRefProvider } from '../hooks/useFirebaseRef';
+import { WorkspaceInitializer } from '../components/WorkspaceInitializer';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
-    <FirebaseRefProvider>
-      {/* Actually maybe this firebase provider should go inside [[...id]].tsx. Future todo I guess */}
+    <WorkspaceInitializer>
+      {/* Actually maybe workspace initializer should go inside [[...id]].tsx. Future todo I guess */}
       <SettingsProvider>
         <Component {...pageProps} />
       </SettingsProvider>
-    </FirebaseRefProvider>
+    </WorkspaceInitializer>
   );
 }
 

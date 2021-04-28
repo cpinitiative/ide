@@ -5,8 +5,9 @@ import React, {
   useMemo,
   useReducer,
 } from 'react';
-import { useFirebaseRef } from '../hooks/useFirebaseRef';
 import type firebaseType from 'firebase';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseRefAtom } from '../atoms/firebaseAtoms';
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES: { label: string; value: Language }[] = [
@@ -46,7 +47,7 @@ type SettingsContextType = {
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export const SettingsProvider: React.FC = ({ children }) => {
-  const firebaseRef = useFirebaseRef();
+  const firebaseRef = useAtomValue(firebaseRefAtom);
   const [settings, setSettings] = useReducer(
     (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
       return {
