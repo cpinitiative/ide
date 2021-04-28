@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useReducer, useRef } from 'react';
+import { Fragment, useEffect, useReducer, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
@@ -6,12 +6,20 @@ import { XIcon } from '@heroicons/react/outline';
 import {
   EDITOR_MODES,
   LANGUAGES,
-  Settings,
+  WorkspaceSettings,
   useSettings,
 } from './SettingsContext';
 import { SharingPermissions } from './SharingPermissions';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../atoms/workspace';
+import { firebaseUserAtom } from '../atoms/firebaseAtoms';
+import {
+  EditorMode,
+  editorModeAtomWithPersistence,
+  userNameAtom,
+} from '../atoms/userSettings';
+import { useUpdateAtom } from 'jotai/utils';
+import { useUserRef } from '../hooks/useFirebaseRef';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -23,24 +31,32 @@ export const SettingsModal = ({
   onClose,
 }: SettingsDialogProps): JSX.Element => {
   const {
-    settings: realSettings,
-    setSettings: setRealSettings,
+    settings: realWorkspaceSettings,
+    setSettings: setRealWorkspaceSettings,
   } = useSettings();
+  const userRef = useUserRef();
   const dirtyRef = useRef<boolean>(false);
-  const [settings, setSettings] = useReducer(
-    (prev: Settings, next: Partial<Settings>) => {
+  const [workspaceSettings, setWorkspaceSettings] = useReducer(
+    (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
       return {
         ...prev,
         ...next,
       };
     },
-    realSettings
+    realWorkspaceSettings
   );
   const [userPermission] = useAtom(actualUserPermissionAtom);
+  const [firebaseUser] = useAtom(firebaseUserAtom);
+  const setUserNameAtom = useUpdateAtom(userNameAtom);
+  const [name, setName] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
+  const editorModeAtom = useAtom(editorModeAtomWithPersistence);
 
   useEffect(() => {
     if (isOpen) {
-      setSettings(realSettings);
+      setWorkspaceSettings(realWorkspaceSettings);
+      setName(firebaseUser?.displayName || null);
+      setEditorMode(editorModeAtom[0]);
       dirtyRef.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,13 +75,21 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = () => {
-    setRealSettings(settings);
+    setRealWorkspaceSettings(workspaceSettings);
+    editorModeAtom[1](editorMode);
+    if (name !== firebaseUser?.displayName) {
+      firebaseUser?.updateProfile({
+        displayName: name,
+      });
+      userRef?.child('name').set(name);
+      setUserNameAtom(name);
+    }
     onClose();
   };
 
-  const onChange = (data: Partial<Settings>): void => {
+  const onChange = (data: Partial<WorkspaceSettings>): void => {
     dirtyRef.current = true;
-    setSettings(data);
+    setWorkspaceSettings(data);
   };
 
   return (
@@ -122,9 +146,34 @@ export const SettingsModal = ({
 
               <div className="p-4 sm:p-6 sm:pt-4 space-y-6">
                 <div>
+                  <label
+                    htmlFor={`name`}
+                    className="block font-medium text-gray-700"
+                  >
+                    User Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      name={`name`}
+                      id={`name`}
+                      className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm"
+                      value={name || ''}
+                      onChange={e => {
+                        setName(e.target.value);
+                        dirtyRef.current = true;
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <RadioGroup
-                    value={settings.editorMode}
-                    onChange={mode => onChange({ editorMode: mode })}
+                    value={editorMode}
+                    onChange={mode => {
+                      setEditorMode(mode);
+                      dirtyRef.current = true;
+                    }}
                   >
                     <RadioGroup.Label className="font-medium text-gray-800 mb-4">
                       Editor Mode
@@ -184,7 +233,7 @@ export const SettingsModal = ({
                       name={`workspace_name`}
                       id={`workspace_name`}
                       className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm"
-                      value={settings.workspaceName || ''}
+                      value={workspaceSettings.workspaceName || ''}
                       onChange={e =>
                         onChange({
                           workspaceName: e.target.value,
@@ -208,12 +257,12 @@ export const SettingsModal = ({
                         name={`compiler_options_${value}`}
                         id={`compiler_options_${value}`}
                         className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black font-mono text-sm"
-                        value={settings.compilerOptions[value]}
+                        value={workspaceSettings.compilerOptions[value]}
                         placeholder="None"
                         onChange={e =>
                           onChange({
                             compilerOptions: {
-                              ...settings.compilerOptions,
+                              ...workspaceSettings.compilerOptions,
                               [value]: e.target.value,
                             },
                           })
@@ -225,7 +274,7 @@ export const SettingsModal = ({
 
                 {userPermission === 'OWNER' && (
                   <SharingPermissions
-                    value={settings.defaultPermission}
+                    value={workspaceSettings.defaultPermission}
                     onChange={val => onChange({ defaultPermission: val })}
                   />
                 )}

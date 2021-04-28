@@ -15,6 +15,8 @@ import animals from '../scripts/animals';
 import colorFromUserId from '../scripts/colorFromUserId';
 import { useAtom } from 'jotai';
 import { defaultPermissionAtom } from '../atoms/workspace';
+import { firebaseUserAtom } from '../atoms/firebaseAtoms';
+import { userNameAtom } from '../atoms/userSettings';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA',
@@ -67,7 +69,9 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
     userRef,
     setUserRef,
   ] = useState<firebaseType.database.Reference | null>(null);
+  const [, setFirebaseUser] = useAtom(firebaseUserAtom);
   const [, setDefaultPermission] = useAtom(defaultPermissionAtom);
+  const [, setUserName] = useAtom(userNameAtom);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -111,6 +115,10 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
           // first time on this doc, need to add to user list
           joinWorkspaceForFirstTime(userRef, permission, name);
         } else {
+          // update name as necessary
+          if (snap.val().name !== name) {
+            userRef.child('name').set(name);
+          }
           const connectionRef = userRef
             .child('connections')
             .push(firebase.database.ServerValue.TIMESTAMP);
@@ -120,6 +128,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
     };
 
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+      setFirebaseUser(user);
       if (user) {
         let name =
           'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
@@ -128,6 +137,7 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
         } else {
           name = user.displayName;
         }
+        setUserName(name);
 
         const uid = user.uid;
 

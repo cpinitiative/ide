@@ -1,7 +1,8 @@
 import MonacoEditor from '@monaco-editor/react';
 import { EditorProps } from '@monaco-editor/react';
-import { useSettings } from './SettingsContext';
 import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { editorModeAtomWithPersistence } from '../atoms/userSettings';
 
 export const EditorWithVim = ({
   onMount,
@@ -11,8 +12,7 @@ export const EditorWithVim = ({
     editor,
     setEditor,
   ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const { settings } = useSettings();
-  const mode = settings.editorMode;
+  const [mode] = useAtom(editorModeAtomWithPersistence);
 
   useEffect(() => {
     if (!editor) return;

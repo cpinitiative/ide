@@ -27,16 +27,20 @@ export const LANGUAGES: { label: string; value: Language }[] = [
 // emacs coming soon?
 export const EDITOR_MODES = ['Normal', 'Vim' /*'Emacs'*/];
 
-export interface Settings {
+export interface UserSettings {
   editorMode: 'Normal' | 'Vim' | 'Emacs';
+  name: string;
+}
+
+export interface WorkspaceSettings {
   compilerOptions: { [key in Language]: string };
   defaultPermission: string;
   workspaceName?: string;
 }
 
 type SettingsContextType = {
-  settings: Settings;
-  setSettings: (updates: Partial<Settings>) => void;
+  settings: WorkspaceSettings;
+  setSettings: (updates: Partial<WorkspaceSettings>) => void;
 };
 
 export const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -44,14 +48,13 @@ export const SettingsContext = createContext<SettingsContextType | null>(null);
 export const SettingsProvider: React.FC = ({ children }) => {
   const firebaseRef = useFirebaseRef();
   const [settings, setSettings] = useReducer(
-    (prev: Settings, next: Partial<Settings>) => {
+    (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
       return {
         ...prev,
         ...next,
       };
     },
     {
-      editorMode: 'Normal',
       compilerOptions: {
         cpp:
           '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
@@ -72,21 +75,12 @@ export const SettingsProvider: React.FC = ({ children }) => {
     }
   }, [firebaseRef]);
 
-  useEffect(() => {
-    const editorMode = window.localStorage.getItem('editorMode');
-    if (editorMode === 'Vim' || editorMode === 'Normal') {
-      setSettings({ editorMode });
-    }
-  }, []);
-
   const value = useMemo(
     () => ({
       settings,
-      setSettings: (data: Partial<Settings>) => {
+      setSettings: (data: Partial<WorkspaceSettings>) => {
         if (firebaseRef) {
-          const { editorMode, ...otherSettings } = data;
-          firebaseRef.child('settings').update(otherSettings);
-          if (editorMode) localStorage.setItem('editorMode', editorMode);
+          firebaseRef.child('settings').update(data);
           setSettings(data);
         } else {
           alert("Firebase hasn't loaded yet, please wait");
