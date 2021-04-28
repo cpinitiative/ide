@@ -5,6 +5,8 @@ import firebase from 'firebase/app';
 import firebaseType from 'firebase';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { ChatMessageItem } from './ChatMessageItem';
+import { useAtomValue } from 'jotai/utils';
+import { actualUserPermissionAtom } from '../atoms/workspace';
 
 export interface ChatMessage {
   timestamp: number;
@@ -17,7 +19,9 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   const firebaseRef = useFirebaseRef();
   const userRef = useUserRef();
   const onlineUsers = useOnlineUsers();
+  const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
   const [message, setMessage] = useState('');
+  const userPermission = useAtomValue(actualUserPermissionAtom);
   const chatRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,8 +41,6 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
       chatInputRef.current?.focus();
     }
   };
-
-  const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
 
   useEffect(() => {
     if (firebaseRef) {
@@ -84,23 +86,25 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
               />
             ))
           ) : (
-            <p className="text-gray-400">No chat messages.</p>
+            <p className="text-gray-400 text-sm">No chat messages.</p>
           ))}
       </div>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 focus:placeholder-gray-400 text-sm"
-          placeholder="Send a message"
-          rows={3}
-          value={message}
-          onChange={e => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          ref={chatInputRef}
-        />
-        <button className="mt-1 block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-600">
-          Send
-        </button>
-      </form>
+      {(userPermission === 'OWNER' || userPermission === 'READ_WRITE') && (
+        <form onSubmit={handleSubmit}>
+          <textarea
+            className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 focus:placeholder-gray-400 text-sm"
+            placeholder="Send a message"
+            rows={3}
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            ref={chatInputRef}
+          />
+          <button className="mt-1 block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            Send
+          </button>
+        </form>
+      )}
     </div>
   );
 };
