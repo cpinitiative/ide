@@ -1,6 +1,7 @@
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  ExclamationIcon,
   ShareIcon,
 } from '@heroicons/react/solid';
 import React, { useState } from 'react';
@@ -53,19 +54,29 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
         </button>
       </div>
       {props.runButton}
-      {props.showViewOnly && (
-        <span className="px-4 text-gray-400 text-sm font-medium">
-          View Only
-        </span>
-      )}
-      <a
-        href="https://github.com/cpinitiative/ide"
-        target="_blank"
-        rel="noreferrer"
-        className="px-4 text-gray-400 hover:text-gray-200 text-sm font-medium hidden sm:block"
-      >
-        Star this on Github!
-      </a>
+      <div className="flex items-center divide-x divide-gray-700">
+        <a
+          href="mailto:nathan.r.wang@gmail.com"
+          target="_blank"
+          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium hidden md:block"
+          rel="noreferrer"
+        >
+          Report an Issue
+        </a>
+        <a
+          href="https://github.com/cpinitiative/ide"
+          target="_blank"
+          rel="noreferrer"
+          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium hidden sm:block"
+        >
+          Star this on Github!
+        </a>
+        {props.showViewOnly && (
+          <span className="px-4 py-2 text-gray-400 text-sm font-medium">
+            View Only
+          </span>
+        )}
+      </div>
       <div className="flex-1" />
       {props.showSidebarButton && (
         <div>
