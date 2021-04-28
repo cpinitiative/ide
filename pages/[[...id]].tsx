@@ -276,9 +276,9 @@ export default function Home(): JSX.Element {
                 <div
                   className={classNames(
                     'flex flex-col min-w-0 min-h-0 overflow-hidden',
-                    showSidebar ? 'col-span-1' : 'col-span-3',
                     !isDesktop && 'col-span-full mb-[6px]',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
+                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
                   )}
                 >
                   <TabBar
@@ -311,9 +311,9 @@ export default function Home(): JSX.Element {
                 <div
                   className={classNames(
                     'cursor-[row-resize] group relative z-10 my-[-6px]',
-                    showSidebar ? 'col-span-1' : 'col-span-3',
                     !isDesktop && 'col-span-full',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
+                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
                   )}
                   {...getGutterProps('row', 1)}
                 >
@@ -333,9 +333,9 @@ export default function Home(): JSX.Element {
                 <div
                   className={classNames(
                     'flex flex-col min-w-0 min-h-0 overflow-hidden',
-                    showSidebar ? 'col-span-1' : 'col-span-3',
                     !isDesktop && 'col-span-full mt-[6px]',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
+                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
                   )}
                 >
                   <Output

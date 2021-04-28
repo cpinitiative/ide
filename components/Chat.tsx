@@ -19,6 +19,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
   const onlineUsers = useOnlineUsers();
   const [message, setMessage] = useState('');
   const chatRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();
@@ -33,6 +34,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
         message: message.trim(),
       });
       setMessage('');
+      chatInputRef.current?.focus();
     }
   };
 
@@ -92,6 +94,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
           value={message}
           onChange={e => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
+          ref={chatInputRef}
         />
         <button className="mt-1 block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-600">
           Send
