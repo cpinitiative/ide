@@ -8,52 +8,39 @@ loader.config({
 import Head from 'next/head';
 /// <reference path="../types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
-import React, {
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-  useReducer,
-  Fragment,
-} from 'react';
+import React, { useState, useEffect, useReducer, useMemo } from 'react';
 import { RunButton } from '../components/RunButton';
 import { TabBar } from '../components/TabBar';
 import { useRouter } from 'next/router';
 import { Output } from '../components/Output';
-import {
-  CogIcon,
-  DownloadIcon,
-  PlusIcon,
-  ShareIcon,
-  TemplateIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from '@heroicons/react/solid';
-import dynamic from 'next/dynamic';
 import defaultCode from '../scripts/defaultCode';
 import { useFirebaseRef, useUserRef } from '../hooks/useFirebaseRef';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
 import type { Language } from '../components/SettingsContext';
 import { useSettings } from '../components/SettingsContext';
-import download from '../scripts/download';
-import { Menu, Transition } from '@headlessui/react';
-import classNames from 'classnames';
 import { UserList } from '../components/UserList/UserList';
-import { isUserOnline, useOnlineUsers } from '../hooks/useOnlineUsers';
 import firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
   actualUserPermissionAtom,
+  inputMonacoEditorAtom,
+  layoutEditorsAtom,
   loadingAtom,
+  mainMonacoEditorAtom,
+  outputMonacoEditorAtom,
   userPermissionAtom,
 } from '../atoms/workspace';
 import { Chat } from '../components/Chat';
-
-const FirepadEditor = dynamic(() => import('../components/FirepadEditor'), {
-  ssr: false,
-});
+import { NavBar } from '../components/NavBar/NavBar';
+import { FileMenu } from '../components/NavBar/FileMenu';
+import download from '../scripts/download';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
+import { CodeInterface } from '../components/CodeInterface/CodeInterface';
+import { LazyFirepadEditor } from '../components/LazyFirepadEditor';
+import classNames from 'classnames';
+import { DotsHorizontalIcon } from '@heroicons/react/solid';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -70,9 +57,10 @@ function decode(bytes: string | null) {
 
 export default function Home(): JSX.Element {
   const router = useRouter();
-  const editor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const inputEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const outputEditor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [mainMonacoEditor] = useAtom(mainMonacoEditorAtom);
+  const [inputEditor, setInputEditor] = useAtom(inputMonacoEditorAtom);
+  const [, setOutputEditor] = useAtom(outputMonacoEditorAtom);
+  const [, layoutEditors] = useAtom(layoutEditorsAtom);
   const [result, setResult] = useState<JudgeSuccessResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [lang, setLang] = useReducer((prev: Language, next: Language) => {
@@ -90,8 +78,21 @@ export default function Home(): JSX.Element {
   const [permission] = useAtom(actualUserPermissionAtom);
   const [loading] = useAtom(loadingAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const onlineUsers = useOnlineUsers();
-  const onlineUserCount = onlineUsers?.filter(isUserOnline).length;
+  const [mobileActiveTab, setMobileActiveTab] = useState<
+    'code' | 'io' | 'users'
+  >('code');
+  const isDesktop = useMediaQuery('(min-width: 1024px)', true);
+
+  const firebaseRef = useFirebaseRef();
+  const firebaseRefs = useMemo(
+    () => ({
+      cpp: firebaseRef?.child(`editor-cpp`),
+      java: firebaseRef?.child(`editor-java`),
+      py: firebaseRef?.child(`editor-py`),
+      input: firebaseRef?.child('input'),
+    }),
+    [firebaseRef]
+  );
 
   useEffect(() => {
     if (router.isReady) {
@@ -121,7 +122,7 @@ export default function Home(): JSX.Element {
   }, [userRef, setUserPermission]);
 
   const handleRunCode = () => {
-    if (!editor.current || !inputEditor.current) {
+    if (!mainMonacoEditor || !inputEditor) {
       // editor is still loading
       return;
     }
@@ -129,9 +130,9 @@ export default function Home(): JSX.Element {
     setIsRunning(true);
     setResult(null);
     const data = {
-      source_code: encode(editor.current.getValue()),
+      source_code: encode(mainMonacoEditor.getValue()),
       language_id: { cpp: 54, java: 62, py: 71 }[lang],
-      stdin: encode(inputEditor.current.getValue()),
+      stdin: encode(inputEditor.getValue()),
       compiler_options: settings.compilerOptions[lang],
       command_line_arguments: '',
       redirect_stderr_to_stdout: false,
@@ -169,25 +170,30 @@ export default function Home(): JSX.Element {
       .finally(() => setIsRunning(false));
   };
 
-  const firebaseRef = useFirebaseRef();
-  const firebaseRefs = useMemo(
-    () => ({
-      cpp: firebaseRef?.child(`editor-cpp`),
-      java: firebaseRef?.child(`editor-java`),
-      py: firebaseRef?.child(`editor-py`),
-      input: firebaseRef?.child('input'),
-    }),
-    [firebaseRef]
-  );
+  useEffect(() => {
+    function handleResize() {
+      layoutEditors();
+    }
 
-  const layoutEditors = () => {
-    if (editor.current) editor.current.layout();
-    if (inputEditor.current) inputEditor.current.layout();
-    if (outputEditor.current) outputEditor.current.layout();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [layoutEditors]);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      layoutEditors();
+    }
+  }, [isDesktop, mobileActiveTab]);
+
+  const handleToggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+    setTimeout(() => {
+      layoutEditors();
+    }, 0);
   };
 
   const handleDownloadFile = () => {
-    if (!editor.current) {
+    if (!mainMonacoEditor) {
       alert("Editor hasn't loaded yet. Please wait.");
       return;
     }
@@ -198,50 +204,17 @@ export default function Home(): JSX.Element {
       py: 'main.py',
     };
 
-    download(fileNames[lang], editor.current.getValue());
-  };
-
-  useEffect(() => {
-    function handleResize() {
-      layoutEditors();
-    }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const [showCopied, setShowCopied] = useState(false);
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href).then(
-      () => {
-        setShowCopied(true);
-        setTimeout(() => {
-          setShowCopied(false);
-        }, 3000);
-      },
-      () => {
-        alert(
-          "Couldn't copy link to clipboard. Share the current URL manually."
-        );
-      }
-    );
+    download(fileNames[lang], mainMonacoEditor.getValue());
   };
 
   const handleInsertFileTemplate = () => {
-    if (!editor.current) {
+    if (!mainMonacoEditor) {
       alert("Editor hasn't loaded yet, please wait");
       return;
     }
     if (confirm('Reset current file? Any changes you made will be lost.')) {
-      editor.current.setValue(defaultCode[lang]);
+      mainMonacoEditor.setValue(defaultCode[lang]);
     }
-  };
-
-  const handleToggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-    setTimeout(() => {
-      layoutEditors();
-    }, 0);
   };
 
   return (
@@ -256,163 +229,25 @@ export default function Home(): JSX.Element {
 
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
-          <div className="flex items-center divide-x divide-gray-700">
-            <Menu as="div" className="relative inline-block text-left">
-              {({ open }) => (
-                <>
-                  <div>
-                    <Menu.Button className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none">
-                      File
-                      <ChevronDownIcon
-                        className="-mr-1 ml-2 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                    </Menu.Button>
-                  </div>
-
-                  <Transition
-                    show={open}
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items
-                      static
-                      className="origin-top-left absolute z-10 left-0 w-56 shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
-                    >
-                      <div className="py-1">
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="/"
-                              target="_blank"
-                              className={classNames(
-                                active
-                                  ? 'bg-gray-700 text-gray-100'
-                                  : 'text-gray-200',
-                                'group flex items-center px-4 py-2 text-sm'
-                              )}
-                            >
-                              <PlusIcon
-                                className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
-                                aria-hidden="true"
-                              />
-                              New File
-                            </a>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              type="button"
-                              className={classNames(
-                                active
-                                  ? 'bg-gray-700 text-gray-100'
-                                  : 'text-gray-200',
-                                'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
-                              )}
-                              onClick={() => handleDownloadFile()}
-                            >
-                              <DownloadIcon
-                                className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
-                                aria-hidden="true"
-                              />
-                              Download File
-                            </button>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              type="button"
-                              className={classNames(
-                                active
-                                  ? 'bg-gray-700 text-gray-100'
-                                  : 'text-gray-200',
-                                'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
-                              )}
-                              onClick={() => handleInsertFileTemplate()}
-                            >
-                              <TemplateIcon
-                                className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
-                                aria-hidden="true"
-                              />
-                              Insert File Template
-                            </button>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              type="button"
-                              className={classNames(
-                                active
-                                  ? 'bg-gray-700 text-gray-100'
-                                  : 'text-gray-200',
-                                'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
-                              )}
-                              onClick={() => setIsSettingsModalOpen(true)}
-                            >
-                              <CogIcon
-                                className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
-                                aria-hidden="true"
-                              />
-                              Settings
-                            </button>
-                          )}
-                        </Menu.Item>
-                      </div>
-                    </Menu.Items>
-                  </Transition>
-                </>
-              )}
-            </Menu>
-            <button
-              type="button"
-              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-              onClick={() => handleShare()}
-            >
-              <ShareIcon
-                className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                aria-hidden="true"
+          <NavBar
+            fileMenu={
+              <FileMenu
+                onDownloadFile={handleDownloadFile}
+                onInsertFileTemplate={handleInsertFileTemplate}
+                onOpenSettings={() => setIsSettingsModalOpen(true)}
               />
-              {showCopied ? 'URL Copied!' : 'Share'}
-            </button>
-          </div>
-          <RunButton
-            onClick={() => handleRunCode()}
-            showLoading={isRunning || loading}
+            }
+            runButton={
+              <RunButton
+                onClick={() => handleRunCode()}
+                showLoading={isRunning || loading}
+              />
+            }
+            showViewOnly={!loading && readOnly}
+            isSidebarOpen={showSidebar}
+            onToggleSidebar={handleToggleSidebar}
+            showSidebarButton={isDesktop}
           />
-          {!loading && readOnly && (
-            <span className="px-4 text-gray-500 text-sm font-medium">
-              View Only
-            </span>
-          )}
-          <div className="flex-1" />
-          <div>
-            <button
-              type="button"
-              className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
-              onClick={() => handleToggleSidebar()}
-            >
-              {showSidebar ? (
-                <ChevronRightIcon
-                  className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              ) : (
-                <ChevronLeftIcon
-                  className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              )}
-              {onlineUserCount} User{onlineUserCount === 1 ? '' : 's'} Online
-            </button>
-          </div>
         </div>
         <div className="flex-1 min-h-0">
           <Split
@@ -422,59 +257,36 @@ export default function Home(): JSX.Element {
                 className={`grid grid-cols-[3fr,3px,2fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden`}
                 {...getGridProps()}
               >
-                <div className="row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-hidden">
-                  <TabBar
-                    tabs={[
-                      { label: 'Main.cpp', value: 'cpp' },
-                      { label: 'Main.java', value: 'java' },
-                      { label: 'Main.py', value: 'py' },
-                    ]}
-                    activeTab={lang}
-                    onTabSelect={tab => setLang(tab.value as Language)}
-                  />
-                  <div className="flex-1 overflow-hidden">
-                    <FirepadEditor
-                      theme="vs-dark"
-                      language={
-                        { cpp: 'cpp', java: 'java', py: 'python' }[lang]
-                      }
-                      path={lang}
-                      options={{
-                        minimap: { enabled: false },
-                        automaticLayout: false,
-                        insertSpaces: false,
-                        readOnly,
-                      }}
-                      onMount={e => {
-                        editor.current = e;
-                        setTimeout(() => {
-                          e.layout();
-                          e.focus();
-                        }, 0);
-                      }}
-                      defaultValue={defaultCode[lang]}
-                      firebaseRef={firebaseRefs[lang]}
-                      useEditorWithVim={true}
-                    />
-                  </div>
-                </div>
+                <CodeInterface
+                  className={classNames(
+                    'row-span-full min-w-0 overflow-hidden',
+                    !isDesktop && 'col-span-full',
+                    !isDesktop && mobileActiveTab !== 'code' && 'hidden'
+                  )}
+                />
                 <div
-                  className="row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10"
+                  className={classNames(
+                    'row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10',
+                    !isDesktop && 'hidden'
+                  )}
                   {...getGutterProps('column', 1)}
                 >
                   <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                 </div>
                 <div
-                  className={`flex flex-col min-w-0 min-h-0 overflow-hidden ${
-                    showSidebar ? 'col-span-1' : 'col-span-3'
-                  }`}
+                  className={classNames(
+                    'flex flex-col min-w-0 min-h-0 overflow-hidden',
+                    showSidebar ? 'col-span-1' : 'col-span-3',
+                    !isDesktop && 'col-span-full mb-[6px]',
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                  )}
                 >
                   <TabBar
                     tabs={[{ label: 'input', value: 'input' }]}
                     activeTab={'input'}
                   />
                   <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
-                    <FirepadEditor
+                    <LazyFirepadEditor
                       theme="vs-dark"
                       language={'plaintext'}
                       saveViewState={false}
@@ -486,7 +298,7 @@ export default function Home(): JSX.Element {
                         readOnly,
                       }}
                       onMount={e => {
-                        inputEditor.current = e;
+                        setInputEditor(e);
                         setTimeout(() => {
                           e.layout();
                         }, 0);
@@ -497,37 +309,63 @@ export default function Home(): JSX.Element {
                   </div>
                 </div>
                 <div
-                  className={`cursor-[row-resize] my-[-6px] group relative z-10 ${
-                    showSidebar ? 'col-span-1' : 'col-span-3'
-                  }`}
+                  className={classNames(
+                    'cursor-[row-resize] group relative z-10 my-[-6px]',
+                    showSidebar ? 'col-span-1' : 'col-span-3',
+                    !isDesktop && 'col-span-full',
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                  )}
                   {...getGutterProps('row', 1)}
                 >
-                  <div className="absolute w-full top-[6px] bottom-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
+                  <div
+                    className={classNames(
+                      'absolute w-full bg-black group-hover:bg-gray-600 group-active:bg-gray-600 group-focus:bg-gray-600 pointer-events-none transition',
+                      isDesktop
+                        ? 'top-[6px] bottom-[6px]'
+                        : 'inset-y-0 bg-gray-800 flex items-center justify-center'
+                    )}
+                  >
+                    {!isDesktop && (
+                      <DotsHorizontalIcon className="h-5 w-5 text-gray-200" />
+                    )}
+                  </div>
                 </div>
                 <div
-                  className={`flex flex-col min-w-0 min-h-0 overflow-hidden ${
-                    showSidebar ? 'col-span-1' : 'col-span-3'
-                  }`}
+                  className={classNames(
+                    'flex flex-col min-w-0 min-h-0 overflow-hidden',
+                    showSidebar ? 'col-span-1' : 'col-span-3',
+                    !isDesktop && 'col-span-full mt-[6px]',
+                    !isDesktop && mobileActiveTab !== 'io' && 'hidden'
+                  )}
                 >
                   <Output
                     result={result}
                     onMount={e => {
-                      outputEditor.current = e;
+                      setOutputEditor(e);
                       setTimeout(() => {
                         e.layout();
                       }, 0);
                     }}
                   />
                 </div>
-                {showSidebar && (
+                {((showSidebar && isDesktop) ||
+                  (!isDesktop && mobileActiveTab === 'users')) && (
                   <>
                     <div
-                      className="row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10"
+                      className={classNames(
+                        'row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10',
+                        !isDesktop && 'hidden'
+                      )}
                       {...getGutterProps('column', 3)}
                     >
                       <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
                     </div>
-                    <div className="row-span-full col-start-5 min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-auto">
+                    <div
+                      className={classNames(
+                        'row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-auto',
+                        isDesktop ? 'col-start-5' : 'col-span-full pt-4'
+                      )}
+                    >
                       <UserList className="max-w-full max-h-64" />
                       <Chat className="flex-1 p-4 min-h-0" />
                     </div>
@@ -537,12 +375,14 @@ export default function Home(): JSX.Element {
             )}
           />
         </div>
-        <div className="flex-shrink-0 relative text-sm bg-purple-900 bg-opacity-25 text-purple-200 font-medium font-mono">
+        <div className="flex-shrink-0 relative text-sm bg-purple-900 bg-opacity-25 text-purple-200 font-medium font-mono h-5">
           {/* For vim */}
           <span className="absolute left-0 top-0 bottom-0 pl-4 status-node" />
-          <p className="text-center">
-            v0.1.0. &copy; Competitive Programming Initiative
-          </p>
+          {isDesktop && (
+            <p className="text-center">
+              v0.1.0. &copy; Competitive Programming Initiative
+            </p>
+          )}
           {result && (
             <span className="absolute right-0 top-0 bottom-0 pr-4">
               {result.status.description}, {result.time ?? '-'}s,{' '}
@@ -550,6 +390,12 @@ export default function Home(): JSX.Element {
             </span>
           )}
         </div>
+        {!isDesktop && (
+          <MobileBottomNav
+            activeTab={mobileActiveTab}
+            onActiveTabChange={setMobileActiveTab}
+          />
+        )}
       </div>
 
       <SettingsModal
