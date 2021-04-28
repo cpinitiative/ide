@@ -127,7 +127,9 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
       });
     };
 
+    let unsubscribe2: () => void;
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+      if (unsubscribe2) unsubscribe2();
       setFirebaseUser(user);
       if (user) {
         let name =
@@ -150,39 +152,57 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
         const ref = getFirebaseRef(queryId);
         const userRef = ref.child('users').child(uid);
 
-        if (queryId) {
+        let hasJoinedWorkspace = false;
+        if (!queryId) {
+          joinWorkspaceForFirstTime(userRef, 'OWNER', name);
+          ref.child('settings').child('defaultPermission').set('READ_WRITE');
+          hasJoinedWorkspace = true;
+        }
+
+        const handleDefaultPermissionChange = (
+          snap: firebaseType.database.DataSnapshot
+        ) => {
+          setDefaultPermission(snap.val() || 'READ_WRITE');
+
+          if (!hasJoinedWorkspace) {
+            let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
+            if (snap.exists()) {
+              permission = snap.val();
+            } else {
+              // new doc, make me the owner
+              permission = 'OWNER';
+
+              ref
+                .child('settings')
+                .child('defaultPermission')
+                .set('READ_WRITE');
+            }
+
+            joinWorkspace(userRef, permission, name);
+            hasJoinedWorkspace = true;
+          }
+        };
+
+        ref
+          .child('settings')
+          .child('defaultPermission')
+          .on('value', handleDefaultPermissionChange);
+
+        unsubscribe2 = () =>
           ref
             .child('settings')
             .child('defaultPermission')
-            .once('value')
-            .then(snap => {
-              let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
-              if (snap.exists()) {
-                permission = snap.val();
-              } else {
-                // new doc, make me the owner
-                permission = 'OWNER';
-
-                ref
-                  .child('settings')
-                  .child('defaultPermission')
-                  .set('READ_WRITE');
-              }
-
-              setDefaultPermission(snap.val() || 'READ_WRITE');
-              joinWorkspace(userRef, permission, name);
-            });
-        } else {
-          setDefaultPermission('READ_WRITE');
-          joinWorkspaceForFirstTime(userRef, 'OWNER', name);
-        }
+            .off('value', handleDefaultPermissionChange);
 
         setRef(ref);
         setUserRef(userRef);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (unsubscribe2) unsubscribe2();
+    };
 
     // we only want to run this once when the router is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -60,6 +60,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+      e.preventDefault();
       handleSubmit();
     }
   };
