@@ -2157,6 +2157,8 @@ var MonacoAdapter = function () {
       end = _ref[1];
     }
 
+    const otherCursorName = (window.firepadUsers && window.firepadUsers.find(user => user.id === clientID).name) || "Unknown User";
+
     /** Add decoration to the Editor */
     otherCursor.decoration = this.monaco.deltaDecorations(otherCursor.decoration,
       [
@@ -2166,7 +2168,10 @@ var MonacoAdapter = function () {
             end.lineNumber, end.column
           ),
           options: {
-            className: clazz
+            className: clazz,
+            hoverMessage: {
+              value: otherCursorName
+            }
           }
         }
       ]

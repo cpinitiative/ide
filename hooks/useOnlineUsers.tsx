@@ -23,9 +23,15 @@ export function useOnlineUsers(): User[] | null {
     if (firebaseRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {
         if (!snap.exists()) return;
-        setUsers(
-          Object.keys(snap.val()).map(id => ({ id, ...snap.val()[id] }))
-        );
+        const users = Object.keys(snap.val()).map(id => ({
+          id,
+          ...snap.val()[id],
+        }));
+        setUsers(users);
+        // pass info to firepad so they can render user name on selection
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        window['firepadUsers'] = users;
       };
       firebaseRef.child('users').on('value', handleChange);
       return () => firebaseRef.child('users').off('value', handleChange);
