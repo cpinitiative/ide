@@ -29,6 +29,7 @@ const firebaseConfig = {
 
 if (typeof window !== 'undefined') {
   // firepad needs access to firebase
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   window.firebase = firebase;
 }
@@ -80,6 +81,44 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
         alert('Error signing in: ' + errorCode + ' ' + errorMessage);
       });
 
+    const joinWorkspaceForFirstTime = (
+      userRef: firebaseType.database.Reference,
+      permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE',
+      name: string
+    ) => {
+      userRef.update({
+        name: name,
+        color: colorFromUserId(userRef.key),
+        ...(permission === 'OWNER' ? { permission } : {}),
+        connections: {
+          first: firebase.database.ServerValue.TIMESTAMP,
+        },
+      });
+      userRef.child('connections').child('first').onDisconnect().remove();
+    };
+
+    const joinWorkspace = (
+      userRef: firebaseType.database.Reference,
+      permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE',
+      name: string
+    ) => {
+      userRef.once('value').then(snap => {
+        if (permission === 'PRIVATE' && !snap.val()?.permission) {
+          alert('This file is private.');
+          window.location.href = '/';
+        }
+        if (!snap.val()?.name) {
+          // first time on this doc, need to add to user list
+          joinWorkspaceForFirstTime(userRef, permission, name);
+        } else {
+          const connectionRef = userRef
+            .child('connections')
+            .push(firebase.database.ServerValue.TIMESTAMP);
+          connectionRef.onDisconnect().remove();
+        }
+      });
+    };
+
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
       if (user) {
         let name =
@@ -92,64 +131,44 @@ export const FirebaseRefProvider: React.FC = ({ children }) => {
 
         const uid = user.uid;
 
-        let ref: firebaseType.database.Reference;
+        let queryId: string | undefined;
         if (Array.isArray(router.query.id)) {
-          ref = getFirebaseRef(router.query.id[0]);
+          queryId = router.query.id[0];
         } else {
-          ref = getFirebaseRef(router.query.id);
+          queryId = router.query.id;
+        }
+        const ref = getFirebaseRef(queryId);
+        const userRef = ref.child('users').child(uid);
+
+        if (queryId) {
+          ref
+            .child('settings')
+            .child('defaultPermission')
+            .once('value')
+            .then(snap => {
+              let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
+              if (snap.exists()) {
+                permission = snap.val();
+              } else {
+                // new doc, make me the owner
+                permission = 'OWNER';
+
+                ref
+                  .child('settings')
+                  .child('defaultPermission')
+                  .set('READ_WRITE');
+              }
+
+              setDefaultPermission(snap.val() || 'READ_WRITE');
+              joinWorkspace(userRef, permission, name);
+            });
+        } else {
+          setDefaultPermission('READ_WRITE');
+          joinWorkspaceForFirstTime(userRef, 'OWNER', name);
         }
 
-        ref
-          .child('settings')
-          .child('defaultPermission')
-          .once('value')
-          .then(snap => {
-            let permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
-            if (snap.exists()) {
-              permission = snap.val();
-            } else {
-              // new doc, make me the owner
-              permission = 'OWNER';
-
-              ref
-                .child('settings')
-                .child('defaultPermission')
-                .set('READ_WRITE');
-            }
-            setDefaultPermission(snap.val() || 'READ_WRITE');
-
-            const userRef = ref.child('users').child(uid);
-            userRef.once('value').then(snap => {
-              if (permission === 'PRIVATE' && !snap.val()?.permission) {
-                alert('This file is private.');
-                window.location.href = '/';
-              }
-              if (!snap.val()?.name) {
-                // first time on this doc, need to add to user list
-                userRef.update({
-                  name: name,
-                  color: colorFromUserId(userRef.key),
-                  ...(permission === 'OWNER' ? { permission } : {}),
-                  connections: {
-                    first: firebase.database.ServerValue.TIMESTAMP,
-                  },
-                });
-                userRef
-                  .child('connections')
-                  .child('first')
-                  .onDisconnect()
-                  .remove();
-              } else {
-                const connectionRef = userRef
-                  .child('connections')
-                  .push(firebase.database.ServerValue.TIMESTAMP);
-                connectionRef.onDisconnect().remove();
-              }
-            });
-
-            setRef(ref);
-            setUserRef(userRef);
-          });
+        setRef(ref);
+        setUserRef(userRef);
       }
     });
 
