@@ -35,3 +35,7 @@ set PWDEBUG=1 && yarn test
 ```
 
 to unset: `set PWDEBUG=`.
+
+---
+
+If `firebase emulators:exec` fails for unknown reason: `firebase emulators:exec "yarn test" || cat firebase-debug.log`
