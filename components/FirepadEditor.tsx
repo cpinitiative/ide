@@ -11,6 +11,7 @@ import { userRefAtom } from '../atoms/firebaseAtoms';
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
   useEditorWithVim?: boolean;
+  dataTestId?: string;
 }
 
 const FirepadEditor = ({
@@ -18,6 +19,7 @@ const FirepadEditor = ({
   defaultValue,
   firebaseRef,
   useEditorWithVim = false,
+  dataTestId = '',
   ...props
 }: FirepadEditorProps): JSX.Element => {
   const [
@@ -56,7 +58,10 @@ const FirepadEditor = ({
   const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
 
   return (
-    <div className="tw-forms-disable tw-forms-disable-all-descendants h-full">
+    <div
+      className="tw-forms-disable tw-forms-disable-all-descendants h-full"
+      data-test-id={dataTestId}
+    >
       <EditorComponent
         {...props}
         onMount={(e, m) => {

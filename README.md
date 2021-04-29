@@ -25,3 +25,13 @@ return '\n';
 ```
 
 in `public/vs/editor/editor.main.js`. Then, patch `@monaco-editor/loader` to fetch the appropriate files (ie. fetch from our server instead of jsdelivr).
+
+---
+
+Playwright debugging:
+
+```
+set PWDEBUG=1 && yarn test
+```
+
+to unset: `set PWDEBUG=`.

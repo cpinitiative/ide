@@ -22,6 +22,7 @@ export const RunButton = ({
         fill="none"
         viewBox="0 0 24 24"
         className="mx-auto h-5 w-5 p-0.5 inline-block animate-spin text-indigo-100"
+        data-test-id="run-code-loading"
       >
         <circle
           className="opacity-25"

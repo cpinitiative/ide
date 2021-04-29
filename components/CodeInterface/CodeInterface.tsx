@@ -84,6 +84,7 @@ export const CodeInterface = ({
           defaultValue={defaultCode[lang]}
           firebaseRef={firebaseRefs[lang]}
           useEditorWithVim={true}
+          dataTestId="code-editor"
         />
       </div>
       <p className="text-sm font-mono text-gray-200 pl-4 status-node" />

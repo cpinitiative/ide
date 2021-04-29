@@ -285,6 +285,7 @@ export default function Home(): JSX.Element {
                       language={'plaintext'}
                       saveViewState={false}
                       path="input"
+                      dataTestId="input-editor"
                       options={{
                         minimap: { enabled: false },
                         automaticLayout: false,
