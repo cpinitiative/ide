@@ -1,3 +1,6 @@
+/// <reference types="jest-playwright-preset" />
+/// <reference types="expect-playwright" />
+
 test('should work', async () => {
   await page.goto('http://localhost:3000/');
   await page.waitForSelector('button:has-text("Run Code")');
@@ -30,5 +33,8 @@ test('should work', async () => {
   expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
   await page.waitForSelector('button:has-text("Run Code")');
   expect(await page.$('text=Accepted')).toBeTruthy();
-  expect(await page.$('text="sum is 6"')).toBeTruthy();
+  expect(await page.$('text="sum is 7"')).toBeTruthy();
 });
+
+// hide typescript warning
+export default {};
