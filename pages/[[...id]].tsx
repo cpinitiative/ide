@@ -8,7 +8,7 @@ loader.config({
 import Head from 'next/head';
 /// <reference path="../types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
-import React, { useState, useEffect, useReducer, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { RunButton } from '../components/RunButton';
 import { TabBar } from '../components/TabBar';
 import { useRouter } from 'next/router';
@@ -16,13 +16,13 @@ import { Output } from '../components/Output';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/SettingsModal';
-import type { Language } from '../components/SettingsContext';
 import { useSettings } from '../components/SettingsContext';
 import { UserList } from '../components/UserList/UserList';
 import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
   actualUserPermissionAtom,
+  currentLangAtom,
   inputMonacoEditorAtom,
   layoutEditorsAtom,
   loadingAtom,
@@ -64,14 +64,7 @@ export default function Home(): JSX.Element {
   const [, layoutEditors] = useAtom(layoutEditorsAtom);
   const [result, setResult] = useState<JudgeSuccessResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [lang, setLang] = useReducer((prev: Language, next: Language) => {
-    window.history.replaceState(
-      {},
-      '',
-      window.location.href.split('?')[0] + '?lang=' + next
-    );
-    return next;
-  }, 'cpp');
+  const [lang, setLang] = useAtom(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);

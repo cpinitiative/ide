@@ -16,7 +16,18 @@ export const actualUserPermissionAtom = atom<
 export const loadingAtom = atom(true);
 
 // Code Interface
-export const currentLangAtom = atom<Language>('cpp');
+const actualLangAtom = atom<Language>('cpp');
+export const currentLangAtom = atom<Language, Language>(
+  get => get(actualLangAtom),
+  (_get, set, lang: Language) => {
+    window.history.replaceState(
+      {},
+      '',
+      window.location.href.split('?')[0] + '?lang=' + lang
+    );
+    set(actualLangAtom, lang);
+  }
+);
 export const mainMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
   null
 );
