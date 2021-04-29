@@ -44,7 +44,7 @@ test('should sync code', async () => {
   await page1.click('[data-test-id="input-editor"]');
   await page1.keyboard.type('1 2 3');
 
-  expect(await page2.$('text="1 2 3"')).toBeTruthy();
+  await page2.waitForSelector('text="1 2 3"', { timeout: 2000 });
 
   await page1.close();
   await page2.close();
