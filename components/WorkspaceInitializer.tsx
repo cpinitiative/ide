@@ -35,8 +35,24 @@ if (typeof window !== 'undefined') {
 }
 
 if (!firebase.apps?.length) {
-  firebase.initializeApp(firebaseConfig);
-  if (typeof window !== 'undefined' && firebase.analytics) firebase.analytics();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const shouldUseEmulator =
+    typeof window !== 'undefined' && location.hostname === 'localhost';
+  if (shouldUseEmulator) {
+    firebase.initializeApp({
+      ...firebaseConfig,
+      authDomain: 'localhost:9099',
+      databaseURL: 'http://localhost:9000/?ns=live-cp-ide',
+    });
+    firebase.auth().useEmulator('http://localhost:9099');
+    firebase.database().useEmulator('localhost', 9000);
+  } else {
+    firebase.initializeApp(firebaseConfig);
+    if (typeof window !== 'undefined' && firebase.analytics) {
+      firebase.analytics();
+    }
+  }
 }
 
 function getFirebaseRef(
