@@ -1,8 +1,6 @@
 /// <reference types="jest-playwright-preset" />
 /// <reference types="expect-playwright" />
 
-import { chromium } from "playwright";
-
 test('should run code', async () => {
   await page.goto('http://localhost:3000/');
   await page.waitForSelector('button:has-text("Run Code")');
