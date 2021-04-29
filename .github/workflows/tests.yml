@@ -41,6 +41,6 @@ jobs:
         run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
 
       - name: Run tests
-        run: firebase emulators:exec "yarn test" || cat firebase-debug.log
+        run: firebase emulators:exec "yarn test"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
