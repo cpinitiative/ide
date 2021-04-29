@@ -37,4 +37,5 @@ test('should work', async () => {
 });
 
 // hide typescript warning
+// eslint-disable-next-line jest/no-export
 export default {};
