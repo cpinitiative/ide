@@ -18,13 +18,13 @@ test('should run code', async () => {
   await page.keyboard.type('1 2 3');
 
   await page.click('text=Main.java');
-  testRunCode();
+  await testRunCode();
 
   await page.click('text=Main.py');
-  testRunCode();
+  await testRunCode();
 
   await page.click('text=Main.cpp');
-  testRunCode();
+  await testRunCode();
 });
 
 test('should sync code', async () => {
