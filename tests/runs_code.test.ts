@@ -1,30 +1,22 @@
 /// <reference types="jest-playwright-preset" />
 /// <reference types="expect-playwright" />
 
+import { forEachLang, testRunCode } from './helpers';
+
 test('should run code', async () => {
   await page.goto('http://localhost:3000/');
   await page.waitForSelector('button:has-text("Run Code")');
   expect(page.url()).toMatch(/http:\/\/localhost:3000\/[A-z0-9_-]{19}/);
 
-  const testRunCode = async () => {
-    await page.click('button:has-text("Run Code")');
-    expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
-    await page.waitForSelector('button:has-text("Run Code")');
-    expect(await page.$('text=Accepted')).toBeTruthy();
-    expect(await page.$('text="sum is 6"')).toBeTruthy();
-  };
+  // let monaco load
+  await page.waitForTimeout(500);
 
   await page.click('[data-test-id="input-editor"]');
   await page.keyboard.type('1 2 3');
 
-  await page.click('text=Main.java');
-  await testRunCode();
-
-  await page.click('text=Main.py');
-  await testRunCode();
-
-  await page.click('text=Main.cpp');
-  await testRunCode();
+  await forEachLang(page, async () => {
+    await testRunCode(page);
+  });
 });
 
 test('should sync code', async () => {
@@ -38,6 +30,10 @@ test('should sync code', async () => {
   await page1.waitForSelector('button:has-text("Run Code")');
   await page2.goto(page1.url());
   await page2.waitForSelector('button:has-text("Run Code")');
+
+  // let monaco load
+  await page1.waitForTimeout(500);
+  await page2.waitForTimeout(500);
 
   await page1.click('[data-test-id="input-editor"]');
   await page1.keyboard.type('1 2 3');

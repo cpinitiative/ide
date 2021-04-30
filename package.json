@@ -59,7 +59,7 @@
   },
   "jest": {
     "preset": "jest-playwright-preset",
-    "testTimeout": 30000,
+    "testTimeout": 45000,
     "transform": {
       "^.+\\.(ts)$": "ts-jest"
     }

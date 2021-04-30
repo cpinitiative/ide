@@ -28,7 +28,7 @@ in `public/vs/editor/editor.main.js`. Then, patch `@monaco-editor/loader` to fet
 
 ---
 
-Playwright debugging:
+Playwright debugging (for windows):
 
 ```
 set PWDEBUG=1 && yarn test
