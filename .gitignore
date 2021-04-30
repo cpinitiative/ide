@@ -34,5 +34,4 @@ yarn-error.log*
 .vercel
 
 .idea
-database.rules.json
 *.log

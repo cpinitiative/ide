@@ -3,7 +3,7 @@ import type firebaseType from 'firebase';
 import { userNameAtom } from './userSettings';
 import animals from '../scripts/animals';
 import colorFromUserId from '../scripts/colorFromUserId';
-import { defaultPermissionAtom } from './workspace';
+import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 
 export const firebaseUserAtom = atom<firebaseType.User | null>(null);
 export const setFirebaseUserAtom = atom(
@@ -28,33 +28,62 @@ export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
   null
 );
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
+export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
+    const permission = get(actualUserPermissionAtom);
+    const ref = get(firebaseRefAtom);
+    if (
+      permission === 'OWNER' ||
+      permission === 'READ_WRITE' ||
+      permission === 'READ'
+    ) {
+      return ref;
+    }
+    return null;
+  }
+);
+export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
+    const permission = get(actualUserPermissionAtom);
+    const ref = get(userRefAtom);
+    if (
+      permission === 'OWNER' ||
+      permission === 'READ_WRITE' ||
+      permission === 'READ'
+    ) {
+      return ref;
+    }
+    return null;
+  }
+);
 
-export const joinNewWorkspaceAsOwnerAtom = atom(null, (get, _set, _: void) => {
-  const ref = get(firebaseRefAtom);
-  const userRef = get(userRefAtom);
-  const name = get(userNameAtom);
-  if (!ref) throw new Error('ref must be set before workspace can be joined');
-  if (!userRef || !userRef.key)
-    throw new Error(
-      'userRef (and userRef.key) must be set before workspace can be joined'
-    );
-  if (!name)
-    throw new Error('user name must be set before workspace can be joined');
-  return ref.update({
-    [`users/${userRef.key}`]: {
-      name,
-      color: colorFromUserId(userRef.key),
-      permission: 'OWNER',
-    },
-    settings: {
-      defaultPermission: 'READ_WRITE',
-    },
-  });
-});
+export const joinNewWorkspaceAsOwnerAtom = atom(
+  null,
+  async (get, _set, _: void) => {
+    const ref = get(firebaseRefAtom);
+    const userRef = get(userRefAtom);
+    const name = get(userNameAtom);
+    if (!ref) throw new Error('ref must be set before workspace can be joined');
+    if (!userRef || !userRef.key)
+      throw new Error(
+        'userRef (and userRef.key) must be set before workspace can be joined'
+      );
+    if (!name)
+      throw new Error('user name must be set before workspace can be joined');
+    await ref.update({
+      [`users/${userRef.key}`]: {
+        name,
+        color: colorFromUserId(userRef.key),
+        permission: 'OWNER',
+      },
+      'settings/defaultPermission': 'READ_WRITE',
+    });
+  }
+);
 
 export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
   null,
-  (get, _set, _: void) => {
+  async (get, _set, _: void) => {
     const ref = get(firebaseRefAtom);
     const userRef = get(userRefAtom);
     const name = get(userNameAtom);
@@ -69,24 +98,47 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
     if (!permission)
       throw new Error('permission must be set before workspace can be joined');
 
-    return userRef.once('value').then(snap => {
-      if (permission === 'PRIVATE' && !snap.val()?.permission) {
-        alert('This file is private.');
-        window.location.href = '/';
-      }
-      if (!snap.val()?.name) {
-        // first time on this doc, need to add to user list
-        return userRef.update({
-          name,
-          color: colorFromUserId(userRef.key),
-          permission,
-        });
-      } else {
-        // update name as necessary
-        if (snap.val().name !== name) {
-          return userRef.child('name').set(name);
+    const handlePrivateFile = () => {
+      alert('This file is private.');
+      window.location.href = '/';
+    };
+
+    await userRef
+      .once('value')
+      .then(snap => {
+        if (permission === 'PRIVATE' && !snap.val()?.permission) {
+          handlePrivateFile();
+          return;
         }
-      }
-    });
+        if (!snap.val()?.name) {
+          // first time on this doc, need to add to user list
+          return userRef.update({
+            name,
+            color: colorFromUserId(userRef.key),
+            // ideally this wouldn't exist so that there could be default permissions
+            // but that messes up default access users when marking files as private so ?_?
+            permission,
+          });
+        } else {
+          // update name as necessary
+          if (snap.val().name !== name) {
+            return userRef.child('name').set(name);
+          }
+        }
+      })
+      .catch(e => {
+        if (e.code === 'PERMISSION_DENIED') {
+          handlePrivateFile();
+        } else {
+          throw e;
+        }
+      });
   }
 );
+
+export const firebaseErrorAtom = atom<Error | null>(null);
+export const setFirebaseErrorAtom = atom(null, (get, set, error: Error) => {
+  set(firebaseErrorAtom, error);
+  alert('Firebase error: ' + error + ' Report this issue on Github!');
+  throw error;
+});

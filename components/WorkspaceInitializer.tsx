@@ -7,24 +7,26 @@ import { useRouter } from 'next/router';
 import type firebaseType from 'firebase';
 import { defaultPermissionAtom } from '../atoms/workspace';
 import {
+  authenticatedUserRefAtom,
   firebaseRefAtom,
   joinExistingWorkspaceWithDefaultPermissionAtom,
   joinNewWorkspaceAsOwnerAtom,
+  setFirebaseErrorAtom,
   setFirebaseUserAtom,
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { signInAnonymously } from '../scripts/firebaseUtils';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDAYhsX5I8X1l_hu6AhBZx8prDdvY2i2EA',
-  authDomain: 'live-cp-ide.firebaseapp.com',
-  databaseURL: 'https://live-cp-ide.firebaseio.com',
-  projectId: 'live-cp-ide',
-  storageBucket: 'live-cp-ide.appspot.com',
-  messagingSenderId: '350143604950',
-  appId: '1:350143604950:web:3a5716645632d42def0177',
-  measurementId: 'G-V2G3NLWBWF',
+  apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
+  authDomain: 'cp-ide.firebaseapp.com',
+  databaseURL: 'https://cp-ide-default-rtdb.firebaseio.com',
+  projectId: 'cp-ide',
+  storageBucket: 'cp-ide.appspot.com',
+  messagingSenderId: '1068328460784',
+  appId: '1:1068328460784:web:9385b3f43a0e2604a9fd35',
+  measurementId: 'G-G22TZ5YCKV',
 };
 
 if (typeof window !== 'undefined') {
@@ -43,7 +45,7 @@ if (!firebase.apps?.length) {
     firebase.initializeApp({
       ...firebaseConfig,
       authDomain: 'localhost:9099',
-      databaseURL: 'http://localhost:9000/?ns=live-cp-ide',
+      databaseURL: 'http://localhost:9000/?ns=cp-ide-default-rtdb',
     });
     firebase.auth().useEmulator('http://localhost:9099');
     firebase.database().useEmulator('localhost', 9000);
@@ -72,6 +74,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   const router = useRouter();
   const setFirebaseUser = useUpdateAtom(setFirebaseUserAtom);
   const setFirebaseRef = useUpdateAtom(firebaseRefAtom);
+  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const setUserRef = useUpdateAtom(userRefAtom);
   const joinNewWorkspaceAsOwner = useUpdateAtom(joinNewWorkspaceAsOwnerAtom);
   const joinExistingWorkspaceWithDefaultPermission = useUpdateAtom(
@@ -131,7 +134,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         ref
           .child('settings')
           .child('defaultPermission')
-          .on('value', handleDefaultPermissionChange);
+          .on('value', handleDefaultPermissionChange, e => setFirebaseError(e));
         unsubscribe2 = () =>
           ref
             .child('settings')
@@ -148,7 +151,9 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
             con.set(true);
           }
         };
-        connectedRef.on('value', handleConnectionChange);
+        connectedRef.on('value', handleConnectionChange, e =>
+          setFirebaseError(e)
+        );
         unsubscribe3 = () => connectedRef.off('value', handleConnectionChange);
       }
     });

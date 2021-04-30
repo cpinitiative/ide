@@ -11,7 +11,10 @@ import {
 } from '../../atoms/workspace';
 import { usePopper } from 'react-popper';
 import { useAtomValue } from 'jotai/utils';
-import { firebaseRefAtom, userRefAtom } from '../../atoms/firebaseAtoms';
+import {
+  authenticatedFirebaseRefAtom,
+  authenticatedUserRefAtom,
+} from '../../atoms/firebaseAtoms';
 
 const permissionLabels = {
   OWNER: 'Owner',
@@ -21,8 +24,8 @@ const permissionLabels = {
 };
 
 export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
-  const userRef = useAtomValue(userRefAtom);
-  const firebaseRef = useAtomValue(firebaseRefAtom);
+  const userRef = useAtomValue(authenticatedUserRefAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const [permission] = useAtom(actualUserPermissionAtom);
   const [defaultPermission] = useAtom(defaultPermissionAtom);
 

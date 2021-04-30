@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import type firebaseType from 'firebase';
-import { useAtomValue } from 'jotai/utils';
-import { firebaseRefAtom } from '../atoms/firebaseAtoms';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import {
+  authenticatedFirebaseRefAtom,
+  setFirebaseErrorAtom,
+} from '../atoms/firebaseAtoms';
 
 export type User = {
   color: string;
@@ -16,7 +19,8 @@ export const isUserOnline = (user: User): boolean => {
 };
 
 export function useOnlineUsers(): User[] | null {
-  const firebaseRef = useAtomValue(firebaseRefAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
 
   const [users, setUsers] = useState<User[] | null>(null);
 
@@ -34,10 +38,12 @@ export function useOnlineUsers(): User[] | null {
         // @ts-ignore
         window['firepadUsers'] = users;
       };
-      firebaseRef.child('users').on('value', handleChange);
+      firebaseRef
+        .child('users')
+        .on('value', handleChange, e => setFirebaseError(e));
       return () => firebaseRef.child('users').off('value', handleChange);
     }
-  }, [firebaseRef]);
+  }, [firebaseRef, setFirebaseError]);
 
   return users;
 }

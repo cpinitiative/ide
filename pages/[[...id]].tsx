@@ -40,8 +40,13 @@ import { CodeInterface } from '../components/CodeInterface/CodeInterface';
 import { LazyFirepadEditor } from '../components/LazyFirepadEditor';
 import classNames from 'classnames';
 import { DotsHorizontalIcon } from '@heroicons/react/solid';
-import { useAtomValue } from 'jotai/utils';
-import { firebaseRefAtom, userRefAtom } from '../atoms/firebaseAtoms';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import {
+  authenticatedFirebaseRefAtom,
+  authenticatedUserRefAtom,
+  setFirebaseErrorAtom,
+  userRefAtom,
+} from '../atoms/firebaseAtoms';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -68,16 +73,17 @@ export default function Home(): JSX.Element {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
-  const [, setUserPermission] = useAtom(userPermissionAtom);
+  const setUserPermission = useUpdateAtom(userPermissionAtom);
   const [permission] = useAtom(actualUserPermissionAtom);
   const [loading] = useAtom(loadingAtom);
+  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const [mobileActiveTab, setMobileActiveTab] = useState<
     'code' | 'io' | 'users'
   >('code');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
 
-  const firebaseRef = useAtomValue(firebaseRefAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
     () => ({
       cpp: firebaseRef?.child(`editor-cpp`),
@@ -102,18 +108,20 @@ export default function Home(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 
-  const userRef = useAtomValue(userRefAtom);
+  const potentiallyUnauthenticatedUserRef = useAtomValue(userRefAtom);
   useEffect(() => {
-    if (userRef) {
+    if (potentiallyUnauthenticatedUserRef) {
       const handleChange = (snap: firebaseType.database.DataSnapshot) => {
         if (!snap.exists()) return;
         const permission = snap.val().permission;
         setUserPermission(permission);
       };
-      userRef.on('value', handleChange);
-      return () => userRef.off('value', handleChange);
+      potentiallyUnauthenticatedUserRef.on('value', handleChange, e =>
+        setFirebaseError(e)
+      );
+      return () => potentiallyUnauthenticatedUserRef.off('value', handleChange);
     }
-  }, [userRef, setUserPermission]);
+  }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
 
   const handleRunCode = () => {
     if (!mainMonacoEditor || !inputEditor) {

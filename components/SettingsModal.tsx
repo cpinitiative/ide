@@ -12,7 +12,10 @@ import {
 import { SharingPermissions } from './SharingPermissions';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../atoms/workspace';
-import { firebaseUserAtom, userRefAtom } from '../atoms/firebaseAtoms';
+import {
+  authenticatedUserRefAtom,
+  firebaseUserAtom,
+} from '../atoms/firebaseAtoms';
 import {
   EditorMode,
   editorModeAtomWithPersistence,
@@ -33,7 +36,7 @@ export const SettingsModal = ({
     settings: realWorkspaceSettings,
     setSettings: setRealWorkspaceSettings,
   } = useSettings();
-  const userRef = useAtomValue(userRefAtom);
+  const userRef = useAtomValue(authenticatedUserRefAtom);
   const dirtyRef = useRef<boolean>(false);
   const [workspaceSettings, setWorkspaceSettings] = useReducer(
     (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
@@ -261,12 +264,20 @@ export const SettingsModal = ({
                         value={workspaceSettings.compilerOptions[value]}
                         placeholder="None"
                         onChange={e =>
+                          (userPermission === 'OWNER' ||
+                            userPermission === 'READ_WRITE') &&
                           onChange({
                             compilerOptions: {
                               ...workspaceSettings.compilerOptions,
                               [value]: e.target.value,
                             },
                           })
+                        }
+                        disabled={
+                          !(
+                            userPermission === 'OWNER' ||
+                            userPermission === 'READ_WRITE'
+                          )
                         }
                       />
                     </div>

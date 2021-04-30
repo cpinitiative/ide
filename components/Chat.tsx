@@ -4,9 +4,13 @@ import firebase from 'firebase/app';
 import type firebaseType from 'firebase';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { ChatMessageItem } from './ChatMessageItem';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { actualUserPermissionAtom } from '../atoms/workspace';
-import { firebaseRefAtom, userRefAtom } from '../atoms/firebaseAtoms';
+import {
+  authenticatedFirebaseRefAtom,
+  authenticatedUserRefAtom,
+  setFirebaseErrorAtom,
+} from '../atoms/firebaseAtoms';
 
 export interface ChatMessage {
   timestamp: number;
@@ -16,8 +20,9 @@ export interface ChatMessage {
 }
 
 export const Chat = ({ className }: { className?: string }): JSX.Element => {
-  const firebaseRef = useAtomValue(firebaseRefAtom);
-  const userRef = useAtomValue(userRefAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const userRef = useAtomValue(authenticatedUserRefAtom);
+  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const onlineUsers = useOnlineUsers();
   const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
   const [message, setMessage] = useState('');
@@ -55,10 +60,12 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
           chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
       };
-      firebaseRef.child('chat').on('value', handleChange);
+      firebaseRef
+        .child('chat')
+        .on('value', handleChange, e => setFirebaseError(e));
       return () => firebaseRef.child('chat').off('value', handleChange);
     }
-  }, [firebaseRef]);
+  }, [firebaseRef, setFirebaseError]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {

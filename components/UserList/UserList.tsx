@@ -12,19 +12,24 @@ export const UserList = ({
 
   const sortedUsers: User[] | null = useMemo(() => {
     if (!users) return null;
-    return [...users].sort((a, b) => {
-      if (isUserOnline(a) !== isUserOnline(b)) {
-        return isUserOnline(a) ? -1 : 1;
-      }
-      if (a.permission !== b.permission) {
-        if (a.permission === 'OWNER') return -1;
-        if (b.permission === 'OWNER') return 1;
-        if (a.permission === 'READ_WRITE') return -1;
-        if (b.permission === 'READ_WRITE') return 1;
-        return -1;
-      }
-      return a.name.localeCompare(b.name);
-    });
+    return (
+      [...users]
+        // some people may have connected without having a name yet
+        .filter(user => user.name)
+        .sort((a, b) => {
+          if (isUserOnline(a) !== isUserOnline(b)) {
+            return isUserOnline(a) ? -1 : 1;
+          }
+          if (a.permission !== b.permission) {
+            if (a.permission === 'OWNER') return -1;
+            if (b.permission === 'OWNER') return 1;
+            if (a.permission === 'READ_WRITE') return -1;
+            if (b.permission === 'READ_WRITE') return 1;
+            return -1;
+          }
+          return a.name.localeCompare(b.name);
+        })
+    );
   }, [users]);
 
   return (

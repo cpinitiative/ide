@@ -6,8 +6,11 @@ import React, {
   useReducer,
 } from 'react';
 import type firebaseType from 'firebase';
-import { useAtomValue } from 'jotai/utils';
-import { firebaseRefAtom } from '../atoms/firebaseAtoms';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import {
+  authenticatedFirebaseRefAtom,
+  setFirebaseErrorAtom,
+} from '../atoms/firebaseAtoms';
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES: { label: string; value: Language }[] = [
@@ -47,7 +50,8 @@ type SettingsContextType = {
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export const SettingsProvider: React.FC = ({ children }) => {
-  const firebaseRef = useAtomValue(firebaseRefAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const [settings, setSettings] = useReducer(
     (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
       return {
@@ -71,10 +75,12 @@ export const SettingsProvider: React.FC = ({ children }) => {
       const handleNewSetting = (snap: firebaseType.database.DataSnapshot) => {
         setSettings(snap.val());
       };
-      firebaseRef.child('settings').on('value', handleNewSetting);
+      firebaseRef
+        .child('settings')
+        .on('value', handleNewSetting, e => setFirebaseError(e));
       return () => firebaseRef.child('settings').off('value', handleNewSetting);
     }
-  }, [firebaseRef]);
+  }, [firebaseRef, setFirebaseError]);
 
   const value = useMemo(
     () => ({
