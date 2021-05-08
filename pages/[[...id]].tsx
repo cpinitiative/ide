@@ -141,7 +141,7 @@ export default function Home(): JSX.Element {
     };
 
     fetch(
-      `https://judge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
+      `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
       {
         method: 'POST',
         headers: {
