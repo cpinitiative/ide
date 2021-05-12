@@ -28,6 +28,13 @@ export const currentLangAtom = atom<Language, Language>(
     set(actualLangAtom, lang);
   }
 );
+currentLangAtom.onMount = setAtom => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryLang = urlParams.get('lang');
+  if (queryLang === 'cpp' || queryLang === 'java' || queryLang === 'py') {
+    setAtom(queryLang);
+  }
+};
 export const mainMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
   null
 );
