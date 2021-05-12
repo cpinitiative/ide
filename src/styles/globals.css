@@ -25,3 +25,7 @@ html {
 .tw-forms-disable-all-descendants * {
   --tw-ring-color: transparent !important;
 }
+
+.firebase-emulator-warning {
+  display: none !important;
+}

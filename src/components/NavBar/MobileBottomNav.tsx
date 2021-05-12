@@ -1,3 +1,4 @@
+import React from 'react';
 import { CodeIcon, DatabaseIcon, UsersIcon } from '@heroicons/react/solid';
 
 const MobileBottomNavButton = ({

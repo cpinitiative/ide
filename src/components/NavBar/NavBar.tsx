@@ -1,7 +1,6 @@
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  ExclamationIcon,
   ShareIcon,
 } from '@heroicons/react/solid';
 import React, { useState } from 'react';
