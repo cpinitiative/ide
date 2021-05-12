@@ -13,7 +13,7 @@ test('should support view only', async () => {
   const page1 = await context1.newPage();
   const page2 = await context2.newPage();
 
-  await page1.goto('http://localhost:3000/');
+  await page1.goto('http://localhost:5000/');
   await page1.click('text=File');
   await page1.click('text=Settings');
   await page1.click('div[role="radio"]:has-text("View Only")');
