@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "start": "vite preview",
+    "preview": "vite preview",
     "prepare": "husky install",
     "lint": "eslint --ext js,jsx,ts,tsx --fix src/",
     "test": "jest"

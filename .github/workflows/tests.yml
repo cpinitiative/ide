@@ -44,7 +44,7 @@ jobs:
         run: yarn build
 
       - name: Setup background services
-        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
+        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn preview &
 
       - name: Run tests
         run: firebase emulators:exec "yarn test"

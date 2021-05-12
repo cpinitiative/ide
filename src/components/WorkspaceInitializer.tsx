@@ -96,6 +96,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         let queryId = routes.length >= 1 ? routes[1] : null;
 
         // validate that queryId is a firebase key
+        // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
         if (queryId?.length !== 19) {
           queryId = null;
         }
