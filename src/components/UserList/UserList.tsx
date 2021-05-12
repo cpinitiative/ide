@@ -1,5 +1,5 @@
 import { isUserOnline, useOnlineUsers, User } from '../../hooks/useOnlineUsers';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { UserListItem } from './UserListItem';
 import classNames from 'classnames';
 

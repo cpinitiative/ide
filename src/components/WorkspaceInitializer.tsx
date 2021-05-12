@@ -3,11 +3,9 @@ import 'firebase/database';
 import 'firebase/auth';
 import 'firebase/analytics';
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import type firebaseType from 'firebase';
 import { defaultPermissionAtom } from '../atoms/workspace';
 import {
-  authenticatedUserRefAtom,
   firebaseRefAtom,
   joinExistingWorkspaceWithDefaultPermissionAtom,
   joinNewWorkspaceAsOwnerAtom,
@@ -16,7 +14,7 @@ import {
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { signInAnonymously } from '../scripts/firebaseUtils';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useUpdateAtom } from 'jotai/utils';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -71,7 +69,6 @@ function getFirebaseRef(
 }
 
 export const WorkspaceInitializer: React.FC = ({ children }) => {
-  const router = useRouter();
   const setFirebaseUser = useUpdateAtom(setFirebaseUserAtom);
   const setFirebaseRef = useUpdateAtom(firebaseRefAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
@@ -83,8 +80,6 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   const setDefaultPermission = useUpdateAtom(defaultPermissionAtom);
 
   useEffect(() => {
-    if (!router.isReady) return;
-
     signInAnonymously();
 
     let unsubscribe2: () => void;
@@ -97,12 +92,15 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
       if (user) {
         const uid = user.uid;
 
-        let queryId: string | undefined;
-        if (Array.isArray(router.query.id)) {
-          queryId = router.query.id[0];
-        } else {
-          queryId = router.query.id;
+        const routes = window.location.pathname.split('/');
+        let queryId = routes.length >= 1 ? routes[1] : null;
+
+        // validate that queryId is a firebase key
+        // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
+        if (queryId?.length !== 19) {
+          queryId = null;
         }
+
         const ref = getFirebaseRef(queryId);
         const userRef = ref.child('users').child(uid);
 
@@ -163,10 +161,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
       if (unsubscribe2) unsubscribe2();
       if (unsubscribe3) unsubscribe3();
     };
-
-    // we only want to run this once when the router is ready
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+  }, []);
 
   return <>{children}</>;
 };

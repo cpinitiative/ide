@@ -1,5 +1,7 @@
 import Editor, { EditorProps } from '@monaco-editor/react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
 import { EditorWithVim } from './EditorWithVim';

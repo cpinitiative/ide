@@ -13,29 +13,27 @@
  * With code from ot.js (Copyright 2012-2013 Tim Baumann)
  */
 
-(function (name, definition, context) {
-  //try CommonJS, then AMD (require.js), then use global.
-  if (typeof module != 'undefined' && module.exports) module.exports = definition();
-  else if (typeof context['define'] == 'function' && context['define']['amd']) define(definition);
-  else context[name] = definition();
-})('Firepad', function () {var firepad = firepad || { };
-firepad.utils = { };
+var firepad = firepad || {};
+firepad.utils = {};
 
-firepad.utils.makeEventEmitter = function(clazz, opt_allowedEVents) {
+firepad.utils.makeEventEmitter = function (clazz, opt_allowedEVents) {
   clazz.prototype.allowedEvents_ = opt_allowedEVents;
 
-  clazz.prototype.on = function(eventType, callback, context) {
+  clazz.prototype.on = function (eventType, callback, context) {
     this.validateEventType_(eventType);
-    this.eventListeners_ = this.eventListeners_ || { };
+    this.eventListeners_ = this.eventListeners_ || {};
     this.eventListeners_[eventType] = this.eventListeners_[eventType] || [];
-    this.eventListeners_[eventType].push({ callback: callback, context: context });
+    this.eventListeners_[eventType].push({
+      callback: callback,
+      context: context,
+    });
   };
 
-  clazz.prototype.off = function(eventType, callback) {
+  clazz.prototype.off = function (eventType, callback) {
     this.validateEventType_(eventType);
-    this.eventListeners_ = this.eventListeners_ || { };
+    this.eventListeners_ = this.eventListeners_ || {};
     var listeners = this.eventListeners_[eventType] || [];
-    for(var i = 0; i < listeners.length; i++) {
+    for (var i = 0; i < listeners.length; i++) {
       if (listeners[i].callback === callback) {
         listeners.splice(i, 1);
         return;
@@ -43,18 +41,21 @@ firepad.utils.makeEventEmitter = function(clazz, opt_allowedEVents) {
     }
   };
 
-  clazz.prototype.trigger =  function(eventType /*, args ... */) {
-    this.eventListeners_ = this.eventListeners_ || { };
+  clazz.prototype.trigger = function (eventType /*, args ... */) {
+    this.eventListeners_ = this.eventListeners_ || {};
     var listeners = this.eventListeners_[eventType] || [];
-    for(var i = 0; i < listeners.length; i++) {
-      listeners[i].callback.apply(listeners[i].context, Array.prototype.slice.call(arguments, 1));
+    for (var i = 0; i < listeners.length; i++) {
+      listeners[i].callback.apply(
+        listeners[i].context,
+        Array.prototype.slice.call(arguments, 1)
+      );
     }
   };
 
-  clazz.prototype.validateEventType_ = function(eventType) {
+  clazz.prototype.validateEventType_ = function (eventType) {
     if (this.allowedEvents_) {
       var allowed = false;
-      for(var i = 0; i < this.allowedEvents_.length; i++) {
+      for (var i = 0; i < this.allowedEvents_.length; i++) {
         if (this.allowedEvents_[i] === eventType) {
           allowed = true;
           break;
@@ -67,42 +68,43 @@ firepad.utils.makeEventEmitter = function(clazz, opt_allowedEVents) {
   };
 };
 
-firepad.utils.elt = function(tag, content, attrs) {
+firepad.utils.elt = function (tag, content, attrs) {
   var e = document.createElement(tag);
-  if (typeof content === "string") {
+  if (typeof content === 'string') {
     firepad.utils.setTextContent(e, content);
   } else if (content) {
-    for (var i = 0; i < content.length; ++i) { e.appendChild(content[i]); }
+    for (var i = 0; i < content.length; ++i) {
+      e.appendChild(content[i]);
+    }
   }
-  for(var attr in (attrs || { })) {
+  for (var attr in attrs || {}) {
     e.setAttribute(attr, attrs[attr]);
   }
   return e;
 };
 
-firepad.utils.setTextContent = function(e, str) {
-  e.innerHTML = "";
+firepad.utils.setTextContent = function (e, str) {
+  e.innerHTML = '';
   e.appendChild(document.createTextNode(str));
 };
 
-
-firepad.utils.on = function(emitter, type, f, capture) {
+firepad.utils.on = function (emitter, type, f, capture) {
   if (emitter.addEventListener) {
     emitter.addEventListener(type, f, capture || false);
   } else if (emitter.attachEvent) {
-    emitter.attachEvent("on" + type, f);
+    emitter.attachEvent('on' + type, f);
   }
 };
 
-firepad.utils.off = function(emitter, type, f, capture) {
+firepad.utils.off = function (emitter, type, f, capture) {
   if (emitter.removeEventListener) {
     emitter.removeEventListener(type, f, capture || false);
   } else if (emitter.detachEvent) {
-    emitter.detachEvent("on" + type, f);
+    emitter.detachEvent('on' + type, f);
   }
 };
 
-firepad.utils.preventDefault = function(e) {
+firepad.utils.preventDefault = function (e) {
   if (e.preventDefault) {
     e.preventDefault();
   } else {
@@ -110,7 +112,7 @@ firepad.utils.preventDefault = function(e) {
   }
 };
 
-firepad.utils.stopPropagation = function(e) {
+firepad.utils.stopPropagation = function (e) {
   if (e.stopPropagation) {
     e.stopPropagation();
   } else {
@@ -118,66 +120,65 @@ firepad.utils.stopPropagation = function(e) {
   }
 };
 
-firepad.utils.stopEvent = function(e) {
+firepad.utils.stopEvent = function (e) {
   firepad.utils.preventDefault(e);
   firepad.utils.stopPropagation(e);
 };
 
-firepad.utils.stopEventAnd = function(fn) {
-  return function(e) {
+firepad.utils.stopEventAnd = function (fn) {
+  return function (e) {
     fn(e);
     firepad.utils.stopEvent(e);
     return false;
   };
 };
 
-firepad.utils.trim = function(str) {
+firepad.utils.trim = function (str) {
   return str.replace(/^\s+/g, '').replace(/\s+$/g, '');
 };
 
-firepad.utils.stringEndsWith = function(str, suffix) {
-  var list = (typeof suffix == 'string') ? [suffix] : suffix;
+firepad.utils.stringEndsWith = function (str, suffix) {
+  var list = typeof suffix == 'string' ? [suffix] : suffix;
   for (var i = 0; i < list.length; i++) {
     var suffix = list[i];
-    if (str.indexOf(suffix, str.length - suffix.length) !== -1)
-      return true;
+    if (str.indexOf(suffix, str.length - suffix.length) !== -1) return true;
   }
   return false;
 };
 
-firepad.utils.assert = function assert (b, msg) {
+firepad.utils.assert = function assert(b, msg) {
   if (!b) {
-    throw new Error(msg || "assertion error");
+    throw new Error(msg || 'assertion error');
   }
 };
 
-firepad.utils.log = function() {
+firepad.utils.log = function () {
   if (typeof console !== 'undefined' && typeof console.log !== 'undefined') {
     var args = ['Firepad:'];
-    for(var i = 0; i < arguments.length; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       args.push(arguments[i]);
     }
     console.log.apply(console, args);
   }
 };
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 firepad.Span = (function () {
   function Span(pos, length) {
     this.pos = pos;
     this.length = length;
   }
 
-  Span.prototype.end = function() {
+  Span.prototype.end = function () {
     return this.pos + this.length;
   };
 
   return Span;
-}());
+})();
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 
-firepad.TextOp = (function() {
+firepad.TextOp = (function () {
   var utils = firepad.utils;
 
   // Operation are essentially lists of ops. There are three types of ops:
@@ -196,43 +197,55 @@ firepad.TextOp = (function() {
     if (type === 'insert') {
       this.text = arguments[1];
       utils.assert(typeof this.text === 'string');
-      this.attributes = arguments[2] || { };
-      utils.assert (typeof this.attributes === 'object');
+      this.attributes = arguments[2] || {};
+      utils.assert(typeof this.attributes === 'object');
     } else if (type === 'delete') {
       this.chars = arguments[1];
       utils.assert(typeof this.chars === 'number');
     } else if (type === 'retain') {
       this.chars = arguments[1];
       utils.assert(typeof this.chars === 'number');
-      this.attributes = arguments[2] || { };
-      utils.assert (typeof this.attributes === 'object');
+      this.attributes = arguments[2] || {};
+      utils.assert(typeof this.attributes === 'object');
     }
   }
 
-  TextOp.prototype.isInsert = function() { return this.type === 'insert'; };
-  TextOp.prototype.isDelete = function() { return this.type === 'delete'; };
-  TextOp.prototype.isRetain = function() { return this.type === 'retain'; };
-
-  TextOp.prototype.equals = function(other) {
-    return (this.type === other.type &&
-        this.text === other.text &&
-        this.chars === other.chars &&
-        this.attributesEqual(other.attributes));
+  TextOp.prototype.isInsert = function () {
+    return this.type === 'insert';
+  };
+  TextOp.prototype.isDelete = function () {
+    return this.type === 'delete';
+  };
+  TextOp.prototype.isRetain = function () {
+    return this.type === 'retain';
   };
 
-  TextOp.prototype.attributesEqual = function(otherAttributes) {
+  TextOp.prototype.equals = function (other) {
+    return (
+      this.type === other.type &&
+      this.text === other.text &&
+      this.chars === other.chars &&
+      this.attributesEqual(other.attributes)
+    );
+  };
+
+  TextOp.prototype.attributesEqual = function (otherAttributes) {
     for (var attr in this.attributes) {
-      if (this.attributes[attr] !== otherAttributes[attr]) { return false; }
+      if (this.attributes[attr] !== otherAttributes[attr]) {
+        return false;
+      }
     }
 
     for (attr in otherAttributes) {
-      if (this.attributes[attr] !== otherAttributes[attr]) { return false; }
+      if (this.attributes[attr] !== otherAttributes[attr]) {
+        return false;
+      }
     }
 
     return true;
   };
 
-  TextOp.prototype.hasEmptyAttributes = function() {
+  TextOp.prototype.hasEmptyAttributes = function () {
     var empty = true;
     for (var attr in this.attributes) {
       empty = false;
@@ -245,7 +258,7 @@ firepad.TextOp = (function() {
   return TextOp;
 })();
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 
 firepad.TextOperation = (function () {
   'use strict';
@@ -253,7 +266,7 @@ firepad.TextOperation = (function () {
   var utils = firepad.utils;
 
   // Constructor for new operations.
-  function TextOperation () {
+  function TextOperation() {
     if (!this || this.constructor !== TextOperation) {
       // => function was called without 'new'
       return new TextOperation();
@@ -273,15 +286,22 @@ firepad.TextOperation = (function () {
   }
 
   TextOperation.prototype.equals = function (other) {
-    if (this.baseLength !== other.baseLength) { return false; }
-    if (this.targetLength !== other.targetLength) { return false; }
-    if (this.ops.length !== other.ops.length) { return false; }
+    if (this.baseLength !== other.baseLength) {
+      return false;
+    }
+    if (this.targetLength !== other.targetLength) {
+      return false;
+    }
+    if (this.ops.length !== other.ops.length) {
+      return false;
+    }
     for (var i = 0; i < this.ops.length; i++) {
-      if (!this.ops[i].equals(other.ops[i])) { return false; }
+      if (!this.ops[i].equals(other.ops[i])) {
+        return false;
+      }
     }
     return true;
   };
-
 
   // After an operation is constructed, the user of the library can specify the
   // actions of an operation (skip/insert/delete) with these three builder
@@ -290,13 +310,15 @@ firepad.TextOperation = (function () {
   // Skip over a given number of characters.
   TextOperation.prototype.retain = function (n, attributes) {
     if (typeof n !== 'number' || n < 0) {
-      throw new Error("retain expects a positive integer.");
+      throw new Error('retain expects a positive integer.');
     }
-    if (n === 0) { return this; }
+    if (n === 0) {
+      return this;
+    }
     this.baseLength += n;
     this.targetLength += n;
-    attributes = attributes || { };
-    var prevOp = (this.ops.length > 0) ? this.ops[this.ops.length - 1] : null;
+    attributes = attributes || {};
+    var prevOp = this.ops.length > 0 ? this.ops[this.ops.length - 1] : null;
     if (prevOp && prevOp.isRetain() && prevOp.attributesEqual(attributes)) {
       // The last op is a retain op with the same attributes => we can merge them into one op.
       prevOp.chars += n;
@@ -310,13 +332,15 @@ firepad.TextOperation = (function () {
   // Insert a string at the current position.
   TextOperation.prototype.insert = function (str, attributes) {
     if (typeof str !== 'string') {
-      throw new Error("insert expects a string");
+      throw new Error('insert expects a string');
     }
-    if (str === '') { return this; }
-    attributes = attributes || { };
+    if (str === '') {
+      return this;
+    }
+    attributes = attributes || {};
     this.targetLength += str.length;
-    var prevOp = (this.ops.length > 0) ? this.ops[this.ops.length - 1] : null;
-    var prevPrevOp = (this.ops.length > 1) ? this.ops[this.ops.length - 2] : null;
+    var prevOp = this.ops.length > 0 ? this.ops[this.ops.length - 1] : null;
+    var prevPrevOp = this.ops.length > 1 ? this.ops[this.ops.length - 2] : null;
     if (prevOp && prevOp.isInsert() && prevOp.attributesEqual(attributes)) {
       // Merge insert op.
       prevOp.text += str;
@@ -326,7 +350,11 @@ firepad.TextOperation = (function () {
       // Here we enforce that in this case, the insert op always comes first.
       // This makes all operations that have the same effect when applied to
       // a document of the right length equal in respect to the `equals` method.
-      if (prevPrevOp && prevPrevOp.isInsert() && prevPrevOp.attributesEqual(attributes)) {
+      if (
+        prevPrevOp &&
+        prevPrevOp.isInsert() &&
+        prevPrevOp.attributesEqual(attributes)
+      ) {
         prevPrevOp.text += str;
       } else {
         this.ops[this.ops.length - 1] = new TextOp('insert', str, attributes);
@@ -340,13 +368,17 @@ firepad.TextOperation = (function () {
 
   // Delete a string at the current position.
   TextOperation.prototype['delete'] = function (n) {
-    if (typeof n === 'string') { n = n.length; }
-    if (typeof n !== 'number' || n < 0) {
-      throw new Error("delete expects a positive integer or a string");
+    if (typeof n === 'string') {
+      n = n.length;
     }
-    if (n === 0) { return this; }
+    if (typeof n !== 'number' || n < 0) {
+      throw new Error('delete expects a positive integer or a string');
+    }
+    if (n === 0) {
+      return this;
+    }
     this.baseLength += n;
-    var prevOp = (this.ops.length > 0) ? this.ops[this.ops.length - 1] : null;
+    var prevOp = this.ops.length > 0 ? this.ops[this.ops.length - 1] : null;
     if (prevOp && prevOp.isDelete()) {
       prevOp.chars += n;
     } else {
@@ -357,13 +389,17 @@ firepad.TextOperation = (function () {
 
   // Tests whether this operation has no effect.
   TextOperation.prototype.isNoop = function () {
-    return this.ops.length === 0 ||
-        (this.ops.length === 1 && (this.ops[0].isRetain() && this.ops[0].hasEmptyAttributes()));
+    return (
+      this.ops.length === 0 ||
+      (this.ops.length === 1 &&
+        this.ops[0].isRetain() &&
+        this.ops[0].hasEmptyAttributes())
+    );
   };
 
-  TextOperation.prototype.clone = function() {
+  TextOperation.prototype.clone = function () {
     var clone = new TextOperation();
-    for(var i = 0; i < this.ops.length; i++) {
+    for (var i = 0; i < this.ops.length; i++) {
       if (this.ops[i].isRetain()) {
         clone.retain(this.ops[i].chars, this.ops[i].attributes);
       } else if (this.ops[i].isInsert()) {
@@ -380,29 +416,33 @@ firepad.TextOperation = (function () {
   TextOperation.prototype.toString = function () {
     // map: build a new array by applying a function to every element in an old
     // array.
-    var map = Array.prototype.map || function (fn) {
-      var arr = this;
-      var newArr = [];
-      for (var i = 0, l = arr.length; i < l; i++) {
-        newArr[i] = fn(arr[i]);
-      }
-      return newArr;
-    };
-    return map.call(this.ops, function (op) {
-      if (op.isRetain()) {
-        return "retain " + op.chars;
-      } else if (op.isInsert()) {
-        return "insert '" + op.text + "'";
-      } else {
-        return "delete " + (op.chars);
-      }
-    }).join(', ');
+    var map =
+      Array.prototype.map ||
+      function (fn) {
+        var arr = this;
+        var newArr = [];
+        for (var i = 0, l = arr.length; i < l; i++) {
+          newArr[i] = fn(arr[i]);
+        }
+        return newArr;
+      };
+    return map
+      .call(this.ops, function (op) {
+        if (op.isRetain()) {
+          return 'retain ' + op.chars;
+        } else if (op.isInsert()) {
+          return "insert '" + op.text + "'";
+        } else {
+          return 'delete ' + op.chars;
+        }
+      })
+      .join(', ');
   };
 
   // Converts operation into a JSON value.
   TextOperation.prototype.toJSON = function () {
     var ops = [];
-    for(var i = 0; i < this.ops.length; i++) {
+    for (var i = 0; i < this.ops.length; i++) {
       // We prefix ops with their attributes if non-empty.
       if (!this.ops[i].hasEmptyAttributes()) {
         ops.push(this.ops[i].attributes);
@@ -427,7 +467,7 @@ firepad.TextOperation = (function () {
     var o = new TextOperation();
     for (var i = 0, l = ops.length; i < l; i++) {
       var op = ops[i];
-      var attributes = { };
+      var attributes = {};
       if (typeof op === 'object') {
         attributes = op;
         i++;
@@ -454,28 +494,36 @@ firepad.TextOperation = (function () {
     oldAttributes = oldAttributes || [];
     newAttributes = newAttributes || [];
     if (str.length !== operation.baseLength) {
-      throw new Error("The operation's base length must be equal to the string's length.");
+      throw new Error(
+        "The operation's base length must be equal to the string's length."
+      );
     }
-    var newStringParts = [], j = 0, k, attr;
+    var newStringParts = [],
+      j = 0,
+      k,
+      attr;
     var oldIndex = 0;
     var ops = this.ops;
     for (var i = 0, l = ops.length; i < l; i++) {
       var op = ops[i];
       if (op.isRetain()) {
         if (oldIndex + op.chars > str.length) {
-          throw new Error("Operation can't retain more characters than are left in the string.");
+          throw new Error(
+            "Operation can't retain more characters than are left in the string."
+          );
         }
         // Copy skipped part of the retained string.
         newStringParts[j++] = str.slice(oldIndex, oldIndex + op.chars);
 
         // Copy (and potentially update) attributes for each char in retained string.
-        for(k = 0; k < op.chars; k++) {
-          var currAttributes = oldAttributes[oldIndex + k] || { }, updatedAttributes = { };
-          for(attr in currAttributes) {
+        for (k = 0; k < op.chars; k++) {
+          var currAttributes = oldAttributes[oldIndex + k] || {},
+            updatedAttributes = {};
+          for (attr in currAttributes) {
             updatedAttributes[attr] = currAttributes[attr];
             utils.assert(updatedAttributes[attr] !== false);
           }
-          for(attr in op.attributes) {
+          for (attr in op.attributes) {
             if (op.attributes[attr] === false) {
               delete updatedAttributes[attr];
             } else {
@@ -492,15 +540,16 @@ firepad.TextOperation = (function () {
         newStringParts[j++] = op.text;
 
         // Insert attributes for each char.
-        for(k = 0; k < op.text.length; k++) {
-          var insertedAttributes = { };
-          for(attr in op.attributes) {
+        for (k = 0; k < op.text.length; k++) {
+          var insertedAttributes = {};
+          for (attr in op.attributes) {
             insertedAttributes[attr] = op.attributes[attr];
             utils.assert(insertedAttributes[attr] !== false);
           }
           newAttributes.push(insertedAttributes);
         }
-      } else { // delete op
+      } else {
+        // delete op
         oldIndex += op.chars;
       }
     }
@@ -528,7 +577,8 @@ firepad.TextOperation = (function () {
         strIndex += op.chars;
       } else if (op.isInsert()) {
         inverse['delete'](op.text.length);
-      } else { // delete op
+      } else {
+        // delete op
         inverse.insert(str.slice(strIndex, strIndex + op.chars));
         strIndex += op.chars;
       }
@@ -543,15 +593,18 @@ firepad.TextOperation = (function () {
   TextOperation.prototype.compose = function (operation2) {
     var operation1 = this;
     if (operation1.targetLength !== operation2.baseLength) {
-      throw new Error("The base length of the second operation has to be the target length of the first operation");
+      throw new Error(
+        'The base length of the second operation has to be the target length of the first operation'
+      );
     }
 
     function composeAttributes(first, second, firstOpIsInsert) {
-      var merged = { }, attr;
-      for(attr in first) {
+      var merged = {},
+        attr;
+      for (attr in first) {
         merged[attr] = first[attr];
       }
-      for(attr in second) {
+      for (attr in second) {
         if (firstOpIsInsert && second[attr] === false) {
           delete merged[attr];
         } else {
@@ -562,9 +615,12 @@ firepad.TextOperation = (function () {
     }
 
     var operation = new TextOperation(); // the combined operation
-    var ops1 = operation1.clone().ops, ops2 = operation2.clone().ops;
-    var i1 = 0, i2 = 0; // current index into ops1 respectively ops2
-    var op1 = ops1[i1++], op2 = ops2[i2++]; // current ops
+    var ops1 = operation1.clone().ops,
+      ops2 = operation2.clone().ops;
+    var i1 = 0,
+      i2 = 0; // current index into ops1 respectively ops2
+    var op1 = ops1[i1++],
+      op2 = ops2[i2++]; // current ops
     var attributes;
     while (true) {
       // Dispatch on the type of op1 and op2
@@ -585,10 +641,14 @@ firepad.TextOperation = (function () {
       }
 
       if (typeof op1 === 'undefined') {
-        throw new Error("Cannot compose operations: first operation is too short.");
+        throw new Error(
+          'Cannot compose operations: first operation is too short.'
+        );
       }
       if (typeof op2 === 'undefined') {
-        throw new Error("Cannot compose operations: first operation is too long.");
+        throw new Error(
+          'Cannot compose operations: first operation is too long.'
+        );
       }
 
       if (op1.isRetain() && op2.isRetain()) {
@@ -618,7 +678,11 @@ firepad.TextOperation = (function () {
           op1 = ops1[i1++];
         }
       } else if (op1.isInsert() && op2.isRetain()) {
-        attributes = composeAttributes(op1.attributes, op2.attributes, /*firstOpIsInsert=*/true);
+        attributes = composeAttributes(
+          op1.attributes,
+          op2.attributes,
+          /*firstOpIsInsert=*/ true
+        );
         if (op1.text.length > op2.chars) {
           operation.insert(op1.text.slice(0, op2.chars), attributes);
           op1.text = op1.text.slice(op2.chars);
@@ -649,29 +713,34 @@ firepad.TextOperation = (function () {
       } else {
         throw new Error(
           "This shouldn't happen: op1: " +
-          JSON.stringify(op1) + ", op2: " +
-          JSON.stringify(op2)
+            JSON.stringify(op1) +
+            ', op2: ' +
+            JSON.stringify(op2)
         );
       }
     }
     return operation;
   };
 
-  function getSimpleOp (operation) {
+  function getSimpleOp(operation) {
     var ops = operation.ops;
     switch (ops.length) {
-    case 1:
-      return ops[0];
-    case 2:
-      return ops[0].isRetain() ? ops[1] : (ops[1].isRetain() ? ops[0] : null);
-    case 3:
-      if (ops[0].isRetain() && ops[2].isRetain()) { return ops[1]; }
+      case 1:
+        return ops[0];
+      case 2:
+        return ops[0].isRetain() ? ops[1] : ops[1].isRetain() ? ops[0] : null;
+      case 3:
+        if (ops[0].isRetain() && ops[2].isRetain()) {
+          return ops[1];
+        }
     }
     return null;
   }
 
-  function getStartIndex (operation) {
-    if (operation.ops[0].isRetain()) { return operation.ops[0].chars; }
+  function getStartIndex(operation) {
+    if (operation.ops[0].isRetain()) {
+      return operation.ops[0].chars;
+    }
     return 0;
   }
 
@@ -684,11 +753,17 @@ firepad.TextOperation = (function () {
   // operations delete text at the same position. You may want to include other
   // factors like the time since the last change in your decision.
   TextOperation.prototype.shouldBeComposedWith = function (other) {
-    if (this.isNoop() || other.isNoop()) { return true; }
+    if (this.isNoop() || other.isNoop()) {
+      return true;
+    }
 
-    var startA = getStartIndex(this), startB = getStartIndex(other);
-    var simpleA = getSimpleOp(this), simpleB = getSimpleOp(other);
-    if (!simpleA || !simpleB) { return false; }
+    var startA = getStartIndex(this),
+      startB = getStartIndex(other);
+    var simpleA = getSimpleOp(this),
+      simpleB = getSimpleOp(other);
+    if (!simpleA || !simpleB) {
+      return false;
+    }
 
     if (simpleA.isInsert() && simpleB.isInsert()) {
       return startA + simpleA.text.length === startB;
@@ -697,7 +772,7 @@ firepad.TextOperation = (function () {
     if (simpleA.isDelete() && simpleB.isDelete()) {
       // there are two possibilities to delete: with backspace and with the
       // delete key.
-      return (startB + simpleB.chars === startA) || startA === startB;
+      return startB + simpleB.chars === startA || startA === startB;
     }
 
     return false;
@@ -707,11 +782,17 @@ firepad.TextOperation = (function () {
   // if they were inverted, that is
   // `shouldBeComposedWith(a, b) = shouldBeComposedWithInverted(b^{-1}, a^{-1})`.
   TextOperation.prototype.shouldBeComposedWithInverted = function (other) {
-    if (this.isNoop() || other.isNoop()) { return true; }
+    if (this.isNoop() || other.isNoop()) {
+      return true;
+    }
 
-    var startA = getStartIndex(this), startB = getStartIndex(other);
-    var simpleA = getSimpleOp(this), simpleB = getSimpleOp(other);
-    if (!simpleA || !simpleB) { return false; }
+    var startA = getStartIndex(this),
+      startB = getStartIndex(other);
+    var simpleA = getSimpleOp(this),
+      simpleB = getSimpleOp(other);
+    if (!simpleA || !simpleB) {
+      return false;
+    }
 
     if (simpleA.isInsert() && simpleB.isInsert()) {
       return startA + simpleA.text.length === startB || startA === startB;
@@ -724,15 +805,21 @@ firepad.TextOperation = (function () {
     return false;
   };
 
-
-  TextOperation.transformAttributes = function(attributes1, attributes2) {
-    var attributes1prime = { }, attributes2prime = { };
-    var attr, allAttrs = { };
-    for(attr in attributes1) { allAttrs[attr] = true; }
-    for(attr in attributes2) { allAttrs[attr] = true; }
+  TextOperation.transformAttributes = function (attributes1, attributes2) {
+    var attributes1prime = {},
+      attributes2prime = {};
+    var attr,
+      allAttrs = {};
+    for (attr in attributes1) {
+      allAttrs[attr] = true;
+    }
+    for (attr in attributes2) {
+      allAttrs[attr] = true;
+    }
 
     for (attr in allAttrs) {
-      var attr1 = attributes1[attr], attr2 = attributes2[attr];
+      var attr1 = attributes1[attr],
+        attr2 = attributes2[attr];
       utils.assert(attr1 != null || attr2 != null);
       if (attr1 == null) {
         // Only modified by attributes2; keep it.
@@ -756,14 +843,17 @@ firepad.TextOperation = (function () {
   // heart of OT.
   TextOperation.transform = function (operation1, operation2) {
     if (operation1.baseLength !== operation2.baseLength) {
-      throw new Error("Both operations have to have the same base length");
+      throw new Error('Both operations have to have the same base length');
     }
 
     var operation1prime = new TextOperation();
     var operation2prime = new TextOperation();
-    var ops1 = operation1.clone().ops, ops2 = operation2.clone().ops;
-    var i1 = 0, i2 = 0;
-    var op1 = ops1[i1++], op2 = ops2[i2++];
+    var ops1 = operation1.clone().ops,
+      ops2 = operation2.clone().ops;
+    var i1 = 0,
+      i2 = 0;
+    var op1 = ops1[i1++],
+      op2 = ops2[i2++];
     while (true) {
       // At every iteration of the loop, the imaginary cursor that both
       // operation1 and operation2 have that operates on the input string must
@@ -791,16 +881,23 @@ firepad.TextOperation = (function () {
       }
 
       if (typeof op1 === 'undefined') {
-        throw new Error("Cannot transform operations: first operation is too short.");
+        throw new Error(
+          'Cannot transform operations: first operation is too short.'
+        );
       }
       if (typeof op2 === 'undefined') {
-        throw new Error("Cannot transform operations: first operation is too long.");
+        throw new Error(
+          'Cannot transform operations: first operation is too long.'
+        );
       }
 
       var minl;
       if (op1.isRetain() && op2.isRetain()) {
         // Simple case: retain/retain
-        var attributesPrime = TextOperation.transformAttributes(op1.attributes, op2.attributes);
+        var attributesPrime = TextOperation.transformAttributes(
+          op1.attributes,
+          op2.attributes
+        );
         if (op1.chars > op2.chars) {
           minl = op2.chars;
           op1.chars -= op2.chars;
@@ -831,7 +928,7 @@ firepad.TextOperation = (function () {
           op2.chars -= op1.chars;
           op1 = ops1[i1++];
         }
-      // next two cases: delete/retain and retain/delete
+        // next two cases: delete/retain and retain/delete
       } else if (op1.isDelete() && op2.isRetain()) {
         if (op1.chars > op2.chars) {
           minl = op2.chars;
@@ -871,14 +968,14 @@ firepad.TextOperation = (function () {
   };
 
   // convenience method to write transform(a, b) as a.transform(b)
-  TextOperation.prototype.transform = function(other) {
+  TextOperation.prototype.transform = function (other) {
     return TextOperation.transform(this, other);
   };
 
   return TextOperation;
-}());
+})();
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 firepad.Cursor = (function () {
   'use strict';
 
@@ -886,7 +983,7 @@ firepad.Cursor = (function () {
   // into the document. When nothing is selected, `selectionEnd` is equal to
   // `position`. When there is a selection, `position` is always the side of the
   // selection that would move if you pressed an arrow key.
-  function Cursor (position, selectionEnd) {
+  function Cursor(position, selectionEnd) {
     this.position = position;
     this.selectionEnd = selectionEnd;
   }
@@ -896,8 +993,10 @@ firepad.Cursor = (function () {
   };
 
   Cursor.prototype.equals = function (other) {
-    return this.position === other.position &&
-      this.selectionEnd === other.selectionEnd;
+    return (
+      this.position === other.position &&
+      this.selectionEnd === other.selectionEnd
+    );
   };
 
   // Return the more current cursor information.
@@ -907,7 +1006,7 @@ firepad.Cursor = (function () {
 
   // Update the cursor with respect to an operation.
   Cursor.prototype.transform = function (other) {
-    function transformIndex (index) {
+    function transformIndex(index) {
       var newIndex = index;
       var ops = other.ops;
       for (var i = 0, l = other.ops.length; i < l; i++) {
@@ -919,7 +1018,9 @@ firepad.Cursor = (function () {
           newIndex -= Math.min(index, ops[i].chars);
           index -= ops[i].chars;
         }
-        if (index < 0) { break; }
+        if (index < 0) {
+          break;
+        }
       }
       return newIndex;
     }
@@ -932,17 +1033,19 @@ firepad.Cursor = (function () {
   };
 
   return Cursor;
+})();
 
-}());
-
-var firepad = firepad || { };
+var firepad = firepad || {};
 
 firepad.FirebaseAdapter = (function (global) {
-
-  if (typeof firebase === "undefined" && typeof require === 'function' && typeof Firebase !== 'function') {
-    throw new Error("firebase should be loaded >:-(");
-	  // firebase = require('firebase/app');
-	  // require('firebase/database');
+  if (
+    typeof firebase === 'undefined' &&
+    typeof require === 'function' &&
+    typeof Firebase !== 'function'
+  ) {
+    throw new Error('firebase should be loaded >:-(');
+    // firebase = require('firebase/app');
+    // require('firebase/database');
   }
 
   var TextOperation = firepad.TextOperation;
@@ -951,7 +1054,7 @@ firepad.FirebaseAdapter = (function (global) {
   // Save a checkpoint every 100 edits.
   var CHECKPOINT_FREQUENCY = 100;
 
-  function FirebaseAdapter (ref, userId, userColor) {
+  function FirebaseAdapter(ref, userId, userColor) {
     this.ref_ = ref;
     this.ready_ = false;
     this.firebaseCallbacks_ = [];
@@ -970,7 +1073,7 @@ firepad.FirebaseAdapter = (function (global) {
     // 2) If we ever receive revisions out-of-order (e.g. rev 5 before rev 4), we queue them here until it's time
     //    for them to be handled. [this should never happen with well-behaved clients; but if it /does/ happen we want
     //    to handle it gracefully.]
-    this.pendingReceivedRevisions_ = { };
+    this.pendingReceivedRevisions_ = {};
 
     var self = this;
 
@@ -978,16 +1081,21 @@ firepad.FirebaseAdapter = (function (global) {
       this.setUserId(userId);
       this.setColor(userColor);
 
-      var connectedRef = ref.root.child('.info/connected')
+      var connectedRef = ref.root.child('.info/connected');
 
-      this.firebaseOn_(connectedRef, 'value', function(snapshot) {
-        if (snapshot.val() === true) {
-          self.initializeUserData_();
-        }
-      }, this);
+      this.firebaseOn_(
+        connectedRef,
+        'value',
+        function (snapshot) {
+          if (snapshot.val() === true) {
+            self.initializeUserData_();
+          }
+        },
+        this
+      );
 
       // Once we're initialized, start tracking users' cursors.
-      this.on('ready', function() {
+      this.on('ready', function () {
         self.monitorCursors_();
       });
     } else {
@@ -995,21 +1103,26 @@ firepad.FirebaseAdapter = (function (global) {
     }
 
     // Avoid triggering any events until our callers have had a chance to attach their listeners.
-    setTimeout(function() {
+    setTimeout(function () {
       self.monitorHistory_();
     }, 0);
-
   }
-  utils.makeEventEmitter(FirebaseAdapter, ['ready', 'cursor', 'operation', 'ack', 'retry']);
+  utils.makeEventEmitter(FirebaseAdapter, [
+    'ready',
+    'cursor',
+    'operation',
+    'ack',
+    'retry',
+  ]);
 
-  FirebaseAdapter.prototype.dispose = function() {
+  FirebaseAdapter.prototype.dispose = function () {
     var self = this;
     this.removeFirebaseCallbacks_();
     this.handleInitialRevisions_ = () => {};
 
     if (!this.ready_) {
-      this.on('ready', function() {
-	      self.dispose();
+      this.on('ready', function () {
+        self.dispose();
       });
       return;
     }
@@ -1024,7 +1137,7 @@ firepad.FirebaseAdapter = (function (global) {
     this.zombie_ = true;
   };
 
-  FirebaseAdapter.prototype.setUserId = function(userId) {
+  FirebaseAdapter.prototype.setUserId = function (userId) {
     if (this.userRef_) {
       // Clean up existing data.  Avoid nuking another user's data
       // (if a future user takes our old name).
@@ -1040,8 +1153,8 @@ firepad.FirebaseAdapter = (function (global) {
     this.initializeUserData_();
   };
 
-  FirebaseAdapter.prototype.isHistoryEmpty = function() {
-    assert(this.ready_, "Not ready yet.");
+  FirebaseAdapter.prototype.isHistoryEmpty = function () {
+    assert(this.ready_, 'Not ready yet.');
     return this.revision_ === 0;
   };
 
@@ -1056,47 +1169,60 @@ firepad.FirebaseAdapter = (function (global) {
 
     // If we're not ready yet, do nothing right now, and trigger a retry when we're ready.
     if (!this.ready_) {
-      this.on('ready', function() {
+      this.on('ready', function () {
         self.trigger('retry');
       });
       return;
     }
 
     // Sanity check that this operation is valid.
-    assert(this.document_.targetLength === operation.baseLength, "sendOperation() called with invalid operation.");
+    assert(
+      this.document_.targetLength === operation.baseLength,
+      'sendOperation() called with invalid operation.'
+    );
 
     // Convert revision into an id that will sort properly lexicographically.
     var revisionId = revisionToId(this.revision_);
 
     function doTransaction(revisionId, revisionData) {
-
-      self.ref_.child('history').child(revisionId).transaction(function(current) {
-        if (current === null) {
-          return revisionData;
-        }
-      }, function(error, committed, snapshot) {
-        if (error) {
-          if (error.message === 'disconnect') {
-            if (self.sent_ && self.sent_.id === revisionId) {
-              // We haven't seen our transaction succeed or fail.  Send it again.
-              setTimeout(function() {
-                doTransaction(revisionId, revisionData);
-              }, 0);
-            } else if (callback) {
-              callback(error, false);
+      self.ref_
+        .child('history')
+        .child(revisionId)
+        .transaction(
+          function (current) {
+            if (current === null) {
+              return revisionData;
             }
-          } else {
-            utils.log('Transaction failure!', error);
-            throw error;
-          }
-        } else {
-          if (callback) callback(null, committed);
-        }
-      }, /*applyLocally=*/false);
+          },
+          function (error, committed, snapshot) {
+            if (error) {
+              if (error.message === 'disconnect') {
+                if (self.sent_ && self.sent_.id === revisionId) {
+                  // We haven't seen our transaction succeed or fail.  Send it again.
+                  setTimeout(function () {
+                    doTransaction(revisionId, revisionData);
+                  }, 0);
+                } else if (callback) {
+                  callback(error, false);
+                }
+              } else {
+                utils.log('Transaction failure!', error);
+                throw error;
+              }
+            } else {
+              if (callback) callback(null, committed);
+            }
+          },
+          /*applyLocally=*/ false
+        );
     }
 
     this.sent_ = { id: revisionId, op: operation };
-    doTransaction(revisionId, { a: self.userId_, o: operation.toJSON(), t: firebase.database.ServerValue.TIMESTAMP });
+    doTransaction(revisionId, {
+      a: self.userId_,
+      o: operation.toJSON(),
+      t: firebase.database.ServerValue.TIMESTAMP,
+    });
   };
 
   FirebaseAdapter.prototype.sendCursor = function (obj) {
@@ -1104,22 +1230,22 @@ firepad.FirebaseAdapter = (function (global) {
     this.cursor_ = obj;
   };
 
-  FirebaseAdapter.prototype.setColor = function(color) {
+  FirebaseAdapter.prototype.setColor = function (color) {
     this.userRef_.child('color').set(color);
     this.color_ = color;
   };
 
-  FirebaseAdapter.prototype.getDocument = function() {
+  FirebaseAdapter.prototype.getDocument = function () {
     return this.document_;
   };
 
-  FirebaseAdapter.prototype.registerCallbacks = function(callbacks) {
+  FirebaseAdapter.prototype.registerCallbacks = function (callbacks) {
     for (var eventType in callbacks) {
       this.on(eventType, callbacks[eventType]);
     }
   };
 
-  FirebaseAdapter.prototype.initializeUserData_ = function() {
+  FirebaseAdapter.prototype.initializeUserData_ = function () {
     this.userRef_.child('cursor').onDisconnect().remove();
     this.userRef_.child('color').onDisconnect().remove();
 
@@ -1127,8 +1253,9 @@ firepad.FirebaseAdapter = (function (global) {
     this.setColor(this.color_ || null);
   };
 
-  FirebaseAdapter.prototype.monitorCursors_ = function() {
-    var usersRef = this.ref_.child('users'), self = this;
+  FirebaseAdapter.prototype.monitorCursors_ = function () {
+    var usersRef = this.ref_.child('users'),
+      self = this;
 
     function childChanged(childSnap) {
       var userId = childSnap.key;
@@ -1139,18 +1266,22 @@ firepad.FirebaseAdapter = (function (global) {
     this.firebaseOn_(usersRef, 'child_added', childChanged);
     this.firebaseOn_(usersRef, 'child_changed', childChanged);
 
-    this.firebaseOn_(usersRef, 'child_removed', function(childSnap) {
+    this.firebaseOn_(usersRef, 'child_removed', function (childSnap) {
       var userId = childSnap.key;
       self.trigger('cursor', userId, null);
     });
   };
 
-  FirebaseAdapter.prototype.monitorHistory_ = function() {
+  FirebaseAdapter.prototype.monitorHistory_ = function () {
     var self = this;
     // Get the latest checkpoint as a starting point so we don't have to re-play entire history.
-    this.ref_.child('checkpoint').once('value', function(s) {
-      if (self.zombie_) { return; } // just in case we were cleaned up before we got the checkpoint data.
-      var revisionId = s.child('id').val(),  op = s.child('o').val(), author = s.child('a').val();
+    this.ref_.child('checkpoint').once('value', function (s) {
+      if (self.zombie_) {
+        return;
+      } // just in case we were cleaned up before we got the checkpoint data.
+      var revisionId = s.child('id').val(),
+        op = s.child('o').val(),
+        author = s.child('a').val();
       if (op != null && revisionId != null && author !== null) {
         self.pendingReceivedRevisions_[revisionId] = { o: op, a: author };
         self.checkpointRevision_ = revisionFromId(revisionId);
@@ -1162,12 +1293,14 @@ firepad.FirebaseAdapter = (function (global) {
     });
   };
 
-  FirebaseAdapter.prototype.monitorHistoryStartingAt_ = function(revision) {
-    var historyRef = this.ref_.child('history').startAt(null, revisionToId(revision));
+  FirebaseAdapter.prototype.monitorHistoryStartingAt_ = function (revision) {
+    var historyRef = this.ref_
+      .child('history')
+      .startAt(null, revisionToId(revision));
     var self = this;
 
-    setTimeout(function() {
-      self.firebaseOn_(historyRef, 'child_added', function(revisionSnapshot) {
+    setTimeout(function () {
+      self.firebaseOn_(historyRef, 'child_added', function (revisionSnapshot) {
         var revisionId = revisionSnapshot.key;
         self.pendingReceivedRevisions_[revisionId] = revisionSnapshot.val();
         if (self.ready_) {
@@ -1175,23 +1308,29 @@ firepad.FirebaseAdapter = (function (global) {
         }
       });
 
-      historyRef.once('value', function() {
+      historyRef.once('value', function () {
         self.handleInitialRevisions_();
       });
     }, 0);
   };
 
-  FirebaseAdapter.prototype.handleInitialRevisions_ = function() {
-    assert(!this.ready_, "Should not be called multiple times.");
+  FirebaseAdapter.prototype.handleInitialRevisions_ = function () {
+    assert(!this.ready_, 'Should not be called multiple times.');
 
     // Compose the checkpoint and all subsequent revisions into a single operation to apply at once.
     this.revision_ = this.checkpointRevision_;
-    var revisionId = revisionToId(this.revision_), pending = this.pendingReceivedRevisions_;
+    var revisionId = revisionToId(this.revision_),
+      pending = this.pendingReceivedRevisions_;
     while (pending[revisionId] != null) {
       var revision = this.parseRevision_(pending[revisionId]);
       if (!revision) {
         // If a misbehaved client adds a bad operation, just ignore it.
-        utils.log('Invalid operation.', this.ref_.toString(), revisionId, pending[revisionId]);
+        utils.log(
+          'Invalid operation.',
+          this.ref_.toString(),
+          revisionId,
+          pending[revisionId]
+        );
       } else {
         this.document_ = this.document_.compose(revision.operation);
       }
@@ -1205,12 +1344,12 @@ firepad.FirebaseAdapter = (function (global) {
 
     this.ready_ = true;
     var self = this;
-    setTimeout(function() {
+    setTimeout(function () {
       self.trigger('ready');
     }, 0);
   };
 
-  FirebaseAdapter.prototype.handlePendingReceivedRevisions_ = function() {
+  FirebaseAdapter.prototype.handlePendingReceivedRevisions_ = function () {
     var pending = this.pendingReceivedRevisions_;
     var revisionId = revisionToId(this.revision_);
     var triggerRetry = false;
@@ -1220,12 +1359,20 @@ firepad.FirebaseAdapter = (function (global) {
       var revision = this.parseRevision_(pending[revisionId]);
       if (!revision) {
         // If a misbehaved client adds a bad operation, just ignore it.
-        utils.log('Invalid operation.', this.ref_.toString(), revisionId, pending[revisionId]);
+        utils.log(
+          'Invalid operation.',
+          this.ref_.toString(),
+          revisionId,
+          pending[revisionId]
+        );
       } else {
         this.document_ = this.document_.compose(revision.operation);
         if (this.sent_ && revisionId === this.sent_.id) {
           // We have an outstanding change at this revision id.
-          if (this.sent_.op.equals(revision.operation) && revision.author === this.userId_) {
+          if (
+            this.sent_.op.equals(revision.operation) &&
+            revision.author === this.userId_
+          ) {
             // This is our change; it succeeded.
             if (this.revision_ % CHECKPOINT_FREQUENCY === 0) {
               this.saveCheckpoint_();
@@ -1252,25 +1399,28 @@ firepad.FirebaseAdapter = (function (global) {
     }
   };
 
-  FirebaseAdapter.prototype.parseRevision_ = function(data) {
+  FirebaseAdapter.prototype.parseRevision_ = function (data) {
     // We could do some of this validation via security rules.  But it's nice to be robust, just in case.
-    if (typeof data !== 'object') { return null; }
-    if (typeof data.a !== 'string' || typeof data.o !== 'object') { return null; }
+    if (typeof data !== 'object') {
+      return null;
+    }
+    if (typeof data.a !== 'string' || typeof data.o !== 'object') {
+      return null;
+    }
     var op = null;
     try {
       op = TextOperation.fromJSON(data.o);
-    }
-    catch (e) {
+    } catch (e) {
       return null;
     }
 
     if (op.baseLength !== this.document_.targetLength) {
       return null;
     }
-    return { author: data.a, operation: op }
+    return { author: data.a, operation: op };
   };
 
-  FirebaseAdapter.prototype.saveCheckpoint_ = function() {
+  FirebaseAdapter.prototype.saveCheckpoint_ = function () {
     // delete [-200, -100) before this point
     let updateObject = {};
     for (let idx = this.revision_ - 200; idx < this.revision_ - 100; idx++) {
@@ -1285,29 +1435,49 @@ firepad.FirebaseAdapter = (function (global) {
     this.ref_.child('checkpoint').set({
       a: this.userId_,
       o: this.document_.toJSON(),
-      id: revisionToId(this.revision_ - 1) // use the id for the revision we just wrote.
+      id: revisionToId(this.revision_ - 1), // use the id for the revision we just wrote.
     });
   };
 
-  FirebaseAdapter.prototype.firebaseOn_ = function(ref, eventType, callback, context) {
-    this.firebaseCallbacks_.push({ref: ref, eventType: eventType, callback: callback, context: context });
+  FirebaseAdapter.prototype.firebaseOn_ = function (
+    ref,
+    eventType,
+    callback,
+    context
+  ) {
+    this.firebaseCallbacks_.push({
+      ref: ref,
+      eventType: eventType,
+      callback: callback,
+      context: context,
+    });
     ref.on(eventType, callback, context);
     return callback;
   };
 
-  FirebaseAdapter.prototype.firebaseOff_ = function(ref, eventType, callback, context) {
+  FirebaseAdapter.prototype.firebaseOff_ = function (
+    ref,
+    eventType,
+    callback,
+    context
+  ) {
     ref.off(eventType, callback, context);
-    for(var i = 0; i < this.firebaseCallbacks_.length; i++) {
+    for (var i = 0; i < this.firebaseCallbacks_.length; i++) {
       var l = this.firebaseCallbacks_[i];
-      if (l.ref === ref && l.eventType === eventType && l.callback === callback && l.context === context) {
+      if (
+        l.ref === ref &&
+        l.eventType === eventType &&
+        l.callback === callback &&
+        l.context === context
+      ) {
         this.firebaseCallbacks_.splice(i, 1);
         break;
       }
     }
   };
 
-  FirebaseAdapter.prototype.removeFirebaseCallbacks_ = function() {
-    for(var i = 0; i < this.firebaseCallbacks_.length; i++) {
+  FirebaseAdapter.prototype.removeFirebaseCallbacks_ = function () {
+    for (var i = 0; i < this.firebaseCallbacks_.length; i++) {
       var l = this.firebaseCallbacks_[i];
       l.ref.off(l.eventType, l.callback, l.context);
     }
@@ -1315,14 +1485,15 @@ firepad.FirebaseAdapter = (function (global) {
   };
 
   // Throws an error if the first argument is falsy. Useful for debugging.
-  function assert (b, msg) {
+  function assert(b, msg) {
     if (!b) {
-      throw new Error(msg || "assertion error");
+      throw new Error(msg || 'assertion error');
     }
   }
 
   // Based off ideas from http://www.zanopha.com/docs/elen.pdf
-  var characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  var characters =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   function revisionToId(revision) {
     if (revision === 0) {
       return 'A0';
@@ -1330,7 +1501,7 @@ firepad.FirebaseAdapter = (function (global) {
 
     var str = '';
     while (revision > 0) {
-      var digit = (revision % characters.length);
+      var digit = revision % characters.length;
       str = characters[digit] + str;
       revision -= digit;
       revision /= characters.length;
@@ -1342,9 +1513,12 @@ firepad.FirebaseAdapter = (function (global) {
   }
 
   function revisionFromId(revisionId) {
-    assert (revisionId.length > 0 && revisionId[0] === characters[revisionId.length + 8]);
+    assert(
+      revisionId.length > 0 &&
+        revisionId[0] === characters[revisionId.length + 8]
+    );
     var revision = 0;
-    for(var i = 1; i < revisionId.length; i++) {
+    for (var i = 1; i < revisionId.length; i++) {
       revision *= characters.length;
       revision += characters.indexOf(revisionId[i]);
     }
@@ -1352,16 +1526,16 @@ firepad.FirebaseAdapter = (function (global) {
   }
 
   return FirebaseAdapter;
-}());
+})();
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 firepad.WrappedOperation = (function (global) {
   'use strict';
 
   // A WrappedOperation contains an operation and corresponing metadata.
-  function WrappedOperation (operation, meta) {
+  function WrappedOperation(operation, meta) {
     this.wrapped = operation;
-    this.meta    = meta;
+    this.meta = meta;
   }
 
   WrappedOperation.prototype.apply = function () {
@@ -1372,13 +1546,14 @@ firepad.WrappedOperation = (function (global) {
     var meta = this.meta;
     return new WrappedOperation(
       this.wrapped.invert.apply(this.wrapped, arguments),
-      meta && typeof meta === 'object' && typeof meta.invert === 'function' ?
-        meta.invert.apply(meta, arguments) : meta
+      meta && typeof meta === 'object' && typeof meta.invert === 'function'
+        ? meta.invert.apply(meta, arguments)
+        : meta
     );
   };
 
   // Copy all properties from source to target.
-  function copy (source, target) {
+  function copy(source, target) {
     for (var key in source) {
       if (source.hasOwnProperty(key)) {
         target[key] = source[key];
@@ -1386,9 +1561,11 @@ firepad.WrappedOperation = (function (global) {
     }
   }
 
-  function composeMeta (a, b) {
+  function composeMeta(a, b) {
     if (a && typeof a === 'object') {
-      if (typeof a.compose === 'function') { return a.compose(b); }
+      if (typeof a.compose === 'function') {
+        return a.compose(b);
+      }
       var meta = {};
       copy(a, meta);
       copy(b, meta);
@@ -1404,7 +1581,7 @@ firepad.WrappedOperation = (function (global) {
     );
   };
 
-  function transformMeta (meta, operation) {
+  function transformMeta(meta, operation) {
     if (meta && typeof meta === 'object') {
       if (typeof meta.transform === 'function') {
         return meta.transform(operation);
@@ -1417,20 +1594,19 @@ firepad.WrappedOperation = (function (global) {
     var pair = a.wrapped.transform(b.wrapped);
     return [
       new WrappedOperation(pair[0], transformMeta(a.meta, b.wrapped)),
-      new WrappedOperation(pair[1], transformMeta(b.meta, a.wrapped))
+      new WrappedOperation(pair[1], transformMeta(b.meta, a.wrapped)),
     ];
   };
 
   // convenience method to write transform(a, b) as a.transform(b)
-  WrappedOperation.prototype.transform = function(other) {
+  WrappedOperation.prototype.transform = function (other) {
     return WrappedOperation.transform(this, other);
   };
 
   return WrappedOperation;
+})();
 
-}());
-
-var firepad = firepad || { };
+var firepad = firepad || {};
 
 firepad.UndoManager = (function () {
   'use strict';
@@ -1440,8 +1616,8 @@ firepad.UndoManager = (function () {
   var REDOING_STATE = 'redoing';
 
   // Create a new UndoManager with an optional maximum history size.
-  function UndoManager (maxItems) {
-    this.maxItems  = maxItems || 50;
+  function UndoManager(maxItems) {
+    this.maxItems = maxItems || 50;
     this.state = NORMAL_STATE;
     this.dontCompose = false;
     this.undoStack = [];
@@ -1466,14 +1642,16 @@ firepad.UndoManager = (function () {
         undoStack.push(operation.compose(undoStack.pop()));
       } else {
         undoStack.push(operation);
-        if (undoStack.length > this.maxItems) { undoStack.shift(); }
+        if (undoStack.length > this.maxItems) {
+          undoStack.shift();
+        }
       }
       this.dontCompose = false;
       this.redoStack = [];
     }
   };
 
-  function transformStack (stack, operation) {
+  function transformStack(stack, operation) {
     var newStack = [];
     var Operation = operation.constructor;
     for (var i = stack.length - 1; i >= 0; i--) {
@@ -1497,7 +1675,9 @@ firepad.UndoManager = (function () {
   // of the operation, which pushes the inverse on the redo stack.
   UndoManager.prototype.performUndo = function (fn) {
     this.state = UNDOING_STATE;
-    if (this.undoStack.length === 0) { throw new Error("undo not possible"); }
+    if (this.undoStack.length === 0) {
+      throw new Error('undo not possible');
+    }
     fn(this.undoStack.pop());
     this.state = NORMAL_STATE;
   };
@@ -1505,7 +1685,9 @@ firepad.UndoManager = (function () {
   // The inverse of `performUndo`.
   UndoManager.prototype.performRedo = function (fn) {
     this.state = REDOING_STATE;
-    if (this.redoStack.length === 0) { throw new Error("redo not possible"); }
+    if (this.redoStack.length === 0) {
+      throw new Error('redo not possible');
+    }
     fn(this.redoStack.pop());
     this.state = NORMAL_STATE;
   };
@@ -1531,15 +1713,14 @@ firepad.UndoManager = (function () {
   };
 
   return UndoManager;
+})();
 
-}());
-
-var firepad = firepad || { };
+var firepad = firepad || {};
 firepad.Client = (function () {
   'use strict';
 
   // Client constructor
-  function Client () {
+  function Client() {
     this.state = synchronized_; // start state
   }
 
@@ -1561,24 +1742,23 @@ firepad.Client = (function () {
     this.setState(this.state.serverAck(this));
   };
 
-  Client.prototype.serverRetry = function() {
+  Client.prototype.serverRetry = function () {
     this.setState(this.state.serverRetry(this));
   };
 
   // Override this method.
   Client.prototype.sendOperation = function (operation) {
-    throw new Error("sendOperation must be defined in child class");
+    throw new Error('sendOperation must be defined in child class');
   };
 
   // Override this method.
   Client.prototype.applyOperation = function (operation) {
-    throw new Error("applyOperation must be defined in child class");
+    throw new Error('applyOperation must be defined in child class');
   };
-
 
   // In the 'Synchronized' state, there is no pending operation that the client
   // has sent to the server.
-  function Synchronized () {}
+  function Synchronized() {}
   Client.Synchronized = Synchronized;
 
   Synchronized.prototype.applyClient = function (client, operation) {
@@ -1596,20 +1776,19 @@ firepad.Client = (function () {
   };
 
   Synchronized.prototype.serverAck = function (client) {
-    throw new Error("There is no pending operation.");
+    throw new Error('There is no pending operation.');
   };
 
-  Synchronized.prototype.serverRetry = function(client) {
-    throw new Error("There is no pending operation.");
+  Synchronized.prototype.serverRetry = function (client) {
+    throw new Error('There is no pending operation.');
   };
 
   // Singleton
   var synchronized_ = new Synchronized();
 
-
   // In the 'AwaitingConfirm' state, there's one operation the client has sent
   // to the server and is still waiting for an acknowledgement.
-  function AwaitingConfirm (outstanding) {
+  function AwaitingConfirm(outstanding) {
     // Save the pending operation
     this.outstanding = outstanding;
   }
@@ -1650,7 +1829,7 @@ firepad.Client = (function () {
 
   // In the 'AwaitingWithBuffer' state, the client is waiting for an operation
   // to be acknowledged by the server while buffering the edits the user makes
-  function AwaitingWithBuffer (outstanding, buffer) {
+  function AwaitingWithBuffer(outstanding, buffer) {
     // Save the pending operation and the user's edits since then
     this.outstanding = outstanding;
     this.buffer = buffer;
@@ -1702,10 +1881,9 @@ firepad.Client = (function () {
   };
 
   return Client;
+})();
 
-}());
-
-var firepad = firepad || { };
+var firepad = firepad || {};
 
 firepad.EditorClient = (function () {
   'use strict';
@@ -1715,9 +1893,9 @@ firepad.EditorClient = (function () {
   var UndoManager = firepad.UndoManager;
   var WrappedOperation = firepad.WrappedOperation;
 
-  function SelfMeta (cursorBefore, cursorAfter) {
+  function SelfMeta(cursorBefore, cursorAfter) {
     this.cursorBefore = cursorBefore;
-    this.cursorAfter  = cursorAfter;
+    this.cursorAfter = cursorAfter;
   }
 
   SelfMeta.prototype.invert = function () {
@@ -1735,7 +1913,7 @@ firepad.EditorClient = (function () {
     );
   };
 
-  function OtherClient (id, editorAdapter) {
+  function OtherClient(id, editorAdapter) {
     this.id = id;
     this.editorAdapter = editorAdapter;
   }
@@ -1747,35 +1925,45 @@ firepad.EditorClient = (function () {
   OtherClient.prototype.updateCursor = function (cursor) {
     this.removeCursor();
     this.cursor = cursor;
-    this.mark = this.editorAdapter.setOtherCursor(
-      cursor,
-      this.color,
-      this.id
-    );
+    this.mark = this.editorAdapter.setOtherCursor(cursor, this.color, this.id);
   };
 
   OtherClient.prototype.removeCursor = function () {
-    if (this.mark) { this.mark.clear(); }
+    if (this.mark) {
+      this.mark.clear();
+    }
   };
 
-  function EditorClient (serverAdapter, editorAdapter) {
+  function EditorClient(serverAdapter, editorAdapter) {
     Client.call(this);
     this.serverAdapter = serverAdapter;
     this.editorAdapter = editorAdapter;
     this.undoManager = new UndoManager();
 
-    this.clients = { };
+    this.clients = {};
 
     var self = this;
 
     this.editorAdapter.registerCallbacks({
-      change: function (operation, inverse) { self.onChange(operation, inverse); },
-      cursorActivity: function () { self.onCursorActivity(); },
-      blur: function () { self.onBlur(); },
-      focus: function () { self.onFocus(); }
+      change: function (operation, inverse) {
+        self.onChange(operation, inverse);
+      },
+      cursorActivity: function () {
+        self.onCursorActivity();
+      },
+      blur: function () {
+        self.onBlur();
+      },
+      focus: function () {
+        self.onFocus();
+      },
     });
-    this.editorAdapter.registerUndo(function () { self.undo(); });
-    this.editorAdapter.registerRedo(function () { self.redo(); });
+    this.editorAdapter.registerUndo(function () {
+      self.undo();
+    });
+    this.editorAdapter.registerRedo(function () {
+      self.redo();
+    });
 
     this.serverAdapter.registerCallbacks({
       ack: function () {
@@ -1786,13 +1974,17 @@ firepad.EditorClient = (function () {
         }
         self.emitStatus();
       },
-      retry: function() { self.serverRetry(); },
+      retry: function () {
+        self.serverRetry();
+      },
       operation: function (operation) {
         self.applyServer(operation);
       },
       cursor: function (clientId, cursor, color) {
-        if (self.serverAdapter.userId_ === clientId ||
-            !(self.state instanceof Client.Synchronized)) {
+        if (
+          self.serverAdapter.userId_ === clientId ||
+          !(self.state instanceof Client.Synchronized)
+        ) {
           return;
         }
         var client = self.getClientObject(clientId);
@@ -1802,7 +1994,7 @@ firepad.EditorClient = (function () {
         } else {
           client.removeCursor();
         }
-      }
+      },
     });
   }
 
@@ -1810,40 +2002,52 @@ firepad.EditorClient = (function () {
 
   EditorClient.prototype.getClientObject = function (clientId) {
     var client = this.clients[clientId];
-    if (client) { return client; }
-    return this.clients[clientId] = new OtherClient(
+    if (client) {
+      return client;
+    }
+    return (this.clients[clientId] = new OtherClient(
       clientId,
       this.editorAdapter
-    );
+    ));
   };
 
   EditorClient.prototype.applyUnredo = function (operation) {
     this.undoManager.add(this.editorAdapter.invertOperation(operation));
     this.editorAdapter.applyOperation(operation.wrapped);
     this.cursor = operation.meta.cursorAfter;
-    if (this.cursor)
-      this.editorAdapter.setCursor(this.cursor);
+    if (this.cursor) this.editorAdapter.setCursor(this.cursor);
     this.applyClient(operation.wrapped);
   };
 
   EditorClient.prototype.undo = function () {
     var self = this;
-    if (!this.undoManager.canUndo()) { return; }
-    this.undoManager.performUndo(function (o) { self.applyUnredo(o); });
+    if (!this.undoManager.canUndo()) {
+      return;
+    }
+    this.undoManager.performUndo(function (o) {
+      self.applyUnredo(o);
+    });
   };
 
   EditorClient.prototype.redo = function () {
     var self = this;
-    if (!this.undoManager.canRedo()) { return; }
-    this.undoManager.performRedo(function (o) { self.applyUnredo(o); });
+    if (!this.undoManager.canRedo()) {
+      return;
+    }
+    this.undoManager.performRedo(function (o) {
+      self.applyUnredo(o);
+    });
   };
 
   EditorClient.prototype.onChange = function (textOperation, inverse) {
     var cursorBefore = this.cursor;
     this.updateCursor();
 
-    var compose = this.undoManager.undoStack.length > 0 &&
-      inverse.shouldBeComposedWithInverted(last(this.undoManager.undoStack).wrapped);
+    var compose =
+      this.undoManager.undoStack.length > 0 &&
+      inverse.shouldBeComposedWithInverted(
+        last(this.undoManager.undoStack).wrapped
+      );
     var inverseMeta = new SelfMeta(this.cursor, cursorBefore);
     this.undoManager.add(new WrappedOperation(inverse, inverseMeta), compose);
     this.applyClient(textOperation);
@@ -1856,7 +2060,9 @@ firepad.EditorClient = (function () {
   EditorClient.prototype.onCursorActivity = function () {
     var oldCursor = this.cursor;
     this.updateCursor();
-    if (!this.focused || oldCursor && this.cursor.equals(oldCursor)) { return; }
+    if (!this.focused || (oldCursor && this.cursor.equals(oldCursor))) {
+      return;
+    }
     this.sendCursor(this.cursor);
   };
 
@@ -1872,7 +2078,9 @@ firepad.EditorClient = (function () {
   };
 
   EditorClient.prototype.sendCursor = function (cursor) {
-    if (this.state instanceof Client.AwaitingWithBuffer) { return; }
+    if (this.state instanceof Client.AwaitingWithBuffer) {
+      return;
+    }
     this.serverAdapter.sendCursor(cursor);
   };
 
@@ -1887,41 +2095,66 @@ firepad.EditorClient = (function () {
     this.undoManager.transform(new WrappedOperation(operation, null));
   };
 
-  EditorClient.prototype.emitStatus = function() {
+  EditorClient.prototype.emitStatus = function () {
     var self = this;
-    setTimeout(function() {
+    setTimeout(function () {
       self.trigger('synced', self.state instanceof Client.Synchronized);
     }, 0);
   };
 
   // Set Const.prototype.__proto__ to Super.prototype
-  function inherit (Const, Super) {
-    function F () {}
+  function inherit(Const, Super) {
+    function F() {}
     F.prototype = Super.prototype;
     Const.prototype = new F();
     Const.prototype.constructor = Const;
   }
 
-  function last (arr) { return arr[arr.length - 1]; }
+  function last(arr) {
+    return arr[arr.length - 1];
+  }
 
   return EditorClient;
-}());
+})();
 
 firepad.utils.makeEventEmitter(firepad.EditorClient, ['synced']);
 
-"use strict";
+('use strict');
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _nonIterableSpread() {
+  throw new TypeError(
+    'Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+  );
+}
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === 'Object' && o.constructor) n = o.constructor.name;
+  if (n === 'Map' || n === 'Set') return Array.from(n);
+  if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
+    return _arrayLikeToArray(o, minLen);
+}
 
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+function _iterableToArray(iter) {
+  if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(iter))
+    return Array.from(iter);
+}
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
 
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+  for (var i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i];
+  }
+  return arr2;
+}
 
-'use strict';
+('use strict');
 
 /**
  * @function getCSS - For Internal Usage Only
@@ -1931,9 +2164,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
  * @returns CSS Style Rules according to Parameters
  */
 var getCSS = function getCSS(clazz, bgColor, color) {
-  return "." + clazz + " {\n  position: relative;\n" +
-    "background-color: " + bgColor + ";\n" +
-    "border-left: 2px solid " + color + ";\n}";
+  return (
+    '.' +
+    clazz +
+    ' {\n  position: relative;\n' +
+    'background-color: ' +
+    bgColor +
+    ';\n' +
+    'border-left: 2px solid ' +
+    color +
+    ';\n}'
+  );
 };
 
 /**
@@ -1962,7 +2203,7 @@ var addStyleRule = function addStyleRule(clazz, css) {
  * Monaco Adapter
  * Create Pipe between Firebase and Monaco Text Editor
  */
-var MonacoAdapter = function () {
+var MonacoAdapter = (function () {
   /**
    * @constructor MonacoEditor
    * @param {MonacoEditor} monacoInstance - Editor Instance
@@ -1985,8 +2226,10 @@ var MonacoAdapter = function () {
 
     // Make sure this looks like a valid monaco instance.
     if (!monacoInstance || typeof monacoInstance.getModel !== 'function') {
-      throw new Error('MonacoAdapter: Incorrect Parameter Recieved in constructor, '
-        + 'expected valid Monaco Instance');
+      throw new Error(
+        'MonacoAdapter: Incorrect Parameter Recieved in constructor, ' +
+          'expected valid Monaco Instance'
+      );
     }
 
     /** Monaco Member Variables */
@@ -2011,7 +2254,9 @@ var MonacoAdapter = function () {
     this.changeHandler = this.monaco.onDidChangeModelContent(this.onChange);
     this.didBlurHandler = this.monaco.onDidBlurEditorWidget(this.onBlur);
     this.didFocusHandler = this.monaco.onDidFocusEditorWidget(this.onFocus);
-    this.didChangeCursorPositionHandler = this.monaco.onDidChangeCursorPosition(this.onCursorActivity);
+    this.didChangeCursorPositionHandler = this.monaco.onDidChangeCursorPosition(
+      this.onCursorActivity
+    );
   }
 
   /**
@@ -2075,8 +2320,10 @@ var MonacoAdapter = function () {
     /** Create Selection in the Editor */
     this.monaco.setSelection(
       new monaco.Range(
-        start.lineNumber, start.column,
-        end.lineNumber, end.column
+        start.lineNumber,
+        start.column,
+        end.lineNumber,
+        end.column
       )
     );
   };
@@ -2088,11 +2335,17 @@ var MonacoAdapter = function () {
    * @param {String} color - Hex Color codes for Styling
    * @param {any} clientID - ID number of the Remote Client
    */
-  MonacoAdapter.prototype.setOtherCursor = function setOtherCursor(cursor, color, clientID) {
+  MonacoAdapter.prototype.setOtherCursor = function setOtherCursor(
+    cursor,
+    color,
+    clientID
+  ) {
     /** House Keeping */
-    if (typeof cursor !== 'object' || typeof cursor.position !== 'number'
-      || typeof cursor.selectionEnd !== 'number') {
-
+    if (
+      typeof cursor !== 'object' ||
+      typeof cursor.position !== 'number' ||
+      typeof cursor.selectionEnd !== 'number'
+    ) {
       return false;
     }
 
@@ -2117,14 +2370,17 @@ var MonacoAdapter = function () {
     if (!otherCursor) {
       otherCursor = {
         clientID: clientID,
-        decoration: []
+        decoration: [],
       };
       this.otherCursors.push(otherCursor);
     }
 
     /** Remove Earlier Decorations, if any, or initialize empty decor */
-    otherCursor.decoration = this.monaco.deltaDecorations(otherCursor.decoration, []);
-    var clazz = "other-client-selection-" + color.replace('#', '');
+    otherCursor.decoration = this.monaco.deltaDecorations(
+      otherCursor.decoration,
+      []
+    );
+    var clazz = 'other-client-selection-' + color.replace('#', '');
     var css, ret;
 
     if (position === selectionEnd) {
@@ -2142,8 +2398,10 @@ var MonacoAdapter = function () {
 
     /** Return if failed to add css */
     if (ret == false) {
-      console.log("Monaco Adapter: Failed to add some css style.\n"
-      + "Please make sure you're running on supported environment.");
+      console.log(
+        'Monaco Adapter: Failed to add some css style.\n' +
+          "Please make sure you're running on supported environment."
+      );
     }
 
     /** Get co-ordinate position in Editor */
@@ -2157,23 +2415,29 @@ var MonacoAdapter = function () {
       end = _ref[1];
     }
 
-    const otherCursorName = (window.firepadUsers && window.firepadUsers.find(user => user.id === clientID).name) || "Unknown User";
+    const otherCursorName =
+      (window.firepadUsers &&
+        window.firepadUsers.find(user => user.id === clientID).name) ||
+      'Unknown User';
 
     /** Add decoration to the Editor */
-    otherCursor.decoration = this.monaco.deltaDecorations(otherCursor.decoration,
+    otherCursor.decoration = this.monaco.deltaDecorations(
+      otherCursor.decoration,
       [
         {
           range: new monaco.Range(
-            start.lineNumber, start.column,
-            end.lineNumber, end.column
+            start.lineNumber,
+            start.column,
+            end.lineNumber,
+            end.column
           ),
           options: {
             className: clazz,
             hoverMessage: {
-              value: otherCursorName
-            }
-          }
-        }
+              value: otherCursorName,
+            },
+          },
+        },
       ]
     );
 
@@ -2181,8 +2445,11 @@ var MonacoAdapter = function () {
     var _this = this;
     return {
       clear: function clear() {
-        otherCursor.decoration = _this.monaco.deltaDecorations(otherCursor.decoration, []);
-      }
+        otherCursor.decoration = _this.monaco.deltaDecorations(
+          otherCursor.decoration,
+          []
+        );
+      },
     };
   };
 
@@ -2190,7 +2457,9 @@ var MonacoAdapter = function () {
    * @method registerCallbacks - Assign callback functions to internal property
    * @param {function[]} callbacks - Set of callback functions
    */
-  MonacoAdapter.prototype.registerCallbacks = function registerCallbacks(callbacks) {
+  MonacoAdapter.prototype.registerCallbacks = function registerCallbacks(
+    callbacks
+  ) {
     this.callbacks = Object.assign({}, this.callbacks, callbacks);
   };
 
@@ -2202,8 +2471,10 @@ var MonacoAdapter = function () {
     if (typeof callback === 'function') {
       this.callbacks.undo = callback;
     } else {
-      throw new Error('MonacoAdapter: registerUndo method expects a '
-        + 'callback function in parameter');
+      throw new Error(
+        'MonacoAdapter: registerUndo method expects a ' +
+          'callback function in parameter'
+      );
     }
   };
 
@@ -2215,8 +2486,10 @@ var MonacoAdapter = function () {
     if (typeof callback === 'function') {
       this.callbacks.redo = callback;
     } else {
-      throw new Error('MonacoAdapter: registerRedo method expects a '
-        + 'callback function in parameter');
+      throw new Error(
+        'MonacoAdapter: registerRedo method expects a ' +
+          'callback function in parameter'
+      );
     }
   };
 
@@ -2228,7 +2501,11 @@ var MonacoAdapter = function () {
    * @returns Pair of Operation and Inverse
    * Note: OT.js Operation expects the cursor to be at the end of content
    */
-  MonacoAdapter.prototype.operationFromMonacoChanges = function operationFromMonacoChanges(change, content, offset) {
+  MonacoAdapter.prototype.operationFromMonacoChanges = function operationFromMonacoChanges(
+    change,
+    content,
+    offset
+  ) {
     /** Change Informations */
     var text = change.text;
     var rangeLength = change.rangeLength;
@@ -2281,7 +2558,7 @@ var MonacoAdapter = function () {
         .retain(restLength);
     }
 
-    return [ change_op, inverse_op ];
+    return [change_op, inverse_op];
   };
 
   /**
@@ -2326,7 +2603,7 @@ var MonacoAdapter = function () {
 
     var action = this.callbacks[event];
 
-    if (! typeof action === 'function') {
+    if (!typeof action === 'function') {
       return;
     }
 
@@ -2390,14 +2667,20 @@ var MonacoAdapter = function () {
         /** Insert Operation */
         var pos = _this.monacoModel.getPositionAt(index);
 
-        _this.monaco.getModel().pushEditOperations(_this.monaco.getSelections(), [{
-          range: new monaco.Range(
-            pos.lineNumber, pos.column,
-            pos.lineNumber, pos.column
-          ),
-          text: op.text,
-          forceMoveMarkers: true
-        }]);
+        _this.monaco
+          .getModel()
+          .pushEditOperations(_this.monaco.getSelections(), [
+            {
+              range: new monaco.Range(
+                pos.lineNumber,
+                pos.column,
+                pos.lineNumber,
+                pos.column
+              ),
+              text: op.text,
+              forceMoveMarkers: true,
+            },
+          ]);
         // _this.monaco.executeEdits('my-source', [{
         //   range: new monaco.Range(
         //     pos.lineNumber, pos.column,
@@ -2413,14 +2696,20 @@ var MonacoAdapter = function () {
         var from = _this.monacoModel.getPositionAt(index);
         var to = _this.monacoModel.getPositionAt(index + op.chars);
 
-        _this.monaco.getModel().pushEditOperations(_this.monaco.getSelections(), [{
-          range: new monaco.Range(
-            from.lineNumber, from.column,
-            to.lineNumber, to.column
-          ),
-          text: '',
-          forceMoveMarkers: true
-        }]);
+        _this.monaco
+          .getModel()
+          .pushEditOperations(_this.monaco.getSelections(), [
+            {
+              range: new monaco.Range(
+                from.lineNumber,
+                from.column,
+                to.lineNumber,
+                to.column
+              ),
+              text: '',
+              forceMoveMarkers: true,
+            },
+          ]);
         // _this.monaco.executeEdits('my-source', [{
         //   range: new monaco.Range(
         //     from.lineNumber, from.column,
@@ -2441,32 +2730,33 @@ var MonacoAdapter = function () {
    * @method invertOperation
    * @param {Operation} operation - OT.js Operation Object
    */
-  MonacoAdapter.prototype.invertOperation = function invertOperation(operation) {
+  MonacoAdapter.prototype.invertOperation = function invertOperation(
+    operation
+  ) {
     operation.invert(this.getValue());
   };
 
   return MonacoAdapter;
-}(); /** Export Module */
-
+})(); /** Export Module */
 
 firepad.MonacoAdapter = MonacoAdapter;
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 
 /**
  * Helper to turn pieces of text into insertable operations
  */
-firepad.textPiecesToInserts = function(atNewLine, textPieces) {
+firepad.textPiecesToInserts = function (atNewLine, textPieces) {
   var inserts = [];
 
   function insert(string, attributes) {
     if (string instanceof firepad.Text) {
       attributes = string.formatting.attributes;
-      string     = string.text;
+      string = string.text;
     }
 
-    inserts.push({string: string, attributes: attributes});
-    atNewLine = string[string.length-1] === '\n';
+    inserts.push({ string: string, attributes: attributes });
+    atNewLine = string[string.length - 1] === '\n';
   }
 
   function insertLine(line, withNewline) {
@@ -2474,30 +2764,33 @@ firepad.textPiecesToInserts = function(atNewLine, textPieces) {
     // the way this is used for inserting HTML, we end up inserting a "line" in the middle
     // of text, in which case we don't want to actually insert a newline.
     if (atNewLine) {
-      insert(firepad.sentinelConstants.LINE_SENTINEL_CHARACTER, line.formatting.attributes);
+      insert(
+        firepad.sentinelConstants.LINE_SENTINEL_CHARACTER,
+        line.formatting.attributes
+      );
     }
 
-    for(var i = 0; i < line.textPieces.length; i++) {
+    for (var i = 0; i < line.textPieces.length; i++) {
       insert(line.textPieces[i]);
     }
 
     if (withNewline) insert('\n');
   }
 
-  for(var i = 0; i < textPieces.length; i++) {
+  for (var i = 0; i < textPieces.length; i++) {
     if (textPieces[i] instanceof firepad.Line) {
-      insertLine(textPieces[i], i<textPieces.length-1);
+      insertLine(textPieces[i], i < textPieces.length - 1);
     } else {
       insert(textPieces[i]);
     }
   }
 
   return inserts;
-}
+};
 
-var firepad = firepad || { };
+var firepad = firepad || {};
 
-firepad.Firepad = (function(global) {
+firepad.Firepad = (function (global) {
   var MonacoAdapter = firepad.MonacoAdapter;
   var FirebaseAdapter = firepad.FirebaseAdapter;
   var EditorClient = firepad.EditorClient;
@@ -2505,10 +2798,14 @@ firepad.Firepad = (function(global) {
   var monaco = global.monaco;
 
   function Firepad(ref, place, options) {
-    if (!(this instanceof Firepad)) { return new Firepad(ref, place, options); }
+    if (!(this instanceof Firepad)) {
+      return new Firepad(ref, place, options);
+    }
 
     if (!global.monaco) {
-      throw new Error('Couldn\'t find Monaco.  Did you forget to import monaco?');
+      throw new Error(
+        "Couldn't find Monaco.  Did you forget to import monaco?"
+      );
     }
 
     this.zombie_ = false;
@@ -2518,23 +2815,25 @@ firepad.Firepad = (function(global) {
       this.monaco_ = this.editor_ = place;
       var curValue = this.monaco_.getValue();
       if (curValue !== '') {
-        throw new Error("Can't initialize Firepad with a Monaco instance that already contains text.");
+        throw new Error(
+          "Can't initialize Firepad with a Monaco instance that already contains text."
+        );
       }
     } else {
-      throw new Error("Monaco not found (?) idk when this would run");
+      throw new Error('Monaco not found (?) idk when this would run');
     }
 
-    var editorWrapper = this.monaco_.getDomNode()
+    var editorWrapper = this.monaco_.getDomNode();
 
     // var editorWrapper = this.codeMirror_ ? this.codeMirror_.getWrapperElement() : this.ace_.container;
-    this.firepadWrapper_ = utils.elt("div", null, { 'class': 'firepad' });
+    this.firepadWrapper_ = utils.elt('div', null, { class: 'firepad' });
     editorWrapper.parentNode.replaceChild(this.firepadWrapper_, editorWrapper);
     this.firepadWrapper_.appendChild(editorWrapper);
 
     // Provide an easy way to get the firepad instance associated with this CodeMirror instance.
     this.editor_.firepad = this;
 
-    this.options_ = options || { };
+    this.options_ = options || {};
 
     var userId = this.getOption('userId', ref.push().key);
     var userColor = this.getOption('userColor', colorFromUserId(userId));
@@ -2544,16 +2843,12 @@ firepad.Firepad = (function(global) {
     this.client_ = new EditorClient(this.firebaseAdapter_, this.editorAdapter_);
 
     var self = this;
-    this.firebaseAdapter_.on('cursor', function() {
+    this.firebaseAdapter_.on('cursor', function () {
       self.trigger.apply(self, ['cursor'].concat([].slice.call(arguments)));
     });
 
-    this.firebaseAdapter_.on('ready', function() {
+    this.firebaseAdapter_.on('ready', function () {
       self.ready_ = true;
-
-      if (this.monaco_) {
-        this.editorAdapter_.grabDocumentState();
-      }
 
       var defaultText = self.getOption('defaultText', null);
       if (defaultText && self.isHistoryEmpty()) {
@@ -2563,23 +2858,27 @@ firepad.Firepad = (function(global) {
       self.trigger('ready');
     });
 
-    this.client_.on('synced', function(isSynced) { self.trigger('synced', isSynced)} );
+    this.client_.on('synced', function (isSynced) {
+      self.trigger('synced', isSynced);
+    });
   }
   utils.makeEventEmitter(Firepad);
 
   // For readability, these are the primary "constructors", even though right now they're just aliases for Firepad.
   Firepad.fromMonaco = Firepad;
 
-
-  Firepad.prototype.dispose = function() {
+  Firepad.prototype.dispose = function () {
     this.zombie_ = true; // We've been disposed.  No longer valid to do anything.
 
     // Unwrap the editor.
     // var editorWrapper = this.codeMirror_ ? this.codeMirror_.getWrapperElement() : this.ace_.container;
-    var editorWrapper = this.monaco_.getDomNode()
+    var editorWrapper = this.monaco_.getDomNode();
 
     this.firepadWrapper_.removeChild(editorWrapper);
-    this.firepadWrapper_.parentNode.replaceChild(editorWrapper, this.firepadWrapper_);
+    this.firepadWrapper_.parentNode.replaceChild(
+      editorWrapper,
+      this.firepadWrapper_
+    );
 
     this.editor_.firepad = null;
 
@@ -2587,77 +2886,95 @@ firepad.Firepad = (function(global) {
     this.editorAdapter_.detach();
   };
 
-  Firepad.prototype.setUserId = function(userId) {
+  Firepad.prototype.setUserId = function (userId) {
     this.firebaseAdapter_.setUserId(userId);
   };
 
-  Firepad.prototype.setUserColor = function(color) {
+  Firepad.prototype.setUserColor = function (color) {
     this.firebaseAdapter_.setColor(color);
   };
 
-  Firepad.prototype.getText = function() {
+  Firepad.prototype.getText = function () {
     this.assertReady_('getText');
     return this.monaco_.getModel().getValue();
   };
 
-  Firepad.prototype.setText = function(textPieces) {
+  Firepad.prototype.setText = function (textPieces) {
     this.assertReady_('setText');
     return this.monaco_.getModel().setValue(textPieces);
   };
 
-  Firepad.prototype.isHistoryEmpty = function() {
+  Firepad.prototype.isHistoryEmpty = function () {
     this.assertReady_('isHistoryEmpty');
     return this.firebaseAdapter_.isHistoryEmpty();
   };
 
-  Firepad.prototype.getOption = function(option, def) {
-    return (option in this.options_) ? this.options_[option] : def;
+  Firepad.prototype.getOption = function (option, def) {
+    return option in this.options_ ? this.options_[option] : def;
   };
 
-  Firepad.prototype.assertReady_ = function(funcName) {
+  Firepad.prototype.assertReady_ = function (funcName) {
     if (!this.ready_) {
-      throw new Error('You must wait for the "ready" event before calling ' + funcName + '.');
+      throw new Error(
+        'You must wait for the "ready" event before calling ' + funcName + '.'
+      );
     }
     if (this.zombie_) {
-      throw new Error('You can\'t use a Firepad after calling dispose()!  [called ' + funcName + ']');
+      throw new Error(
+        "You can't use a Firepad after calling dispose()!  [called " +
+          funcName +
+          ']'
+      );
     }
   };
 
-  function colorFromUserId (userId) {
+  function colorFromUserId(userId) {
     var a = 1;
     for (var i = 0; i < userId.length; i++) {
-      a = 17 * (a+userId.charCodeAt(i)) % 360;
+      a = (17 * (a + userId.charCodeAt(i))) % 360;
     }
-    var hue = a/360;
+    var hue = a / 360;
 
     return hsl2hex(hue, 0.75, 0.2);
   }
 
-  function rgb2hex (r, g, b) {
-    function digits (n) {
-      var m = Math.round(255*n).toString(16);
-      return m.length === 1 ? '0'+m : m;
+  function rgb2hex(r, g, b) {
+    function digits(n) {
+      var m = Math.round(255 * n).toString(16);
+      return m.length === 1 ? '0' + m : m;
     }
     return '#' + digits(r) + digits(g) + digits(b);
   }
 
-  function hsl2hex (h, s, l) {
-    if (s === 0) { return rgb2hex(l, l, l); }
-    var var2 = l < 0.5 ? l * (1+s) : (l+s) - (s*l);
+  function hsl2hex(h, s, l) {
+    if (s === 0) {
+      return rgb2hex(l, l, l);
+    }
+    var var2 = l < 0.5 ? l * (1 + s) : l + s - s * l;
     var var1 = 2 * l - var2;
     var hue2rgb = function (hue) {
-      if (hue < 0) { hue += 1; }
-      if (hue > 1) { hue -= 1; }
-      if (6*hue < 1) { return var1 + (var2-var1)*6*hue; }
-      if (2*hue < 1) { return var2; }
-      if (3*hue < 2) { return var1 + (var2-var1)*6*(2/3 - hue); }
+      if (hue < 0) {
+        hue += 1;
+      }
+      if (hue > 1) {
+        hue -= 1;
+      }
+      if (6 * hue < 1) {
+        return var1 + (var2 - var1) * 6 * hue;
+      }
+      if (2 * hue < 1) {
+        return var2;
+      }
+      if (3 * hue < 2) {
+        return var1 + (var2 - var1) * 6 * (2 / 3 - hue);
+      }
       return var1;
     };
-    return rgb2hex(hue2rgb(h+1/3), hue2rgb(h), hue2rgb(h-1/3));
+    return rgb2hex(hue2rgb(h + 1 / 3), hue2rgb(h), hue2rgb(h - 1 / 3));
   }
 
   return Firepad;
-})(this);
+})(window);
 
 // Export Text classes
 firepad.Firepad.TextOperation = firepad.TextOperation;
@@ -2665,4 +2982,4 @@ firepad.Firepad.TextOperation = firepad.TextOperation;
 // Export adapters
 firepad.Firepad.MonacoAdapter = firepad.MonacoAdapter;
 
-return firepad.Firepad; }, this);
+export default firepad.Firepad;

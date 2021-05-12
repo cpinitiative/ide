@@ -1,5 +1,5 @@
 import { DuplicateIcon } from '@heroicons/react/solid';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export const ShareInfo = ({
   displayUrl,

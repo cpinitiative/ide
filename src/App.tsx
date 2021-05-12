@@ -5,19 +5,17 @@ loader.config({
   },
 });
 
-import Head from 'next/head';
-/// <reference path="../types/react-split-grid.d.ts" />
+/// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
 import React, { useState, useEffect, useMemo } from 'react';
-import { RunButton } from '../components/RunButton';
-import { TabBar } from '../components/TabBar';
-import { useRouter } from 'next/router';
-import { Output } from '../components/Output';
-import defaultCode from '../scripts/defaultCode';
-import JudgeResult, { JudgeSuccessResult } from '../types/judge';
-import { SettingsModal } from '../components/SettingsModal';
-import { useSettings } from '../components/SettingsContext';
-import { UserList } from '../components/UserList/UserList';
+import { RunButton } from './components/RunButton';
+import { TabBar } from './components/TabBar';
+import { Output } from './components/Output';
+import defaultCode from './scripts/defaultCode';
+import JudgeResult, { JudgeSuccessResult } from './types/judge';
+import { SettingsModal } from './components/SettingsModal';
+import { useSettings } from './components/SettingsContext';
+import { UserList } from './components/UserList/UserList';
 import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
@@ -29,24 +27,23 @@ import {
   mainMonacoEditorAtom,
   outputMonacoEditorAtom,
   userPermissionAtom,
-} from '../atoms/workspace';
-import { Chat } from '../components/Chat';
-import { NavBar } from '../components/NavBar/NavBar';
-import { FileMenu } from '../components/NavBar/FileMenu';
-import download from '../scripts/download';
-import { useMediaQuery } from '../hooks/useMediaQuery';
-import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
-import { CodeInterface } from '../components/CodeInterface/CodeInterface';
-import { LazyFirepadEditor } from '../components/LazyFirepadEditor';
+} from './atoms/workspace';
+import { Chat } from './components/Chat';
+import { NavBar } from './components/NavBar/NavBar';
+import { FileMenu } from './components/NavBar/FileMenu';
+import download from './scripts/download';
+import { useMediaQuery } from './hooks/useMediaQuery';
+import { MobileBottomNav } from './components/NavBar/MobileBottomNav';
+import { CodeInterface } from './components/CodeInterface/CodeInterface';
+import { LazyFirepadEditor } from './components/LazyFirepadEditor';
 import classNames from 'classnames';
 import { DotsHorizontalIcon } from '@heroicons/react/solid';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   authenticatedFirebaseRefAtom,
-  authenticatedUserRefAtom,
   setFirebaseErrorAtom,
   userRefAtom,
-} from '../atoms/firebaseAtoms';
+} from './atoms/firebaseAtoms';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -61,21 +58,20 @@ function decode(bytes: string | null) {
   }
 }
 
-export default function Home(): JSX.Element {
-  const router = useRouter();
+export default function App(): JSX.Element {
   const [mainMonacoEditor] = useAtom(mainMonacoEditorAtom);
   const [inputEditor, setInputEditor] = useAtom(inputMonacoEditorAtom);
-  const [, setOutputEditor] = useAtom(outputMonacoEditorAtom);
-  const [, layoutEditors] = useAtom(layoutEditorsAtom);
+  const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
+  const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const [result, setResult] = useState<JudgeSuccessResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [lang, setLang] = useAtom(currentLangAtom);
+  const lang = useAtomValue(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const [showSidebar, setShowSidebar] = useState(false);
   const setUserPermission = useUpdateAtom(userPermissionAtom);
-  const [permission] = useAtom(actualUserPermissionAtom);
-  const [loading] = useAtom(loadingAtom);
+  const permission = useAtomValue(actualUserPermissionAtom);
+  const loading = useAtomValue(loadingAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const [mobileActiveTab, setMobileActiveTab] = useState<
@@ -93,20 +89,6 @@ export default function Home(): JSX.Element {
     }),
     [firebaseRef]
   );
-
-  useEffect(() => {
-    if (router.isReady) {
-      if (
-        router.query.lang === 'cpp' ||
-        router.query.lang === 'java' ||
-        router.query.lang === 'py'
-      ) {
-        setLang(router.query.lang);
-      }
-    }
-    // we only want to run it once when router is ready
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
 
   const potentiallyUnauthenticatedUserRef = useAtomValue(userRefAtom);
   useEffect(() => {
@@ -219,16 +201,14 @@ export default function Home(): JSX.Element {
     }
   };
 
+  useEffect(() => {
+    document.title = `${
+      settings.workspaceName ? settings.workspaceName + ' · ' : ''
+    }Real-Time Collaborative Online IDE`;
+  }, [settings.workspaceName]);
+
   return (
     <div className="h-full">
-      <Head>
-        <title>
-          {settings.workspaceName ? `${settings.workspaceName} · ` : ''}
-          Real-Time Collaborative Online IDE
-        </title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
           <NavBar

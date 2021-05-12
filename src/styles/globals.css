@@ -1,6 +1,6 @@
 html,
 body,
-#__next {
+#root {
   height: 100%;
   background-color: #1e1e1e;
 }
@@ -24,4 +24,8 @@ html {
 }
 .tw-forms-disable-all-descendants * {
   --tw-ring-color: transparent !important;
+}
+
+.firebase-emulator-warning {
+  display: none !important;
 }

@@ -18,7 +18,6 @@ const tabs = [
 ];
 
 export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
-  // todo make this type better...
   const [option, setOption] = useState<OutputTab>('stdout');
 
   useEffect(() => {
