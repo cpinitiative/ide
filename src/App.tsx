@@ -201,16 +201,14 @@ export default function App(): JSX.Element {
     }
   };
 
+  useEffect(() => {
+    document.title = `${
+      settings.workspaceName ? settings.workspaceName + ' · ' : ''
+    }Real-Time Collaborative Online IDE`;
+  }, [settings.workspaceName]);
+
   return (
     <div className="h-full">
-      {/*<Head>*/}
-      {/*  <title>*/}
-      {/*    {settings.workspaceName ? `${settings.workspaceName} · ` : ''}*/}
-      {/*    Real-Time Collaborative Online IDE*/}
-      {/*  </title>*/}
-      {/*  <link rel="icon" href="/favicon.ico" />*/}
-      {/*</Head>*/}
-
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
           <NavBar
