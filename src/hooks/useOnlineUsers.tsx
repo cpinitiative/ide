@@ -40,7 +40,13 @@ export function useOnlineUsers(): User[] | null {
       };
       firebaseRef
         .child('users')
-        .on('value', handleChange, e => setFirebaseError(e));
+        .on('value', handleChange, (e: Error & { code: string }) => {
+          // this likely happens when the default permission is changed to private
+          // but the user list component hasn't unmounted yet. Temporary workaround
+          // is to just ignore this error
+          if (e.code === 'PERMISSION_DENIED') return;
+          setFirebaseError(e);
+        });
       return () => firebaseRef.child('users').off('value', handleChange);
     }
   }, [firebaseRef, setFirebaseError]);

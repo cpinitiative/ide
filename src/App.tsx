@@ -44,6 +44,7 @@ import {
   setFirebaseErrorAtom,
   userRefAtom,
 } from './atoms/firebaseAtoms';
+import { PrivateFileMessage } from './components/PrivateFileMessage';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -98,10 +99,12 @@ export default function App(): JSX.Element {
         const permission = snap.val().permission;
         setUserPermission(permission);
       };
-      potentiallyUnauthenticatedUserRef.on('value', handleChange, e =>
-        setFirebaseError(e)
-      );
-      return () => potentiallyUnauthenticatedUserRef.off('value', handleChange);
+      potentiallyUnauthenticatedUserRef.on('value', handleChange, e => {
+        setFirebaseError(e);
+      });
+      return () => {
+        potentiallyUnauthenticatedUserRef.off('value', handleChange);
+      };
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
 
@@ -206,6 +209,8 @@ export default function App(): JSX.Element {
       settings.workspaceName ? settings.workspaceName + ' · ' : ''
     }Real-Time Collaborative Online IDE`;
   }, [settings.workspaceName]);
+
+  if (permission === 'PRIVATE') return <PrivateFileMessage />;
 
   return (
     <div className="h-full">

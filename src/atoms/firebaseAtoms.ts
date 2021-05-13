@@ -98,16 +98,11 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
     if (!permission)
       throw new Error('permission must be set before workspace can be joined');
 
-    const handlePrivateFile = () => {
-      alert('This file is private.');
-      window.location.href = '/';
-    };
-
     await userRef
       .once('value')
       .then(snap => {
         if (permission === 'PRIVATE' && !snap.val()?.permission) {
-          handlePrivateFile();
+          // file is private
           return;
         }
         if (!snap.val()?.name) {
@@ -115,9 +110,6 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
           return userRef.update({
             name,
             color: colorFromUserId(userRef.key),
-            // ideally this wouldn't exist so that there could be default permissions
-            // but that messes up default access users when marking files as private so ?_?
-            permission,
           });
         } else {
           // update name as necessary
@@ -128,7 +120,7 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
       })
       .catch(e => {
         if (e.code === 'PERMISSION_DENIED') {
-          handlePrivateFile();
+          // file is private
         } else {
           throw e;
         }
@@ -140,5 +132,5 @@ export const firebaseErrorAtom = atom<Error | null>(null);
 export const setFirebaseErrorAtom = atom(null, (get, set, error: Error) => {
   set(firebaseErrorAtom, error);
   alert('Firebase error: ' + error + ' Report this issue on Github!');
-  throw error;
+  throw new Error(error.message);
 });

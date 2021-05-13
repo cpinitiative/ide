@@ -25,7 +25,7 @@
     "classnames": "^2.3.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "firebase": "^8.4.2",
+    "firebase": "^8.6.1",
     "husky": "^6.0.0",
     "jotai": "^0.16.3",
     "jsdom": "^16.5.3",
@@ -60,7 +60,7 @@
   },
   "jest": {
     "preset": "jest-playwright-preset",
-    "testTimeout": 45000,
+    "testTimeout": 60000,
     "transform": {
       "^.+\\.(ts)$": "ts-jest"
     }
