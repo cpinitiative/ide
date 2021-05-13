@@ -39,9 +39,10 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
 
   if (!permission || !defaultPermission) return null;
 
+  type PermissionUpdate = 'OWNER' | 'READ_WRITE' | 'READ' | 'DEFAULT';
   const handleUpdateUserPermission = (
     user: User,
-    permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'DEFAULT'
+    permission: PermissionUpdate
   ): void => {
     if (!firebaseRef) {
       alert("Firebase hasn't loaded yet, please wait");
@@ -125,7 +126,7 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
                       >
                         <div className="origin-top-right absolute right-0 bg-gray-800 rounded-md mt-2 w-48 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
-                            {[
+                            {([
                               ['OWNER', 'Owner'],
                               ['READ_WRITE', 'Read & Write'],
                               ['READ', 'View Only'],
@@ -134,7 +135,7 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
                                 `Default (${permissionLabels[defaultPermission]})`,
                               ],
                               ['PRIVATE', 'Blocked'],
-                            ].map(option => (
+                            ] as [PermissionUpdate, string][]).map(option => (
                               <Menu.Item key={option[0]}>
                                 {({ active }) => (
                                   <button
