@@ -41,15 +41,19 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
 
   const handleUpdateUserPermission = (
     user: User,
-    permission: 'OWNER' | 'READ_WRITE' | 'READ'
+    permission: 'OWNER' | 'READ_WRITE' | 'READ' | 'DEFAULT'
   ): void => {
     if (!firebaseRef) {
       alert("Firebase hasn't loaded yet, please wait");
       return;
     }
-    firebaseRef.child('users').child(user.id).update({
-      permission,
-    });
+    if (permission === 'DEFAULT') {
+      firebaseRef.child('users').child(user.id).child('permission').remove();
+    } else {
+      firebaseRef.child('users').child(user.id).update({
+        permission,
+      });
+    }
   };
 
   return (
@@ -119,62 +123,39 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <div className="origin-top-right absolute right-0 bg-gray-800 rounded-md mt-2 w-40 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="origin-top-right absolute right-0 bg-gray-800 rounded-md mt-2 w-48 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  className={classNames(
-                                    active
-                                      ? 'bg-gray-700 text-gray-100'
-                                      : 'text-gray-200',
-                                    'w-full text-left block px-4 py-2 text-sm focus:outline-none'
-                                  )}
-                                  onClick={() =>
-                                    handleUpdateUserPermission(user, 'OWNER')
-                                  }
-                                >
-                                  Owner
-                                </button>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  className={classNames(
-                                    active
-                                      ? 'bg-gray-700 text-gray-100'
-                                      : 'text-gray-200',
-                                    'w-full text-left block px-4 py-2 text-sm focus:outline-none'
-                                  )}
-                                  onClick={() =>
-                                    handleUpdateUserPermission(
-                                      user,
-                                      'READ_WRITE'
-                                    )
-                                  }
-                                >
-                                  Read & Write
-                                </button>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  className={classNames(
-                                    active
-                                      ? 'bg-gray-700 text-gray-100'
-                                      : 'text-gray-200',
-                                    'w-full text-left block px-4 py-2 text-sm focus:outline-none'
-                                  )}
-                                  onClick={() =>
-                                    handleUpdateUserPermission(user, 'READ')
-                                  }
-                                >
-                                  View Only
-                                </button>
-                              )}
-                            </Menu.Item>
+                            {[
+                              ['OWNER', 'Owner'],
+                              ['READ_WRITE', 'Read & Write'],
+                              ['READ', 'View Only'],
+                              [
+                                'DEFAULT',
+                                `Default (${permissionLabels[defaultPermission]})`,
+                              ],
+                              ['PRIVATE', 'Blocked'],
+                            ].map(option => (
+                              <Menu.Item key={option[0]}>
+                                {({ active }) => (
+                                  <button
+                                    className={classNames(
+                                      active
+                                        ? 'bg-gray-700 text-gray-100'
+                                        : 'text-gray-200',
+                                      'w-full text-left block px-4 py-2 text-sm focus:outline-none'
+                                    )}
+                                    onClick={() =>
+                                      handleUpdateUserPermission(
+                                        user,
+                                        option[0]
+                                      )
+                                    }
+                                  >
+                                    {option[1]}
+                                  </button>
+                                )}
+                              </Menu.Item>
+                            ))}
                           </div>
                         </div>
                       </Transition.Child>
