@@ -1,6 +1,7 @@
 {
   "rules": {
     "$secretid": {
+      ".write": "!root.child($secretid).exists()",
       "users": {
         ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
         "$user": {

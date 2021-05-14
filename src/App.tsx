@@ -45,6 +45,7 @@ import {
   userRefAtom,
 } from './atoms/firebaseAtoms';
 import { PrivateFileMessage } from './components/PrivateFileMessage';
+import { ForkButton } from './components/ForkButton';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -215,7 +216,7 @@ export default function App(): JSX.Element {
   return (
     <div className="h-full">
       <div className="h-full flex flex-col">
-        <div className="flex-shrink-0 bg-[#1E1E1E] flex items-center">
+        <div className="flex-shrink-0 bg-[#1E1E1E]">
           <NavBar
             fileMenu={
               <FileMenu
@@ -230,6 +231,7 @@ export default function App(): JSX.Element {
                 showLoading={isRunning || loading}
               />
             }
+            forkButton={permission !== 'OWdNER' ? <ForkButton /> : null}
             showViewOnly={!loading && readOnly}
             isSidebarOpen={showSidebar}
             onToggleSidebar={handleToggleSidebar}
