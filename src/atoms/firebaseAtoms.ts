@@ -84,10 +84,50 @@ fileIdAtom.onMount = setAtom => {
     queryId = null;
   }
 
-  setAtom({
-    newId: queryId,
-    isNewFile: !queryId,
-  });
+  if (routes.length >= 2 && queryId !== null && routes[2] === 'copy') {
+    // make a copy of the current file
+    const oldRef = firebase.database().ref(`-${queryId}`);
+    const newRef = firebase.database().ref().push();
+    const keysToCopy = [
+      'editor-cpp',
+      'editor-java',
+      'editor-py',
+      'settings',
+      'input',
+    ];
+    Promise.all(keysToCopy.map(key => oldRef.child(key).once('value')))
+      .then(async data => {
+        const updateObject: { [key: string]: unknown } = {};
+        keysToCopy.forEach((key, idx) => {
+          // we don't want to copy over user information or settings/defaultPermission for firepad
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { users, defaultPermission, ...toKeep } = data[idx].val() || {};
+          updateObject[key] = toKeep;
+        });
+        await newRef.set(updateObject);
+        setAtom({
+          newId: newRef.key!.slice(1), // first character is dash which we want to ignore
+          isNewFile: true,
+        });
+      })
+      .catch(e => {
+        if (e.code === 'PERMISSION_DENIED') {
+          // temporary workaround to force a "this file is private" message
+          setAtom({
+            newId: queryId,
+            isNewFile: !queryId,
+          });
+        } else {
+          alert('Failed to clone file: ' + e.message);
+          throw new Error(e.message);
+        }
+      });
+  } else {
+    setAtom({
+      newId: queryId,
+      isNewFile: !queryId,
+    });
+  }
 };
 
 export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
