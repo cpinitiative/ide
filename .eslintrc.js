@@ -51,6 +51,8 @@ module.exports = {
 
         '@typescript-eslint/no-empty-function': 'off',
 
+        '@typescript-eslint/no-non-null-assertion': 'off',
+
         // Includes .prettierrc.js rules
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
       },

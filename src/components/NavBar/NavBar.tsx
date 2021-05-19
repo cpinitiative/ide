@@ -9,6 +9,7 @@ import { isUserOnline, useOnlineUsers } from '../../hooks/useOnlineUsers';
 export interface DesktopNavBarProps {
   fileMenu: JSX.Element;
   runButton: JSX.Element;
+  forkButton: JSX.Element | null;
   showViewOnly: boolean;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -37,7 +38,8 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
   };
 
   return (
-    <>
+    // todo get overflow-x-auto to work
+    <div className="flex items-center">
       <div className="flex items-center divide-x divide-gray-700">
         {props.fileMenu}
         <button
@@ -54,10 +56,11 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
       </div>
       {props.runButton}
       <div className="flex items-center divide-x divide-gray-700">
+        {props.forkButton}
         <a
           href="https://github.com/cpinitiative/ide/issues"
           target="_blank"
-          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium hidden md:block"
+          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium flex-shrink-0"
           rel="noreferrer"
         >
           Report an Issue
@@ -66,7 +69,7 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
           href="https://github.com/cpinitiative/ide"
           target="_blank"
           rel="noreferrer"
-          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium hidden sm:block"
+          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium flex-shrink-0"
         >
           Star this on Github!
         </a>
@@ -99,6 +102,6 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
