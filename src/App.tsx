@@ -231,7 +231,7 @@ export default function App(): JSX.Element {
                 showLoading={isRunning || loading}
               />
             }
-            forkButton={permission !== 'OWNER' ? <ForkButton /> : null}
+            forkButton={<ForkButton />}
             showViewOnly={!loading && readOnly}
             isSidebarOpen={showSidebar}
             onToggleSidebar={handleToggleSidebar}
