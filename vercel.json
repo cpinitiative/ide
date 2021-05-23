@@ -1,3 +1,3 @@
 {
-  "rewrites": [{ "source": "/:route", "destination": "/" }]
+  "rewrites": [{ "source": "/:route*", "destination": "/" }]
 }
