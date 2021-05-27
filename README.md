@@ -39,3 +39,36 @@ to unset: `set PWDEBUG=`.
 ---
 
 If `firebase emulators:exec` fails for unknown reason: `firebase emulators:exec "yarn test" || cat firebase-debug.log`
+
+---
+
+nginx configuration for larger than 1MB file size:
+
+Add
+
+```
+      - ./srv/nginx/conf.d:/etc/nginx/conf.d
+```
+
+to docker-compose.yml under services > nginx > volumes. Then, rebuild the app:
+
+```
+docker-compose stop nginx
+docker-compose rm nginx
+docker-compose up -d nginx
+```
+
+Then, go to ./srv/.../conf.d, and add at the very bottom:
+
+```
+client_max_body_size 100M;
+```
+
+Then, reload the nginx configuration:
+
+```
+docker ps
+docker exec <nginx-container-name-or-id> nginx -s reload
+```
+
+I think every time nginx restarts the configuration gets overwritten...
