@@ -20,7 +20,7 @@
         },
         "checkpoint": {
           /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
-          ".validate": "root.child($secretid).child('editor-cpp').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-cpp').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
         }
       },
       "editor-java": {
@@ -34,7 +34,7 @@
         },
         "checkpoint": {
           /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
-          ".validate": "root.child($secretid).child('editor-java').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-java').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
         }
       },
       "editor-py": {
@@ -48,7 +48,7 @@
         },
         "checkpoint": {
           /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
-          ".validate": "root.child($secretid).child('editor-py').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-py').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
         }
       },
       "input": {
@@ -62,7 +62,7 @@
         },
         "checkpoint": {
           /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
-          ".validate": "root.child($secretid).child('input').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('input').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
         }
       },
 
