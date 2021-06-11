@@ -58,7 +58,7 @@ if (!firebase.apps?.length) {
 }
 
 export const WorkspaceInitializer: React.FC = ({ children }) => {
-  const [firebaseUser, setFirebaseUser] = useAtom(firebaseUserAtom);
+  const [firebaseUser] = useAtom(firebaseUserAtom);
   const firebaseRef = useAtomValue(firebaseRefAtom);
   const fileId = useAtomValue(fileIdAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
@@ -68,18 +68,6 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
     joinExistingWorkspaceWithDefaultPermissionAtom
   );
   const setDefaultPermission = useUpdateAtom(defaultPermissionAtom);
-
-  useEffect(() => {
-    signInAnonymously();
-
-    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-      setFirebaseUser(user);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     if (firebaseUser && firebaseRef && fileId) {

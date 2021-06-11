@@ -55,14 +55,18 @@ export const fileIdAtom = atom(
   (
     get,
     set,
-    {
-      newId,
-      isNewFile,
-    }: {
+    payload: {
       newId: string | null;
       isNewFile?: boolean;
-    }
+    } | null
   ) => {
+    if (payload === null) {
+      set(baseFileIdAtom, null);
+      set(firebaseRefAtom, null);
+      return;
+    }
+    const { newId, isNewFile } = payload;
+
     if (get(baseFileIdAtom)?.id === newId && !!newId) {
       // target file already loaded, ignore
       return;
@@ -82,7 +86,9 @@ export const fileIdAtom = atom(
       });
     }
     if (isNewFile) {
-      navigate('/' + ref.key!.substr(1) + window.location.search);
+      navigate('/' + ref.key!.substr(1) + window.location.search, {
+        replace: true,
+      });
     }
     set(firebaseRefAtom, ref);
   }

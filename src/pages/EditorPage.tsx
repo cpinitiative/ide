@@ -47,7 +47,7 @@ import {
 } from '../atoms/firebaseAtoms';
 import { MessagePage } from '../components/MessagePage';
 import { ForkButton } from '../components/ForkButton';
-import { RouteComponentProps } from '@reach/router';
+import { navigate, RouteComponentProps } from '@reach/router';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -100,19 +100,29 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   );
 
   useEffect(() => {
-    let queryId: string | null = props.fileId ?? null;
+    const queryId: string | null = props.fileId ?? null;
 
-    // validate that queryId is a firebase key
-    // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
-    if (queryId?.length !== 19) {
-      queryId = null;
+    if (queryId === 'new') {
+      setFileId({
+        newId: null,
+        isNewFile: true,
+      });
+      // validate that queryId is a firebase key
+      // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
+    } else if (queryId?.length === 19) {
+      setFileId({
+        newId: queryId,
+        isNewFile: false,
+      });
+    } else {
+      alert('Error: Bad URL');
+      navigate('/', { replace: true });
     }
-
-    setFileId({
-      newId: queryId,
-      isNewFile: !queryId,
-    });
   }, [props.fileId, setFileId]);
+
+  useEffect(() => {
+    return () => setFileId(null) as void;
+  }, [setFileId]);
 
   const potentiallyUnauthenticatedUserRef = useAtomValue(userRefAtom);
   useEffect(() => {
