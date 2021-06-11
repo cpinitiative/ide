@@ -3,7 +3,8 @@
     "users": {
       "$secretid": {
         ".read": "$secretid == auth.uid",
-        ".write": "auth.uid == $secretid"
+        ".write": "auth.uid == $secretid",
+        ".indexOn": "lastAccessTime"
       }
     },
     "$secretid": {

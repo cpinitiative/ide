@@ -12,7 +12,7 @@ test('should support view only', async () => {
   const page1 = page;
   const page2 = await context2.newPage();
 
-  await page1.goto('http://localhost:5000/');
+  await page1.goto('http://localhost:5000/new');
   await page1.waitForSelector('text="Run Code"');
   await page1.click('text=File');
   await page1.click('text=Settings');
@@ -102,7 +102,7 @@ test('should work when default permission is changed', async () => {
   const page1 = page;
   const page2 = await context2.newPage();
 
-  await page1.goto('http://localhost:5000/');
+  await page1.goto('http://localhost:5000/new');
   await page1.waitForSelector('button:has-text("Run Code")');
 
   await page2.goto(page1.url());

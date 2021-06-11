@@ -1,10 +1,9 @@
 import React from 'react';
-import type firebaseType from 'firebase';
 import { Link } from '@reach/router';
 
 export type File = {
   id: string;
-  lastAccessTime: firebaseType.database.ServerValue.TIMESTAMP;
+  lastAccessTime: number;
   title: string;
 };
 
