@@ -48,17 +48,17 @@ export default function DashboardPage(
 
         <Link
           to="/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
         >
           Create New File
         </Link>
 
-        {files && (
+        {files && files.length > 0 && (
           <>
             <div className="h-12"></div>
 
             <h2 className="text-gray-100 text-xl md:text-3xl font-black">
-              My Files
+              Recently Accessed
             </h2>
             <FilesGrid files={files} />
           </>
