@@ -74,17 +74,14 @@ export const fileIdAtom = atom(
     let ref = firebase.database().ref();
     if (newId) {
       ref = ref.child('-' + newId);
-      set(baseFileIdAtom, {
-        id: newId,
-        isNewFile: !!isNewFile,
-      });
     } else {
       ref = ref.push(); // generate unique location.
-      set(baseFileIdAtom, {
-        id: ref.key!,
-        isNewFile: !!isNewFile,
-      });
     }
+    set(baseFileIdAtom, {
+      id: ref.key!,
+      isNewFile: !!isNewFile,
+    });
+
     if (isNewFile) {
       navigate('/' + ref.key!.substr(1) + window.location.search, {
         replace: true,

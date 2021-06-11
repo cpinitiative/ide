@@ -42,12 +42,14 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   authenticatedFirebaseRefAtom,
   fileIdAtom,
+  firebaseUserAtom,
   setFirebaseErrorAtom,
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { MessagePage } from '../components/MessagePage';
 import { ForkButton } from '../components/ForkButton';
 import { navigate, RouteComponentProps } from '@reach/router';
+import firebase from 'firebase/app';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -67,7 +69,8 @@ export interface EditorPageProps extends RouteComponentProps {
 }
 
 export default function EditorPage(props: EditorPageProps): JSX.Element {
-  const setFileId = useUpdateAtom(fileIdAtom);
+  const [fileId, setFileId] = useAtom(fileIdAtom);
+  const firebaseUser = useAtomValue(firebaseUserAtom);
   const [mainMonacoEditor] = useAtom(mainMonacoEditorAtom);
   const [inputEditor, setInputEditor] = useAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
@@ -242,6 +245,20 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       settings.workspaceName ? settings.workspaceName + ' · ' : ''
     }Real-Time Collaborative Online IDE`;
   }, [settings.workspaceName]);
+
+  useEffect(() => {
+    if (firebaseUser && fileId?.id) {
+      firebase
+        .database()
+        .ref('users')
+        .child(firebaseUser.uid)
+        .child(fileId.id)
+        .set({
+          title: settings.workspaceName || '',
+          lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
+        });
+    }
+  }, [firebaseUser, fileId, settings.workspaceName]);
 
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;

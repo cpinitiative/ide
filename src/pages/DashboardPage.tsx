@@ -1,10 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import FilesGrid from '../components/FilesGrid';
+import { useAtomValue } from 'jotai/utils';
+import { firebaseUserAtom } from '../atoms/firebaseAtoms';
+import firebase from 'firebase/app';
+import { File } from '../components/FilesGrid';
 
 export default function DashboardPage(
   _props: RouteComponentProps
 ): JSX.Element {
+  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const [files, setFiles] = useState<File[] | null>(null);
+
+  useEffect(() => {
+    if (!firebaseUser) return;
+
+    const ref = firebase.database().ref('users').child(firebaseUser.uid);
+    const unsubscribe = ref
+      .orderByChild('lastAccessTime')
+      .limitToLast(50)
+      .on('value', snap => {
+        if (!snap.exists) {
+          setFiles(null);
+        } else {
+          const newFiles: File[] = [];
+          snap.forEach(child => {
+            newFiles.push({
+              id: child.key,
+              ...child.val(),
+            });
+          });
+          newFiles.reverse();
+          setFiles(newFiles);
+        }
+      });
+    return () => ref.off('value', unsubscribe);
+  }, [firebaseUser]);
+
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-full flex flex-col">
       <div className="flex-1">
@@ -21,12 +53,16 @@ export default function DashboardPage(
           Create New File
         </Link>
 
-        <div className="h-12"></div>
+        {files && (
+          <>
+            <div className="h-12"></div>
 
-        <h2 className="text-gray-100 text-xl md:text-3xl font-black">
-          My Files
-        </h2>
-        <FilesGrid />
+            <h2 className="text-gray-100 text-xl md:text-3xl font-black">
+              My Files
+            </h2>
+            <FilesGrid files={files} />
+          </>
+        )}
       </div>
       <div className="mt-6 text-gray-400">
         Looking to get better at USACO? Check out the{' '}

@@ -1,5 +1,11 @@
 {
   "rules": {
+    "users": {
+      "$secretid": {
+        ".read": "$secretid == auth.uid",
+        ".write": "auth.uid == $secretid"
+      }
+    },
     "$secretid": {
       ".write": "!root.child($secretid).exists()",
       "users": {
