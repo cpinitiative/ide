@@ -2,9 +2,11 @@ import { atom } from 'jotai';
 import type firebaseType from 'firebase';
 import { userNameAtom } from './userSettings';
 import animals from '../scripts/animals';
+import { signInAnonymously } from '../scripts/firebaseUtils';
 import colorFromUserId from '../scripts/colorFromUserId';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
+import { navigate } from '@reach/router';
 
 const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
 export const firebaseUserAtom = atom(
@@ -25,6 +27,17 @@ export const firebaseUserAtom = atom(
     }
   }
 );
+firebaseUserAtom.onMount = setAtom => {
+  signInAnonymously();
+
+  const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+    setAtom(user);
+  });
+
+  return () => {
+    unsubscribe();
+  };
+};
 
 const baseFileIdAtom = atom<{
   id: string;
@@ -50,6 +63,10 @@ export const fileIdAtom = atom(
       isNewFile?: boolean;
     }
   ) => {
+    if (get(baseFileIdAtom)?.id === newId && !!newId) {
+      // target file already loaded, ignore
+      return;
+    }
     let ref = firebase.database().ref();
     if (newId) {
       ref = ref.child('-' + newId);
@@ -65,70 +82,11 @@ export const fileIdAtom = atom(
       });
     }
     if (isNewFile) {
-      window.history.replaceState(
-        {},
-        '',
-        '/' + ref.key!.substr(1) + window.location.search
-      );
+      navigate('/' + ref.key!.substr(1) + window.location.search);
     }
     set(firebaseRefAtom, ref);
   }
 );
-fileIdAtom.onMount = setAtom => {
-  const routes = window.location.pathname.split('/');
-  let queryId = routes.length >= 1 ? routes[1] : null;
-
-  // validate that queryId is a firebase key
-  // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
-  if (queryId?.length !== 19) {
-    queryId = null;
-  }
-
-  if (routes.length >= 2 && queryId !== null && routes[2] === 'copy') {
-    // make a copy of the current file
-    const oldRef = firebase.database().ref(`-${queryId}`);
-    const newRef = firebase.database().ref().push();
-    const keysToCopy = [
-      'editor-cpp',
-      'editor-java',
-      'editor-py',
-      'settings',
-      'input',
-    ];
-    Promise.all(keysToCopy.map(key => oldRef.child(key).once('value')))
-      .then(async data => {
-        const updateObject: { [key: string]: unknown } = {};
-        keysToCopy.forEach((key, idx) => {
-          // we don't want to copy over user information or settings/defaultPermission for firepad
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { users, defaultPermission, ...toKeep } = data[idx].val() || {};
-          updateObject[key] = toKeep;
-        });
-        await newRef.set(updateObject);
-        setAtom({
-          newId: newRef.key!.slice(1), // first character is dash which we want to ignore
-          isNewFile: true,
-        });
-      })
-      .catch(e => {
-        if (e.code === 'PERMISSION_DENIED') {
-          // temporary workaround to force a "this file is private" message
-          setAtom({
-            newId: queryId,
-            isNewFile: !queryId,
-          });
-        } else {
-          alert('Failed to clone file: ' + e.message);
-          throw new Error(e.message);
-        }
-      });
-  } else {
-    setAtom({
-      newId: queryId,
-      isNewFile: !queryId,
-    });
-  }
-};
 
 export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
   null

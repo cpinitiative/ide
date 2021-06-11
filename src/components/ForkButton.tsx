@@ -9,8 +9,9 @@ export const ForkButton = (): JSX.Element => {
   return (
     <a
       className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none"
-      href={`/${fileId?.id?.substring(1)}/copy`}
+      href={`/${fileId?.id}/copy`}
       target="_blank"
+      rel="noreferrer"
     >
       <DuplicateIcon
         className="-ml-1 mr-2 h-5 w-5 text-gray-400"
