@@ -273,6 +273,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
                 onDownloadFile={handleDownloadFile}
                 onInsertFileTemplate={handleInsertFileTemplate}
                 onOpenSettings={() => setIsSettingsModalOpen(true)}
+                forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
               />
             }
             runButton={
@@ -281,7 +282,6 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
                 showLoading={isRunning || loading}
               />
             }
-            forkButton={<ForkButton />}
             showViewOnly={!loading && readOnly}
             isSidebarOpen={showSidebar}
             onToggleSidebar={handleToggleSidebar}

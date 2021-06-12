@@ -73,7 +73,11 @@ export const SettingsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (firebaseRef) {
       const handleNewSetting = (snap: firebaseType.database.DataSnapshot) => {
-        setSettings(snap.val());
+        setSettings({
+          // set the title to nothing if the file doesn't have a title
+          workspaceName: '',
+          ...snap.val(),
+        });
       };
       firebaseRef
         .child('settings')

@@ -1,15 +1,16 @@
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  HomeIcon,
   ShareIcon,
 } from '@heroicons/react/solid';
+import { Link } from '@reach/router';
 import React, { useState } from 'react';
 import { isUserOnline, useOnlineUsers } from '../../hooks/useOnlineUsers';
 
 export interface DesktopNavBarProps {
   fileMenu: JSX.Element;
   runButton: JSX.Element;
-  forkButton: JSX.Element | null;
   showViewOnly: boolean;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -41,6 +42,12 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
     // todo get overflow-x-auto to work
     <div className="flex items-center">
       <div className="flex items-center divide-x divide-gray-700">
+        <Link
+          to="/"
+          className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+        >
+          <HomeIcon className="h-5 w-5" />
+        </Link>
         {props.fileMenu}
         <button
           type="button"
@@ -56,7 +63,6 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
       </div>
       {props.runButton}
       <div className="flex items-center divide-x divide-gray-700">
-        {props.forkButton}
         <a
           href="https://github.com/cpinitiative/ide/issues"
           target="_blank"

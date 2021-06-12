@@ -5,14 +5,17 @@ import {
   DownloadIcon,
   PlusIcon,
   TemplateIcon,
+  DuplicateIcon,
 } from '@heroicons/react/solid';
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
+import { Link } from '@reach/router';
 
 export interface FileMenuProps {
   onDownloadFile: () => void;
   onInsertFileTemplate: () => void;
   onOpenSettings: () => void;
+  forkButtonUrl: string;
 }
 
 export const FileMenu = (props: FileMenuProps) => {
@@ -79,6 +82,25 @@ export const FileMenu = (props: FileMenuProps) => {
                       />
                       Download File
                     </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href={props.forkButtonUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={classNames(
+                        active ? 'bg-gray-700 text-gray-100' : 'text-gray-200',
+                        'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
+                      )}
+                    >
+                      <DuplicateIcon
+                        className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
+                        aria-hidden="true"
+                      />
+                      Clone File
+                    </a>
                   )}
                 </Menu.Item>
                 <Menu.Item>
