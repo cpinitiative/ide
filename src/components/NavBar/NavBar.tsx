@@ -39,8 +39,7 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
   };
 
   return (
-    // todo get overflow-x-auto to work
-    <div className="flex items-center">
+    <div className="flex items-center overflow-x-auto">
       <div className="flex items-center divide-x divide-gray-700">
         <Link
           to="/"
