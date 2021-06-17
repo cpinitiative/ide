@@ -13,7 +13,7 @@ import { TabBar } from '../components/TabBar';
 import { Output } from '../components/Output';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult, { JudgeSuccessResult } from '../types/judge';
-import { SettingsModal } from '../components/SettingsModal';
+import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
 import { UserList } from '../components/UserList/UserList';
 import type firebaseType from 'firebase';
