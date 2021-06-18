@@ -1,0 +1,92 @@
+.usacoResults :global(img[src='current/images/medal_none.png']) {
+  display: none;
+}
+.usacoResults :global(div#last-status) {
+  float: none !important;
+  position: static !important;
+  width: auto !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.usacoResults :global(.status-working) {
+  font-weight: bold;
+  color: black;
+}
+
+.usacoResults :global(.status-yes) {
+  font-weight: bold;
+  color: green;
+}
+
+.usacoResults :global(.status-no) {
+  font-weight: bold;
+  color: #900;
+}
+
+.usacoResults :global(.trial-result) {
+  border: 1px solid pink;
+  display: inline-block;
+  height: 50px;
+  margin: 3px;
+  position: relative;
+  width: 60px;
+  vertical-align: top;
+}
+.usacoResults :global(.trial-status-no) {
+  background-color: #ffe2e2;
+  border: 1px solid #993333;
+  color: #993333;
+}
+.usacoResults :global(.trial-status-partial) {
+  background-color: #eeffee;
+  border: 1px solid #339933;
+  color: #339933;
+}
+.usacoResults :global(.trial-status-unknown) {
+  background-color: #eeeeee;
+  border: 1px solid black;
+  color: black;
+}
+.usacoResults :global(.trial-num) {
+  bottom: 2px;
+  display: inline;
+  float: left;
+  font-size: small;
+  left: 3px;
+  position: absolute;
+  text-align: right;
+}
+.usacoResults :global(.trial-result) :global(.info span) {
+  display: block;
+  text-align: right;
+}
+.usacoResults :global(.trial-result) :global(.info) {
+  bottom: 2px;
+  font-size: x-small;
+  position: absolute;
+  right: 3px;
+}
+.usacoResults :global(.res-symbol) {
+  font-size: xx-large;
+  text-align: center;
+  line-height: 1;
+}
+.usacoResults :global(.trial-status-partial) :global(.res-symbol) {
+  font-size: x-large !important;
+}
+.usacoResults :global(.trial-status-yes) {
+  background-color: #eeffee;
+  border: 1px solid #339933;
+  color: #339933;
+}
+.usacoResults :global(.tooltip) {
+  display: none;
+  position: absolute;
+  border: 1px solid #333;
+  background-color: #161616;
+  border-radius: 5px;
+  padding: 10px;
+  color: #fff;
+  font-size: 12px Arial;
+}

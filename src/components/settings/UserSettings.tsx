@@ -1,6 +1,6 @@
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
-import React, { MutableRefObject } from 'react';
+import React from 'react';
 import { EditorMode } from '../../atoms/userSettings';
 import { EDITOR_MODES } from '../SettingsContext';
 
