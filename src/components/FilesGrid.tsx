@@ -8,8 +8,9 @@ export type File = {
   id: string;
   lastAccessTime: number;
   title: string;
-  lastPermission: string | null;
   creationTime: number | null;
+  lastPermission: string | null;
+  lastDefaultPermission: string | null;
 };
 
 export interface FilesGridProps {
@@ -18,6 +19,12 @@ export interface FilesGridProps {
 }
 
 import { permissionLabels } from '../components/UserList/UserListItem';
+
+export const sharingPermissionLabels: Record<string, string> = {
+  READ_WRITE: 'Public Read & Write',
+  READ: 'Public View Only',
+  PRIVATE: 'Private',
+};
 
 export default function FilesGrid(props: FilesGridProps): JSX.Element {
   const formatCreationTime = (creationTime: number | null): string => {
@@ -47,11 +54,19 @@ export default function FilesGrid(props: FilesGridProps): JSX.Element {
             <div className="text-gray-400">
               Created: {formatCreationTime(file.creationTime)}
             </div>
-            {props.showPerms && (
+            {props.showPerms ? (
               <div className="text-gray-400">
-                Sharing Permissions:{' '}
+                Permissions:{' '}
                 {file.lastPermission && file.lastPermission in permissionLabels
                   ? permissionLabels[file.lastPermission]
+                  : 'Unknown'}
+              </div>
+            ) : (
+              <div className="text-gray-400">
+                Default Permissions:{' '}
+                {file.lastDefaultPermission &&
+                file.lastDefaultPermission in sharingPermissionLabels
+                  ? sharingPermissionLabels[file.lastDefaultPermission]
                   : 'Unknown'}
               </div>
             )}

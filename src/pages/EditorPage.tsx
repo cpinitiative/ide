@@ -258,26 +258,22 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   useEffect(() => {
     if (permission === null) return;
     if (firebaseUser && fileId?.id) {
+      const fileRef = firebase
+        .database()
+        .ref('users')
+        .child(firebaseUser.uid)
+        .child(fileId.id);
       if (permission === 'PRIVATE') {
         // remove from recently accessed files
-        firebase
-          .database()
-          .ref('users')
-          .child(firebaseUser.uid)
-          .child(fileId.id)
-          .remove();
+        fileRef.remove();
       } else {
-        firebase
-          .database()
-          .ref('users')
-          .child(firebaseUser.uid)
-          .child(fileId.id)
-          .set({
-            title: settings.workspaceName || '',
-            lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
-            creationTime: settings.creationTime ?? null,
-            lastPermission: permission,
-          });
+        fileRef.set({
+          title: settings.workspaceName || '',
+          lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
+          creationTime: settings.creationTime ?? null,
+          lastPermission: permission,
+          lastDefaultPermission: settings.defaultPermission,
+        });
       }
     }
   }, [firebaseUser, fileId, settings.workspaceName]);

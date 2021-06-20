@@ -8,7 +8,7 @@ const sharingOptions = [
     value: 'READ_WRITE',
   },
   {
-    label: 'View Only',
+    label: 'Public View Only',
     value: 'READ',
   },
   {
@@ -30,7 +30,7 @@ export const SharingPermissions = ({
     <>
       <RadioGroup value={value} onChange={onChange} disabled={!isOwner}>
         <RadioGroup.Label as="div" className="font-medium mb-2">
-          Sharing Permissions
+          Default Sharing Permissions
         </RadioGroup.Label>
         <div className="rounded-md space-y-2">
           {sharingOptions.map(setting => (

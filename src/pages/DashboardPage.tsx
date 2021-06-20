@@ -68,7 +68,7 @@ export default function DashboardPage(
             <div className="h-12"></div>
 
             <h2 className="text-gray-100 text-xl md:text-3xl font-black">
-              Owned Files
+              Owned by You
             </h2>
             <FilesGrid files={ownedFiles} showPerms={false} />
           </>
@@ -79,7 +79,7 @@ export default function DashboardPage(
             <div className="h-12"></div>
 
             <h2 className="text-gray-100 text-xl md:text-3xl font-black">
-              Recently Accessed Files
+              Recently Accessed
             </h2>
             <FilesGrid files={files} showPerms={true} />
           </>
