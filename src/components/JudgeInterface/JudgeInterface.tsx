@@ -13,6 +13,7 @@ export default function JudgeInterface(): JSX.Element {
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const lang = useAtomValue(currentLangAtom);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [statusData, setStatusData] = useState<any>(null);
 
   const handleSubmit = async () => {

@@ -47,7 +47,6 @@ import {
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { MessagePage } from '../components/MessagePage';
-import { ForkButton } from '../components/ForkButton';
 import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
 import JudgeInterface from '../components/JudgeInterface/JudgeInterface';
