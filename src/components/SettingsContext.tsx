@@ -41,6 +41,7 @@ export interface WorkspaceSettings {
   defaultPermission: string;
   workspaceName?: string;
   creationTime?: string;
+  judgeUrl?: string;
 }
 
 type SettingsContextType = {

@@ -14,7 +14,6 @@ import {
   setFirebaseErrorAtom,
   userRefAtom,
 } from '../atoms/firebaseAtoms';
-import { signInAnonymously } from '../scripts/firebaseUtils';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 

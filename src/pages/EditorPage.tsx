@@ -47,9 +47,9 @@ import {
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { MessagePage } from '../components/MessagePage';
-// import { ForkButton } from '../components/ForkButton';
 import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
+import JudgeInterface from '../components/JudgeInterface/JudgeInterface';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -90,6 +90,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     'code' | 'io' | 'users'
   >('code');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
+  const [inputTab, setInputTab] = useState<'input' | 'judge'>('input');
 
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
@@ -143,6 +144,12 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       };
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
+
+  useEffect(() => {
+    if (!settings?.judgeUrl) {
+      setInputTab('input');
+    }
+  }, [settings?.judgeUrl]);
 
   const handleRunCode = () => {
     if (!mainMonacoEditor || !inputEditor) {
@@ -336,31 +343,40 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
                   )}
                 >
                   <TabBar
-                    tabs={[{ label: 'input', value: 'input' }]}
-                    activeTab={'input'}
+                    tabs={[
+                      { label: 'input', value: 'input' },
+                      ...(settings.judgeUrl
+                        ? [{ label: 'USACO Judge', value: 'judge' }]
+                        : []),
+                    ]}
+                    activeTab={inputTab}
+                    onTabSelect={x => setInputTab(x.value as 'input' | 'judge')}
                   />
                   <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
-                    <LazyFirepadEditor
-                      theme="vs-dark"
-                      language={'plaintext'}
-                      saveViewState={false}
-                      path="input"
-                      dataTestId="input-editor"
-                      options={{
-                        minimap: { enabled: false },
-                        automaticLayout: false,
-                        insertSpaces: false,
-                        readOnly,
-                      }}
-                      onMount={e => {
-                        setInputEditor(e);
-                        setTimeout(() => {
-                          e.layout();
-                        }, 0);
-                      }}
-                      defaultValue=""
-                      firebaseRef={firebaseRefs.input}
-                    />
+                    {inputTab === 'input' && (
+                      <LazyFirepadEditor
+                        theme="vs-dark"
+                        language={'plaintext'}
+                        saveViewState={false}
+                        path="input"
+                        dataTestId="input-editor"
+                        options={{
+                          minimap: { enabled: false },
+                          automaticLayout: false,
+                          insertSpaces: false,
+                          readOnly,
+                        }}
+                        onMount={e => {
+                          setInputEditor(e);
+                          setTimeout(() => {
+                            e.layout();
+                          }, 0);
+                        }}
+                        defaultValue=""
+                        firebaseRef={firebaseRefs.input}
+                      />
+                    )}
+                    {inputTab === 'judge' && <JudgeInterface />}
                   </div>
                 </div>
                 <div
