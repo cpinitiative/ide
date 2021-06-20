@@ -110,7 +110,7 @@ export const SettingsModal = ({
     if (workspaceSettings.judgeUrl && workspaceSettings.judgeUrl.length > 0) {
       // parse judge Url
       const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
-      if (problemID === undefined) {
+      if (problemID === null) {
         alert('Could not identify problem ID. Fix before saving.');
         return;
       }

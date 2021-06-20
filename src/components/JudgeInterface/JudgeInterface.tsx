@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai/utils';
 import React from 'react';
 import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
+import { ProblemData, StatusData } from '../Workspace/Workspace';
 
 // export const judgePrefix = 'http://localhost:5000';
 export const judgePrefix = 'https://judge.usaco.guide';
@@ -12,13 +13,13 @@ function encode(str: string | null) {
 
 // e.g. http://www.usaco.org/index.php?page=viewproblem2&cpid=1140 -> 1140
 // e.g. 1140 -> 1140 (if already ID then remains unchanged)
-export function usacoProblemIDfromURL(url: string | undefined) {
+export function usacoProblemIDfromURL(url: string | undefined): string | null {
   if (!url?.match(/^[1-9]\d*$/)) {
     url = url?.match(/cpid=([1-9]\d*)$/)?.[1];
   }
   if (url && url.length <= 4 && +url >= 187) return url; // must be number with length <= 4
   // earliest submittable problem: http://www.usaco.org/index.php?page=viewproblem2&cpid=187
-  return undefined;
+  return null;
 }
 
 // https://github.com/cpinitiative/usaco-guide/blob/30f7eca4b8eee693694a801498aaf1bfd9cbb5d0/src/components/markdown/ProblemsList/ProblemsListItem.tsx#L92
@@ -33,9 +34,9 @@ function getUSACOContestURL(contest: string): string {
 
 export default function JudgeInterface(props: {
   problemID: string;
-  problemData: any;
-  statusData: any;
-  setStatusData: any;
+  problemData: ProblemData | null | undefined;
+  statusData: StatusData | null;
+  setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
 }): JSX.Element {
   const { problemID, problemData, statusData, setStatusData } = props;
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
@@ -94,7 +95,7 @@ export default function JudgeInterface(props: {
           <>
             <p className="text-gray-100 font-bold text-lg">
               <a
-                href={getUSACOContestURL(problemData?.source)}
+                href={getUSACOContestURL(problemData.source || '')}
                 className="text-indigo-300"
                 target="_blank"
                 rel="noreferrer"
@@ -150,7 +151,7 @@ export default function JudgeInterface(props: {
       </div>
       <button
         className="block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-        disabled={statusData?.statusCode <= -8}
+        disabled={!statusData || statusData.statusCode <= -8}
         onClick={() => handleSubmit()}
       >
         Submit

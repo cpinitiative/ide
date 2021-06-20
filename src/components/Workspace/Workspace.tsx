@@ -30,7 +30,25 @@ import {
   usacoProblemIDfromURL,
 } from '../JudgeInterface/JudgeInterface';
 
-export async function fetchProblemData(problemID: string): any {
+export interface ProblemData {
+  parsed: boolean;
+  source?: string;
+  title?: string;
+  input?: string;
+  output?: string;
+}
+
+export interface StatusData {
+  statusText?: string;
+  message?: string;
+  statusCode: number;
+  testCases?: any;
+  output?: string;
+}
+
+export async function fetchProblemData(
+  problemID: string
+): Promise<ProblemData | null> {
   const response = await fetch(`${judgePrefix}/problem/${problemID}`);
   if (response.status !== 200) return null;
   return await response.json();
@@ -81,9 +99,11 @@ export default function Workspace(): JSX.Element {
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
-  const [problemData, setProblemData] = useState<any>(undefined);
-  const [problemID, setProblemID] = useState<any>(null);
-  const [statusData, setStatusData] = useState<any>(null);
+  const [problemData, setProblemData] = useState<
+    ProblemData | null | undefined
+  >(undefined);
+  const [problemID, setProblemID] = useState<string | null>(null);
+  const [statusData, setStatusData] = useState<StatusData | null>(null);
 
   const updateProblemData = async (url: string | undefined) => {
     const newProblemID = usacoProblemIDfromURL(url);
@@ -165,7 +185,7 @@ export default function Workspace(): JSX.Element {
                   firebaseRef={firebaseRefs.input}
                 />
               )}
-              {inputTab === 'judge' && (
+              {inputTab === 'judge' && problemID !== null && (
                 <JudgeInterface
                   problemID={problemID}
                   problemData={problemData}
