@@ -5,17 +5,12 @@ loader.config({
   },
 });
 
-/// <reference path="./types/react-split-grid.d.ts" />
-import Split from 'react-split-grid';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
-import { TabBar } from '../components/TabBar';
-import { Output } from '../components/Output';
 import defaultCode from '../scripts/defaultCode';
-import JudgeResult, { JudgeSuccessResult } from '../types/judge';
+import JudgeResult from '../types/judge';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
-import { UserList } from '../components/UserList/UserList';
 import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
@@ -25,22 +20,15 @@ import {
   layoutEditorsAtom,
   loadingAtom,
   mainMonacoEditorAtom,
-  outputMonacoEditorAtom,
   userPermissionAtom,
 } from '../atoms/workspace';
-import { Chat } from '../components/Chat';
 import { NavBar } from '../components/NavBar/NavBar';
 import { FileMenu } from '../components/NavBar/FileMenu';
 import download from '../scripts/download';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
-import { CodeInterface } from '../components/CodeInterface/CodeInterface';
-import { LazyFirepadEditor } from '../components/LazyFirepadEditor';
-import classNames from 'classnames';
-import { DotsHorizontalIcon } from '@heroicons/react/solid';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
-  authenticatedFirebaseRefAtom,
   fileIdAtom,
   firebaseUserAtom,
   setFirebaseErrorAtom,
@@ -49,7 +37,12 @@ import {
 import { MessagePage } from '../components/MessagePage';
 import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
-import JudgeInterface from '../components/JudgeInterface/JudgeInterface';
+import Workspace from '../components/Workspace/Workspace';
+import {
+  judgeResultAtom,
+  mobileActiveTabAtom,
+  showSidebarAtom,
+} from '../atoms/workspaceUI';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -71,37 +64,23 @@ export interface EditorPageProps extends RouteComponentProps {
 export default function EditorPage(props: EditorPageProps): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
   const firebaseUser = useAtomValue(firebaseUserAtom);
-  const [mainMonacoEditor] = useAtom(mainMonacoEditorAtom);
-  const [inputEditor, setInputEditor] = useAtom(inputMonacoEditorAtom);
-  const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
-  const [result, setResult] = useState<JudgeSuccessResult | null>(null);
+  const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
+  const inputEditor = useAtomValue(inputMonacoEditorAtom);
+  const setResult = useUpdateAtom(judgeResultAtom);
   const [isRunning, setIsRunning] = useState(false);
   const lang = useAtomValue(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
-  const [showSidebar, setShowSidebar] = useState(false);
   const setUserPermission = useUpdateAtom(userPermissionAtom);
   const permission = useAtomValue(actualUserPermissionAtom);
   const loading = useAtomValue(loadingAtom);
+  const setShowSidebar = useUpdateAtom(showSidebarAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const [mobileActiveTab, setMobileActiveTab] = useState<
-    'code' | 'io' | 'users'
-  >('code');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
-  const [inputTab, setInputTab] = useState<'input' | 'judge'>('input');
-
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      cpp: firebaseRef?.child(`editor-cpp`),
-      java: firebaseRef?.child(`editor-java`),
-      py: firebaseRef?.child(`editor-py`),
-      input: firebaseRef?.child('input'),
-    }),
-    [firebaseRef]
-  );
+  const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
+  const showSidebar = useAtomValue(showSidebarAtom);
 
   useEffect(() => {
     const queryId: string | null = props.fileId ?? null;
@@ -144,12 +123,6 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       };
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
-
-  useEffect(() => {
-    if (!settings?.judgeUrl) {
-      setInputTab('input');
-    }
-  }, [settings?.judgeUrl]);
 
   const handleRunCode = () => {
     if (!mainMonacoEditor || !inputEditor) {
@@ -200,23 +173,8 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       .finally(() => setIsRunning(false));
   };
 
-  useEffect(() => {
-    function handleResize() {
-      layoutEditors();
-    }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [layoutEditors]);
-
-  useEffect(() => {
-    if (!isDesktop) {
-      layoutEditors();
-    }
-  }, [isDesktop, mobileActiveTab]);
-
   const handleToggleSidebar = () => {
-    setShowSidebar(!showSidebar);
+    setShowSidebar(show => !show);
     setTimeout(() => {
       layoutEditors();
     }, 0);
@@ -296,140 +254,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           />
         </div>
         <div className="flex-1 min-h-0">
-          <Split
-            onDragEnd={() => layoutEditors()}
-            render={({ getGridProps, getGutterProps }) => (
-              <div
-                className={`grid grid-cols-[3fr,3px,2fr,3px,1fr] grid-rows-[1fr,3px,1fr] h-full overflow-hidden`}
-                {...getGridProps()}
-              >
-                <CodeInterface
-                  className={classNames(
-                    'row-span-full min-w-0 overflow-hidden',
-                    !isDesktop && 'col-span-full',
-                    !isDesktop && mobileActiveTab !== 'code' && 'hidden'
-                  )}
-                />
-                <div
-                  className={classNames(
-                    'row-span-full col-start-2 cursor-[col-resize] mx-[-6px] group relative z-10',
-                    !isDesktop && 'hidden'
-                  )}
-                  {...getGutterProps('column', 1)}
-                >
-                  <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
-                </div>
-                <div
-                  className={classNames(
-                    'flex flex-col min-w-0 min-h-0 overflow-hidden',
-                    !isDesktop && 'col-span-full mb-[6px]',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
-                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
-                  )}
-                >
-                  <TabBar
-                    tabs={[
-                      { label: 'input', value: 'input' },
-                      ...(settings.judgeUrl
-                        ? [{ label: 'USACO Judge', value: 'judge' }]
-                        : []),
-                    ]}
-                    activeTab={inputTab}
-                    onTabSelect={x => setInputTab(x.value as 'input' | 'judge')}
-                  />
-                  <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
-                    {inputTab === 'input' && (
-                      <LazyFirepadEditor
-                        theme="vs-dark"
-                        language={'plaintext'}
-                        saveViewState={false}
-                        path="input"
-                        dataTestId="input-editor"
-                        options={{
-                          minimap: { enabled: false },
-                          automaticLayout: false,
-                          insertSpaces: false,
-                          readOnly,
-                        }}
-                        onMount={e => {
-                          setInputEditor(e);
-                          setTimeout(() => {
-                            e.layout();
-                          }, 0);
-                        }}
-                        defaultValue=""
-                        firebaseRef={firebaseRefs.input}
-                      />
-                    )}
-                    {inputTab === 'judge' && <JudgeInterface />}
-                  </div>
-                </div>
-                <div
-                  className={classNames(
-                    'cursor-[row-resize] group relative z-10 my-[-6px]',
-                    !isDesktop && 'col-span-full',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
-                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
-                  )}
-                  {...getGutterProps('row', 1)}
-                >
-                  <div
-                    className={classNames(
-                      'absolute w-full bg-black group-hover:bg-gray-600 group-active:bg-gray-600 group-focus:bg-gray-600 pointer-events-none transition',
-                      isDesktop
-                        ? 'top-[6px] bottom-[6px]'
-                        : 'inset-y-0 bg-gray-800 flex items-center justify-center'
-                    )}
-                  >
-                    {!isDesktop && (
-                      <DotsHorizontalIcon className="h-5 w-5 text-gray-200" />
-                    )}
-                  </div>
-                </div>
-                <div
-                  className={classNames(
-                    'flex flex-col min-w-0 min-h-0 overflow-hidden',
-                    !isDesktop && 'col-span-full mt-[6px]',
-                    !isDesktop && mobileActiveTab !== 'io' && 'hidden',
-                    isDesktop && (showSidebar ? 'col-span-1' : 'col-span-3')
-                  )}
-                >
-                  <Output
-                    result={result}
-                    onMount={e => {
-                      setOutputEditor(e);
-                      setTimeout(() => {
-                        e.layout();
-                      }, 0);
-                    }}
-                  />
-                </div>
-                {((showSidebar && isDesktop) ||
-                  (!isDesktop && mobileActiveTab === 'users')) && (
-                  <>
-                    <div
-                      className={classNames(
-                        'row-span-full col-start-4 cursor-[col-resize] mx-[-6px] group relative z-10',
-                        !isDesktop && 'hidden'
-                      )}
-                      {...getGutterProps('column', 3)}
-                    >
-                      <div className="absolute h-full left-[6px] right-[6px] bg-black group-hover:bg-gray-600 group-active:bg-gray-600 pointer-events-none transition" />
-                    </div>
-                    <div
-                      className={classNames(
-                        'row-span-full min-w-0 bg-[#1E1E1E] text-gray-200 flex flex-col overflow-auto',
-                        isDesktop ? 'col-start-5' : 'col-span-full pt-4'
-                      )}
-                    >
-                      <UserList className="max-w-full max-h-64" />
-                      <Chat className="flex-1 p-4 min-h-0" />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          />
+          <Workspace />
         </div>
         {!isDesktop && (
           <MobileBottomNav
