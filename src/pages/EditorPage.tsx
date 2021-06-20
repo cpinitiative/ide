@@ -47,7 +47,7 @@ import {
   userRefAtom,
 } from '../atoms/firebaseAtoms';
 import { MessagePage } from '../components/MessagePage';
-import { ForkButton } from '../components/ForkButton';
+// import { ForkButton } from '../components/ForkButton';
 import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
 
@@ -184,6 +184,8 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           data.stderr = decode(data.stderr);
           data.compile_output = decode(data.compile_output);
           data.message = decode(data.message);
+          if (data.status.description == 'Accepted')
+            data.status.description = 'Successful';
           setResult(data);
         }
       })
@@ -247,16 +249,29 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   }, [settings.workspaceName]);
 
   useEffect(() => {
+    if (permission === null) return;
     if (firebaseUser && fileId?.id) {
-      firebase
-        .database()
-        .ref('users')
-        .child(firebaseUser.uid)
-        .child(fileId.id)
-        .set({
-          title: settings.workspaceName || '',
-          lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
-        });
+      if (permission === 'PRIVATE') {
+        // remove from recently accessed files
+        firebase
+          .database()
+          .ref('users')
+          .child(firebaseUser.uid)
+          .child(fileId.id)
+          .remove();
+      } else {
+        firebase
+          .database()
+          .ref('users')
+          .child(firebaseUser.uid)
+          .child(fileId.id)
+          .set({
+            title: settings.workspaceName || '',
+            lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
+            creationTime: settings.creationTime ?? null,
+            lastPermission: permission,
+          });
+      }
     }
   }, [firebaseUser, fileId, settings.workspaceName]);
 

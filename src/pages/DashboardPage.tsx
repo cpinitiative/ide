@@ -10,6 +10,7 @@ export default function DashboardPage(
   _props: RouteComponentProps
 ): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
+  const [ownedFiles, setOwnedFiles] = useState<File[] | null>(null);
   const [files, setFiles] = useState<File[] | null>(null);
 
   useEffect(() => {
@@ -23,15 +24,25 @@ export default function DashboardPage(
         if (!snap.exists) {
           setFiles(null);
         } else {
-          const newFiles: File[] = [];
+          const yourFiles: File[] = [];
           snap.forEach(child => {
-            newFiles.push({
+            yourFiles.push({
               id: child.key,
               ...child.val(),
             });
           });
-          newFiles.reverse();
-          setFiles(newFiles);
+          yourFiles.reverse();
+          const yourOwnedFiles: File[] = [];
+          const yourOtherFiles: File[] = [];
+          for (const file of yourFiles) {
+            if (file.lastPermission === 'OWNER') {
+              yourOwnedFiles.push(file);
+            } else {
+              yourOtherFiles.push(file);
+            }
+          }
+          setOwnedFiles(yourOwnedFiles);
+          setFiles(yourOtherFiles);
         }
       });
     return () => ref.off('value', unsubscribe);
@@ -52,15 +63,25 @@ export default function DashboardPage(
         >
           Create New File
         </Link>
+        {ownedFiles && ownedFiles.length > 0 && (
+          <>
+            <div className="h-12"></div>
+
+            <h2 className="text-gray-100 text-xl md:text-3xl font-black">
+              Owned Files
+            </h2>
+            <FilesGrid files={ownedFiles} showPerms={false} />
+          </>
+        )}
 
         {files && files.length > 0 && (
           <>
             <div className="h-12"></div>
 
             <h2 className="text-gray-100 text-xl md:text-3xl font-black">
-              Recently Accessed
+              Recently Accessed Files
             </h2>
-            <FilesGrid files={files} />
+            <FilesGrid files={files} showPerms={true} />
           </>
         )}
       </div>

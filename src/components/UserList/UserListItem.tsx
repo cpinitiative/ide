@@ -16,7 +16,7 @@ import {
   authenticatedUserRefAtom,
 } from '../../atoms/firebaseAtoms';
 
-const permissionLabels = {
+export const permissionLabels: Record<string, string> = {
   OWNER: 'Owner',
   READ_WRITE: 'Read & Write',
   READ: 'View Only',

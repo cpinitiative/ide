@@ -81,7 +81,20 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = () => {
-    setRealWorkspaceSettings(workspaceSettings);
+    let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
+    {
+      // don't override creation time
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { creationTime, ...toKeep } = settingsToSet;
+      settingsToSet = toKeep;
+    }
+    if (userPermission === 'READ_WRITE') {
+      // update has no effect if you try to overwrite default permission
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { defaultPermission, ...toKeep } = settingsToSet;
+      settingsToSet = toKeep;
+    }
+    setRealWorkspaceSettings(settingsToSet);
     editorModeAtom[1](editorMode);
     if (name !== firebaseUser?.displayName) {
       firebaseUser?.updateProfile({
