@@ -31,6 +31,8 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
+import { fetchProblemData } from '../Workspace/Workspace';
+
 export interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -104,12 +106,17 @@ export const SettingsModal = ({
     }
   };
 
-  const saveAndClose = () => {
+  const saveAndClose = async () => {
     if (workspaceSettings.judgeUrl && workspaceSettings.judgeUrl.length > 0) {
       // parse judge Url
       const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
       if (problemID === undefined) {
-        alert('Invalid Problem ID or URL. Fix before saving.');
+        alert('Could not identify problem ID. Fix before saving.');
+        return;
+      }
+      const data = await fetchProblemData(problemID);
+      if (data === null) {
+        alert('Problem ID does not exist. Fix before saving.');
         return;
       }
     }

@@ -1,10 +1,10 @@
 import { useAtomValue } from 'jotai/utils';
-import React, { useState } from 'react';
+import React from 'react';
 import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
-import { useSettings } from '../SettingsContext';
 import USACOResults from './USACOResults';
-// import fetch from 'isomorphic-fetch';
-// import { JSDOM } from 'jsdom';
+
+// export const judgePrefix = 'http://localhost:5000';
+export const judgePrefix = 'https://judge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -21,69 +21,36 @@ export function usacoProblemIDfromURL(url: string | undefined) {
   return undefined;
 }
 
-export default function JudgeInterface(): JSX.Element {
-  const { settings } = useSettings();
+// https://github.com/cpinitiative/usaco-guide/blob/30f7eca4b8eee693694a801498aaf1bfd9cbb5d0/src/components/markdown/ProblemsList/ProblemsListItem.tsx#L92
+function getUSACOContestURL(contest: string): string {
+  const parts = contest.split(' ');
+  parts.shift(); // remove "USACO"
+  parts[0] = parts[0].substring(2);
+  if (parts[1] === 'US') parts[1] = 'open';
+  else parts[1] = parts[1].toLowerCase().substring(0, 3);
+  return `http://www.usaco.org/index.php?page=${parts[1]}${parts[0]}results`;
+}
+
+export default function JudgeInterface(props: {
+  problemID: string;
+  problemData: any;
+  statusData: any;
+  setStatusData: any;
+}): JSX.Element {
+  const { problemID, problemData, statusData, setStatusData } = props;
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const lang = useAtomValue(currentLangAtom);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [statusData, setStatusData] = useState<any>(null);
-
   const handleSubmit = async () => {
-    const problemID: string | undefined = usacoProblemIDfromURL(
-      settings.judgeUrl
-    );
-
-    // https://medium.com/@bretcameron/how-to-build-a-web-scraper-using-javascript-11d7cd9f77f2
-    // oops how do you actually load these
-
-    // const fetch = require("isomorphic-fetch");
-    // const jsdom = require("jsdom");
-    // const { JSDOM } = jsdom;
-
-    // (async () => {
-    //   const problemID = "1140";
-    //   // const problemID = "996";
-    //   const response = await fetch(
-    //     `http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`
-    //   );
-    //   const text = await response.text();
-    //   const dom = await new JSDOM(text);
-
-    //   // Step 1
-    //   // get source and title, e.g.
-    //   // USACO 2021 US Open, Platinum
-    //   // Problem 1. United Cows of Farmer John
-
-    //   for (const part of dom.window.document.querySelectorAll("h2")) {
-    //     const content = part.textContent;
-    //     console.log(content.trim());
-    //   }
-
-    //   // Step 2
-    //   // get input / output format
-    //   // e.g. stdin / stdout
-    //   // e.g. cave.in / cave.out
-    //   for (const part of dom.window.document.querySelectorAll("h4")) {
-    //     let content = part.textContent;
-    //     if (content.includes("FORMAT")) {
-    //       content = content.substring(content.indexOf("FORMAT ") + 7).slice(1, -2);
-    //       content = content.substring(content.lastIndexOf(" ") + 1);
-    //       console.log(content.trim());
-    //     }
-    //   }
-    // })();
-
-    // problemID should already have been parsed but why not do it again?
     if (!mainMonacoEditor || !lang) {
       alert('Error: Page still loading?');
       return;
     }
-    if (!problemID) {
-      alert('Error: Failed to parse problem ID. Is the usaco.org URL correct?');
-      return;
-    }
-
+    // if (!props.problemID) {
+    //   alert('Error: Failed to parse problem ID. Is the usaco.org URL correct?');
+    //   return;
+    // }
+    // ^ this should never happen
     setStatusData({
       message: 'Sending submission to server',
       statusCode: -100,
@@ -94,9 +61,6 @@ export default function JudgeInterface(): JSX.Element {
       language: { cpp: 'c++17', java: 'java', py: 'python3' }[lang],
       base64Code: encode(mainMonacoEditor.getValue()),
     };
-
-    const judgePrefix = 'http://localhost:5000';
-    // const judgePrefix = 'https://judge.usaco.guide';
 
     const resp = await fetch(`${judgePrefix}/submit`, {
       method: 'POST',
@@ -126,21 +90,59 @@ export default function JudgeInterface(): JSX.Element {
   return (
     <div className="relative h-full flex flex-col">
       <div className="p-4 pb-0">
-        <p className="text-gray-100 font-bold text-lg">
-          USACO Problem ID:{' '}
-          <a
-            href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${settings.judgeUrl}`}
-            className="text-indigo-300"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {usacoProblemIDfromURL(settings.judgeUrl)}
-          </a>
-          {/* Problem 1. Social Distancing I */}
-        </p>
+        {problemData && problemData.parsed ? (
+          <>
+            <p className="text-gray-100 font-bold text-lg">
+              <a
+                href={getUSACOContestURL(problemData?.source)}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemData?.source}
+              </a>
+            </p>
+            <p className="text-gray-100 font-bold text-lg">
+              <a
+                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemData?.title}
+              </a>
+            </p>
+            <p className="text-gray-100 text-sm">
+              <span className="font-bold">INPUT:</span> {problemData?.input}
+            </p>
+            <p className="text-gray-100 text-sm">
+              <span className="font-bold">OUTPUT:</span> {problemData?.output}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-100 font-bold text-lg">
+              USACO Problem ID:{' '}
+              <a
+                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemID}
+              </a>
+            </p>
+            <p className="text-red-300 text-sm font-bold">
+              {problemData
+                ? 'Could not parse problem data.'
+                : 'Problem ID does not exist.'}
+            </p>
+          </>
+        )}
         <p className="text-gray-400 text-sm">
           Early access. Report issues to Github. Do not spam submit.
-          {/* USACO 2020 US Open Contest, Bronze */}
+          {/* Note: You will not be able to submit to a problem in an active contest. */}
+          {/* ^ is this necessary? */}
         </p>
       </div>
       <div className="flex-1 overflow-y-auto px-4">

@@ -66,7 +66,6 @@ export default function USACOResults({
       }
       answers.push(ans);
     }
-    if (lines[lines.length - 1] !== '') lines.push('');
     output = lines.join('\n');
     equalUpToTrim = answers[0].trim() === answers[1].trim();
   }
@@ -75,11 +74,11 @@ export default function USACOResults({
       <p className="font-bold text-gray-200">{data.message}</p>
       {output && (
         <>
-          <pre className="font-mono text-red-300 leading-tight mt-1">
+          <pre className="font-mono text-red-300 leading-tight mt-1 text-sm">
             {output}
           </pre>
           {equalUpToTrim && (
-            <p className="font-bold text-gray-200">
+            <p className="font-bold text-gray-200 mt-3">
               Your output contains extra whitespace. This is an error; see{' '}
               <a
                 href="https://usaco.guide/general/io?lang=cpp#usaco-note---extra-whitespace"

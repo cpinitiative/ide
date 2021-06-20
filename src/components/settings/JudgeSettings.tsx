@@ -24,17 +24,17 @@ export default function JudgeSettings({
             USACO Problem ID
           </label>
           <p className="mt-2 text-sm text-gray-500">
-            Paste the entire URL or just the problem ID (e.g. 1140).
+            Paste the problem ID or the entire URL.
           </p>
           <div className="mt-1">
             <input
               type="text"
               name={`judgeurl`}
               id={`judgeurl`}
-              className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm"
+              className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm placeholder-gray-400"
               value={workspaceSettings.judgeUrl ?? ''}
               placeholder={
-                'http://www.usaco.org/index.php?page=viewproblem2&cpid=1140'
+                'e.g. 1140 or http://www.usaco.org/index.php?page=viewproblem2&cpid=1140'
               }
               onChange={e => {
                 if (canChange) {
@@ -49,7 +49,7 @@ export default function JudgeSettings({
               usacoProblemIDfromURL(workspaceSettings.judgeUrl) ===
                 undefined && (
                 <p className="mt-2 text-xs text-red-500">
-                  Invalid problem ID or URL
+                  Could not identify problem ID.
                 </p>
               )}
           </div>
