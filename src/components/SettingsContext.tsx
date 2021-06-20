@@ -40,6 +40,7 @@ export interface WorkspaceSettings {
   compilerOptions: { [key in Language]: string };
   defaultPermission: string;
   workspaceName?: string;
+  judgeUrl?: string;
 }
 
 type SettingsContextType = {

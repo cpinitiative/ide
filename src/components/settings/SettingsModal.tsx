@@ -21,14 +21,37 @@ import {
   userNameAtom,
 } from '../../atoms/userSettings';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { DesktopComputerIcon, UserIcon } from '@heroicons/react/solid';
+import {
+  DesktopComputerIcon,
+  ServerIcon,
+  UserIcon,
+} from '@heroicons/react/solid';
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
+import JudgeSettings from './JudgeSettings';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const tabs = [
+  {
+    id: 'workspace',
+    label: 'Workspace',
+    icon: DesktopComputerIcon,
+  },
+  {
+    id: 'user',
+    label: 'User',
+    icon: UserIcon,
+  },
+  {
+    id: 'judge',
+    label: 'Judge',
+    icon: ServerIcon,
+  },
+] as const;
 
 export const SettingsModal = ({
   isOpen,
@@ -55,7 +78,7 @@ export const SettingsModal = ({
   const [name, setName] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
   const editorModeAtom = useAtom(editorModeAtomWithPersistence);
-  const [tab, setTab] = useState<'workspace' | 'user'>('workspace');
+  const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
   useEffect(() => {
     if (isOpen) {
@@ -130,7 +153,7 @@ export const SettingsModal = ({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div className="inline-block bg-white md:rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-2xl w-full">
-              <div className="px-4 sm:px-6 pt-4">
+              <div className="px-4 sm:px-6 pt-4 pb-2">
                 <Dialog.Title
                   as="h3"
                   className="text-lg leading-6 font-medium text-gray-900 text-center"
@@ -141,45 +164,29 @@ export const SettingsModal = ({
 
               <div>
                 <div className="border-b border-gray-200">
-                  <nav className="-mb-px flex" aria-label="Tabs">
-                    <button
-                      className={classNames(
-                        tab === 'workspace'
-                          ? 'border-indigo-500 text-indigo-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'w-1/2 group flex items-center justify-center py-3 px-1 border-b-2 font-medium text-sm focus:outline-none'
-                      )}
-                      onClick={() => setTab('workspace')}
-                    >
-                      <DesktopComputerIcon
+                  <nav className="-mb-px flex">
+                    {tabs.map(settingTab => (
+                      <button
                         className={classNames(
-                          tab === 'workspace'
-                            ? 'text-indigo-500'
-                            : 'text-gray-400 group-hover:text-gray-500',
-                          '-ml-0.5 mr-2 h-5 w-5'
+                          tab === settingTab.id
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                          'w-1/2 group flex items-center justify-center py-3 px-1 border-b-2 font-medium text-sm focus:outline-none'
                         )}
-                      />
-                      Workspace Settings
-                    </button>
-                    <button
-                      className={classNames(
-                        tab === 'user'
-                          ? 'border-indigo-500 text-indigo-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'w-1/2 group flex items-center justify-center py-3 px-1 border-b-2 font-medium text-sm focus:outline-none'
-                      )}
-                      onClick={() => setTab('user')}
-                    >
-                      <UserIcon
-                        className={classNames(
-                          tab === 'user'
-                            ? 'text-indigo-500'
-                            : 'text-gray-400 group-hover:text-gray-500',
-                          '-ml-0.5 mr-2 h-5 w-5'
-                        )}
-                      />
-                      User Settings
-                    </button>
+                        onClick={() => setTab(settingTab.id)}
+                        key={settingTab.id}
+                      >
+                        <settingTab.icon
+                          className={classNames(
+                            tab === settingTab.id
+                              ? 'text-indigo-500'
+                              : 'text-gray-400 group-hover:text-gray-500',
+                            '-ml-0.5 mr-2 h-5 w-5'
+                          )}
+                        />
+                        {settingTab.label}
+                      </button>
+                    ))}
                   </nav>
                 </div>
               </div>
@@ -201,6 +208,13 @@ export const SettingsModal = ({
                 )}
                 {tab === 'workspace' && (
                   <WorkspaceSettingsUI
+                    workspaceSettings={workspaceSettings}
+                    onWorkspaceSettingsChange={onChange}
+                    userPermission={userPermission || 'READ'}
+                  />
+                )}
+                {tab === 'judge' && (
+                  <JudgeSettings
                     workspaceSettings={workspaceSettings}
                     onWorkspaceSettingsChange={onChange}
                     userPermission={userPermission || 'READ'}

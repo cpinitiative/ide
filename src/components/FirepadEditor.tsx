@@ -43,14 +43,14 @@ const FirepadEditor = ({
       userId: userRef.key,
     });
 
-    if (defaultValue) {
-      firepad.on('ready', function () {
+    firepad.on('ready', function () {
+      if (defaultValue) {
         if (editor.getValue().length === 0) {
           editor.setValue(defaultValue);
         }
-        setLoading(false);
-      });
-    }
+      }
+      setLoading(false);
+    });
 
     return () => firepad.dispose();
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
