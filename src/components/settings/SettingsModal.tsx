@@ -29,6 +29,7 @@ import {
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
+import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -104,6 +105,14 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = () => {
+    if (workspaceSettings.judgeUrl && workspaceSettings.judgeUrl.length > 0) {
+      // parse judge Url
+      const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
+      if (problemID === undefined) {
+        alert('Invalid Problem ID or URL. Fix before saving.');
+        return;
+      }
+    }
     setRealWorkspaceSettings(workspaceSettings);
     editorModeAtom[1](editorMode);
     if (name !== firebaseUser?.displayName) {

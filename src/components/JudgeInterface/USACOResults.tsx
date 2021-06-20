@@ -41,13 +41,56 @@ export default function USACOResults({
   data: any;
 }): JSX.Element | null {
   if (!data) return null;
+  let equalUpToTrim = false;
+  let output = data.output;
+  if (data.message.includes('Incorrect') && output) {
+    const lines = output.split('\n');
+    const indices = [],
+      answers = [];
+    for (let i = 0; i < lines.length; ++i) {
+      if (lines[i].endsWith(':') && (i == 0 || lines[i - 1] === '')) {
+        indices.push(i);
+      }
+    }
+    indices.push(lines.length);
+    for (let i = 0; i + 1 < indices.length; ++i) {
+      if (
+        indices[i] + 3 == indices[i + 1] &&
+        lines[indices[i] + 1] === '[File missing!]'
+      )
+        continue;
+      let ans = '';
+      for (let j = indices[i] + 1; j < indices[i + 1] - 1; ++j) {
+        ans += lines[j] + '\n';
+        lines[j] = lines[j].replace(/ /g, '\u2423'); // make spaces visible
+      }
+      answers.push(ans);
+    }
+    if (lines[lines.length - 1] !== '') lines.push('');
+    output = lines.join('\n');
+    equalUpToTrim = answers[0].trim() === answers[1].trim();
+  }
   return (
     <div className="mt-3">
       <p className="font-bold text-gray-200">{data.message}</p>
-      {data.output && (
-        <pre className="font-mono text-red-300 leading-tight mt-1">
-          {data.output}
-        </pre>
+      {output && (
+        <>
+          <pre className="font-mono text-red-300 leading-tight mt-1">
+            {output}
+          </pre>
+          {equalUpToTrim && (
+            <p className="font-bold text-gray-200">
+              Your output contains extra whitespace. This is an error; see{' '}
+              <a
+                href="https://usaco.guide/general/io?lang=cpp#usaco-note---extra-whitespace"
+                className="text-indigo-300"
+              >
+                here
+              </a>{' '}
+              for details.
+            </p>
+          )}
+        </>
       )}
       <div className="text-center">
         {data.testCases &&
