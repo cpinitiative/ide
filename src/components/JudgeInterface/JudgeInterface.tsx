@@ -3,6 +3,7 @@ import React from 'react';
 import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
+import SubmitButton from './SubmitButton';
 
 // export const judgePrefix = 'http://localhost:5000';
 export const judgePrefix = 'https://judge.usaco.guide';
@@ -144,13 +145,10 @@ export default function JudgeInterface(props: {
       <div className="flex-1 overflow-y-auto px-4">
         <USACOResults data={statusData} />
       </div>
-      <button
-        className="block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-        disabled={(statusData?.statusCode ?? 0) <= -8}
+      <SubmitButton
+        isLoading={(statusData?.statusCode ?? 0) <= -8}
         onClick={() => handleSubmit()}
-      >
-        Submit
-      </button>
+      />
     </div>
   );
 }
