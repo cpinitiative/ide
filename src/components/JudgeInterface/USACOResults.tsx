@@ -19,7 +19,7 @@ const USACOTestCase = ({ data }: { data: any }) => {
         {data.symbol}
       </div>
       <span
-        className={`absolute bottom-0 left-[4px] ${textColor} text-[0.8rem] font-bold`}
+        className={`absolute bottom-0 left-[4px] ${textColor} text-[0.8125rem] font-bold`}
       >
         {data.trialNum}
       </span>
