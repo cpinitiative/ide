@@ -46,8 +46,7 @@ export default function JudgeSettings({
               disabled={!canChange}
             />
             {(workspaceSettings.judgeUrl ?? '').length > 0 &&
-              usacoProblemIDfromURL(workspaceSettings.judgeUrl) ===
-                undefined && (
+              usacoProblemIDfromURL(workspaceSettings.judgeUrl) === null && (
                 <p className="mt-2 text-xs text-red-500">
                   Could not identify problem ID.
                 </p>

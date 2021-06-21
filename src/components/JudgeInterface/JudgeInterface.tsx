@@ -146,7 +146,7 @@ export default function JudgeInterface(props: {
       </div>
       <button
         className="block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-        disabled={!!statusData?.statusCode && statusData.statusCode <= -8}
+        disabled={(statusData?.statusCode ?? 0) <= -8}
         onClick={() => handleSubmit()}
       >
         Submit
