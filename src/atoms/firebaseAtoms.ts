@@ -143,6 +143,7 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
         color: colorFromUserId(userRef.key),
         permission: 'OWNER',
       },
+      'settings/creationTime': firebase.database.ServerValue.TIMESTAMP,
       'settings/defaultPermission': 'READ_WRITE',
     });
   }

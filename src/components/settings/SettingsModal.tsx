@@ -107,7 +107,7 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
-    if (workspaceSettings.judgeUrl && workspaceSettings.judgeUrl.length > 0) {
+    if ((workspaceSettings.judgeUrl ?? '').length > 0) {
       // parse judge Url
       const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
       if (problemID === null) {
@@ -120,7 +120,20 @@ export const SettingsModal = ({
         return;
       }
     }
-    setRealWorkspaceSettings(workspaceSettings);
+    let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
+    {
+      // update has no effect if you try to overwrite creation time
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { creationTime, ...toKeep } = settingsToSet;
+      settingsToSet = toKeep;
+    }
+    if (userPermission === 'READ_WRITE') {
+      // update has no effect if you try to overwrite default permission
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { defaultPermission, ...toKeep } = settingsToSet;
+      settingsToSet = toKeep;
+    }
+    setRealWorkspaceSettings(settingsToSet);
     editorModeAtom[1](editorMode);
     if (name !== firebaseUser?.displayName) {
       firebaseUser?.updateProfile({
