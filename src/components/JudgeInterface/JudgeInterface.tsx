@@ -1,32 +1,52 @@
 import { useAtomValue } from 'jotai/utils';
-import React, { useState } from 'react';
+import React from 'react';
 import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
-import { useSettings } from '../SettingsContext';
 import USACOResults from './USACOResults';
+import { ProblemData, StatusData } from '../Workspace/Workspace';
+
+// export const judgePrefix = 'http://localhost:5000';
+export const judgePrefix = 'https://judge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
 }
 
-export default function JudgeInterface(): JSX.Element {
-  const { settings } = useSettings();
+// e.g. http://www.usaco.org/index.php?page=viewproblem2&cpid=1140 -> 1140
+// e.g. 1140 -> 1140 (if already ID then remains unchanged)
+export function usacoProblemIDfromURL(url: string | undefined): string | null {
+  if (!url?.match(/^[1-9]\d*$/)) {
+    url = url?.match(/cpid=([1-9]\d*)$/)?.[1];
+  }
+  if (url && url.length <= 4 && +url >= 187) return url; // must be number with length <= 4
+  // earliest submittable problem: http://www.usaco.org/index.php?page=viewproblem2&cpid=187
+  return null;
+}
+
+// https://github.com/cpinitiative/usaco-guide/blob/30f7eca4b8eee693694a801498aaf1bfd9cbb5d0/src/components/markdown/ProblemsList/ProblemsListItem.tsx#L92
+function getUSACOContestURL(contest: string): string {
+  const parts = contest.split(' ');
+  parts.shift(); // remove "USACO"
+  parts[0] = parts[0].substring(2);
+  if (parts[1] === 'US') parts[1] = 'open';
+  else parts[1] = parts[1].toLowerCase().substring(0, 3);
+  return `http://www.usaco.org/index.php?page=${parts[1]}${parts[0]}results`;
+}
+
+export default function JudgeInterface(props: {
+  problemID: string;
+  problemData: ProblemData | null | undefined;
+  statusData: StatusData | null;
+  setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
+}): JSX.Element {
+  const { problemID, problemData, statusData, setStatusData } = props;
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const lang = useAtomValue(currentLangAtom);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [statusData, setStatusData] = useState<any>(null);
-
   const handleSubmit = async () => {
-    const problemID = settings.judgeUrl?.match(/cpid=(\d+)/)?.[1];
     if (!mainMonacoEditor || !lang) {
       alert('Error: Page still loading?');
       return;
     }
-    if (!problemID) {
-      alert('Error: Failed to parse problem ID. Is the usaco.org URL correct?');
-      return;
-    }
-
     setStatusData({
       message: 'Sending submission to server',
       statusCode: -100,
@@ -38,7 +58,7 @@ export default function JudgeInterface(): JSX.Element {
       base64Code: encode(mainMonacoEditor.getValue()),
     };
 
-    const resp = await fetch(`https://judge.usaco.guide/submit`, {
+    const resp = await fetch(`${judgePrefix}/submit`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -49,7 +69,7 @@ export default function JudgeInterface(): JSX.Element {
 
     const checkStatus = async () => {
       const statusResp = await fetch(
-        `https://judge.usaco.guide/submission/${submissionID}`
+        `${judgePrefix}/submission/${submissionID}`
       );
       const data = await statusResp.json();
       setStatusData(data);
@@ -66,13 +86,59 @@ export default function JudgeInterface(): JSX.Element {
   return (
     <div className="relative h-full flex flex-col">
       <div className="p-4 pb-0">
-        <p className="text-gray-100 font-bold text-lg">
-          {settings.judgeUrl}
-          {/* Problem 1. Social Distancing I */}
-        </p>
+        {problemData && problemData.parsed ? (
+          <>
+            <p className="text-gray-100 font-bold text-lg">
+              <a
+                href={getUSACOContestURL(problemData.source || '')}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemData?.source}
+              </a>
+            </p>
+            <p className="text-gray-100 font-bold text-lg">
+              <a
+                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemData?.title}
+              </a>
+            </p>
+            <p className="text-gray-100 text-sm">
+              <span className="font-bold">INPUT:</span> {problemData?.input}
+            </p>
+            <p className="text-gray-100 text-sm">
+              <span className="font-bold">OUTPUT:</span> {problemData?.output}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-100 font-bold text-lg">
+              USACO Problem ID:{' '}
+              <a
+                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                className="text-indigo-300"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {problemID}
+              </a>
+            </p>
+            <p className="text-red-300 text-sm font-bold">
+              {problemData
+                ? 'Could not parse problem data.'
+                : 'Problem ID does not exist.'}
+            </p>
+          </>
+        )}
         <p className="text-gray-400 text-sm">
           Early access. Report issues to Github. Do not spam submit.
-          {/* USACO 2020 US Open Contest, Bronze */}
+          {/* Note: You will not be able to submit to a problem in an active contest. */}
+          {/* ^ is this necessary? */}
         </p>
       </div>
       <div className="flex-1 overflow-y-auto px-4">
@@ -80,7 +146,7 @@ export default function JudgeInterface(): JSX.Element {
       </div>
       <button
         className="block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-        disabled={statusData?.statusCode <= -8}
+        disabled={(statusData?.statusCode ?? 0) <= -8}
         onClick={() => handleSubmit()}
       >
         Submit

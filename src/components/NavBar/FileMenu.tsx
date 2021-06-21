@@ -12,6 +12,9 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import { usePopper } from 'react-popper';
 
+import { actualUserPermissionAtom } from '../../atoms/workspace';
+import { useAtom } from 'jotai';
+
 export interface FileMenuProps {
   onDownloadFile: () => void;
   onInsertFileTemplate: () => void;
@@ -27,6 +30,8 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: 'bottom-start',
   });
+  const [permission] = useAtom(actualUserPermissionAtom);
+  const canWrite = permission === 'OWNER' || permission === 'READ_WRITE';
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -126,26 +131,28 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                             </a>
                           )}
                         </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              type="button"
-                              className={classNames(
-                                active
-                                  ? 'bg-gray-700 text-gray-100'
-                                  : 'text-gray-200',
-                                'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
-                              )}
-                              onClick={() => props.onInsertFileTemplate()}
-                            >
-                              <TemplateIcon
-                                className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
-                                aria-hidden="true"
-                              />
-                              Reset File to Template
-                            </button>
-                          )}
-                        </Menu.Item>
+                        {canWrite && (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                type="button"
+                                className={classNames(
+                                  active
+                                    ? 'bg-gray-700 text-gray-100'
+                                    : 'text-gray-200',
+                                  'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
+                                )}
+                                onClick={() => props.onInsertFileTemplate()}
+                              >
+                                <TemplateIcon
+                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
+                                  aria-hidden="true"
+                                />
+                                Reset File to Template
+                              </button>
+                            )}
+                          </Menu.Item>
+                        )}
                         <Menu.Item>
                           {({ active }) => (
                             <button

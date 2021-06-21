@@ -29,6 +29,9 @@ import {
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
+import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
+
+import { fetchProblemData } from '../Workspace/Workspace';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -103,10 +106,23 @@ export const SettingsModal = ({
     }
   };
 
-  const saveAndClose = () => {
+  const saveAndClose = async () => {
+    if ((workspaceSettings.judgeUrl ?? '').length > 0) {
+      // parse judge Url
+      const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
+      if (problemID === null) {
+        alert('Could not identify problem ID. Fix before saving.');
+        return;
+      }
+      const data = await fetchProblemData(problemID);
+      if (data === null) {
+        alert('Problem ID does not exist. Fix before saving.');
+        return;
+      }
+    }
     let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
     {
-      // don't override creation time
+      // update has no effect if you try to overwrite creation time
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creationTime, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;

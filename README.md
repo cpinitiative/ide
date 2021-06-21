@@ -97,4 +97,17 @@ docker ps
 docker exec <nginx-container-name-or-id> nginx -s reload
 ```
 
+I think every time nginx restarts the configuration gets overwritten...
+
 Unfortunately, I think every time nginx restarts the configuration gets overwritten. Haven't figured out a better way to do this; suggestions welcome!
+
+## Running Locally
+
+This project uses the [Firebase Realtime Database](https://firebase.google.com/docs/database). [This tutorial](https://firebase.google.com/codelabs/firestore-web) is helpful (even though Cloud Firestore is not what's being used here). You'll need to install the [firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli).
+
+After setting up, use the following commands to start running locally:
+
+```
+firebase emulators:start
+yarn dev
+```

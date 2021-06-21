@@ -25,6 +25,34 @@ import { Output } from '../Output';
 import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
+import {
+  judgePrefix,
+  usacoProblemIDfromURL,
+} from '../JudgeInterface/JudgeInterface';
+
+export interface ProblemData {
+  parsed: boolean;
+  source?: string;
+  title?: string;
+  input?: string;
+  output?: string;
+}
+
+export interface StatusData {
+  statusText?: string;
+  message?: string;
+  statusCode: number;
+  testCases?: any;
+  output?: string;
+}
+
+export async function fetchProblemData(
+  problemID: string
+): Promise<ProblemData | null> {
+  const response = await fetch(`${judgePrefix}/problem/${problemID}`);
+  if (response.status !== 200) return null;
+  return await response.json();
+}
 
 export default function Workspace(): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
@@ -71,6 +99,26 @@ export default function Workspace(): JSX.Element {
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
+  const [problemData, setProblemData] = useState<
+    ProblemData | null | undefined
+  >(undefined);
+  const [problemID, setProblemID] = useState<string | null>(null);
+  const [statusData, setStatusData] = useState<StatusData | null>(null);
+
+  const updateProblemData = async (url: string | undefined) => {
+    const newProblemID = usacoProblemIDfromURL(url);
+    setProblemID(newProblemID);
+    setProblemData(undefined);
+    setStatusData(null);
+    if (newProblemID) {
+      const newProblemData = await fetchProblemData(newProblemID);
+      setProblemData(newProblemData);
+    }
+  };
+  useEffect(() => {
+    updateProblemData(settings.judgeUrl);
+  }, [settings?.judgeUrl]);
+
   return (
     <Split
       onDragEnd={() => layoutEditors()}
@@ -106,7 +154,7 @@ export default function Workspace(): JSX.Element {
             <TabBar
               tabs={[
                 { label: 'input', value: 'input' },
-                ...(settings.judgeUrl
+                ...(problemData !== undefined
                   ? [{ label: 'USACO Judge', value: 'judge' }]
                   : []),
               ]}
@@ -137,7 +185,14 @@ export default function Workspace(): JSX.Element {
                   firebaseRef={firebaseRefs.input}
                 />
               )}
-              {inputTab === 'judge' && <JudgeInterface />}
+              {inputTab === 'judge' && problemID !== null && (
+                <JudgeInterface
+                  problemID={problemID}
+                  problemData={problemData}
+                  statusData={statusData}
+                  setStatusData={setStatusData}
+                />
+              )}
             </div>
           </div>
           <div
