@@ -4,6 +4,20 @@ A realtime collaborative IDE with code execution, input/output, and built-in USA
 
 This IDE is built and maintained by [Nathan Wang](https://github.com/thecodingwizard) and [Benjamin Qi](https://github.com/bqi343/), and is part of the [Competitive Programming Initiative](https://joincpi.org/).
 
+## Running Locally
+
+This project uses the [Firebase Realtime Database](https://firebase.google.com/docs/database). [This tutorial](https://firebase.google.com/codelabs/firestore-web) is helpful (even though Cloud Firestore is not what's being used here). You'll need to install the [firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) and [Yarn](https://classic.yarnpkg.com/en/docs/install).
+
+```
+yarn install
+firebase emulators:start
+yarn dev
+```
+
+### Configuring Firebase
+
+You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `src/components/WorkspaceInitializer.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
+
 ## Tech Stack
 
 - Code execution supported through [Judge0](https://judge0.com/)
@@ -100,14 +114,3 @@ docker exec <nginx-container-name-or-id> nginx -s reload
 I think every time nginx restarts the configuration gets overwritten...
 
 Unfortunately, I think every time nginx restarts the configuration gets overwritten. Haven't figured out a better way to do this; suggestions welcome!
-
-## Running Locally
-
-This project uses the [Firebase Realtime Database](https://firebase.google.com/docs/database). [This tutorial](https://firebase.google.com/codelabs/firestore-web) is helpful (even though Cloud Firestore is not what's being used here). You'll need to install the [firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli).
-
-After setting up, use the following commands to start running locally:
-
-```
-firebase emulators:start
-yarn dev
-```
