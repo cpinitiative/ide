@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 import type firebaseType from 'firebase';
 import { defaultPermissionAtom } from '../atoms/workspace';
 import {
+  connectionRefAtom,
   fileIdAtom,
   firebaseRefAtom,
   firebaseUserAtom,
@@ -67,8 +68,10 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
     joinExistingWorkspaceWithDefaultPermissionAtom
   );
   const setDefaultPermission = useUpdateAtom(defaultPermissionAtom);
+  const setConnectionRef = useUpdateAtom(connectionRefAtom);
 
   useEffect(() => {
+    console.log(firebaseUser?.uid, firebaseUser?.isAnonymous);
     if (firebaseUser && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
 
@@ -114,9 +117,8 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         snap: firebaseType.database.DataSnapshot
       ) => {
         if (snap.val() === true) {
-          const con = firebaseUserRef.child('connections').push();
-          con.onDisconnect().remove();
-          con.set(true);
+          const connectionRef = firebaseUserRef.child('connections').push();
+          setConnectionRef(connectionRef);
         }
       };
       connectedRef.on('value', handleConnectionChange, e =>

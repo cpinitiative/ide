@@ -28,10 +28,11 @@ export const firebaseUserAtom = atom(
   }
 );
 firebaseUserAtom.onMount = setAtom => {
-  signInAnonymously();
-
   const unsubscribe = firebase.auth().onAuthStateChanged(user => {
     setAtom(user);
+    if (!user) {
+      signInAnonymously();
+    }
   });
 
   return () => {
@@ -93,6 +94,20 @@ export const fileIdAtom = atom(
 
 export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
   null
+);
+const baseConnectionRefAtom = atom<firebaseType.database.Reference | null>(
+  null
+);
+export const connectionRefAtom = atom(
+  get => get(baseConnectionRefAtom),
+  (get, set, newRef: firebaseType.database.Reference | null) => {
+    get(baseConnectionRefAtom)?.remove();
+    if (newRef) {
+      newRef.onDisconnect().remove();
+      newRef.set(true);
+    }
+    set(baseConnectionRefAtom, newRef);
+  }
 );
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
 export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(

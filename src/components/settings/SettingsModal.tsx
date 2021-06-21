@@ -32,6 +32,7 @@ import JudgeSettings from './JudgeSettings';
 import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
 import { fetchProblemData } from '../Workspace/Workspace';
+import SignInSettings from './SignInSettings';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -266,6 +267,13 @@ export const SettingsModal = ({
                     Save
                   </button>
                 </div>
+
+                {tab === 'user' && (
+                  <>
+                    <hr className="border-gray-200" />
+                    <SignInSettings />
+                  </>
+                )}
               </div>
               <div className="absolute top-0 right-0 pt-4 pr-4">
                 <button
