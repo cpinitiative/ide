@@ -13,7 +13,7 @@
         ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
         "$user": {
           ".read": "$user === auth.uid",
-          ".write": "root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || auth.uid === $user"
+          ".write": "root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || (auth.uid === $user && data.child('permission').val() === newData.child('permission').val())"
         }
       },
       "editor-cpp": {
