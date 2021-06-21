@@ -36,11 +36,12 @@ if (typeof window !== 'undefined') {
   window.firebase = firebase;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const shouldUseEmulator =
+  typeof window !== 'undefined' && location.hostname === 'localhost';
+
 if (!firebase.apps?.length) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const shouldUseEmulator =
-    typeof window !== 'undefined' && location.hostname === 'localhost';
   if (shouldUseEmulator) {
     firebase.initializeApp({
       ...firebaseConfig,
