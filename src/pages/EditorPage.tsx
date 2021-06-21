@@ -164,6 +164,8 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           data.stderr = decode(data.stderr);
           data.compile_output = decode(data.compile_output);
           data.message = decode(data.message);
+          if (data.status.description == 'Accepted')
+            data.status.description = 'Successful';
           setResult(data);
         }
       })
@@ -212,16 +214,25 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   }, [settings.workspaceName]);
 
   useEffect(() => {
+    if (permission === null) return;
     if (firebaseUser && fileId?.id) {
-      firebase
+      const fileRef = firebase
         .database()
         .ref('users')
         .child(firebaseUser.uid)
-        .child(fileId.id)
-        .set({
+        .child(fileId.id);
+      if (permission === 'PRIVATE') {
+        // remove from recently accessed files
+        fileRef.remove();
+      } else {
+        fileRef.set({
           title: settings.workspaceName || '',
           lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
+          creationTime: settings.creationTime ?? null,
+          lastPermission: permission,
+          lastDefaultPermission: settings.defaultPermission,
         });
+      }
     }
   }, [firebaseUser, fileId, settings.workspaceName]);
 

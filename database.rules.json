@@ -80,6 +80,10 @@
         },
         "defaultPermission": {
           ".write": "!root.child($secretid).child('settings').child('defaultPermission').exists() || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER'"
+        },
+        "creationTime": {
+          /* only write upon creation */
+          ".write": "!root.child($secretid).child('settings').child('creationTime').exists()"
         }
       },
 

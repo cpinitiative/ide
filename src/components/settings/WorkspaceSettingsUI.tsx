@@ -13,7 +13,7 @@ export default function WorkspaceSettingsUI({
 }): JSX.Element {
   return (
     <div className="space-y-6">
-      {userPermission === 'OWNER' && (
+      {
         <div>
           <label
             htmlFor={`workspace_name`}
@@ -29,14 +29,19 @@ export default function WorkspaceSettingsUI({
               className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm"
               value={workspaceSettings.workspaceName || ''}
               onChange={e =>
+                (userPermission === 'OWNER' ||
+                  userPermission === 'READ_WRITE') &&
                 onWorkspaceSettingsChange({
                   workspaceName: e.target.value,
                 })
               }
+              disabled={
+                !(userPermission === 'OWNER' || userPermission === 'READ_WRITE')
+              }
             />
           </div>
         </div>
-      )}
+      }
 
       {LANGUAGES.map(({ label, value }) => (
         <div key={value}>
@@ -71,15 +76,14 @@ export default function WorkspaceSettingsUI({
           </div>
         </div>
       ))}
-
-      {userPermission === 'OWNER' && (
-        <SharingPermissions
-          value={workspaceSettings.defaultPermission}
-          onChange={val =>
-            onWorkspaceSettingsChange({ defaultPermission: val })
-          }
-        />
-      )}
+      <SharingPermissions
+        value={workspaceSettings.defaultPermission}
+        onChange={val =>
+          userPermission === 'OWNER' &&
+          onWorkspaceSettingsChange({ defaultPermission: val })
+        }
+        isOwner={userPermission === 'OWNER'}
+      />
     </div>
   );
 }
