@@ -47,11 +47,6 @@ export default function JudgeInterface(props: {
       alert('Error: Page still loading?');
       return;
     }
-    // if (!props.problemID) {
-    //   alert('Error: Failed to parse problem ID. Is the usaco.org URL correct?');
-    //   return;
-    // }
-    // ^ this should never happen
     setStatusData({
       message: 'Sending submission to server',
       statusCode: -100,
@@ -151,7 +146,7 @@ export default function JudgeInterface(props: {
       </div>
       <button
         className="block w-full py-2 text-sm uppercase font-bold text-indigo-300 hover:text-indigo-100 bg-indigo-900 bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-        disabled={!statusData || statusData.statusCode <= -8}
+        disabled={statusData?.statusCode ? statusData?.statusCode <= -8 : false}
         onClick={() => handleSubmit()}
       >
         Submit
