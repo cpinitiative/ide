@@ -24,7 +24,7 @@ const USACOTestCase = ({ data }: { data: any }) => {
         {data.trialNum}
       </span>
       <span
-        className={`absolute bottom-0 right-0 text-right ${textColor} leading-3 p-[2px] text-[0.65rem]`}
+        className={`absolute bottom-0 right-0 text-right ${textColor} leading-3 p-[2px] text-[0.625rem]`}
       >
         {data.memory}
         <br />
