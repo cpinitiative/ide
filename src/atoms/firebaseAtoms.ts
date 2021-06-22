@@ -1,44 +1,10 @@
 import { atom } from 'jotai';
 import type firebaseType from 'firebase';
 import { userNameAtom } from './userSettings';
-import animals from '../scripts/animals';
-import { signInAnonymously } from '../scripts/firebaseUtils';
 import colorFromUserId from '../scripts/colorFromUserId';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
 import { navigate } from '@reach/router';
-
-const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
-export const firebaseUserAtom = atom(
-  get => get(baseFirebaseUserAtom),
-  (get, set, user: firebaseType.User | null) => {
-    set(baseFirebaseUserAtom, user);
-    if (user) {
-      let name =
-        'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-      if (!user.displayName) {
-        user.updateProfile({ displayName: name });
-      } else {
-        name = user.displayName;
-      }
-      set(userNameAtom, name);
-    } else {
-      set(userNameAtom, null);
-    }
-  }
-);
-firebaseUserAtom.onMount = setAtom => {
-  const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-    setAtom(user);
-    if (!user) {
-      signInAnonymously();
-    }
-  });
-
-  return () => {
-    unsubscribe();
-  };
-};
 
 const baseFileIdAtom = atom<{
   id: string;

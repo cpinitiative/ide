@@ -11,10 +11,7 @@ import { XIcon } from '@heroicons/react/outline';
 import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
-import {
-  authenticatedUserRefAtom,
-  firebaseUserAtom,
-} from '../../atoms/firebaseAtoms';
+import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
   EditorMode,
   editorModeAtomWithPersistence,
@@ -33,6 +30,7 @@ import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
 import { fetchProblemData } from '../Workspace/Workspace';
 import SignInSettings from './SignInSettings';
+import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 
 export interface SettingsDialogProps {
   isOpen: boolean;

@@ -30,7 +30,6 @@ import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   fileIdAtom,
-  firebaseUserAtom,
   setFirebaseErrorAtom,
   userRefAtom,
 } from '../atoms/firebaseAtoms';
@@ -43,6 +42,7 @@ import {
   mobileActiveTabAtom,
   showSidebarAtom,
 } from '../atoms/workspaceUI';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));

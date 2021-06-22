@@ -9,7 +9,6 @@ import {
   connectionRefAtom,
   fileIdAtom,
   firebaseRefAtom,
-  firebaseUserAtom,
   joinExistingWorkspaceWithDefaultPermissionAtom,
   joinNewWorkspaceAsOwnerAtom,
   setFirebaseErrorAtom,
@@ -17,6 +16,7 @@ import {
 } from '../atoms/firebaseAtoms';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',

@@ -1,48 +1,19 @@
 import React from 'react';
 import firebase from 'firebase/app';
-import { useAtomValue } from 'jotai/utils';
-import { connectionRefAtom, firebaseUserAtom } from '../../atoms/firebaseAtoms';
-import { useAtom } from 'jotai';
-import { shouldUseEmulator } from '../WorkspaceInitializer';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { connectionRefAtom } from '../../atoms/firebaseAtoms';
+import {
+  firebaseUserAtom,
+  signInWithGoogleAtom,
+} from '../../atoms/firebaseUserAtoms';
 
 const buttonClasses =
   'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-400';
 
 export default function SignInSettings(): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
-  const [connectionRef, setConnectionRef] = useAtom(connectionRefAtom);
-
-  const handleSignInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    const prevUser = firebase.auth().currentUser;
-
-    // Remove user from user list before signing in
-    const prevConnectionRef = connectionRef;
-    setConnectionRef(null);
-
-    if (shouldUseEmulator) {
-      // Note: for some reason firebase emulator does not work with `linkWithPopup`
-      // so we're just going to always sign up with popup instead.
-      // To test `linkWithPopup`, go to `src/components/WorkspaceInitializer.tsx`, find `shouldUseEmulator`,
-      // and set that to false.
-      firebase.auth().signInWithPopup(provider);
-    } else {
-      prevUser
-        ?.linkWithPopup(provider)
-        .then(() => {
-          // linked successfully
-        })
-        .catch(error => {
-          if (error.code === 'auth/credential-already-in-use') {
-            // user already has an account. Sign in to that account and override our data.
-            firebase.auth().signInWithCredential(error.credential);
-          } else {
-            alert('Error signing in: ' + error);
-            setConnectionRef(prevConnectionRef);
-          }
-        });
-    }
-  };
+  const setConnectionRef = useUpdateAtom(connectionRefAtom);
+  const handleSignInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
 
   const handleSignOut = () => {
     setConnectionRef(null);
