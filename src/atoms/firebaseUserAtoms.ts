@@ -56,8 +56,11 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   } else {
     prevUser
       ?.linkWithPopup(provider)
-      .then(() => {
+      .then(result => {
         // linked successfully
+        const newName = result.user?.providerData[0]?.displayName;
+        if (newName)
+          firebase.auth().currentUser!.updateProfile({ displayName: newName });
       })
       .catch(error => {
         if (error.code === 'auth/credential-already-in-use') {
