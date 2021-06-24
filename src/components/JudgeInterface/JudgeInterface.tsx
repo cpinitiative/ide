@@ -5,10 +5,9 @@ import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayIcon } from '@heroicons/react/solid';
-import { Sample } from './Samples';
 
-// export const judgePrefix = 'http://localhost:5000';
-export const judgePrefix = 'https://judge.usaco.guide';
+export const judgePrefix = 'http://localhost:5000';
+// export const judgePrefix = 'https://judge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -40,14 +39,14 @@ export default function JudgeInterface(props: {
   problemData: ProblemData | null | undefined;
   statusData: StatusData | null;
   setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
-  runAllSamples: (samples: Sample[]) => Promise<void>;
+  handleRunCode: () => void;
 }): JSX.Element {
   const {
     problemID,
     problemData,
     statusData,
     setStatusData,
-    runAllSamples,
+    handleRunCode,
   } = props;
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const lang = useAtomValue(currentLangAtom);
@@ -138,7 +137,7 @@ export default function JudgeInterface(props: {
               <button
                 type="button"
                 className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
-                onClick={() => runAllSamples(problemData?.samples ?? [])}
+                onClick={handleRunCode}
               >
                 <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                 <span className="text-center flex-1">Run Samples</span>

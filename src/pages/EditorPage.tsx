@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
+import { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
@@ -39,11 +40,16 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
 import Workspace from '../components/Workspace/Workspace';
 import {
-  judgeResultAtom,
+  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
+  inputTabAtom,
+  problemDataAtom,
+  tabsListAtom,
+  inputTabIndexAtom,
 } from '../atoms/workspaceUI';
-import { Sample } from '../components/JudgeInterface/Samples';
+// import { Sample } from '../components/JudgeInterface/Samples';
+import { getSampleIndex } from '../components/JudgeInterface/Samples';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -68,7 +74,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
-  const setResult = useUpdateAtom(judgeResultAtom);
+  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
   const [isRunning, setIsRunning] = useState(false);
   const lang = useAtomValue(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -82,6 +88,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
+  const problemData = useAtomValue(problemDataAtom);
 
   useEffect(() => {
     const queryId: string | null = props.fileId ?? null;
@@ -146,13 +153,38 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     );
   };
 
+  const [inputTab, setInputTab] = useAtom(inputTabAtom);
+  const tabsList = useAtomValue(tabsListAtom);
+  const inputTabIndex = useAtomValue(inputTabIndexAtom);
+  useEffect(() => {
+    if (inputTabIndex === tabsList.length) {
+      // current tab doesn't exist
+      setInputTab(tabsList[0].value);
+    }
+  }, [tabsList, inputTab, setInputTab, inputTabIndex]);
+
+  const handleRunCode = () => {
+    if (inputTab === 'input') {
+      if (inputEditor) runWithInput(inputEditor.getValue());
+    } else if (inputTab === 'judge') {
+      runAllSamples();
+    } else {
+      const samples = problemData?.samples;
+      if (samples) {
+        const index = getSampleIndex(inputTab);
+        const sample = samples[index - 1];
+        runWithInput(sample.input, sample.output, inputTab + ': ');
+      }
+    }
+  };
+
   const cleanAndReplace = (
     output: string
   ): { replaced: string; cleaned: string } => {
-    const replaced = output.replace(/ /g, '\u2423');
+    const replaced = output.replace(/ /g, '\u2423'); // spaces made visible
     const lines = output.split('\n');
     for (let i = 0; i < lines.length; ++i) lines[i] = lines[i].trim();
-    const cleaned = lines.join('\n').trim();
+    const cleaned = lines.join('\n').trim(); // remove leading / trailing whitespace on each line, trim
     return { replaced, cleaned };
   };
   const cleanupData = (
@@ -184,7 +216,14 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       // on compilation error
       data.status.description = prefix + data.status.description;
   };
-  const handleRunCode = (
+  const setResultAt = (index: number, data: JudgeSuccessResult | null) => {
+    const newJudgeResults = judgeResults;
+    while (newJudgeResults.length <= index) newJudgeResults.push(null);
+    newJudgeResults[index] = data;
+    setJudgeResults(newJudgeResults);
+  };
+  // console.log(`LOADING ${loading} IS RUNNING" ${isRunning}`);
+  const runWithInput = (
     input: string,
     expectedOutput?: string,
     prefix?: string
@@ -195,7 +234,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
 
     setIsRunning(true);
-    setResult(null);
+    setResultAt(inputTabIndex, null);
 
     const code = mainMonacoEditor.getValue();
     fetchJudge(code, input)
@@ -208,7 +247,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           );
         } else {
           cleanupData(data, expectedOutput, prefix);
-          setResult(data);
+          setResultAt(inputTabIndex, data);
         }
       })
       .catch(e => {
@@ -217,14 +256,15 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       .finally(() => setIsRunning(false));
   };
 
-  const runAllSamples = async (samples: Sample[]) => {
-    if (!mainMonacoEditor || !inputEditor) {
+  const runAllSamples = async () => {
+    const samples = problemData?.samples;
+    if (!mainMonacoEditor || !inputEditor || !samples) {
       // editor is still loading
       return;
     }
 
     setIsRunning(true);
-    setResult(null);
+    setResultAt(1, null);
 
     const code = mainMonacoEditor.getValue();
     try {
@@ -233,6 +273,8 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         const sample = samples[index];
         promises.push(fetchJudge(code, sample.input));
       }
+
+      const newJudgeResults = judgeResults;
       const results = [];
       for (let index = 0; index < samples.length; ++index) {
         const sample = samples[index];
@@ -243,37 +285,55 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             'Error: ' +
               (data.error || resp.status + ' - ' + JSON.stringify(data))
           );
-          break;
-        } else {
-          cleanupData(data, sample.output, `Sample ${index + 1}: `);
-          results.push(data);
+          throw new Error('bad judge result');
         }
+        let prefix = 'Sample';
+        if (samples.length > 1) prefix += ` ${index + 1}`;
+        prefix += ': ';
+        cleanupData(data, sample.output, prefix);
+        results.push(data);
+        newJudgeResults[2 + index] = data;
       }
-
-      let verdicts = '';
-      for (const result of results) {
-        // https://newjudge0.usaco.guide/#statuses-and-languages-status-get
-        const id = result.status.id;
-        if (id === 6) {
-          // compilation error
-          setResult(result);
-          break;
+      if (samples.length > 1) {
+        let verdicts = '';
+        for (const result of results) {
+          // https://newjudge0.usaco.guide/#statuses-and-languages-status-get
+          const id = result.status.id;
+          if (id === 6) {
+            // compilation error
+            setJudgeResults([result]);
+            break;
+          }
+          if (id === 3) verdicts += 'A';
+          else if (id === 4) verdicts += 'W';
+          else if (id === 5) verdicts += 'T';
+          else if (7 <= id && id <= 12) verdicts += 'R';
+          else verdicts += '?';
         }
-        if (id === 3) verdicts += 'A';
-        else if (id === 4) verdicts += 'W';
-        else if (id === 5) verdicts += 'T';
-        else if (7 <= id && id <= 12) verdicts += 'R';
-        else verdicts += '?';
-      }
-      let firstFailed = 0;
-      while (firstFailed < samples.length - 1 && verdicts[firstFailed] === 'A')
-        ++firstFailed;
-      const result = results[firstFailed];
+        let firstFailed = 0;
+        while (
+          firstFailed < samples.length - 1 &&
+          verdicts[firstFailed] === 'A'
+        )
+          ++firstFailed;
 
-      if (verdicts.length > 1)
-        result.status.description =
-          'Sample Verdicts: ' + verdicts + '. ' + result.status.description;
-      setResult(result);
+        // console.log('BEFORE');
+        // console.log(results[firstFailed].status);
+        const failedResult = JSON.parse(JSON.stringify(results[firstFailed]));
+        if (verdicts.length > 1)
+          failedResult.status.description =
+            'Sample Verdicts: ' +
+            verdicts +
+            '. ' +
+            failedResult.status.description;
+        // console.log('AFTER');
+        // console.log(results[firstFailed].status);
+        // console.log(failedResult.status);
+        newJudgeResults[1] = failedResult;
+        setJudgeResults(newJudgeResults);
+      } else {
+        newJudgeResults[1] = newJudgeResults[2];
+      }
     } catch (e) {
       console.error(e);
     }
@@ -366,9 +426,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             }
             runButton={
               <RunButton
-                onClick={() => {
-                  inputEditor && handleRunCode(inputEditor.getValue());
-                }}
+                onClick={handleRunCode}
                 showLoading={isRunning || loading}
               />
             }
@@ -379,10 +437,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           />
         </div>
         <div className="flex-1 min-h-0">
-          <Workspace
-            handleRunCode={handleRunCode}
-            runAllSamples={runAllSamples}
-          />
+          <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
         </div>
         {!isDesktop && (
           <MobileBottomNav

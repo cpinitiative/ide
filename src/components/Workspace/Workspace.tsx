@@ -1,6 +1,7 @@
 import { DotsHorizontalIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom } from 'jotai';
 import React, { useEffect, useMemo, useState } from 'react';
 /// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
@@ -10,11 +11,15 @@ import {
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
   actualUserPermissionAtom,
+  // loadingAtom,
 } from '../../atoms/workspace';
 import {
-  judgeResultAtom,
+  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
+  inputTabAtom,
+  problemDataAtom,
+  inputTabIndexAtom,
 } from '../../atoms/workspaceUI';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
@@ -30,6 +35,16 @@ import {
   usacoProblemIDfromURL,
 } from '../JudgeInterface/JudgeInterface';
 import Samples, { Sample } from '../JudgeInterface/Samples';
+import { JudgeSuccessResult } from '../../types/judge';
+
+function resizeResults(
+  results: (JudgeSuccessResult | null)[],
+  newSize: number
+) {
+  while (results.length > newSize) results.pop();
+  while (results.length < newSize) results.push(null);
+  return results;
+}
 
 export interface ProblemData {
   parsed: boolean;
@@ -66,26 +81,24 @@ export async function fetchProblemData(
 
 export default function Workspace({
   handleRunCode,
-  runAllSamples,
+  tabsList,
 }: {
-  handleRunCode: (
-    input: string,
-    expectedOutput?: string | undefined,
-    prefix?: string | undefined
-  ) => void;
-  runAllSamples: (samples: Sample[]) => Promise<void>;
+  handleRunCode: () => void;
+  tabsList: { label: string; value: string }[];
 }): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const mobileActiveTab = useAtomValue(mobileActiveTabAtom);
-  const [inputTab, setInputTab] = useState<string>('input');
+  const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
   const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
+  const [problemData, setProblemData] = useAtom(problemDataAtom);
+
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const result = useAtomValue(judgeResultAtom);
+  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
 
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
@@ -97,12 +110,6 @@ export default function Workspace({
     }),
     [firebaseRef]
   );
-
-  useEffect(() => {
-    if (!settings?.judgeUrl) {
-      setInputTab('input');
-    }
-  }, [settings?.judgeUrl]);
 
   useEffect(() => {
     function handleResize() {
@@ -119,37 +126,35 @@ export default function Workspace({
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
-  const [problemData, setProblemData] = useState<
-    ProblemData | null | undefined
-  >(undefined);
   const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
   const updateProblemData = async (url: string | undefined) => {
     const newProblemID = usacoProblemIDfromURL(url);
+    if (newProblemID === problemID) return;
     setProblemID(newProblemID);
-    setProblemData(undefined);
     setStatusData(null);
+    const newJudgeResults = judgeResults;
+    while (newJudgeResults.length > 1) newJudgeResults.pop();
+
     if (newProblemID) {
       const newProblemData = await fetchProblemData(newProblemID);
+      const samples = newProblemData?.samples;
       setProblemData(newProblemData);
+      setJudgeResults(
+        resizeResults(newJudgeResults, 2 + (samples?.length ?? 0))
+      );
+      setInputTab('judge');
+    } else {
+      setProblemData(undefined);
+      setJudgeResults(newJudgeResults);
     }
   };
   useEffect(() => {
     updateProblemData(settings.judgeUrl);
-  }, [settings?.judgeUrl]);
+  });
 
-  const getSamplesList = (length: number) => {
-    const res = [];
-    if (length === 1) {
-      res.push({ label: `Sample`, value: `Sample` });
-    } else {
-      // only number samples if >1
-      for (let i = 1; i <= length; ++i)
-        res.push({ label: `Sample ${i}`, value: `Sample ${i}` });
-    }
-    return res;
-  };
+  const inputTabIndex = useAtomValue(inputTabIndexAtom);
 
   return (
     <Split
@@ -184,15 +189,7 @@ export default function Workspace({
             )}
           >
             <TabBar
-              tabs={[
-                { label: 'Input', value: 'input' },
-                ...(problemData !== undefined
-                  ? [{ label: 'USACO Judge', value: 'judge' }]
-                  : []),
-                ...(problemData?.samples
-                  ? getSamplesList(problemData?.samples.length)
-                  : []),
-              ]}
+              tabs={tabsList}
               activeTab={inputTab}
               onTabSelect={x => setInputTab(x.value)}
             />
@@ -226,7 +223,7 @@ export default function Workspace({
                   problemData={problemData}
                   statusData={statusData}
                   setStatusData={setStatusData}
-                  runAllSamples={runAllSamples}
+                  handleRunCode={handleRunCode}
                 />
               )}
               {inputTab.startsWith('Sample') && problemData?.samples && (
@@ -273,7 +270,7 @@ export default function Workspace({
             )}
           >
             <Output
-              result={result}
+              result={judgeResults[inputTabIndex]}
               onMount={e => {
                 setOutputEditor(e);
                 setTimeout(() => {

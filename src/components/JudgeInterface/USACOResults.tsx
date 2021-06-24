@@ -66,8 +66,11 @@ export default function USACOResults({
       }
       answers.push(ans);
     }
-    output = lines.join('\n');
     equalUpToTrim = answers[0].trim() === answers[1].trim();
+    if (equalUpToTrim) {
+      // display whitespace
+      output = lines.join('\n');
+    }
   }
   return (
     <div className="mt-3">
