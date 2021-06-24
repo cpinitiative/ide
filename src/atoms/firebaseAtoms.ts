@@ -1,43 +1,10 @@
 import { atom } from 'jotai';
 import type firebaseType from 'firebase';
 import { userNameAtom } from './userSettings';
-import animals from '../scripts/animals';
-import { signInAnonymously } from '../scripts/firebaseUtils';
 import colorFromUserId from '../scripts/colorFromUserId';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
 import { navigate } from '@reach/router';
-
-const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
-export const firebaseUserAtom = atom(
-  get => get(baseFirebaseUserAtom),
-  (get, set, user: firebaseType.User | null) => {
-    set(baseFirebaseUserAtom, user);
-    if (user) {
-      let name =
-        'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-      if (!user.displayName) {
-        user.updateProfile({ displayName: name });
-      } else {
-        name = user.displayName;
-      }
-      set(userNameAtom, name);
-    } else {
-      set(userNameAtom, null);
-    }
-  }
-);
-firebaseUserAtom.onMount = setAtom => {
-  signInAnonymously();
-
-  const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-    setAtom(user);
-  });
-
-  return () => {
-    unsubscribe();
-  };
-};
 
 const baseFileIdAtom = atom<{
   id: string;
@@ -93,6 +60,20 @@ export const fileIdAtom = atom(
 
 export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
   null
+);
+const baseConnectionRefAtom = atom<firebaseType.database.Reference | null>(
+  null
+);
+export const connectionRefAtom = atom(
+  get => get(baseConnectionRefAtom),
+  (get, set, newRef: firebaseType.database.Reference | null) => {
+    get(baseConnectionRefAtom)?.remove();
+    if (newRef) {
+      newRef.onDisconnect().remove();
+      newRef.set(true);
+    }
+    set(baseConnectionRefAtom, newRef);
+  }
 );
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
 export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(
