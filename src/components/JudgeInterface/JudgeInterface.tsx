@@ -4,6 +4,8 @@ import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
+import { PlayIcon } from '@heroicons/react/solid';
+import { Sample } from './Samples';
 
 // export const judgePrefix = 'http://localhost:5000';
 export const judgePrefix = 'https://judge.usaco.guide';
@@ -38,8 +40,15 @@ export default function JudgeInterface(props: {
   problemData: ProblemData | null | undefined;
   statusData: StatusData | null;
   setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
+  runAllSamples: (samples: Sample[]) => Promise<void>;
 }): JSX.Element {
-  const { problemID, problemData, statusData, setStatusData } = props;
+  const {
+    problemID,
+    problemData,
+    statusData,
+    setStatusData,
+    runAllSamples,
+  } = props;
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const lang = useAtomValue(currentLangAtom);
 
@@ -84,66 +93,81 @@ export default function JudgeInterface(props: {
     setTimeout(checkStatus, 1000);
   };
 
+  // console.log('SAMPLES ' + problemData?.samples);
   return (
     <div className="relative h-full flex flex-col">
-      <div className="p-4 pb-0">
-        {problemData && problemData.parsed ? (
-          <>
-            <p className="text-gray-100 font-bold text-lg">
-              <a
-                href={getUSACOContestURL(problemData.source || '')}
-                className="text-indigo-300"
-                target="_blank"
-                rel="noreferrer"
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 pb-0">
+          <p className="text-gray-400 text-sm mb-4">
+            Early access. Report issues to Github. Do not spam submit.
+            {/* Note: You will not be able to submit to a problem in an active contest. */}
+            {/* ^ is this necessary? */}
+          </p>
+          {problemData && problemData.parsed ? (
+            <>
+              <p className="text-gray-100 font-bold text-lg">
+                <a
+                  href={getUSACOContestURL(problemData.source || '')}
+                  className="text-indigo-300"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {problemData?.source}
+                </a>
+              </p>
+              <p className="text-gray-100 font-bold text-lg">
+                <a
+                  href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                  className="text-indigo-300"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {problemData?.title}
+                </a>
+              </p>
+              <p className="text-gray-100 text-sm mb-4">
+                <span className="font-bold">I/O:</span> {problemData?.input}/
+                {problemData?.output}
+              </p>
+              {/* <p className="text-gray-100 text-sm">
+                <span className="font-bold">INPUT:</span> {problemData?.input}
+              </p>
+              <p className="text-gray-100 text-sm">
+                <span className="font-bold">OUTPUT:</span> {problemData?.output}
+              </p> */}
+              <button
+                type="button"
+                className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
+                onClick={() => runAllSamples(problemData?.samples ?? [])}
               >
-                {problemData?.source}
-              </a>
-            </p>
-            <p className="text-gray-100 font-bold text-lg">
-              <a
-                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
-                className="text-indigo-300"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {problemData?.title}
-              </a>
-            </p>
-            <p className="text-gray-100 text-sm">
-              <span className="font-bold">INPUT:</span> {problemData?.input}
-            </p>
-            <p className="text-gray-100 text-sm">
-              <span className="font-bold">OUTPUT:</span> {problemData?.output}
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-gray-100 font-bold text-lg">
-              USACO Problem ID:{' '}
-              <a
-                href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
-                className="text-indigo-300"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {problemID}
-              </a>
-            </p>
-            <p className="text-red-300 text-sm font-bold">
-              {problemData
-                ? 'Could not parse problem data.'
-                : 'Problem ID does not exist.'}
-            </p>
-          </>
-        )}
-        <p className="text-gray-400 text-sm">
-          Early access. Report issues to Github. Do not spam submit.
-          {/* Note: You will not be able to submit to a problem in an active contest. */}
-          {/* ^ is this necessary? */}
-        </p>
-      </div>
-      <div className="flex-1 overflow-y-auto px-4">
-        <USACOResults data={statusData} />
+                <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                <span className="text-center flex-1">Run Samples</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-100 font-bold text-lg">
+                USACO Problem ID:{' '}
+                <a
+                  href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                  className="text-indigo-300"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {problemID}
+                </a>
+              </p>
+              <p className="text-red-300 text-sm font-bold">
+                {problemData
+                  ? 'Could not parse problem data.'
+                  : 'Problem ID does not exist.'}
+              </p>
+            </>
+          )}
+        </div>
+        <div className="px-4">
+          <USACOResults data={statusData} />
+        </div>
       </div>
       <SubmitButton
         isLoading={(statusData?.statusCode ?? 0) <= -8}

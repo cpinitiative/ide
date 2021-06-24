@@ -43,6 +43,7 @@ import {
   mobileActiveTabAtom,
   showSidebarAtom,
 } from '../atoms/workspaceUI';
+import { Sample } from '../components/JudgeInterface/Samples';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -124,24 +125,16 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
 
-  const handleRunCode = () => {
-    if (!mainMonacoEditor || !inputEditor) {
-      // editor is still loading
-      return;
-    }
-
-    setIsRunning(true);
-    setResult(null);
+  const fetchJudge = (code: string, input: string): Promise<Response> => {
     const data = {
-      source_code: encode(mainMonacoEditor.getValue()),
+      source_code: encode(code),
       language_id: { cpp: 54, java: 62, py: 71 }[lang],
-      stdin: encode(inputEditor.getValue()),
+      stdin: encode(input),
       compiler_options: settings.compilerOptions[lang],
       command_line_arguments: '',
       redirect_stderr_to_stdout: false,
     };
-
-    fetch(
+    return fetch(
       `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
       {
         method: 'POST',
@@ -150,22 +143,71 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         },
         body: JSON.stringify(data),
       }
-    )
+    );
+  };
+
+  const cleanAndReplace = (
+    output: string
+  ): { replaced: string; cleaned: string } => {
+    const replaced = output.replace(/ /g, '\u2423');
+    const lines = output.split('\n');
+    for (let i = 0; i < lines.length; ++i) lines[i] = lines[i].trim();
+    const cleaned = lines.join('\n').trim();
+    return { replaced, cleaned };
+  };
+  const cleanupData = (
+    data: JudgeResult,
+    expectedOutput?: string,
+    prefix?: string
+  ) => {
+    data.stdout = decode(data.stdout);
+    data.stderr = decode(data.stderr);
+    data.compile_output = decode(data.compile_output);
+    data.message = decode(data.message);
+    if (!expectedOutput) {
+      if (data.status.description == 'Accepted')
+        data.status.description = 'Successful';
+    } else {
+      if (!data.stdout.endsWith('\n')) data.stdout += '\n';
+      const { cleaned, replaced } = cleanAndReplace(data.stdout);
+      if (data.status.id === 3 && data.stdout !== expectedOutput) {
+        data.status.id = 4;
+        if (cleaned === expectedOutput.trim()) {
+          data.status.description = 'Wrong Answer (Extra Whitespace)';
+          data.stdout = replaced; // show the extra whitespace
+        } else {
+          data.status.description = 'Wrong Answer';
+        }
+      }
+    }
+    if (prefix && !data.status.description.includes('Compilation'))
+      // on compilation error
+      data.status.description = prefix + data.status.description;
+  };
+  const handleRunCode = (
+    input: string,
+    expectedOutput?: string,
+    prefix?: string
+  ) => {
+    if (!mainMonacoEditor || !inputEditor) {
+      // editor is still loading
+      return;
+    }
+
+    setIsRunning(true);
+    setResult(null);
+
+    const code = mainMonacoEditor.getValue();
+    fetchJudge(code, input)
       .then(async resp => {
         const data: JudgeResult = await resp.json();
-
         if (data.error || !resp.ok) {
           alert(
             'Error: ' +
               (data.error || resp.status + ' - ' + JSON.stringify(data))
           );
         } else {
-          data.stdout = decode(data.stdout);
-          data.stderr = decode(data.stderr);
-          data.compile_output = decode(data.compile_output);
-          data.message = decode(data.message);
-          if (data.status.description == 'Accepted')
-            data.status.description = 'Successful';
+          cleanupData(data, expectedOutput, prefix);
           setResult(data);
         }
       })
@@ -173,6 +215,69 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         console.error(e);
       })
       .finally(() => setIsRunning(false));
+  };
+
+  const runAllSamples = async (samples: Sample[]) => {
+    if (!mainMonacoEditor || !inputEditor) {
+      // editor is still loading
+      return;
+    }
+
+    setIsRunning(true);
+    setResult(null);
+
+    const code = mainMonacoEditor.getValue();
+    try {
+      const promises = [];
+      for (let index = 0; index < samples.length; ++index) {
+        const sample = samples[index];
+        promises.push(fetchJudge(code, sample.input));
+      }
+      const results = [];
+      for (let index = 0; index < samples.length; ++index) {
+        const sample = samples[index];
+        const resp = await promises[index];
+        const data: JudgeResult = await resp.json();
+        if (data.error || !resp.ok) {
+          alert(
+            'Error: ' +
+              (data.error || resp.status + ' - ' + JSON.stringify(data))
+          );
+          break;
+        } else {
+          cleanupData(data, sample.output, `Sample ${index + 1}: `);
+          results.push(data);
+        }
+      }
+
+      let verdicts = '';
+      for (const result of results) {
+        // https://newjudge0.usaco.guide/#statuses-and-languages-status-get
+        const id = result.status.id;
+        if (id === 6) {
+          // compilation error
+          setResult(result);
+          break;
+        }
+        if (id === 3) verdicts += 'A';
+        else if (id === 4) verdicts += 'W';
+        else if (id === 5) verdicts += 'T';
+        else if (7 <= id && id <= 12) verdicts += 'R';
+        else verdicts += '?';
+      }
+      let firstFailed = 0;
+      while (firstFailed < samples.length - 1 && verdicts[firstFailed] === 'A')
+        ++firstFailed;
+      const result = results[firstFailed];
+
+      if (verdicts.length > 1)
+        result.status.description =
+          'Sample Verdicts: ' + verdicts + '. ' + result.status.description;
+      setResult(result);
+    } catch (e) {
+      console.error(e);
+    }
+    setIsRunning(false);
   };
 
   const handleToggleSidebar = () => {
@@ -222,7 +327,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         .child(firebaseUser.uid)
         .child(fileId.id);
       if (permission === 'PRIVATE') {
-        // remove from recently accessed files
+        // remove from dashboard recently accessed files
         fileRef.remove();
       } else {
         fileRef.set({
@@ -234,7 +339,14 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         });
       }
     }
-  }, [firebaseUser, fileId, settings.workspaceName]);
+  }, [
+    firebaseUser,
+    fileId,
+    permission,
+    settings.workspaceName,
+    settings.creationTime,
+    settings.defaultPermission,
+  ]);
 
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
@@ -254,7 +366,9 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             }
             runButton={
               <RunButton
-                onClick={() => handleRunCode()}
+                onClick={() => {
+                  inputEditor && handleRunCode(inputEditor.getValue());
+                }}
                 showLoading={isRunning || loading}
               />
             }
@@ -265,7 +379,10 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           />
         </div>
         <div className="flex-1 min-h-0">
-          <Workspace />
+          <Workspace
+            handleRunCode={handleRunCode}
+            runAllSamples={runAllSamples}
+          />
         </div>
         {!isDesktop && (
           <MobileBottomNav

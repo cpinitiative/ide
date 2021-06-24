@@ -29,6 +29,7 @@ import {
   judgePrefix,
   usacoProblemIDfromURL,
 } from '../JudgeInterface/JudgeInterface';
+import Samples, { Sample } from '../JudgeInterface/Samples';
 
 export interface ProblemData {
   parsed: boolean;
@@ -36,13 +37,22 @@ export interface ProblemData {
   title?: string;
   input?: string;
   output?: string;
+  samples?: Sample[];
+}
+
+interface TestCase {
+  title: string;
+  trialNum: string;
+  symbol: string;
+  memory: string;
+  time: string;
 }
 
 export interface StatusData {
   statusText?: string;
   message?: string;
   statusCode: number;
-  testCases?: any;
+  testCases?: TestCase[];
   output?: string;
 }
 
@@ -54,11 +64,21 @@ export async function fetchProblemData(
   return await response.json();
 }
 
-export default function Workspace(): JSX.Element {
+export default function Workspace({
+  handleRunCode,
+  runAllSamples,
+}: {
+  handleRunCode: (
+    input: string,
+    expectedOutput?: string | undefined,
+    prefix?: string | undefined
+  ) => void;
+  runAllSamples: (samples: Sample[]) => Promise<void>;
+}): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const mobileActiveTab = useAtomValue(mobileActiveTabAtom);
-  const [inputTab, setInputTab] = useState<'input' | 'judge'>('input');
+  const [inputTab, setInputTab] = useState<string>('input');
   const showSidebar = useAtomValue(showSidebarAtom);
   const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
@@ -119,6 +139,18 @@ export default function Workspace(): JSX.Element {
     updateProblemData(settings.judgeUrl);
   }, [settings?.judgeUrl]);
 
+  const getSamplesList = (length: number) => {
+    const res = [];
+    if (length === 1) {
+      res.push({ label: `Sample`, value: `Sample` });
+    } else {
+      // only number samples if >1
+      for (let i = 1; i <= length; ++i)
+        res.push({ label: `Sample ${i}`, value: `Sample ${i}` });
+    }
+    return res;
+  };
+
   return (
     <Split
       onDragEnd={() => layoutEditors()}
@@ -153,13 +185,16 @@ export default function Workspace(): JSX.Element {
           >
             <TabBar
               tabs={[
-                { label: 'input', value: 'input' },
+                { label: 'Input', value: 'input' },
                 ...(problemData !== undefined
                   ? [{ label: 'USACO Judge', value: 'judge' }]
                   : []),
+                ...(problemData?.samples
+                  ? getSamplesList(problemData?.samples.length)
+                  : []),
               ]}
               activeTab={inputTab}
-              onTabSelect={x => setInputTab(x.value as 'input' | 'judge')}
+              onTabSelect={x => setInputTab(x.value)}
             />
             <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
               {inputTab === 'input' && (
@@ -191,7 +226,19 @@ export default function Workspace(): JSX.Element {
                   problemData={problemData}
                   statusData={statusData}
                   setStatusData={setStatusData}
+                  runAllSamples={runAllSamples}
                 />
+              )}
+              {inputTab.startsWith('Sample') && problemData?.samples && (
+                <div className="overflow-y-auto h-full">
+                  <div className="p-4 pb-0">
+                    <Samples
+                      samples={problemData?.samples}
+                      inputTab={inputTab}
+                      handleRunCode={handleRunCode}
+                    />
+                  </div>
+                </div>
               )}
             </div>
           </div>
