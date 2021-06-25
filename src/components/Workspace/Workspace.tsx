@@ -152,7 +152,7 @@ export default function Workspace({
   };
   useEffect(() => {
     updateProblemData(settings.judgeUrl);
-  });
+  }, [settings.judgeUrl]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
 

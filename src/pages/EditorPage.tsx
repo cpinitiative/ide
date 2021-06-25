@@ -47,23 +47,10 @@ import {
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
+import { encode, cleanJudgeResult } from './editorUtils';
 
-// import { Sample } from '../components/JudgeInterface/Samples';
 import { getSampleIndex } from '../components/JudgeInterface/Samples';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
-
-function encode(str: string | null) {
-  return btoa(unescape(encodeURIComponent(str || '')));
-}
-
-function decode(bytes: string | null) {
-  const escaped = escape(atob(bytes || ''));
-  try {
-    return decodeURIComponent(escaped);
-  } catch (err) {
-    return unescape(escaped);
-  }
-}
 
 export interface EditorPageProps extends RouteComponentProps {
   fileId?: string;
@@ -112,7 +99,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       alert('Error: Bad URL');
       navigate('/', { replace: true });
     }
-  }, [props.fileId, setFileId]);
+  }, [props.fileId, setFileId, fileId?.id]);
 
   useEffect(() => {
     return () => setFileId(null) as void;
@@ -181,51 +168,12 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   };
 
-  const cleanAndReplace = (
-    output: string
-  ): { replaced: string; cleaned: string } => {
-    const replaced = output.replace(/ /g, '\u2423'); // spaces made visible
-    const lines = output.split('\n');
-    for (let i = 0; i < lines.length; ++i) lines[i] = lines[i].trim();
-    const cleaned = lines.join('\n').trim(); // remove leading / trailing whitespace on each line, trim
-    return { replaced, cleaned };
-  };
-  const cleanupData = (
-    data: JudgeResult,
-    expectedOutput?: string,
-    prefix?: string
-  ) => {
-    data.stdout = decode(data.stdout);
-    data.stderr = decode(data.stderr);
-    data.compile_output = decode(data.compile_output);
-    data.message = decode(data.message);
-    if (!expectedOutput) {
-      if (data.status.description == 'Accepted')
-        data.status.description = 'Successful';
-    } else {
-      if (!data.stdout.endsWith('\n')) data.stdout += '\n';
-      const { cleaned, replaced } = cleanAndReplace(data.stdout);
-      if (data.status.id === 3 && data.stdout !== expectedOutput) {
-        data.status.id = 4;
-        if (cleaned === expectedOutput.trim()) {
-          data.status.description = 'Wrong Answer (Extra Whitespace)';
-          data.stdout = replaced; // show the extra whitespace
-        } else {
-          data.status.description = 'Wrong Answer';
-        }
-      }
-    }
-    if (prefix && !data.status.description.includes('Compilation'))
-      // on compilation error
-      data.status.description = prefix + data.status.description;
-  };
   const setResultAt = (index: number, data: JudgeSuccessResult | null) => {
     const newJudgeResults = judgeResults;
     while (newJudgeResults.length <= index) newJudgeResults.push(null);
     newJudgeResults[index] = data;
     setJudgeResults(newJudgeResults);
   };
-  // console.log(`LOADING ${loading} IS RUNNING" ${isRunning}`);
   const runWithInput = (
     input: string,
     expectedOutput?: string,
@@ -249,7 +197,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
               (data.error || resp.status + ' - ' + JSON.stringify(data))
           );
         } else {
-          cleanupData(data, expectedOutput, prefix);
+          cleanJudgeResult(data, expectedOutput, prefix);
           setResultAt(inputTabIndex, data);
         }
       })
@@ -293,7 +241,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         let prefix = 'Sample';
         if (samples.length > 1) prefix += ` ${index + 1}`;
         prefix += ': ';
-        cleanupData(data, sample.output, prefix);
+        cleanJudgeResult(data, sample.output, prefix);
         results.push(data);
         newJudgeResults[2 + index] = data;
       }
@@ -320,8 +268,6 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         )
           ++firstFailed;
 
-        // console.log('BEFORE');
-        // console.log(results[firstFailed].status);
         const failedResult = JSON.parse(JSON.stringify(results[firstFailed]));
         if (verdicts.length > 1)
           failedResult.status.description =
@@ -329,9 +275,6 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             verdicts +
             '. ' +
             failedResult.status.description;
-        // console.log('AFTER');
-        // console.log(results[firstFailed].status);
-        // console.log(failedResult.status);
         newJudgeResults[1] = failedResult;
         setJudgeResults(newJudgeResults);
       } else {
