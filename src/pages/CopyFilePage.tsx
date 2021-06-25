@@ -39,9 +39,11 @@ export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
         keysToCopy.forEach((key, idx) => {
           // we don't want to copy over user information or settings/defaultPermission for firepad
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { users, defaultPermission, creationTime, ...toKeep } = data[idx].val() || {};
+          const { users, defaultPermission, creationTime, ...toKeep } =
+            data[idx].val() || {};
           updateObject[key] = toKeep;
         });
+        updateObject['settings']['workspaceName'] ??= 'Unnamed File';
         updateObject['settings']['workspaceName'] += ' (Copy)'; // make sure to change the name
         await newRef.set(updateObject);
         setFileId({
