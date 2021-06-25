@@ -11,7 +11,8 @@ import firebase from 'firebase/app';
 import { useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
-import { fileIdAtom, firebaseUserAtom } from '../atoms/firebaseAtoms';
+import { fileIdAtom } from '../atoms/firebaseAtoms';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 export default function CreateUSACO(props: CreateUSACOProps): JSX.Element {
   const setFileId = useUpdateAtom(fileIdAtom);
