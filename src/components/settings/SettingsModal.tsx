@@ -107,9 +107,10 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
-    if ((workspaceSettings.judgeUrl ?? '').length > 0) {
+    const url = workspaceSettings.judgeUrl ?? '';
+    if (url.length > 0) {
       // parse judge Url
-      const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
+      const problemID = usacoProblemIDfromURL(url);
       if (problemID === null) {
         alert('Could not identify problem ID. Fix before saving.');
         return;
