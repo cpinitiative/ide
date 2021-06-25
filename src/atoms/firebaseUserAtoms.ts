@@ -47,12 +47,22 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   const prevConnectionRef = get(connectionRefAtom);
   if (prevConnectionRef) set(connectionRefAtom, null);
 
+  const confirmOverrideData = (callback: () => void) => {
+    if (
+      confirm(
+        'Warning: Your local data will be overwritten by your server data. Are you sure you want to proceed?'
+      )
+    ) {
+      callback();
+    }
+  };
+
   if (shouldUseEmulator) {
     // Note: for some reason firebase emulator does not work with `linkWithPopup`
     // so we're just going to always sign up with popup instead.
     // To test `linkWithPopup`, go to `src/components/WorkspaceInitializer.tsx`, find `shouldUseEmulator`,
     // and set that to false.
-    firebase.auth().signInWithPopup(provider);
+    confirmOverrideData(() => firebase.auth().signInWithPopup(provider));
   } else {
     prevUser
       ?.linkWithPopup(provider)
@@ -65,7 +75,9 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
       .catch(error => {
         if (error.code === 'auth/credential-already-in-use') {
           // user already has an account. Sign in to that account and override our data.
-          firebase.auth().signInWithCredential(error.credential);
+          confirmOverrideData(() => {
+            firebase.auth().signInWithCredential(error.credential);
+          });
         } else {
           alert('Error signing in: ' + error);
           if (prevConnectionRef) set(connectionRefAtom, prevConnectionRef);
