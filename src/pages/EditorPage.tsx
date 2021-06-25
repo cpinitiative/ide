@@ -31,7 +31,6 @@ import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   fileIdAtom,
-  firebaseUserAtom,
   setFirebaseErrorAtom,
   userRefAtom,
 } from '../atoms/firebaseAtoms';
@@ -48,8 +47,10 @@ import {
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
+
 // import { Sample } from '../components/JudgeInterface/Samples';
 import { getSampleIndex } from '../components/JudgeInterface/Samples';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -101,10 +102,12 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       // validate that queryId is a firebase key
       // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
     } else if (queryId?.length === 19) {
-      setFileId({
-        newId: queryId,
-        isNewFile: false,
-      });
+      if (fileId?.id !== '-' + queryId) {
+        setFileId({
+          newId: queryId,
+          isNewFile: false,
+        });
+      }
     } else {
       alert('Error: Bad URL');
       navigate('/', { replace: true });

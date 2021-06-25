@@ -6,9 +6,9 @@ import React, { useEffect } from 'react';
 import type firebaseType from 'firebase';
 import { defaultPermissionAtom } from '../atoms/workspace';
 import {
+  connectionRefAtom,
   fileIdAtom,
   firebaseRefAtom,
-  firebaseUserAtom,
   joinExistingWorkspaceWithDefaultPermissionAtom,
   joinNewWorkspaceAsOwnerAtom,
   setFirebaseErrorAtom,
@@ -16,6 +16,7 @@ import {
 } from '../atoms/firebaseAtoms';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -35,11 +36,12 @@ if (typeof window !== 'undefined') {
   window.firebase = firebase;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const shouldUseEmulator =
+  typeof window !== 'undefined' && location.hostname === 'localhost';
+
 if (!firebase.apps?.length) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const shouldUseEmulator =
-    typeof window !== 'undefined' && location.hostname === 'localhost';
   if (shouldUseEmulator) {
     firebase.initializeApp({
       ...firebaseConfig,
@@ -67,8 +69,10 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
     joinExistingWorkspaceWithDefaultPermissionAtom
   );
   const setDefaultPermission = useUpdateAtom(defaultPermissionAtom);
+  const setConnectionRef = useUpdateAtom(connectionRefAtom);
 
   useEffect(() => {
+    console.log(firebaseUser?.uid, firebaseUser?.isAnonymous);
     if (firebaseUser && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
 
@@ -114,9 +118,8 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         snap: firebaseType.database.DataSnapshot
       ) => {
         if (snap.val() === true) {
-          const con = firebaseUserRef.child('connections').push();
-          con.onDisconnect().remove();
-          con.set(true);
+          const connectionRef = firebaseUserRef.child('connections').push();
+          setConnectionRef(connectionRef);
         }
       };
       connectedRef.on('value', handleConnectionChange, e =>
