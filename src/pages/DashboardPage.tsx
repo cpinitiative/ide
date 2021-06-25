@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import FilesGrid from '../components/FilesGrid';
-import { useAtomValue } from 'jotai/utils';
-import { firebaseUserAtom } from '../atoms/firebaseAtoms';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import firebase from 'firebase/app';
 import { File } from '../components/FilesGrid';
+import {
+  firebaseUserAtom,
+  signInWithGoogleAtom,
+  signOutAtom,
+} from '../atoms/firebaseUserAtoms';
 
 export default function DashboardPage(
   _props: RouteComponentProps
 ): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
+  const signInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
+  const signOut = useUpdateAtom(signOutAtom);
   const [ownedFiles, setOwnedFiles] = useState<File[] | null>(null);
   const [files, setFiles] = useState<File[] | null>(null);
 
@@ -63,6 +69,29 @@ export default function DashboardPage(
         >
           Create New File
         </Link>
+
+        {!firebaseUser || firebaseUser.isAnonymous ? (
+          <div className="text-gray-400 mt-6">
+            Not signed in.{' '}
+            <button
+              className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
+              onClick={signInWithGoogle}
+            >
+              Sign in now
+            </button>
+          </div>
+        ) : (
+          <div className="text-gray-400 mt-6">
+            Signed in as {firebaseUser.displayName}.
+            <button
+              className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
+              onClick={signOut}
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
+
         {ownedFiles && ownedFiles.length > 0 && (
           <>
             <div className="h-12"></div>
