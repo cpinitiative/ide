@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
+import { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
@@ -38,24 +39,18 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import firebase from 'firebase/app';
 import Workspace from '../components/Workspace/Workspace';
 import {
-  judgeResultAtom,
+  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
+  inputTabAtom,
+  problemDataAtom,
+  tabsListAtom,
+  inputTabIndexAtom,
 } from '../atoms/workspaceUI';
+import { encode, cleanJudgeResult } from './editorUtils';
+
+import { getSampleIndex } from '../components/JudgeInterface/Samples';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
-
-function encode(str: string | null) {
-  return btoa(unescape(encodeURIComponent(str || '')));
-}
-
-function decode(bytes: string | null) {
-  const escaped = escape(atob(bytes || ''));
-  try {
-    return decodeURIComponent(escaped);
-  } catch (err) {
-    return unescape(escaped);
-  }
-}
 
 export interface EditorPageProps extends RouteComponentProps {
   fileId?: string;
@@ -67,7 +62,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
-  const setResult = useUpdateAtom(judgeResultAtom);
+  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
   const [isRunning, setIsRunning] = useState(false);
   const lang = useAtomValue(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -81,6 +76,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
+  const problemData = useAtomValue(problemDataAtom);
 
   useEffect(() => {
     const queryId: string | null = props.fileId ?? null;
@@ -103,7 +99,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       alert('Error: Bad URL');
       navigate('/', { replace: true });
     }
-  }, [props.fileId, setFileId]);
+  }, [props.fileId, setFileId, fileId?.id]);
 
   useEffect(() => {
     return () => setFileId(null) as void;
@@ -126,24 +122,16 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
 
-  const handleRunCode = () => {
-    if (!mainMonacoEditor || !inputEditor) {
-      // editor is still loading
-      return;
-    }
-
-    setIsRunning(true);
-    setResult(null);
+  const fetchJudge = (code: string, input: string): Promise<Response> => {
     const data = {
-      source_code: encode(mainMonacoEditor.getValue()),
+      source_code: encode(code),
       language_id: { cpp: 54, java: 62, py: 71 }[lang],
-      stdin: encode(inputEditor.getValue()),
+      stdin: encode(input),
       compiler_options: settings.compilerOptions[lang],
       command_line_arguments: '',
       redirect_stderr_to_stdout: false,
     };
-
-    fetch(
+    return fetch(
       `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
       {
         method: 'POST',
@@ -152,29 +140,150 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         },
         body: JSON.stringify(data),
       }
-    )
+    );
+  };
+
+  const [inputTab, setInputTab] = useAtom(inputTabAtom);
+  const tabsList = useAtomValue(tabsListAtom);
+  const inputTabIndex = useAtomValue(inputTabIndexAtom);
+  useEffect(() => {
+    if (inputTabIndex === tabsList.length) {
+      // current tab doesn't exist
+      setInputTab(tabsList[0].value);
+    }
+  }, [tabsList, inputTab, setInputTab, inputTabIndex]);
+
+  const handleRunCode = () => {
+    if (inputTab === 'input') {
+      if (inputEditor) runWithInput(inputEditor.getValue());
+    } else if (inputTab === 'judge') {
+      runAllSamples();
+    } else {
+      const samples = problemData?.samples;
+      if (samples) {
+        const index = getSampleIndex(inputTab);
+        const sample = samples[index - 1];
+        runWithInput(sample.input, sample.output, inputTab + ': ');
+      }
+    }
+  };
+
+  const setResultAt = (index: number, data: JudgeSuccessResult | null) => {
+    const newJudgeResults = judgeResults;
+    while (newJudgeResults.length <= index) newJudgeResults.push(null);
+    newJudgeResults[index] = data;
+    setJudgeResults(newJudgeResults);
+  };
+  const runWithInput = (
+    input: string,
+    expectedOutput?: string,
+    prefix?: string
+  ) => {
+    if (!mainMonacoEditor || !inputEditor) {
+      // editor is still loading
+      return;
+    }
+
+    setIsRunning(true);
+    setResultAt(inputTabIndex, null);
+
+    const code = mainMonacoEditor.getValue();
+    fetchJudge(code, input)
       .then(async resp => {
         const data: JudgeResult = await resp.json();
-
         if (data.error || !resp.ok) {
           alert(
             'Error: ' +
               (data.error || resp.status + ' - ' + JSON.stringify(data))
           );
         } else {
-          data.stdout = decode(data.stdout);
-          data.stderr = decode(data.stderr);
-          data.compile_output = decode(data.compile_output);
-          data.message = decode(data.message);
-          if (data.status.description == 'Accepted')
-            data.status.description = 'Successful';
-          setResult(data);
+          cleanJudgeResult(data, expectedOutput, prefix);
+          setResultAt(inputTabIndex, data);
         }
       })
       .catch(e => {
         console.error(e);
       })
       .finally(() => setIsRunning(false));
+  };
+
+  const runAllSamples = async () => {
+    const samples = problemData?.samples;
+    if (!mainMonacoEditor || !inputEditor || !samples) {
+      // editor is still loading
+      return;
+    }
+
+    setIsRunning(true);
+    setResultAt(1, null);
+
+    const code = mainMonacoEditor.getValue();
+    try {
+      const promises = [];
+      for (let index = 0; index < samples.length; ++index) {
+        const sample = samples[index];
+        promises.push(fetchJudge(code, sample.input));
+      }
+
+      const newJudgeResults = judgeResults;
+      const results = [];
+      for (let index = 0; index < samples.length; ++index) {
+        const sample = samples[index];
+        const resp = await promises[index];
+        const data: JudgeResult = await resp.json();
+        if (data.error || !resp.ok) {
+          alert(
+            'Error: ' +
+              (data.error || resp.status + ' - ' + JSON.stringify(data))
+          );
+          throw new Error('bad judge result');
+        }
+        let prefix = 'Sample';
+        if (samples.length > 1) prefix += ` ${index + 1}`;
+        prefix += ': ';
+        cleanJudgeResult(data, sample.output, prefix);
+        results.push(data);
+        newJudgeResults[2 + index] = data;
+      }
+      if (samples.length > 1) {
+        let verdicts = '';
+        for (const result of results) {
+          // https://newjudge0.usaco.guide/#statuses-and-languages-status-get
+          const id = result.status.id;
+          if (id === 6) {
+            // compilation error
+            setJudgeResults([result]);
+            break;
+          }
+          if (id === 3) verdicts += 'A';
+          else if (id === 4) verdicts += 'W';
+          else if (id === 5) verdicts += 'T';
+          else if (7 <= id && id <= 12) verdicts += 'R';
+          else verdicts += '?';
+        }
+        let firstFailed = 0;
+        while (
+          firstFailed < samples.length - 1 &&
+          verdicts[firstFailed] === 'A'
+        )
+          ++firstFailed;
+
+        const failedResult = JSON.parse(JSON.stringify(results[firstFailed]));
+        if (verdicts.length > 1)
+          failedResult.status.description =
+            'Sample Verdicts: ' +
+            verdicts +
+            '. ' +
+            failedResult.status.description;
+        newJudgeResults[1] = failedResult;
+        setJudgeResults(newJudgeResults);
+      } else {
+        newJudgeResults[1] = newJudgeResults[2];
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setIsRunning(false);
   };
 
   const handleToggleSidebar = () => {
@@ -224,7 +333,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         .child(firebaseUser.uid)
         .child(fileId.id);
       if (permission === 'PRIVATE') {
-        // remove from recently accessed files
+        // remove from dashboard recently accessed files
         fileRef.remove();
       } else {
         fileRef.set({
@@ -236,7 +345,14 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         });
       }
     }
-  }, [firebaseUser, fileId, settings.workspaceName]);
+  }, [
+    firebaseUser,
+    fileId,
+    permission,
+    settings.workspaceName,
+    settings.creationTime,
+    settings.defaultPermission,
+  ]);
 
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
@@ -256,7 +372,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             }
             runButton={
               <RunButton
-                onClick={() => handleRunCode()}
+                onClick={handleRunCode}
                 showLoading={isRunning || loading}
               />
             }
@@ -267,7 +383,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           />
         </div>
         <div className="flex-1 min-h-0">
-          <Workspace />
+          <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
         </div>
         {!isDesktop && (
           <MobileBottomNav
