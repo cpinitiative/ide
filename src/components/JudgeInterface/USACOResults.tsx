@@ -61,13 +61,16 @@ export default function USACOResults({
         continue;
       let ans = '';
       for (let j = indices[i] + 1; j < indices[i + 1] - 1; ++j) {
-        ans += lines[j] + '\n';
+        ans += lines[j].trim() + '\n';
         lines[j] = lines[j].replace(/ /g, '\u2423'); // make spaces visible
       }
       answers.push(ans);
     }
-    output = lines.join('\n');
     equalUpToTrim = answers[0].trim() === answers[1].trim();
+    if (equalUpToTrim) {
+      // display whitespace
+      output = lines.join('\n');
+    }
   }
   return (
     <div className="mt-3">

@@ -5,6 +5,7 @@ export interface JudgeSuccessResult {
   compile_output: string;
   message: string;
   status: {
+    id: number;
     description: string;
   };
   time: string;

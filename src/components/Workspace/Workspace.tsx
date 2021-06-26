@@ -1,6 +1,7 @@
 import { DotsHorizontalIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom } from 'jotai';
 import React, { useEffect, useMemo, useState } from 'react';
 /// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
@@ -10,11 +11,15 @@ import {
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
   actualUserPermissionAtom,
+  // loadingAtom,
 } from '../../atoms/workspace';
 import {
-  judgeResultAtom,
+  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
+  inputTabAtom,
+  problemDataAtom,
+  inputTabIndexAtom,
 } from '../../atoms/workspaceUI';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
@@ -29,6 +34,17 @@ import {
   judgePrefix,
   usacoProblemIDfromURL,
 } from '../JudgeInterface/JudgeInterface';
+import Samples, { Sample } from '../JudgeInterface/Samples';
+import { JudgeSuccessResult } from '../../types/judge';
+
+function resizeResults(
+  results: (JudgeSuccessResult | null)[],
+  newSize: number
+) {
+  while (results.length > newSize) results.pop();
+  while (results.length < newSize) results.push(null);
+  return results;
+}
 
 export interface ProblemData {
   parsed: boolean;
@@ -36,13 +52,22 @@ export interface ProblemData {
   title?: string;
   input?: string;
   output?: string;
+  samples?: Sample[];
+}
+
+interface TestCase {
+  title: string;
+  trialNum: string;
+  symbol: string;
+  memory: string;
+  time: string;
 }
 
 export interface StatusData {
   statusText?: string;
   message?: string;
   statusCode: number;
-  testCases?: any;
+  testCases?: TestCase[];
   output?: string;
 }
 
@@ -54,18 +79,26 @@ export async function fetchProblemData(
   return await response.json();
 }
 
-export default function Workspace(): JSX.Element {
+export default function Workspace({
+  handleRunCode,
+  tabsList,
+}: {
+  handleRunCode: () => void;
+  tabsList: { label: string; value: string }[];
+}): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const mobileActiveTab = useAtomValue(mobileActiveTabAtom);
-  const [inputTab, setInputTab] = useState<'input' | 'judge'>('input');
+  const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
   const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
+  const [problemData, setProblemData] = useAtom(problemDataAtom);
+
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const result = useAtomValue(judgeResultAtom);
+  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
 
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
@@ -77,12 +110,6 @@ export default function Workspace(): JSX.Element {
     }),
     [firebaseRef]
   );
-
-  useEffect(() => {
-    if (!settings?.judgeUrl) {
-      setInputTab('input');
-    }
-  }, [settings?.judgeUrl]);
 
   useEffect(() => {
     function handleResize() {
@@ -99,25 +126,35 @@ export default function Workspace(): JSX.Element {
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
-  const [problemData, setProblemData] = useState<
-    ProblemData | null | undefined
-  >(undefined);
   const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
   const updateProblemData = async (url: string | undefined) => {
     const newProblemID = usacoProblemIDfromURL(url);
+    if (newProblemID === problemID) return;
     setProblemID(newProblemID);
-    setProblemData(undefined);
     setStatusData(null);
+    const newJudgeResults = judgeResults;
+    while (newJudgeResults.length > 1) newJudgeResults.pop();
+
     if (newProblemID) {
       const newProblemData = await fetchProblemData(newProblemID);
+      const samples = newProblemData?.samples;
       setProblemData(newProblemData);
+      setJudgeResults(
+        resizeResults(newJudgeResults, 2 + (samples?.length ?? 0))
+      );
+      setInputTab('judge');
+    } else {
+      setProblemData(undefined);
+      setJudgeResults(newJudgeResults);
     }
   };
   useEffect(() => {
     updateProblemData(settings.judgeUrl);
-  }, [settings?.judgeUrl]);
+  }, [settings.judgeUrl]);
+
+  const inputTabIndex = useAtomValue(inputTabIndexAtom);
 
   return (
     <Split
@@ -152,14 +189,9 @@ export default function Workspace(): JSX.Element {
             )}
           >
             <TabBar
-              tabs={[
-                { label: 'input', value: 'input' },
-                ...(problemData !== undefined
-                  ? [{ label: 'USACO Judge', value: 'judge' }]
-                  : []),
-              ]}
+              tabs={tabsList}
               activeTab={inputTab}
-              onTabSelect={x => setInputTab(x.value as 'input' | 'judge')}
+              onTabSelect={x => setInputTab(x.value)}
             />
             <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
               {inputTab === 'input' && (
@@ -191,7 +223,19 @@ export default function Workspace(): JSX.Element {
                   problemData={problemData}
                   statusData={statusData}
                   setStatusData={setStatusData}
+                  handleRunCode={handleRunCode}
                 />
+              )}
+              {inputTab.startsWith('Sample') && problemData?.samples && (
+                <div className="overflow-y-auto h-full">
+                  <div className="p-4 pb-0">
+                    <Samples
+                      samples={problemData?.samples}
+                      inputTab={inputTab}
+                      handleRunCode={handleRunCode}
+                    />
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -226,7 +270,7 @@ export default function Workspace(): JSX.Element {
             )}
           >
             <Output
-              result={result}
+              result={judgeResults[inputTabIndex]}
               onMount={e => {
                 setOutputEditor(e);
                 setTimeout(() => {
