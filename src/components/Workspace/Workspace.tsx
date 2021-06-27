@@ -164,7 +164,6 @@ export default function Workspace({
   }, [settings.judgeUrl, json]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
-  console.log(`INPUT TAB INDEX ${inputTabIndex}`);
 
   return (
     <Split
