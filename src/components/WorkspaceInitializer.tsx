@@ -39,7 +39,7 @@ if (typeof window !== 'undefined') {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const shouldUseEmulator =
-  typeof window !== 'undefined' && location.hostname === 'localhost';
+  typeof window !== 'undefined' && location.hostname === 'localhost' && false;
 
 if (!firebase.apps?.length) {
   if (shouldUseEmulator) {
@@ -72,7 +72,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   const setConnectionRef = useUpdateAtom(connectionRefAtom);
 
   useEffect(() => {
-    console.log(firebaseUser?.uid, firebaseUser?.isAnonymous);
+    console.log(firebaseUser?.uid, firebaseUser?.isAnonymous, fileId);
     if (firebaseUser && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
 
@@ -133,7 +133,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         unsubscribe3();
       };
     }
-  }, [firebaseUser, firebaseRef, fileId]);
+  }, [firebaseUser, firebaseRef, fileId?.id]);
 
   return <>{children}</>;
 };

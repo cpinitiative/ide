@@ -99,7 +99,9 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       alert('Error: Bad URL');
       navigate('/', { replace: true });
     }
-  }, [props.fileId, setFileId, fileId?.id]);
+    // We only want to update the file ID when props.fileId changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.fileId]);
 
   useEffect(() => {
     return () => setFileId(null) as void;
