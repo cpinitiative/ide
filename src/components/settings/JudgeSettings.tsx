@@ -1,6 +1,11 @@
-import React from 'react';
+// import { useAtom } from 'jotai';
+import React, { useEffect, useState } from 'react';
 import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 import { WorkspaceSettings } from '../SettingsContext';
+import { ProblemData } from '../Workspace/Workspace';
+// import { allProblemDataAtom } from '../../atoms/workspaceUI';
+
+import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 
 export default function JudgeSettings({
   workspaceSettings,
@@ -13,7 +18,19 @@ export default function JudgeSettings({
 }): JSX.Element {
   const canChange =
     userPermission === 'READ_WRITE' || userPermission === 'OWNER';
+  const [json, setJson] = useState<null | Record<string, ProblemData>>(null);
+  useEffect(() => {
+    async function load() {
+      const response = await fetch(`${judgePrefix}/problems`);
+      const json = await response.json();
+      setJson(json);
+    }
+    load();
+  }, []);
+  let problemId = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
+  if (problemId !== null && json && !(problemId in json)) problemId = null;
   return (
+    // <Suspense fallback="Loading...">
     <div>
       <div className="space-y-6">
         <div>
@@ -46,11 +63,16 @@ export default function JudgeSettings({
               disabled={!canChange}
             />
             {(workspaceSettings.judgeUrl ?? '').length > 0 &&
-              usacoProblemIDfromURL(workspaceSettings.judgeUrl) === null && (
+              (problemId === null ? (
                 <p className="mt-2 text-xs text-red-500">
                   Could not identify problem ID.
                 </p>
-              )}
+              ) : (
+                <p className="mt-2 text-xs text-green-500">
+                  {json &&
+                    json[problemId].source + ': ' + json[problemId].title}
+                </p>
+              ))}
           </div>
           <p className="mt-2 text-sm text-gray-500">
             This will allow you to submit to USACO servers directly from the
@@ -59,5 +81,6 @@ export default function JudgeSettings({
         </div>
       </div>
     </div>
+    // </Suspense>
   );
 }

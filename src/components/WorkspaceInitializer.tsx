@@ -72,7 +72,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   const setConnectionRef = useUpdateAtom(connectionRefAtom);
 
   useEffect(() => {
-    console.log(firebaseUser?.uid, firebaseUser?.isAnonymous, fileId);
+    // console.log(firebaseUser?.uid, firebaseUser?.isAnonymous, fileId);
     if (firebaseUser && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
 

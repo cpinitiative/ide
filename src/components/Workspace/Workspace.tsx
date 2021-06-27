@@ -46,14 +46,15 @@ function resizeResults(
   return results;
 }
 
-export interface ProblemData {
-  parsed: boolean;
-  source?: string;
-  title?: string;
-  input?: string;
-  output?: string;
-  samples?: Sample[];
-}
+export type ProblemData = {
+  submittable: boolean;
+  url: string;
+  source: string;
+  title: string;
+  input: string;
+  output: string;
+  samples: Sample[];
+};
 
 interface TestCase {
   title: string;
@@ -129,21 +130,29 @@ export default function Workspace({
   const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
+  const [json, setJson] = useState<null | Record<string, ProblemData>>(null);
+  useEffect(() => {
+    async function load() {
+      const response = await fetch(`${judgePrefix}/problems`);
+      const json = await response.json();
+      setJson(json);
+    }
+    load();
+  }, []);
   const updateProblemData = async (url: string | undefined) => {
+    if (!json) return;
     const newProblemID = usacoProblemIDfromURL(url);
     if (newProblemID === problemID) return;
     setProblemID(newProblemID);
     setStatusData(null);
     const newJudgeResults = judgeResults;
     while (newJudgeResults.length > 1) newJudgeResults.pop();
-
     if (newProblemID) {
-      const newProblemData = await fetchProblemData(newProblemID);
-      const samples = newProblemData?.samples;
+      const newProblemData = json[newProblemID];
+      // await fetchProblemData(newProblemID);
+      const samples = newProblemData.samples;
       setProblemData(newProblemData);
-      setJudgeResults(
-        resizeResults(newJudgeResults, 2 + (samples?.length ?? 0))
-      );
+      setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
       setInputTab('judge');
     } else {
       setProblemData(undefined);
@@ -152,9 +161,10 @@ export default function Workspace({
   };
   useEffect(() => {
     updateProblemData(settings.judgeUrl);
-  }, [settings.judgeUrl]);
+  }, [settings.judgeUrl, json]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
+  console.log(`INPUT TAB INDEX ${inputTabIndex}`);
 
   return (
     <Split
@@ -217,7 +227,7 @@ export default function Workspace({
                   firebaseRef={firebaseRefs.input}
                 />
               )}
-              {inputTab === 'judge' && problemID !== null && (
+              {inputTab === 'judge' && problemID !== null && problemData && (
                 <JudgeInterface
                   problemID={problemID}
                   problemData={problemData}

@@ -19,7 +19,7 @@ export function usacoProblemIDfromURL(url: string | undefined): string | null {
   if (!url?.match(/^[1-9]\d*$/)) {
     url = url?.match(/cpid=([1-9]\d*)$/)?.[1];
   }
-  if (url && url.length <= 4 && +url >= 187) return url; // must be number with length <= 4
+  if (url && url.length <= 4) return url; // must be number with length <= 4
   // earliest submittable problem: http://www.usaco.org/index.php?page=viewproblem2&cpid=187
   return null;
 }
@@ -27,7 +27,7 @@ export function usacoProblemIDfromURL(url: string | undefined): string | null {
 // https://github.com/cpinitiative/usaco-guide/blob/30f7eca4b8eee693694a801498aaf1bfd9cbb5d0/src/components/markdown/ProblemsList/ProblemsListItem.tsx#L92
 function getUSACOContestURL(contest: string): string {
   const parts = contest.split(' ');
-  parts.shift(); // remove "USACO"
+  // parts.shift(); // remove "USACO"
   parts[0] = parts[0].substring(2);
   if (parts[1] === 'US') parts[1] = 'open';
   else parts[1] = parts[1].toLowerCase().substring(0, 3);
@@ -36,7 +36,7 @@ function getUSACOContestURL(contest: string): string {
 
 export default function JudgeInterface(props: {
   problemID: string;
-  problemData: ProblemData | null | undefined;
+  problemData: ProblemData;
   statusData: StatusData | null;
   setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
   handleRunCode: () => void;
@@ -92,7 +92,6 @@ export default function JudgeInterface(props: {
     setTimeout(checkStatus, 1000);
   };
 
-  // console.log('SAMPLES ' + problemData?.samples);
   return (
     <div className="relative h-full flex flex-col">
       <div className="flex-1 overflow-y-auto">
@@ -102,7 +101,7 @@ export default function JudgeInterface(props: {
             {/* Note: You will not be able to submit to a problem in an active contest. */}
             {/* ^ is this necessary? */}
           </p>
-          {problemData && problemData.parsed ? (
+          {problemData ? (
             <>
               <p className="text-gray-100 font-bold text-lg">
                 <a
@@ -111,37 +110,33 @@ export default function JudgeInterface(props: {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {problemData?.source}
+                  {problemData.source}
                 </a>
               </p>
               <p className="text-gray-100 font-bold text-lg">
                 <a
-                  href={`http://www.usaco.org/index.php?page=viewproblem2&cpid=${problemID}`}
+                  href={problemData.url}
                   className="text-indigo-300"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {problemData?.title}
+                  {problemData.title}
                 </a>
               </p>
               <p className="text-gray-100 text-sm mb-4">
-                <span className="font-bold">I/O:</span> {problemData?.input}/
-                {problemData?.output}
+                <span className="font-bold">I/O:</span> {problemData.input}/
+                {problemData.output}
               </p>
-              {/* <p className="text-gray-100 text-sm">
-                <span className="font-bold">INPUT:</span> {problemData?.input}
-              </p>
-              <p className="text-gray-100 text-sm">
-                <span className="font-bold">OUTPUT:</span> {problemData?.output}
-              </p> */}
-              <button
-                type="button"
-                className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
-                onClick={handleRunCode}
-              >
-                <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                <span className="text-center flex-1">Run Samples</span>
-              </button>
+              {problemData.samples.length > 0 && (
+                <button
+                  type="button"
+                  className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
+                  onClick={handleRunCode}
+                >
+                  <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                  <span className="text-center flex-1">Run Samples</span>
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -170,6 +165,7 @@ export default function JudgeInterface(props: {
       </div>
       <SubmitButton
         isLoading={(statusData?.statusCode ?? 0) <= -8}
+        isDisabled={!problemData.submittable}
         onClick={() => handleSubmit()}
       />
     </div>
