@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { usacoProblemIDfromURL } from '../components/JudgeInterface/JudgeInterface';
-import { fetchProblemData } from '../components/Workspace/Workspace';
+import { ProblemData } from '../components/Workspace/Workspace';
 
 export interface CreateUSACOProps extends RouteComponentProps {
   usacoId?: string;
@@ -13,29 +13,31 @@ import { useAtom } from 'jotai';
 
 import { fileIdAtom } from '../atoms/firebaseAtoms';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { judgePrefix } from '../components/JudgeInterface/JudgeInterface';
 
 export default function CreateUSACO(props: CreateUSACOProps): JSX.Element {
   const setFileId = useUpdateAtom(fileIdAtom);
   const [firebaseUser] = useAtom(firebaseUserAtom);
+
+  const [json, setJson] = useState<null | Record<string, ProblemData>>(null);
+  useEffect(() => {
+    async function load() {
+      const response = await fetch(`${judgePrefix}/problems`);
+      const json = await response.json();
+      setJson(json);
+    }
+    load();
+  }, []);
+
   const checkProps = async () => {
-    console.log('CHECK PROPS');
-    console.log(setFileId === null);
-    console.log(firebaseUser === null);
+    if (json === null) return;
     if (setFileId === null || !firebaseUser) {
-      console.log('RETURNING');
       return;
     }
-    console.log('CONTINUING');
     const usacoId = props.usacoId ?? '';
-    const problemID = usacoProblemIDfromURL(usacoId);
-    if (problemID === null) {
+    const problemId = usacoProblemIDfromURL(usacoId);
+    if (problemId === null || !(problemId in json)) {
       alert('Could not identify problem ID.');
-      navigate('/', { replace: true });
-      return;
-    }
-    const data = await fetchProblemData(problemID);
-    if (data === null) {
-      alert('Problem ID does not exist.');
       navigate('/', { replace: true });
       return;
     }
@@ -44,37 +46,32 @@ export default function CreateUSACO(props: CreateUSACOProps): JSX.Element {
       .ref('users')
       .child(firebaseUser.uid)
       .child('id-to-url')
-      .child(problemID);
+      .child(problemId);
     const snapshot = await idToUrlRef.get();
     let newId = null;
-    let isNewFile = false;
     if (snapshot.exists()) {
-      console.log('EXISTS');
+      // console.log('USACO FILE EXISTS');
       newId = snapshot.val();
+      navigate('/' + newId + window.location.search, {
+        replace: true,
+      });
     } else {
-      console.log('NO EXISTS');
-      isNewFile = true;
+      // console.log('CREATING USACO FILE');
       const fileRef = firebase.database().ref().push();
       newId = fileRef.key!.slice(1);
       await idToUrlRef.set(newId);
       await fileRef.child('settings').update({
         judgeUrl: usacoId,
+        workspaceName: json[problemId].source + ': ' + json[problemId].title,
       });
-      if (data?.title) {
-        await fileRef.child('settings').update({
-          workspaceName: data.title,
-        });
-      }
+      setFileId({
+        newId,
+        isNewFile: true,
+      });
     }
-    console.log('PROGRESSING');
-
-    setFileId({
-      newId,
-      isNewFile,
-    });
   };
   useEffect(() => {
     checkProps();
-  }, [setFileId, firebaseUser]);
+  }, [setFileId, firebaseUser, json]);
   return <></>;
 }
