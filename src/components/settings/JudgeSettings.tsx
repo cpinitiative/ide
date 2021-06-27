@@ -76,7 +76,7 @@ export default function JudgeSettings({
           </div>
           <p className="mt-2 text-sm text-gray-500">
             This will allow you to submit to USACO servers directly from the
-            IDE. Make sure to use File I/O as necessary.
+            IDE.
           </p>
         </div>
       </div>

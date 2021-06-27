@@ -126,6 +126,9 @@ export default function JudgeInterface(props: {
               <p className="text-gray-100 text-sm mb-4">
                 <span className="font-bold">I/O:</span> {problemData.input}/
                 {problemData.output}
+                {problemData.input.includes('.in') && (
+                  <> (&quot;Run Samples&quot; still runs on stdin/stdout)</>
+                )}
               </p>
               {problemData.samples.length > 0 && (
                 <button
