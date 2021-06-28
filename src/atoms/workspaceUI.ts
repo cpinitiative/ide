@@ -42,6 +42,7 @@ export const inputTabIndexAtom = atom(get => {
 
 // https://github.com/pmndrs/jotai#derived-async-atoms-
 // https://docs.pmnd.rs/jotai/basics/async#suspense
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const allProblemDataAtom = atom(async get => {
   const response = await fetch(`${judgePrefix}/problems`);
   const json: Record<string, ProblemData> = await response.json();

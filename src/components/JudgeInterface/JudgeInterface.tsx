@@ -6,8 +6,11 @@ import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayIcon } from '@heroicons/react/solid';
 
-// export const judgePrefix = 'http://localhost:5000';
-export const judgePrefix = 'https://judge.usaco.guide';
+// oops actually change this sometime?
+const local = false;
+export const judgePrefix = local
+  ? 'http://localhost:5000'
+  : 'https://judge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
