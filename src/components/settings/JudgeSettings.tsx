@@ -21,7 +21,6 @@ export default function JudgeSettings({
   let problemId = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
   if (problemId !== null && !(problemId in allProblemData)) problemId = null;
   return (
-    // <Suspense fallback="Loading...">
     <div>
       <div className="space-y-6">
         <div>
@@ -73,6 +72,5 @@ export default function JudgeSettings({
         </div>
       </div>
     </div>
-    // </Suspense>
   );
 }
