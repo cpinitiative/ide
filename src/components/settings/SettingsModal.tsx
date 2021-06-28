@@ -11,6 +11,7 @@ import { XIcon } from '@heroicons/react/outline';
 import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
+import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
   EditorMode,
@@ -28,7 +29,6 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
-import { fetchProblemData } from '../Workspace/Workspace';
 import SignInSettings from './SignInSettings';
 import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 
@@ -81,6 +81,7 @@ export const SettingsModal = ({
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
   const editorModeAtom = useAtom(editorModeAtomWithPersistence);
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
+  const [allProblemData] = useAtom(allProblemDataAtom);
 
   useEffect(() => {
     if (isOpen) {
@@ -109,13 +110,8 @@ export const SettingsModal = ({
     if ((workspaceSettings.judgeUrl ?? '').length > 0) {
       // parse judge Url
       const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
-      if (problemID === null) {
+      if (problemID === null || !(problemID in allProblemData)) {
         alert('Could not identify problem ID. Fix before saving.');
-        return;
-      }
-      const data = await fetchProblemData(problemID);
-      if (data === null) {
-        alert('Problem ID does not exist. Fix before saving.');
         return;
       }
     }

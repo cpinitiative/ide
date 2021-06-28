@@ -20,6 +20,7 @@ import {
   inputTabAtom,
   problemDataAtom,
   inputTabIndexAtom,
+  allProblemDataAtom,
 } from '../../atoms/workspaceUI';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
@@ -30,10 +31,7 @@ import { Output } from '../Output';
 import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
-import {
-  judgePrefix,
-  usacoProblemIDfromURL,
-} from '../JudgeInterface/JudgeInterface';
+import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 import Samples, { Sample } from '../JudgeInterface/Samples';
 import { JudgeSuccessResult } from '../../types/judge';
 
@@ -72,13 +70,13 @@ export interface StatusData {
   output?: string;
 }
 
-export async function fetchProblemData(
-  problemID: string
-): Promise<ProblemData | null> {
-  const response = await fetch(`${judgePrefix}/problem/${problemID}`);
-  if (response.status !== 200) return null;
-  return await response.json();
-}
+// export async function fetchProblemData(
+//   problemID: string
+// ): Promise<ProblemData | null> {
+//   const response = await fetch(`${judgePrefix}/problem/${problemID}`);
+//   if (response.status !== 200) return null;
+//   return await response.json();
+// }
 
 export default function Workspace({
   handleRunCode,
@@ -129,19 +127,11 @@ export default function Workspace({
 
   const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
+  const [allProblemData] = useAtom(allProblemDataAtom);
 
-  const [json, setJson] = useState<null | Record<string, ProblemData>>(null);
-  useEffect(() => {
-    async function load() {
-      const response = await fetch(`${judgePrefix}/problems`);
-      const json = await response.json();
-      setJson(json);
-    }
-    load();
-  }, []);
   useEffect(() => {
     const updateProblemData = async (url: string | undefined) => {
-      if (!json) return;
+      if (!allProblemData) return;
       const newProblemID = usacoProblemIDfromURL(url);
       if (newProblemID === problemID) return;
       setProblemID(newProblemID);
@@ -149,7 +139,7 @@ export default function Workspace({
       const newJudgeResults = judgeResults;
       while (newJudgeResults.length > 1) newJudgeResults.pop();
       if (newProblemID) {
-        const newProblemData = json[newProblemID];
+        const newProblemData = allProblemData[newProblemID];
         const samples = newProblemData.samples;
         setProblemData(newProblemData);
         setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
@@ -161,7 +151,7 @@ export default function Workspace({
     };
     updateProblemData(settings.judgeUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.judgeUrl, json]);
+  }, [settings.judgeUrl]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
 

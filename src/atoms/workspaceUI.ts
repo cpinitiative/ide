@@ -2,6 +2,8 @@ import { atom } from 'jotai';
 import { JudgeSuccessResult } from '../types/judge';
 import { ProblemData } from '../components/Workspace/Workspace';
 
+import { judgePrefix } from '../components/JudgeInterface/JudgeInterface';
+
 export const mobileActiveTabAtom = atom<'code' | 'io' | 'users'>('code');
 export const showSidebarAtom = atom<boolean>(false);
 export const judgeResultsAtom = atom<(JudgeSuccessResult | null)[]>([]);
@@ -36,4 +38,12 @@ export const inputTabIndexAtom = atom(get => {
   let res = 0;
   while (res < tabsList.length && tabsList[res].value !== inputTab) ++res;
   return res;
+});
+
+// https://github.com/pmndrs/jotai#derived-async-atoms-
+// https://docs.pmnd.rs/jotai/basics/async#suspense
+export const allProblemDataAtom = atom(async get => {
+  const response = await fetch(`${judgePrefix}/problems`);
+  const json: Record<string, ProblemData> = await response.json();
+  return json;
 });

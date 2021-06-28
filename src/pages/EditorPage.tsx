@@ -5,7 +5,7 @@ loader.config({
   },
 });
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
@@ -359,46 +359,49 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
 
+  // https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
   return (
-    <div className="h-full">
-      <div className="h-full flex flex-col">
-        <div className="flex-shrink-0 bg-[#1E1E1E]">
-          <NavBar
-            fileMenu={
-              <FileMenu
-                onDownloadFile={handleDownloadFile}
-                onInsertFileTemplate={handleInsertFileTemplate}
-                onOpenSettings={() => setIsSettingsModalOpen(true)}
-                forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
-              />
-            }
-            runButton={
-              <RunButton
-                onClick={handleRunCode}
-                showLoading={isRunning || loading}
-              />
-            }
-            showViewOnly={!loading && readOnly}
-            isSidebarOpen={showSidebar}
-            onToggleSidebar={handleToggleSidebar}
-            showSidebarButton={isDesktop}
-          />
+    <Suspense fallback="Loading...">
+      <div className="h-full">
+        <div className="h-full flex flex-col">
+          <div className="flex-shrink-0 bg-[#1E1E1E]">
+            <NavBar
+              fileMenu={
+                <FileMenu
+                  onDownloadFile={handleDownloadFile}
+                  onInsertFileTemplate={handleInsertFileTemplate}
+                  onOpenSettings={() => setIsSettingsModalOpen(true)}
+                  forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
+                />
+              }
+              runButton={
+                <RunButton
+                  onClick={handleRunCode}
+                  showLoading={isRunning || loading}
+                />
+              }
+              showViewOnly={!loading && readOnly}
+              isSidebarOpen={showSidebar}
+              onToggleSidebar={handleToggleSidebar}
+              showSidebarButton={isDesktop}
+            />
+          </div>
+          <div className="flex-1 min-h-0">
+            <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
+          </div>
+          {!isDesktop && (
+            <MobileBottomNav
+              activeTab={mobileActiveTab}
+              onActiveTabChange={setMobileActiveTab}
+            />
+          )}
         </div>
-        <div className="flex-1 min-h-0">
-          <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
-        </div>
-        {!isDesktop && (
-          <MobileBottomNav
-            activeTab={mobileActiveTab}
-            onActiveTabChange={setMobileActiveTab}
-          />
-        )}
-      </div>
 
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
-    </div>
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+        />
+      </div>
+    </Suspense>
   );
 }

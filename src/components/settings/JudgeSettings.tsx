@@ -1,11 +1,10 @@
 // import { useAtom } from 'jotai';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 import { WorkspaceSettings } from '../SettingsContext';
-import { ProblemData } from '../Workspace/Workspace';
-// import { allProblemDataAtom } from '../../atoms/workspaceUI';
 
-import { judgePrefix } from '../JudgeInterface/JudgeInterface';
+import { allProblemDataAtom } from '../../atoms/workspaceUI';
+import { useAtom } from 'jotai';
 
 export default function JudgeSettings({
   workspaceSettings,
@@ -18,17 +17,9 @@ export default function JudgeSettings({
 }): JSX.Element {
   const canChange =
     userPermission === 'READ_WRITE' || userPermission === 'OWNER';
-  const [json, setJson] = useState<null | Record<string, ProblemData>>(null);
-  useEffect(() => {
-    async function load() {
-      const response = await fetch(`${judgePrefix}/problems`);
-      const json = await response.json();
-      setJson(json);
-    }
-    load();
-  }, []);
+  const [allProblemData] = useAtom(allProblemDataAtom);
   let problemId = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
-  if (problemId !== null && json && !(problemId in json)) problemId = null;
+  if (problemId !== null && !(problemId in allProblemData)) problemId = null;
   return (
     // <Suspense fallback="Loading...">
     <div>
@@ -69,8 +60,9 @@ export default function JudgeSettings({
                 </p>
               ) : (
                 <p className="mt-2 text-xs text-green-500">
-                  {json &&
-                    json[problemId].source + ': ' + json[problemId].title}
+                  {allProblemData[problemId].source +
+                    ': ' +
+                    allProblemData[problemId].title}
                 </p>
               ))}
           </div>
