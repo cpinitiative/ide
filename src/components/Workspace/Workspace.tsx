@@ -139,28 +139,28 @@ export default function Workspace({
     }
     load();
   }, []);
-  const updateProblemData = async (url: string | undefined) => {
-    if (!json) return;
-    const newProblemID = usacoProblemIDfromURL(url);
-    if (newProblemID === problemID) return;
-    setProblemID(newProblemID);
-    setStatusData(null);
-    const newJudgeResults = judgeResults;
-    while (newJudgeResults.length > 1) newJudgeResults.pop();
-    if (newProblemID) {
-      const newProblemData = json[newProblemID];
-      // await fetchProblemData(newProblemID);
-      const samples = newProblemData.samples;
-      setProblemData(newProblemData);
-      setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
-      setInputTab('judge');
-    } else {
-      setProblemData(undefined);
-      setJudgeResults(newJudgeResults);
-    }
-  };
   useEffect(() => {
+    const updateProblemData = async (url: string | undefined) => {
+      if (!json) return;
+      const newProblemID = usacoProblemIDfromURL(url);
+      if (newProblemID === problemID) return;
+      setProblemID(newProblemID);
+      setStatusData(null);
+      const newJudgeResults = judgeResults;
+      while (newJudgeResults.length > 1) newJudgeResults.pop();
+      if (newProblemID) {
+        const newProblemData = json[newProblemID];
+        const samples = newProblemData.samples;
+        setProblemData(newProblemData);
+        setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
+        setInputTab('judge');
+      } else {
+        setProblemData(undefined);
+        setJudgeResults(newJudgeResults);
+      }
+    };
     updateProblemData(settings.judgeUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.judgeUrl, json]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
