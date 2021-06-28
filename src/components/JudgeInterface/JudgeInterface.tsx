@@ -6,11 +6,11 @@ import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayIcon } from '@heroicons/react/solid';
 
-// oops actually change this sometime?
-const local = false;
-export const judgePrefix = local
-  ? 'http://localhost:5000'
-  : 'https://judge.usaco.guide';
+// https://vitejs.dev/guide/env-and-mode.html#env-variables
+export const judgePrefix =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:5000'
+    : 'https://judge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));

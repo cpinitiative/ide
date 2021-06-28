@@ -5,6 +5,7 @@ import { WorkspaceSettings } from '../SettingsContext';
 
 import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { useAtom } from 'jotai';
+import ProblemSearchInterface from './ProblemSearchInterface';
 
 export default function JudgeSettings({
   workspaceSettings,
@@ -28,12 +29,36 @@ export default function JudgeSettings({
             htmlFor={`judgeurl`}
             className="block font-medium text-gray-700"
           >
-            USACO Problem ID
+            USACO Problem Selection
           </label>
-          <p className="mt-2 text-sm text-gray-500">
-            Paste the problem ID or the entire URL.
-          </p>
-          <div className="mt-1">
+          {problemId && problemId.length > 0 ? (
+            <p className="text-sm text-gray-500 mt-1 mb-2">
+              Currently Selected:{' '}
+              <span className="text-green-500">
+                {allProblemData[problemId].source +
+                  ': ' +
+                  allProblemData[problemId].title +
+                  ' ' +
+                  '(' +
+                  problemId +
+                  ')'}
+              </span>
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 mt-1 mb-2">
+              Paste the problem URL or search for it.
+            </p>
+          )}
+          <ProblemSearchInterface
+            onSelect={hit => {
+              // console.log('SELECTED ' + hit.id);
+              onWorkspaceSettingsChange({
+                judgeUrl: String(hit.id),
+              });
+            }}
+            canChange={canChange}
+          />
+          {/* <div className="mt-1">
             <input
               type="text"
               name={`judgeurl`}
@@ -64,7 +89,7 @@ export default function JudgeSettings({
                     allProblemData[problemId].title}
                 </p>
               ))}
-          </div>
+          </div> */}
           <p className="mt-2 text-sm text-gray-500">
             This will allow you to submit to USACO servers directly from the
             IDE.
