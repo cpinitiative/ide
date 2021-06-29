@@ -11,6 +11,7 @@ import {
   authenticatedFirebaseRefAtom,
   setFirebaseErrorAtom,
 } from '../atoms/firebaseAtoms';
+import { ProblemData } from './Workspace/Workspace';
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES: { label: string; value: Language }[] = [
@@ -41,7 +42,7 @@ export interface WorkspaceSettings {
   defaultPermission: string;
   workspaceName?: string;
   creationTime?: string;
-  judgeUrl?: string;
+  problem?: ProblemData;
 }
 
 type SettingsContextType = {

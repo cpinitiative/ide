@@ -5,7 +5,7 @@ loader.config({
   },
 });
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
@@ -43,7 +43,7 @@ import {
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
-  problemDataAtom,
+  problemAtom,
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
@@ -76,7 +76,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
-  const problemData = useAtomValue(problemDataAtom);
+  const problem = useAtomValue(problemAtom);
 
   useEffect(() => {
     const queryId: string | null = props.fileId ?? null;
@@ -161,7 +161,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     } else if (inputTab === 'judge') {
       runAllSamples();
     } else {
-      const samples = problemData?.samples;
+      const samples = problem?.samples;
       if (samples) {
         const index = getSampleIndex(inputTab);
         const sample = samples[index - 1];
@@ -210,11 +210,11 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   };
 
   const runAllSamples = async () => {
-    const samples = problemData?.samples;
-    if (!mainMonacoEditor || !inputEditor || !samples) {
+    if (!problem || !mainMonacoEditor || !inputEditor) {
       // editor is still loading
       return;
     }
+    const samples = problem.samples;
 
     setIsRunning(true);
     setResultAt(1, null);
@@ -361,47 +361,45 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
 
   // https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
   return (
-    <Suspense fallback="Loading...">
-      <div className="h-full">
-        <div className="h-full flex flex-col">
-          <div className="flex-shrink-0 bg-[#1E1E1E]">
-            <NavBar
-              fileMenu={
-                <FileMenu
-                  onDownloadFile={handleDownloadFile}
-                  onInsertFileTemplate={handleInsertFileTemplate}
-                  onOpenSettings={() => setIsSettingsModalOpen(true)}
-                  forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
-                />
-              }
-              runButton={
-                <RunButton
-                  onClick={handleRunCode}
-                  showLoading={isRunning || loading}
-                />
-              }
-              showViewOnly={!loading && readOnly}
-              isSidebarOpen={showSidebar}
-              onToggleSidebar={handleToggleSidebar}
-              showSidebarButton={isDesktop}
-            />
-          </div>
-          <div className="flex-1 min-h-0">
-            <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
-          </div>
-          {!isDesktop && (
-            <MobileBottomNav
-              activeTab={mobileActiveTab}
-              onActiveTabChange={setMobileActiveTab}
-            />
-          )}
+    <div className="h-full">
+      <div className="h-full flex flex-col">
+        <div className="flex-shrink-0 bg-[#1E1E1E]">
+          <NavBar
+            fileMenu={
+              <FileMenu
+                onDownloadFile={handleDownloadFile}
+                onInsertFileTemplate={handleInsertFileTemplate}
+                onOpenSettings={() => setIsSettingsModalOpen(true)}
+                forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
+              />
+            }
+            runButton={
+              <RunButton
+                onClick={handleRunCode}
+                showLoading={isRunning || loading}
+              />
+            }
+            showViewOnly={!loading && readOnly}
+            isSidebarOpen={showSidebar}
+            onToggleSidebar={handleToggleSidebar}
+            showSidebarButton={isDesktop}
+          />
         </div>
-
-        <SettingsModal
-          isOpen={isSettingsModalOpen}
-          onClose={() => setIsSettingsModalOpen(false)}
-        />
+        <div className="flex-1 min-h-0">
+          <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
+        </div>
+        {!isDesktop && (
+          <MobileBottomNav
+            activeTab={mobileActiveTab}
+            onActiveTabChange={setMobileActiveTab}
+          />
+        )}
       </div>
-    </Suspense>
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
+    </div>
   );
 }

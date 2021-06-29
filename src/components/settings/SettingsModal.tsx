@@ -11,7 +11,7 @@ import { XIcon } from '@heroicons/react/outline';
 import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
-import { allProblemDataAtom } from '../../atoms/workspaceUI';
+// import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
   EditorMode,
@@ -27,7 +27,6 @@ import {
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
-import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
 import SignInSettings from './SignInSettings';
 import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
@@ -81,7 +80,6 @@ export const SettingsModal = ({
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
   const editorModeAtom = useAtom(editorModeAtomWithPersistence);
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
-  const [allProblemData] = useAtom(allProblemDataAtom);
 
   useEffect(() => {
     if (isOpen) {
@@ -107,14 +105,6 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
-    if ((workspaceSettings.judgeUrl ?? '').length > 0) {
-      // parse judge Url
-      const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
-      if (problemID === null || !(problemID in allProblemData)) {
-        alert('Could not identify problem ID. Fix before saving.');
-        return;
-      }
-    }
     let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
     {
       // update has no effect if you try to overwrite creation time
@@ -266,7 +256,7 @@ export const SettingsModal = ({
                       className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       onClick={() => {
                         onChange({
-                          judgeUrl: '',
+                          problem: undefined,
                         });
                       }}
                     >

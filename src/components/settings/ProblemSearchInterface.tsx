@@ -1,4 +1,4 @@
-import { SearchIcon } from '@heroicons/react/solid';
+// import { SearchIcon } from '@heroicons/react/solid';
 import React from 'react';
 import {
   connectAutoComplete,
@@ -21,14 +21,20 @@ const FileSearch = ({
   refine,
   onSelect,
   canChange,
+}: {
+  hits: any[];
+  currentRefinement: string;
+  refine: (arg: string) => void;
+  onSelect: (arg: any) => void;
+  canChange: boolean;
 }) => {
   return (
     <div>
       <div className="flex items-center relative">
         <input
           type="search"
-          name={`judgeurl`}
-          id={`judgeurl`}
+          name={`problem-select`}
+          id={`problem-select`}
           className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm placeholder-gray-400"
           value={currentRefinement}
           placeholder={
@@ -55,31 +61,29 @@ const FileSearch = ({
       </div>
       {currentRefinement !== '' && (
         <div>
-          <p>
-            <div className="text-sm max-h-[20rem] overflow-y-auto border-t divide-y divide-gray-200 border-gray-200 dark:divide-gray-700 dark:border-gray-700">
-              {hits.map(hit => (
-                <button
-                  className="block hover:bg-blue-100 dark:hover:bg-gray-700 py-3 px-5 transition focus:outline-none w-full text-left"
-                  key={hit.id}
-                  onClick={() => {
-                    refine('');
-                    onSelect(hit);
-                  }}
-                >
-                  <h3 className="text-gray-600 dark:text-gray-200 font-medium">
-                    <Highlight hit={hit} attribute="title" /> (
-                    <Highlight hit={hit} attribute="id" />)
-                  </h3>
-                  <p className="text-gray-700 dark:text-gray-400 text-sm">
-                    <Highlight hit={hit} attribute="source" />
-                  </p>
-                </button>
-              ))}
-            </div>
-            <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700">
-              <PoweredBy theme="dark" />
-            </div>
-          </p>
+          <div className="text-sm max-h-[20rem] overflow-y-auto border-t divide-y divide-gray-200 border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+            {hits.map(hit => (
+              <button
+                className="block hover:bg-blue-100 dark:hover:bg-gray-700 py-3 px-5 transition focus:outline-none w-full text-left"
+                key={hit.id}
+                onClick={() => {
+                  refine(''); // clear
+                  onSelect(hit);
+                }}
+              >
+                <h3 className="text-gray-600 dark:text-gray-200 font-medium">
+                  <Highlight hit={hit} attribute="title" /> (
+                  <Highlight hit={hit} attribute="id" />)
+                </h3>
+                <p className="text-gray-700 dark:text-gray-400 text-sm">
+                  <Highlight hit={hit} attribute="source" />
+                </p>
+              </button>
+            ))}
+          </div>
+          <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700">
+            <PoweredBy theme="dark" />
+          </div>
         </div>
       )}
     </div>
@@ -89,7 +93,7 @@ const FileSearch = ({
 const ConnectedSearch = connectAutoComplete(FileSearch);
 
 const ProblemSearchInterface: React.FC<{
-  onSelect: (file: any) => void;
+  onSelect: (hit: any) => void;
   canChange: boolean;
 }> = ({ onSelect, canChange }) => {
   return (

@@ -2,13 +2,13 @@ import { atom } from 'jotai';
 import { JudgeSuccessResult } from '../types/judge';
 import { ProblemData } from '../components/Workspace/Workspace';
 
-import { judgePrefix } from '../components/JudgeInterface/JudgeInterface';
+// import { judgePrefix } from '../components/JudgeInterface/JudgeInterface';
 
 export const mobileActiveTabAtom = atom<'code' | 'io' | 'users'>('code');
 export const showSidebarAtom = atom<boolean>(false);
 export const judgeResultsAtom = atom<(JudgeSuccessResult | null)[]>([]);
 export const inputTabAtom = atom<string>('input');
-export const problemDataAtom = atom<ProblemData | null | undefined>(undefined);
+export const problemAtom = atom<ProblemData | null | undefined>(undefined);
 export const tabsListAtom = atom(get => {
   const getSamplesList = (length: number) => {
     const res = [];
@@ -21,15 +21,11 @@ export const tabsListAtom = atom(get => {
     }
     return res;
   };
-  const problemData = get(problemDataAtom);
+  const problem = get(problemAtom);
   return [
     { label: 'Input', value: 'input' },
-    ...(problemData !== undefined
-      ? [{ label: 'USACO Judge', value: 'judge' }]
-      : []),
-    ...(problemData?.samples
-      ? getSamplesList(problemData?.samples.length)
-      : []),
+    ...(problem ? [{ label: 'USACO Judge', value: 'judge' }] : []),
+    ...(problem ? getSamplesList(problem.samples.length) : []),
   ];
 });
 export const inputTabIndexAtom = atom(get => {
@@ -40,11 +36,11 @@ export const inputTabIndexAtom = atom(get => {
   return res;
 });
 
-// https://github.com/pmndrs/jotai#derived-async-atoms-
-// https://docs.pmnd.rs/jotai/basics/async#suspense
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const allProblemDataAtom = atom(async get => {
-  const response = await fetch(`${judgePrefix}/problems`);
-  const json: Record<string, ProblemData> = await response.json();
-  return json;
-});
+// // https://github.com/pmndrs/jotai#derived-async-atoms-
+// // https://docs.pmnd.rs/jotai/basics/async#suspense
+// // eslint-disable-next-line @typescript-eslint/no-unused-vars
+// export const allProblemDataAtom = atom(async get => {
+//   const response = await fetch(`${judgePrefix}/problems`);
+//   const json: Record<string, ProblemData> = await response.json();
+//   return json;
+// });

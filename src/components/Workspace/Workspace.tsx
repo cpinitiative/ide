@@ -11,16 +11,14 @@ import {
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
   actualUserPermissionAtom,
-  // loadingAtom,
 } from '../../atoms/workspace';
 import {
   judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
-  problemDataAtom,
+  problemAtom,
   inputTabIndexAtom,
-  allProblemDataAtom,
 } from '../../atoms/workspaceUI';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
@@ -31,7 +29,6 @@ import { Output } from '../Output';
 import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
-import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 import Samples, { Sample } from '../JudgeInterface/Samples';
 import { JudgeSuccessResult } from '../../types/judge';
 
@@ -45,6 +42,7 @@ function resizeResults(
 }
 
 export type ProblemData = {
+  id: number;
   submittable: boolean;
   url: string;
   source: string;
@@ -93,7 +91,7 @@ export default function Workspace({
   const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
-  const [problemData, setProblemData] = useAtom(problemDataAtom);
+  const [problem, setProblem] = useAtom(problemAtom);
 
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
@@ -125,33 +123,25 @@ export default function Workspace({
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
-  const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
-  const [allProblemData] = useAtom(allProblemDataAtom);
 
   useEffect(() => {
-    const updateProblemData = async (url: string | undefined) => {
-      if (!allProblemData) return;
-      const newProblemID = usacoProblemIDfromURL(url);
-      if (newProblemID === problemID) return;
-      setProblemID(newProblemID);
+    const updateProblemData = async (newProblem?: ProblemData) => {
       setStatusData(null);
       const newJudgeResults = judgeResults;
       while (newJudgeResults.length > 1) newJudgeResults.pop();
-      if (newProblemID) {
-        const newProblemData = allProblemData[newProblemID];
-        const samples = newProblemData.samples;
-        setProblemData(newProblemData);
+      setProblem(newProblem);
+      if (newProblem) {
+        const samples = newProblem.samples;
         setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
         setInputTab('judge');
       } else {
-        setProblemData(undefined);
         setJudgeResults(newJudgeResults);
       }
     };
-    updateProblemData(settings.judgeUrl);
+    updateProblemData(settings.problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.judgeUrl]);
+  }, [settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
 
@@ -216,20 +206,19 @@ export default function Workspace({
                   firebaseRef={firebaseRefs.input}
                 />
               )}
-              {inputTab === 'judge' && problemID !== null && problemData && (
+              {inputTab === 'judge' && problem && (
                 <JudgeInterface
-                  problemID={problemID}
-                  problemData={problemData}
+                  problem={problem}
                   statusData={statusData}
                   setStatusData={setStatusData}
                   handleRunCode={handleRunCode}
                 />
               )}
-              {inputTab.startsWith('Sample') && problemData?.samples && (
+              {inputTab.startsWith('Sample') && problem && (
                 <div className="overflow-y-auto h-full">
                   <div className="p-4 pb-0">
                     <Samples
-                      samples={problemData?.samples}
+                      samples={problem.samples}
                       inputTab={inputTab}
                       handleRunCode={handleRunCode}
                     />
