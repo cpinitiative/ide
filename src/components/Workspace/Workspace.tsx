@@ -126,7 +126,7 @@ export default function Workspace({
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
   useEffect(() => {
-    const updateProblemData = async (newProblem?: ProblemData) => {
+    const updateProblemData = (newProblem?: ProblemData) => {
       setStatusData(null);
       const newJudgeResults = judgeResults;
       while (newJudgeResults.length > 1) newJudgeResults.pop();
