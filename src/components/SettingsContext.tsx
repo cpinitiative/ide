@@ -42,7 +42,7 @@ export interface WorkspaceSettings {
   defaultPermission: string;
   workspaceName?: string;
   creationTime?: string;
-  problem?: ProblemData;
+  problem?: ProblemData | null;
 }
 
 type SettingsContextType = {
@@ -79,6 +79,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
         setSettings({
           // set the title to nothing if the file doesn't have a title
           workspaceName: '',
+          problem: null,
           ...snap.val(),
         });
       };
