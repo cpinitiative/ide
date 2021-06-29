@@ -11,6 +11,7 @@ import {
   authenticatedFirebaseRefAtom,
   setFirebaseErrorAtom,
 } from '../atoms/firebaseAtoms';
+import { ProblemData } from './Workspace/Workspace';
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES: { label: string; value: Language }[] = [
@@ -41,7 +42,7 @@ export interface WorkspaceSettings {
   defaultPermission: string;
   workspaceName?: string;
   creationTime?: string;
-  judgeUrl?: string;
+  problem?: ProblemData | null;
 }
 
 type SettingsContextType = {
@@ -78,6 +79,13 @@ export const SettingsProvider: React.FC = ({ children }) => {
         setSettings({
           // set the title to nothing if the file doesn't have a title
           workspaceName: '',
+          problem: null, // don't persist problem and compiler options to new file
+          compilerOptions: {
+            cpp:
+              '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+            java: '',
+            py: '',
+          },
           ...snap.val(),
         });
       };

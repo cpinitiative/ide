@@ -11,6 +11,7 @@ import { XIcon } from '@heroicons/react/outline';
 import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
+// import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
   EditorMode,
@@ -26,9 +27,7 @@ import {
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
-import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 
-import { fetchProblemData } from '../Workspace/Workspace';
 import SignInSettings from './SignInSettings';
 import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 
@@ -106,19 +105,6 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
-    if ((workspaceSettings.judgeUrl ?? '').length > 0) {
-      // parse judge Url
-      const problemID = usacoProblemIDfromURL(workspaceSettings.judgeUrl);
-      if (problemID === null) {
-        alert('Could not identify problem ID. Fix before saving.');
-        return;
-      }
-      const data = await fetchProblemData(problemID);
-      if (data === null) {
-        alert('Problem ID does not exist. Fix before saving.');
-        return;
-      }
-    }
     let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
     {
       // update has no effect if you try to overwrite creation time
@@ -156,7 +142,7 @@ export const SettingsModal = ({
         static
         className="fixed z-10 inset-0 overflow-y-auto"
         open={isOpen}
-        onClose={() => onClose()}
+        onClose={() => closeWithoutSaving()}
       >
         <div className="flex items-end justify-center min-h-full pt-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -264,6 +250,19 @@ export const SettingsModal = ({
                   >
                     Save
                   </button>
+                  {tab == 'judge' && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      onClick={() => {
+                        onChange({
+                          problem: undefined,
+                        });
+                      }}
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
 
                 {tab === 'user' && (

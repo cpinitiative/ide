@@ -11,14 +11,13 @@ import {
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
   actualUserPermissionAtom,
-  // loadingAtom,
 } from '../../atoms/workspace';
 import {
   judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
-  problemDataAtom,
+  problemAtom,
   inputTabIndexAtom,
 } from '../../atoms/workspaceUI';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -30,10 +29,6 @@ import { Output } from '../Output';
 import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
-import {
-  judgePrefix,
-  usacoProblemIDfromURL,
-} from '../JudgeInterface/JudgeInterface';
 import Samples, { Sample } from '../JudgeInterface/Samples';
 import { JudgeSuccessResult } from '../../types/judge';
 
@@ -46,14 +41,16 @@ function resizeResults(
   return results;
 }
 
-export interface ProblemData {
-  parsed: boolean;
-  source?: string;
-  title?: string;
-  input?: string;
-  output?: string;
-  samples?: Sample[];
-}
+export type ProblemData = {
+  id: number;
+  submittable: boolean;
+  url: string;
+  source: string;
+  title: string;
+  input: string;
+  output: string;
+  samples: Sample[];
+};
 
 interface TestCase {
   title: string;
@@ -71,13 +68,13 @@ export interface StatusData {
   output?: string;
 }
 
-export async function fetchProblemData(
-  problemID: string
-): Promise<ProblemData | null> {
-  const response = await fetch(`${judgePrefix}/problem/${problemID}`);
-  if (response.status !== 200) return null;
-  return await response.json();
-}
+// export async function fetchProblemData(
+//   problemID: string
+// ): Promise<ProblemData | null> {
+//   const response = await fetch(`${judgePrefix}/problem/${problemID}`);
+//   if (response.status !== 200) return null;
+//   return await response.json();
+// }
 
 export default function Workspace({
   handleRunCode,
@@ -94,7 +91,7 @@ export default function Workspace({
   const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
-  const [problemData, setProblemData] = useAtom(problemDataAtom);
+  const [problem, setProblem] = useAtom(problemAtom);
 
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
@@ -126,33 +123,25 @@ export default function Workspace({
     }
   }, [isDesktop, mobileActiveTab, layoutEditors]);
 
-  const [problemID, setProblemID] = useState<string | null>(null);
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
-  const updateProblemData = async (url: string | undefined) => {
-    const newProblemID = usacoProblemIDfromURL(url);
-    if (newProblemID === problemID) return;
-    setProblemID(newProblemID);
-    setStatusData(null);
-    const newJudgeResults = judgeResults;
-    while (newJudgeResults.length > 1) newJudgeResults.pop();
-
-    if (newProblemID) {
-      const newProblemData = await fetchProblemData(newProblemID);
-      const samples = newProblemData?.samples;
-      setProblemData(newProblemData);
-      setJudgeResults(
-        resizeResults(newJudgeResults, 2 + (samples?.length ?? 0))
-      );
-      setInputTab('judge');
-    } else {
-      setProblemData(undefined);
-      setJudgeResults(newJudgeResults);
-    }
-  };
   useEffect(() => {
-    updateProblemData(settings.judgeUrl);
-  }, [settings.judgeUrl]);
+    const updateProblemData = (newProblem?: ProblemData | null) => {
+      setStatusData(null);
+      const newJudgeResults = judgeResults;
+      while (newJudgeResults.length > 1) newJudgeResults.pop();
+      setProblem(newProblem);
+      if (newProblem) {
+        const samples = newProblem.samples;
+        setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
+        setInputTab('judge');
+      } else {
+        setJudgeResults(newJudgeResults);
+      }
+    };
+    updateProblemData(settings.problem);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
 
@@ -217,20 +206,19 @@ export default function Workspace({
                   firebaseRef={firebaseRefs.input}
                 />
               )}
-              {inputTab === 'judge' && problemID !== null && (
+              {inputTab === 'judge' && problem && (
                 <JudgeInterface
-                  problemID={problemID}
-                  problemData={problemData}
+                  problem={problem}
                   statusData={statusData}
                   setStatusData={setStatusData}
                   handleRunCode={handleRunCode}
                 />
               )}
-              {inputTab.startsWith('Sample') && problemData?.samples && (
+              {inputTab.startsWith('Sample') && problem && (
                 <div className="overflow-y-auto h-full">
                   <div className="p-4 pb-0">
                     <Samples
-                      samples={problemData?.samples}
+                      samples={problem.samples}
                       inputTab={inputTab}
                       handleRunCode={handleRunCode}
                     />

@@ -43,7 +43,7 @@ import {
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
-  problemDataAtom,
+  problemAtom,
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
@@ -76,7 +76,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
-  const problemData = useAtomValue(problemDataAtom);
+  const problem = useAtomValue(problemAtom);
 
   useEffect(() => {
     const queryId: string | null = props.fileId ?? null;
@@ -161,7 +161,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     } else if (inputTab === 'judge') {
       runAllSamples();
     } else {
-      const samples = problemData?.samples;
+      const samples = problem?.samples;
       if (samples) {
         const index = getSampleIndex(inputTab);
         const sample = samples[index - 1];
@@ -210,11 +210,11 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   };
 
   const runAllSamples = async () => {
-    const samples = problemData?.samples;
-    if (!mainMonacoEditor || !inputEditor || !samples) {
+    if (!problem || !mainMonacoEditor || !inputEditor) {
       // editor is still loading
       return;
     }
+    const samples = problem.samples;
 
     setIsRunning(true);
     setResultAt(1, null);
@@ -359,6 +359,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
 
+  // https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
   return (
     <div className="h-full">
       <div className="h-full flex flex-col">
