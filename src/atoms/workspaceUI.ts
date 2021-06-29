@@ -2,8 +2,6 @@ import { atom } from 'jotai';
 import { JudgeSuccessResult } from '../types/judge';
 import { ProblemData } from '../components/Workspace/Workspace';
 
-// import { judgePrefix } from '../components/JudgeInterface/JudgeInterface';
-
 export const mobileActiveTabAtom = atom<'code' | 'io' | 'users'>('code');
 export const showSidebarAtom = atom<boolean>(false);
 export const judgeResultsAtom = atom<(JudgeSuccessResult | null)[]>([]);
