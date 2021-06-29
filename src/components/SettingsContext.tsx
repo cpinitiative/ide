@@ -79,7 +79,13 @@ export const SettingsProvider: React.FC = ({ children }) => {
         setSettings({
           // set the title to nothing if the file doesn't have a title
           workspaceName: '',
-          problem: null,
+          problem: null, // don't persist problem and compiler options to new file
+          compilerOptions: {
+            cpp:
+              '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+            java: '',
+            py: '',
+          },
           ...snap.val(),
         });
       };
