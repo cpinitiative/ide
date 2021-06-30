@@ -12,7 +12,7 @@ export default function App(): JSX.Element {
       <CopyFilePage path="/:fileId/copy" />
       <EditorPage path="/:fileId" />
       <DashboardPage path="/" />
-      <CreateUSACO path="/usaco/:usacoId" />
+      <CreateUSACO path="/usaco/:_usacoId" />
     </Router>
   );
 }
