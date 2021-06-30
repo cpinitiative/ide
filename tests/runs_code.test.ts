@@ -1,12 +1,12 @@
 /// <reference types="jest-playwright-preset" />
 /// <reference types="expect-playwright" />
 
-import { forEachLang, testRunCode } from './helpers';
+import { forEachLang, testRunCode, host } from './helpers';
 
 test('should run code', async () => {
-  await page.goto('http://localhost:5000/new');
+  await page.goto(`${host}/new`);
   await page.waitForSelector('button:has-text("Run Code")');
-  expect(page.url()).toMatch(/http:\/\/localhost:5000\/[A-z0-9_-]{19}/);
+  expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
   // let monaco load
   await page.waitForTimeout(500);
@@ -26,7 +26,7 @@ test('should sync code', async () => {
   const page1 = await context1.newPage();
   const page2 = await context2.newPage();
 
-  await page1.goto('http://localhost:5000/new');
+  await page1.goto(`${host}/new`);
   await page1.waitForSelector('button:has-text("Run Code")');
   await page2.goto(page1.url());
   await page2.waitForSelector('button:has-text("Run Code")');

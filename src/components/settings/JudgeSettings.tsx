@@ -1,6 +1,10 @@
+// import { useAtom } from 'jotai';
 import React from 'react';
-import { usacoProblemIDfromURL } from '../JudgeInterface/JudgeInterface';
 import { WorkspaceSettings } from '../SettingsContext';
+
+// import { allProblemDataAtom } from '../../atoms/workspaceUI';
+// import { useAtom } from 'jotai';
+import ProblemSearchInterface from './ProblemSearchInterface';
 
 export default function JudgeSettings({
   workspaceSettings,
@@ -13,48 +17,55 @@ export default function JudgeSettings({
 }): JSX.Element {
   const canChange =
     userPermission === 'READ_WRITE' || userPermission === 'OWNER';
+  const { problem } = workspaceSettings;
   return (
     <div>
       <div className="space-y-6">
         <div>
           <label
-            htmlFor={`judgeurl`}
+            htmlFor={`problem-select`}
             className="block font-medium text-gray-700"
           >
-            USACO Problem ID
+            USACO Problem Selection
           </label>
-          <p className="mt-2 text-sm text-gray-500">
-            Paste the problem ID or the entire URL.
-          </p>
-          <div className="mt-1">
-            <input
-              type="text"
-              name={`judgeurl`}
-              id={`judgeurl`}
-              className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm placeholder-gray-400"
-              value={workspaceSettings.judgeUrl ?? ''}
-              placeholder={
-                'e.g. 1140 or http://www.usaco.org/index.php?page=viewproblem2&cpid=1140'
-              }
-              onChange={e => {
-                if (canChange) {
-                  onWorkspaceSettingsChange({
-                    judgeUrl: e.target.value,
-                  });
-                }
-              }}
-              disabled={!canChange}
-            />
-            {(workspaceSettings.judgeUrl ?? '').length > 0 &&
-              usacoProblemIDfromURL(workspaceSettings.judgeUrl) === null && (
-                <p className="mt-2 text-xs text-red-500">
-                  Could not identify problem ID.
-                </p>
-              )}
-          </div>
+          {problem ? (
+            <p className="text-sm text-gray-500 mt-1 mb-2">
+              Currently Selected:{' '}
+              <span className="text-green-500">
+                {problem.source +
+                  ': ' +
+                  problem.title +
+                  ' ' +
+                  '(' +
+                  problem.id +
+                  ')'}
+              </span>
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 mt-1 mb-2">
+              Paste the problem URL or search for it.
+            </p>
+          )}
+          <ProblemSearchInterface
+            onSelect={hit => {
+              onWorkspaceSettingsChange({
+                problem: {
+                  id: hit.id,
+                  submittable: hit.submittable,
+                  url: hit.url,
+                  source: hit.source,
+                  title: hit.title,
+                  input: hit.input,
+                  output: hit.output,
+                  samples: hit.samples,
+                },
+              });
+            }}
+            canChange={canChange}
+          />
           <p className="mt-2 text-sm text-gray-500">
             This will allow you to submit to USACO servers directly from the
-            IDE. Make sure to use File I/O as necessary.
+            IDE.
           </p>
         </div>
       </div>

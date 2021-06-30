@@ -4,9 +4,11 @@ import LoadingIndicator from '../LoadingIndicator';
 
 export default function SubmitButton({
   isLoading,
+  isDisabled,
   onClick,
 }: {
   isLoading: boolean;
+  isDisabled: boolean;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
 }): JSX.Element {
   const loadingClasses =
@@ -17,9 +19,9 @@ export default function SubmitButton({
     <button
       className={classNames(
         'block w-full py-2 text-sm uppercase font-bold transition focus:outline-none',
-        isLoading ? loadingClasses : normalClasses
+        isLoading || isDisabled ? loadingClasses : normalClasses
       )}
-      disabled={isLoading}
+      disabled={isLoading || isDisabled}
       onClick={onClick}
     >
       {isLoading ? (
@@ -27,6 +29,8 @@ export default function SubmitButton({
           <LoadingIndicator className="h-5 w-5 p-0.5 mr-1.5" />
           <span>Loading...</span>
         </>
+      ) : isDisabled ? (
+        'Cannot Submit'
       ) : (
         'Submit'
       )}

@@ -1,5 +1,7 @@
 import { Page } from 'playwright';
 
+export const host = 'http://localhost:5000';
+
 export const testRunCode = async (page: Page): Promise<void> => {
   await page.click('button:has-text("Run Code")');
   expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
