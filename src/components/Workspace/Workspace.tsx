@@ -31,6 +31,7 @@ import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
 import { JudgeSuccessResult } from '../../types/judge';
+import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 
 function resizeResults(
   results: (JudgeSuccessResult | null)[],
@@ -68,13 +69,14 @@ export interface StatusData {
   output?: string;
 }
 
-// export async function fetchProblemData(
-//   problemID: string
-// ): Promise<ProblemData | null> {
-//   const response = await fetch(`${judgePrefix}/problem/${problemID}`);
-//   if (response.status !== 200) return null;
-//   return await response.json();
-// }
+export async function fetchProblemData(
+  problemID: string
+): Promise<ProblemData | null> {
+  const url = `${judgePrefix}/problem/${problemID}`;
+  const response = await fetch(url);
+  if (response.status !== 200) return null;
+  return await response.json();
+}
 
 export default function Workspace({
   handleRunCode,
