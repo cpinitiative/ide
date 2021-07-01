@@ -47,7 +47,7 @@ export default function CreateUSACO({
         .database()
         .ref('users')
         .child(firebaseUser.uid)
-        .child('id-to-url')
+        .child('usaco-id-to-url')
         .child(String(problem.id));
       const snapshot = await idToUrlRef.get();
       let newId = null;
