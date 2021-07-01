@@ -32,10 +32,12 @@ export default function DashboardPage(
         } else {
           const yourFiles: File[] = [];
           snap.forEach(child => {
-            yourFiles.push({
-              id: child.key,
-              ...child.val(),
-            });
+            if (child.key !== 'usaco-id-to-url') {
+              yourFiles.push({
+                id: child.key,
+                ...child.val(),
+              });
+            }
           });
           yourFiles.reverse();
           const yourOwnedFiles: File[] = [];

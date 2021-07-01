@@ -39,7 +39,7 @@ if (typeof window !== 'undefined') {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const shouldUseEmulator =
-  typeof window !== 'undefined' && location.hostname === 'localhost' && false;
+  typeof window !== 'undefined' && location.hostname === 'localhost';
 
 if (!firebase.apps?.length) {
   if (shouldUseEmulator) {
