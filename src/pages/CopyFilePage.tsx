@@ -4,6 +4,7 @@ import { fileIdAtom } from '../atoms/firebaseAtoms';
 import firebase from 'firebase/app';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { MessagePage } from '../components/MessagePage';
+import { isFirebaseId } from './editorUtils';
 
 export interface CopyFilePageProps extends RouteComponentProps {
   fileId?: string;
@@ -14,10 +15,9 @@ export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
-    let queryId: string | null = props.fileId ?? null;
+    const queryId: string = props.fileId ?? '';
 
-    if (queryId?.length !== 19) {
-      queryId = null;
+    if (!isFirebaseId(queryId)) {
       alert('Error: Bad URL');
       navigate('/', { replace: true });
       return;

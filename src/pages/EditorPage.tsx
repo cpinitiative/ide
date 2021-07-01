@@ -47,7 +47,7 @@ import {
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
-import { encode, cleanJudgeResult } from './editorUtils';
+import { encode, cleanJudgeResult, isFirebaseId } from './editorUtils';
 
 import { getSampleIndex } from '../components/JudgeInterface/Samples';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
@@ -79,16 +79,14 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const problem = useAtomValue(problemAtom);
 
   useEffect(() => {
-    const queryId: string | null = props.fileId ?? null;
+    const queryId: string = props.fileId ?? '';
 
     if (queryId === 'new') {
       setFileId({
         newId: null,
         isNewFile: true,
       });
-      // validate that queryId is a firebase key
-      // todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
-    } else if (queryId?.length === 19) {
+    } else if (isFirebaseId(queryId)) {
       if (fileId?.id !== '-' + queryId) {
         setFileId({
           newId: queryId,

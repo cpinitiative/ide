@@ -9,6 +9,7 @@ import {
   signInWithGoogleAtom,
   signOutAtom,
 } from '../atoms/firebaseUserAtoms';
+import { isFirebaseId } from './editorUtils';
 
 export default function DashboardPage(
   _props: RouteComponentProps
@@ -32,9 +33,10 @@ export default function DashboardPage(
         } else {
           const yourFiles: File[] = [];
           snap.forEach(child => {
-            if (child.key !== 'usaco-id-to-url') {
+            const key = child.key;
+            if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
               yourFiles.push({
-                id: child.key,
+                id: key,
                 ...child.val(),
               });
             }
