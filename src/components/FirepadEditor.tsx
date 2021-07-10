@@ -35,7 +35,7 @@ const FirepadEditor = ({
     if (!firebaseRef || !editor || !userRef) return;
 
     const { path } = props;
-    const affectsLoading = ['cpp', 'java', 'py'].includes(path);
+    const affectsLoading = path && ['cpp', 'java', 'py'].includes(path);
     if (affectsLoading) setLoading(true);
 
     // we reset the value here since firepad initialization can't have any text in it

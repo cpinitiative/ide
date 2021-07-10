@@ -13,6 +13,8 @@ export interface OutputProps {
   onMount: EditorProps['onMount'];
 }
 
+type JudgeOutputTab = 'stdout' | 'stderr' | 'compile_output' | 'message';
+
 type OutputTab =
   | 'stdout'
   | 'stderr'
@@ -32,8 +34,9 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
   const [option, setOption] = useState<OutputTab>('stdout');
 
   useEffect(() => {
-    const option = tabs.find(tab => result?.[tab.value as OutputTab])?.value;
-    if (option) setOption(option as OutputTab);
+    const option = tabs.find(tab => result?.[tab.value as JudgeOutputTab])
+      ?.value;
+    if (option) setOption(option as JudgeOutputTab);
   }, [result]);
 
   const permission = useAtomValue(actualUserPermissionAtom);
