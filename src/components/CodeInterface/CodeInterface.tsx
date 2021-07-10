@@ -33,7 +33,6 @@ export const CodeInterface = ({
       cpp: firebaseRef?.child(`editor-cpp`),
       java: firebaseRef?.child(`editor-java`),
       py: firebaseRef?.child(`editor-py`),
-      input: firebaseRef?.child('input'),
     }),
     [firebaseRef]
   );

@@ -118,6 +118,11 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
       );
     if (!name)
       throw new Error('user name must be set before workspace can be joined');
+    const snapshot = await ref.child('settings').child('workspaceName').get();
+    let workspaceName = null;
+    if (snapshot.exists()) workspaceName = snapshot.val();
+    while (workspaceName === null)
+      workspaceName = prompt('Creating a new workspace. Please name it:');
     await ref.update({
       [`users/${userRef.key}`]: {
         name,
@@ -126,6 +131,7 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
       },
       'settings/creationTime': firebase.database.ServerValue.TIMESTAMP,
       'settings/defaultPermission': 'READ_WRITE',
+      'settings/workspaceName': workspaceName,
     });
   }
 );
