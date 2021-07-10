@@ -10,7 +10,7 @@ import { PlayIcon } from '@heroicons/react/solid';
 export const judgePrefix =
   import.meta.env.MODE === 'development'
     ? 'http://localhost:5000'
-    : 'https://judge.usaco.guide';
+    : 'https://vjudge.usaco.guide';
 
 function encode(str: string | null) {
   return btoa(unescape(encodeURIComponent(str || '')));
