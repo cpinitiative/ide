@@ -121,8 +121,11 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
     const snapshot = await ref.child('settings').child('workspaceName').get();
     let workspaceName = null;
     if (snapshot.exists()) workspaceName = snapshot.val();
-    while (workspaceName === null)
-      workspaceName = prompt('Creating a new workspace. Please name it:');
+    workspaceName = prompt('Creating a new workspace. Please name it:');
+    if (workspaceName === null) {
+      navigate(-1);
+      return;
+    }
     await ref.update({
       [`users/${userRef.key}`]: {
         name,
