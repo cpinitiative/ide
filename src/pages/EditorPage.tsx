@@ -85,6 +85,9 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       setFileId({
         newId: null,
         isNewFile: true,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceName: props.location?.state?.workspaceName,
       });
     } else if (isFirebaseId(queryId)) {
       if (fileId?.id !== '-' + queryId) {

@@ -16,6 +16,7 @@ const baseFileIdAtom = atom<{
    * the file information before joining.
    */
   isNewFile: boolean;
+  workspaceName: string | undefined;
 } | null>(null);
 export const fileIdAtom = atom(
   get => get(baseFileIdAtom),
@@ -25,6 +26,7 @@ export const fileIdAtom = atom(
     payload: {
       newId: string | null;
       isNewFile?: boolean;
+      workspaceName?: string;
     } | null
   ) => {
     if (payload === null) {
@@ -47,6 +49,7 @@ export const fileIdAtom = atom(
     set(baseFileIdAtom, {
       id: ref.key!,
       isNewFile: !!isNewFile,
+      workspaceName: payload.workspaceName,
     });
 
     if (isNewFile) {
@@ -107,7 +110,7 @@ export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | n
 
 export const joinNewWorkspaceAsOwnerAtom = atom(
   null,
-  async (get, _set, _: void) => {
+  async (get, _set, workspaceName: string | undefined) => {
     const ref = get(firebaseRefAtom);
     const userRef = get(userRefAtom);
     const name = get(userNameAtom);
@@ -118,14 +121,6 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
       );
     if (!name)
       throw new Error('user name must be set before workspace can be joined');
-    const snapshot = await ref.child('settings').child('workspaceName').get();
-    let workspaceName = null;
-    if (snapshot.exists()) workspaceName = snapshot.val();
-    workspaceName = prompt('Creating a new workspace. Please name it:');
-    if (workspaceName === null) {
-      navigate(-1);
-      return;
-    }
     await ref.update({
       [`users/${userRef.key}`]: {
         name,
@@ -134,7 +129,7 @@ export const joinNewWorkspaceAsOwnerAtom = atom(
       },
       'settings/creationTime': firebase.database.ServerValue.TIMESTAMP,
       'settings/defaultPermission': 'READ_WRITE',
-      'settings/workspaceName': workspaceName,
+      'settings/workspaceName': workspaceName ?? null,
     });
   }
 );

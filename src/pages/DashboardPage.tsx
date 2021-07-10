@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { navigate, RouteComponentProps } from '@reach/router';
 import FilesGrid from '../components/FilesGrid';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import firebase from 'firebase/app';
@@ -67,12 +67,22 @@ export default function DashboardPage(
 
         <div className="h-6"></div>
 
-        <Link
-          to="/new"
+        <button
           className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+          onClick={() => {
+            const workspaceName = prompt(
+              'Creating a new workspace. Please name it:'
+            );
+            if (workspaceName === null) return;
+            navigate('/new', {
+              state: {
+                workspaceName: workspaceName,
+              },
+            });
+          }}
         >
           Create New File
-        </Link>
+        </button>
 
         {!firebaseUser || firebaseUser.isAnonymous ? (
           <div className="text-gray-400 mt-6">
