@@ -42,7 +42,8 @@ export default function DashboardPage(
     if (permissionRef) {
       const getDefaultPermFromFirebase = async () => {
         const snap = await (permissionRef as firebase.database.Reference).get();
-        setDefaultPermission(snap.val());
+        const val = snap.val();
+        if (val) setDefaultPermission(val);
       };
       getDefaultPermFromFirebase();
     }
