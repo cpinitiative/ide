@@ -116,8 +116,6 @@ export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
     );
   if (!name)
     throw new Error('user name must be set before workspace can be joined');
-  const snap = await ref.child('settings').child('defaultPermission').get();
-  const permission = snap.val() ?? 'READ_WRITE';
   await ref.update({
     [`users/${userRef.key}`]: {
       name,
@@ -125,6 +123,10 @@ export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
       permission: 'OWNER',
     },
     'settings/creationTime': firebase.database.ServerValue.TIMESTAMP,
+  });
+  const snap = await ref.child('settings').child('defaultPermission').get();
+  const permission = snap.val() ?? 'READ_WRITE';
+  await ref.update({
     'settings/defaultPermission': permission,
   });
 });
