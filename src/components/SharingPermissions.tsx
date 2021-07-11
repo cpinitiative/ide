@@ -21,15 +21,23 @@ export const SharingPermissions = ({
   value,
   onChange,
   isOwner,
+  lightMode,
 }: {
   value: string;
   onChange: (newVal: string) => void;
   isOwner: boolean;
+  lightMode?: boolean;
 }): JSX.Element => {
   return (
     <>
       <RadioGroup value={value} onChange={onChange} disabled={!isOwner}>
-        <RadioGroup.Label as="div" className="font-medium mb-2">
+        <RadioGroup.Label
+          as="div"
+          className={classNames(
+            'font-medium mb-2',
+            lightMode ? 'text-white' : ''
+          )}
+        >
           Default Sharing Permissions
         </RadioGroup.Label>
         <div className="rounded-md space-y-2">
@@ -57,7 +65,13 @@ export const SharingPermissions = ({
                     <RadioGroup.Label
                       as="span"
                       className={classNames(
-                        checked ? 'text-gray-800' : 'text-gray-600',
+                        checked
+                          ? lightMode
+                            ? 'text-gray-200'
+                            : 'text-gray-800'
+                          : lightMode
+                          ? 'text-gray-400'
+                          : 'text-gray-600',
                         'block text-sm font-medium'
                       )}
                     >

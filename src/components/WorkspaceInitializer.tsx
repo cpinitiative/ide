@@ -82,7 +82,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
 
       let hasJoinedWorkspace = false;
       if (fileId.isNewFile) {
-        joinNewWorkspaceAsOwner(fileId.workspaceName);
+        joinNewWorkspaceAsOwner();
         hasJoinedWorkspace = true;
       }
 
