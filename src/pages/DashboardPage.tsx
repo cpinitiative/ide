@@ -12,7 +12,10 @@ import {
 import { isFirebaseId } from './editorUtils';
 import { WorkspaceSettings } from '../components/SettingsContext';
 import { fileIdAtom, setFirebaseErrorAtom } from '../atoms/firebaseAtoms';
-import { SharingPermissions } from '../components/SharingPermissions';
+import {
+  RadioGroupContents,
+  SharingPermissions,
+} from '../components/SharingPermissions';
 
 type Permission = 'READ_WRITE' | 'READ' | 'PRIVATE';
 
@@ -28,6 +31,7 @@ export default function DashboardPage(
   const [defaultPermission, setDefaultPermission] = useState<Permission>(
     'READ_WRITE'
   );
+  const [showHidden, setShowHidden] = useState<boolean>(false);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
 
   const permissionRef = firebaseUser
@@ -95,6 +99,7 @@ export default function DashboardPage(
           const yourOwnedFiles: File[] = [];
           const yourOtherFiles: File[] = [];
           for (const file of yourFiles) {
+            if (file.hidden && !showHidden) continue;
             if (file.lastPermission === 'OWNER') {
               yourOwnedFiles.push(file);
             } else {
@@ -106,7 +111,7 @@ export default function DashboardPage(
         }
       });
     return () => ref.off('value', unsubscribe);
-  }, [firebaseUser]);
+  }, [firebaseUser, showHidden]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-full flex flex-col">
@@ -161,13 +166,35 @@ export default function DashboardPage(
           </div>
         )}
 
+        <div className="h-12"></div>
+        <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
+          Your Workspaces
+        </h2>
+
+        <div className="h-6"></div>
+        <RadioGroupContents
+          title="Show Hidden Files?"
+          value={showHidden}
+          onChange={setShowHidden}
+          options={[
+            {
+              label: 'Yes',
+              value: true,
+            },
+            {
+              label: 'No',
+              value: false,
+            },
+          ]}
+          lightMode
+        />
+        <div className="h-6"></div>
+
         {ownedFiles && ownedFiles.length > 0 && (
           <>
-            <div className="h-12"></div>
-
-            <h2 className="text-gray-100 text-xl md:text-3xl font-black">
+            <h3 className="text-gray-100 text-xl md:text-3xl font-black">
               Owned by You
-            </h2>
+            </h3>
             <FilesGrid files={ownedFiles} showPerms={false} />
           </>
         )}
@@ -176,9 +203,9 @@ export default function DashboardPage(
           <>
             <div className="h-12"></div>
 
-            <h2 className="text-gray-100 text-xl md:text-3xl font-black">
+            <h3 className="text-gray-100 text-xl md:text-3xl font-black">
               Recently Accessed
-            </h2>
+            </h3>
             <FilesGrid files={files} showPerms={true} />
           </>
         )}
