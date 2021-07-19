@@ -103,13 +103,12 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   ]);
 
   useEffect(() => {
-    if (firebaseUser?.displayName && firebaseRef && fileId) {
+    if (firebaseUser && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
-
       const ref = firebaseRef;
       const firebaseUserRef = ref.child('users').child(uid);
-
       setUserRef(firebaseUserRef);
+      if (!firebaseUser.displayName) return; // should be set the next time around
 
       let hasJoinedWorkspace = false;
       if (fileId.isNewFile) {
