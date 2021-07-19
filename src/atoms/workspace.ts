@@ -31,16 +31,13 @@ export const updateLangFromFirebaseAtom = atom<null, Language>(
 export const currentLangAtom = atom<Language, Language>(
   get => get(actualLangAtom) ?? 'cpp',
   (_get, set, lang: Language) => {
-    console.log('SETTING LANG ' + lang);
     window.history.replaceState(
       {},
       '',
       window.location.href.split('?')[0] + '?lang=' + lang
     );
     set(actualLangAtom, lang);
-    console.log('SET ACTUAL LANG ATOM');
-    set(userSettingsAtomWithPersistence, { defaultLang: lang });
-    console.log('SET DEFAULT LANG');
+    set(userSettingsAtomWithPersistence, { defaultLang: lang }); // silently fails if firebase isn't loaded yet
   }
 );
 currentLangAtom.onMount = setAtom => {

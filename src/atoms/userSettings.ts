@@ -88,6 +88,11 @@ export const userSettingsAtomWithPersistence = atom<
     };
     const userRef = get(userSettingsRefAtom);
     if (userRef) userRef.update(data);
-    else alert("Firebase hasn't loaded yet, please wait");
+    else {
+      // fail silently, it's probably okay?
+      // console.log(`FAILED TO SET`);
+      // console.log(val);
+      // alert("Firebase hasn't loaded yet, please wait (UserSettings)");
+    }
   }
 );
