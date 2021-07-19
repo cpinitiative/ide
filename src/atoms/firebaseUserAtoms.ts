@@ -10,10 +10,12 @@ const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
 export const firebaseUserAtom = atom(
   get => get(baseFirebaseUserAtom),
   (_get, set, user: firebaseType.User | null) => {
-    set(baseFirebaseUserAtom, user);
-    if (user && !user.displayName) {
+    if (!user || user?.displayName) {
+      set(baseFirebaseUserAtom, user);
+    } else {
       const displayName =
         'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
+      set(baseFirebaseUserAtom, { ...user, displayName });
       user.updateProfile({ displayName });
     }
   }
