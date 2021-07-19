@@ -1,6 +1,5 @@
 import { atom } from 'jotai';
 import type firebaseType from 'firebase';
-import { userNameAtom } from './userSettings';
 import animals from '../scripts/animals';
 import { signInAnonymously } from '../scripts/firebaseUtils';
 import firebase from 'firebase/app';
@@ -10,19 +9,12 @@ import { shouldUseEmulator } from '../components/WorkspaceInitializer';
 const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
 export const firebaseUserAtom = atom(
   get => get(baseFirebaseUserAtom),
-  (get, set, user: firebaseType.User | null) => {
+  (_get, set, user: firebaseType.User | null) => {
     set(baseFirebaseUserAtom, user);
-    if (user) {
-      let name =
+    if (user && !user.displayName) {
+      const displayName =
         'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-      if (!user.displayName) {
-        user.updateProfile({ displayName: name });
-      } else {
-        name = user.displayName;
-      }
-      set(userNameAtom, name);
-    } else {
-      set(userNameAtom, null);
+      user.updateProfile({ displayName });
     }
   }
 );

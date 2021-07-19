@@ -1,31 +1,46 @@
 import { atom } from 'jotai';
 import { Language } from '../components/SettingsContext';
+import { userSettingsAtomWithPersistence } from './userSettings';
+
+type Permission = 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
+export type DefaultPermission = 'READ_WRITE' | 'READ' | 'PRIVATE';
 
 // Permissions
-export const defaultPermissionAtom = atom<
-  'READ_WRITE' | 'READ' | 'PRIVATE' | null
->(null);
+export const defaultPermissionAtom = atom<DefaultPermission | null>(null);
 export const userPermissionAtom = atom<'OWNER' | 'READ_WRITE' | 'READ' | null>(
   null
 );
-export const actualUserPermissionAtom = atom<
-  'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE' | null
->(get => get(userPermissionAtom) || get(defaultPermissionAtom));
+export const actualUserPermissionAtom = atom<Permission | null>(
+  get => get(userPermissionAtom) || get(defaultPermissionAtom)
+);
 
 // Loading
 export const loadingAtom = atom(true);
 
 // Code Interface
-const actualLangAtom = atom<Language>('cpp');
+export const actualLangAtom = atom<Language | null>(null);
+export const updateLangFromFirebaseAtom = atom<null, Language>(
+  null,
+  (get, set, val) => {
+    if (get(actualLangAtom) === null) {
+      set(actualLangAtom, val);
+    }
+  }
+);
+
 export const currentLangAtom = atom<Language, Language>(
-  get => get(actualLangAtom),
+  get => get(actualLangAtom) ?? 'cpp',
   (_get, set, lang: Language) => {
+    console.log('SETTING LANG ' + lang);
     window.history.replaceState(
       {},
       '',
       window.location.href.split('?')[0] + '?lang=' + lang
     );
     set(actualLangAtom, lang);
+    console.log('SET ACTUAL LANG ATOM');
+    set(userSettingsAtomWithPersistence, { defaultLang: lang });
+    console.log('SET DEFAULT LANG');
   }
 );
 currentLangAtom.onMount = setAtom => {

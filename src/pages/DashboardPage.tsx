@@ -11,13 +11,14 @@ import {
 } from '../atoms/firebaseUserAtoms';
 import { isFirebaseId } from './editorUtils';
 import { WorkspaceSettings } from '../components/SettingsContext';
-import { fileIdAtom, setFirebaseErrorAtom } from '../atoms/firebaseAtoms';
+import { fileIdAtom } from '../atoms/firebaseAtoms';
 import {
   RadioGroupContents,
   SharingPermissions,
 } from '../components/SharingPermissions';
-
-type Permission = 'READ_WRITE' | 'READ' | 'PRIVATE';
+import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
+import { DefaultPermission } from '../atoms/workspace';
+import { useAtom } from 'jotai';
 
 export default function DashboardPage(
   _props: RouteComponentProps
@@ -28,36 +29,33 @@ export default function DashboardPage(
   const [ownedFiles, setOwnedFiles] = useState<File[] | null>(null);
   const [files, setFiles] = useState<File[] | null>(null);
   const setFileId = useUpdateAtom(fileIdAtom);
-  const [defaultPermission, setDefaultPermission] = useState<Permission>(
-    'READ_WRITE'
-  );
   const [showHidden, setShowHidden] = useState<boolean>(false);
-  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
+  // const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
+  const [userSettings, setUserSettings] = useAtom(
+    userSettingsAtomWithPersistence
+  );
 
-  const permissionRef = firebaseUser
-    ? firebase
-        .database()
-        .ref('users')
-        .child(firebaseUser.uid)
-        .child('defaultPermission')
-    : null;
-  useEffect(() => {
-    // no need for live update, just get once
-    if (permissionRef) {
-      const getDefaultPermFromFirebase = async () => {
-        const snap = await (permissionRef as firebase.database.Reference).get();
-        const val = snap.val();
-        if (val) setDefaultPermission(val);
-      };
-      getDefaultPermFromFirebase();
-    }
-  }, [firebaseUser, setFirebaseError, permissionRef]);
+  // const permissionRef = firebaseUser
+  //   ? firebase
+  //       .database()
+  //       .ref('users')
+  //       .child(firebaseUser.uid)
+  //       .child('defaultPermission')
+  //   : null;
+  // useEffect(() => {
+  //   // no need for live update, just get once
+  //   if (permissionRef) {
+  //     const getDefaultPermFromFirebase = async () => {
+  //       const snap = await (permissionRef as firebase.database.Reference).get();
+  //       const val = snap.val();
+  //       if (val) setDefaultPermission(val);
+  //     };
+  //     getDefaultPermFromFirebase();
+  //   }
+  // }, [firebaseUser, setFirebaseError, permissionRef]);
 
   const setDefaultPermissionActual = async (val: string) => {
-    setDefaultPermission(val as Permission);
-    if (permissionRef) {
-      permissionRef.set(val);
-    }
+    setUserSettings({ defaultPermission: val as DefaultPermission });
   };
 
   const makeNewWorkspaceWithName = async (name: string) => {
@@ -65,7 +63,6 @@ export default function DashboardPage(
     const newId = fileRef.key!.slice(1);
     const toUpdate: Partial<WorkspaceSettings> = {
       workspaceName: name,
-      defaultPermission,
     };
     await fileRef.child('settings').update(toUpdate);
     setFileId({
@@ -124,7 +121,7 @@ export default function DashboardPage(
 
         <div className="mb-4">
           <SharingPermissions
-            value={defaultPermission}
+            value={userSettings.defaultPermission}
             onChange={setDefaultPermissionActual}
             isOwner={true}
             lightMode

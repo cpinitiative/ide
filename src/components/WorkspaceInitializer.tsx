@@ -4,7 +4,10 @@ import 'firebase/auth';
 import 'firebase/analytics';
 import React, { useEffect } from 'react';
 import type firebaseType from 'firebase';
-import { defaultPermissionAtom } from '../atoms/workspace';
+import {
+  updateLangFromFirebaseAtom,
+  defaultPermissionAtom,
+} from '../atoms/workspace';
 import {
   connectionRefAtom,
   fileIdAtom,
@@ -17,6 +20,7 @@ import {
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { userSettingsRefAtom, _userSettingsAtom } from '../atoms/userSettings';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -70,6 +74,32 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   );
   const setDefaultPermission = useUpdateAtom(defaultPermissionAtom);
   const setConnectionRef = useUpdateAtom(connectionRefAtom);
+
+  const userSettingsRef = useAtomValue(userSettingsRefAtom);
+  const setUserSettings = useUpdateAtom(_userSettingsAtom);
+  // const currentLang = useAtomValue(actualLangAtom);
+  // console.log(`CURRENT LANG ${currentLang}`);
+  const updateLangFromFirebase = useUpdateAtom(updateLangFromFirebaseAtom);
+  useEffect(() => {
+    if (userSettingsRef) {
+      const handleUserSettingsChange = (
+        snap: firebaseType.database.DataSnapshot
+      ) => {
+        const val = snap.val();
+        setUserSettings(val);
+        updateLangFromFirebase(val.defaultLang);
+      };
+      userSettingsRef.on('value', handleUserSettingsChange, e =>
+        setFirebaseError(e)
+      );
+      return () => userSettingsRef.off('value', handleUserSettingsChange);
+    }
+  }, [
+    setFirebaseError,
+    setUserSettings,
+    updateLangFromFirebase,
+    userSettingsRef,
+  ]);
 
   useEffect(() => {
     if (firebaseUser && firebaseRef && fileId) {
@@ -132,6 +162,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
         unsubscribe3();
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseUser, firebaseRef, fileId?.id]);
 
   return <>{children}</>;

@@ -15,10 +15,9 @@ import { actualUserPermissionAtom } from '../../atoms/workspace';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
   EditorMode,
-  editorModeAtomWithPersistence,
-  userNameAtom,
+  userSettingsAtomWithPersistence,
 } from '../../atoms/userSettings';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue } from 'jotai/utils';
 import {
   DesktopComputerIcon,
   ServerIcon,
@@ -75,17 +74,18 @@ export const SettingsModal = ({
   );
   const [userPermission] = useAtom(actualUserPermissionAtom);
   const [firebaseUser] = useAtom(firebaseUserAtom);
-  const setUserNameAtom = useUpdateAtom(userNameAtom);
   const [name, setName] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
-  const editorModeAtom = useAtom(editorModeAtomWithPersistence);
+  const [userSettings, setUserSettings] = useAtom(
+    userSettingsAtomWithPersistence
+  );
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
   useEffect(() => {
     if (isOpen) {
       setWorkspaceSettings(realWorkspaceSettings);
       setName(firebaseUser?.displayName || null);
-      setEditorMode(editorModeAtom[0]);
+      setEditorMode(userSettings.editorMode);
       dirtyRef.current = false;
       setTab('workspace');
     }
@@ -119,13 +119,12 @@ export const SettingsModal = ({
       settingsToSet = toKeep;
     }
     setRealWorkspaceSettings(settingsToSet);
-    editorModeAtom[1](editorMode);
+    setUserSettings({ editorMode });
     if (name !== firebaseUser?.displayName) {
       firebaseUser?.updateProfile({
         displayName: name,
       });
       userRef?.child('name').set(name);
-      setUserNameAtom(name);
     }
     onClose();
   };

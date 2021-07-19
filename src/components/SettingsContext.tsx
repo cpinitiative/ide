@@ -102,7 +102,8 @@ export const SettingsProvider: React.FC = ({ children }) => {
       setSettings: (data: Partial<WorkspaceSettings>) => {
         if (firebaseRef) {
           firebaseRef.child('settings').update(data);
-          setSettings(data);
+          // setSettings(data);
+          // ^ firebase should auto-sync
         } else {
           alert("Firebase hasn't loaded yet, please wait");
         }

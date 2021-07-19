@@ -1,7 +1,6 @@
 import { atom } from 'jotai';
 import type firebaseType from 'firebase';
-import { userNameAtom } from './userSettings';
-import colorFromUserId from '../scripts/colorFromUserId';
+import { userSettingsAtomWithPersistence } from './userSettings';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
 import { navigate } from '@reach/router';
@@ -108,7 +107,9 @@ export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | n
 export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
   const ref = get(firebaseRefAtom);
   const userRef = get(userRefAtom);
-  const name = get(userNameAtom);
+  const { name, color, defaultPermission } = get(
+    userSettingsAtomWithPersistence
+  );
   if (!ref) throw new Error('ref must be set before workspace can be joined');
   if (!userRef || !userRef.key)
     throw new Error(
@@ -119,15 +120,11 @@ export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
   await ref.update({
     [`users/${userRef.key}`]: {
       name,
-      color: colorFromUserId(userRef.key),
+      color,
       permission: 'OWNER',
     },
+    'settings/defaultPermission': defaultPermission,
     'settings/creationTime': firebase.database.ServerValue.TIMESTAMP,
-  });
-  const snap = await ref.child('settings').child('defaultPermission').get();
-  const permission = snap.val() ?? 'READ_WRITE';
-  await ref.update({
-    'settings/defaultPermission': permission,
   });
 });
 
@@ -136,7 +133,7 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
   async (get, _set, _: void) => {
     const ref = get(firebaseRefAtom);
     const userRef = get(userRefAtom);
-    const name = get(userNameAtom);
+    const { name, color } = get(userSettingsAtomWithPersistence);
     const permission = get(defaultPermissionAtom);
     if (!ref) throw new Error('ref must be set before workspace can be joined');
     if (!userRef || !userRef.key)
@@ -159,7 +156,7 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
           // first time on this doc, need to add to user list
           return userRef.update({
             name,
-            color: colorFromUserId(userRef.key),
+            color,
           });
         } else {
           // update name as necessary
