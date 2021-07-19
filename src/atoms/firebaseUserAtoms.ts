@@ -5,18 +5,23 @@ import { signInAnonymously } from '../scripts/firebaseUtils';
 import firebase from 'firebase/app';
 import { connectionRefAtom } from './firebaseAtoms';
 import { shouldUseEmulator } from '../components/WorkspaceInitializer';
+import { displayNameAtom } from './userSettings';
 
 const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
 export const firebaseUserAtom = atom(
   get => get(baseFirebaseUserAtom),
   (_get, set, user: firebaseType.User | null) => {
-    if (!user || user?.displayName) {
-      set(baseFirebaseUserAtom, user);
+    set(baseFirebaseUserAtom, user);
+    if (user) {
+      let displayName = user.displayName;
+      if (!displayName) {
+        displayName =
+          'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
+        user.updateProfile({ displayName });
+      }
+      set(displayNameAtom, displayName);
     } else {
-      const displayName =
-        'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-      set(baseFirebaseUserAtom, { ...user, displayName });
-      user.updateProfile({ displayName });
+      set(displayNameAtom, '');
     }
   }
 );

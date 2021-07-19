@@ -14,6 +14,7 @@ import { actualUserPermissionAtom } from '../../atoms/workspace';
 // import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
+  displayNameAtom,
   EditorMode,
   userSettingsAtomWithPersistence,
 } from '../../atoms/userSettings';
@@ -28,7 +29,6 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
-import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -73,18 +73,18 @@ export const SettingsModal = ({
     realWorkspaceSettings
   );
   const [userPermission] = useAtom(actualUserPermissionAtom);
-  const [firebaseUser] = useAtom(firebaseUserAtom);
-  const [name, setName] = useState<string | null>(null);
+  const [name, setName] = useState<string>('');
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
+  const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom);
   useEffect(() => {
     if (isOpen) {
       setWorkspaceSettings(realWorkspaceSettings);
-      setName(firebaseUser?.displayName || null);
+      setName(actualDisplayName);
       setEditorMode(userSettings.editorMode);
       dirtyRef.current = false;
       setTab('workspace');
@@ -120,10 +120,8 @@ export const SettingsModal = ({
     }
     setRealWorkspaceSettings(settingsToSet);
     setUserSettings({ editorMode });
-    if (name !== firebaseUser?.displayName) {
-      firebaseUser?.updateProfile({
-        displayName: name,
-      });
+    if (name && name !== actualDisplayName) {
+      setDisplayName(name);
       userRef?.child('name').set(name);
     }
     onClose();

@@ -47,12 +47,22 @@ interface UserSettings {
 }
 
 const defaultUserSettings: UserSettings = {
-  name: '',
-  color: '',
-  editorMode: 'Normal',
-  defaultPermission: 'READ_WRITE',
-  defaultLang: 'cpp',
+  name: '', // change in settings
+  editorMode: 'Normal', // change in settings
+  color: '', // fixed
+  defaultPermission: 'READ_WRITE', // change in dashboard
+  defaultLang: 'cpp', // last viewed file
 };
+
+export const baseDisplayNameAtom = atom<string>('');
+export const displayNameAtom = atom(
+  get => get(baseDisplayNameAtom),
+  (get, set, displayName: string) => {
+    const firebaseUser = get(firebaseUserAtom);
+    if (firebaseUser) firebaseUser.updateProfile({ displayName });
+    set(baseDisplayNameAtom, displayName);
+  }
+);
 
 export const baseUserSettingsAtom = atom<UserSettings>(defaultUserSettings);
 export const _userSettingsAtom = atom<UserSettings, Partial<UserSettings>>(
@@ -62,7 +72,7 @@ export const _userSettingsAtom = atom<UserSettings, Partial<UserSettings>>(
     if (firebaseUser) {
       obj = {
         ...obj,
-        name: firebaseUser.displayName ?? '',
+        name: get(displayNameAtom),
         color: colorFromUserId(firebaseUser.uid),
       };
     }
