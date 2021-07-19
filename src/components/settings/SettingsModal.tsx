@@ -105,6 +105,10 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
+    if (!name) {
+      alert('User Name cannot be empty. Fix before saving.');
+      return;
+    }
     let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
     {
       // update has no effect if you try to overwrite creation time
@@ -120,7 +124,7 @@ export const SettingsModal = ({
     }
     setRealWorkspaceSettings(settingsToSet);
     setUserSettings({ editorMode });
-    if (name && name !== actualDisplayName) {
+    if (name !== actualDisplayName) {
       setDisplayName(name);
       userRef?.child('name').set(name);
     }
