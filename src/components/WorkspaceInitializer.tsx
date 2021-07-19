@@ -87,7 +87,8 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
       ) => {
         const val = snap.val();
         setUserSettings(val);
-        updateLangFromFirebase(val.defaultLang);
+        const lang = val?.defaultLang;
+        if (lang) updateLangFromFirebase(lang);
       };
       userSettingsRef.on('value', handleUserSettingsChange, e =>
         setFirebaseError(e)
@@ -102,7 +103,7 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   ]);
 
   useEffect(() => {
-    if (firebaseUser && firebaseRef && fileId) {
+    if (firebaseUser?.displayName && firebaseRef && fileId) {
       const uid = firebaseUser.uid;
 
       const ref = firebaseRef;
