@@ -1,0 +1,98 @@
+{
+  "rules": {
+    "users": {
+      "$secretid": {
+        ".read": "$secretid == auth.uid",
+        ".write": "auth.uid == $secretid",
+        ".indexOn": "lastAccessTime"
+      }
+    },
+    "$secretid": {
+      ".write": "!root.child($secretid).exists()",
+      "users": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        "$user": {
+          ".read": "$user === auth.uid",
+          ".write": "(auth.uid === $user && !root.child($secretid).child('settings').child('users').exists()) || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || (auth.uid === $user && data.child('permission').val() === newData.child('permission').val())"
+        }
+      },
+      "editor-cpp": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'",
+        "history": {
+          "$revision": {
+            /* Prevent overwriting existing revisions. */
+            ".validate": "data.val() === null || newData.val() === null"
+          }
+        },
+        "checkpoint": {
+          /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-cpp').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+        }
+      },
+      "editor-java": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'",
+        "history": {
+          "$revision": {
+            /* Prevent overwriting existing revisions. */
+            ".validate": "data.val() === null || newData.val() === null"
+          }
+        },
+        "checkpoint": {
+          /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-java').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+        }
+      },
+      "editor-py": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'",
+        "history": {
+          "$revision": {
+            /* Prevent overwriting existing revisions. */
+            ".validate": "data.val() === null || newData.val() === null"
+          }
+        },
+        "checkpoint": {
+          /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('editor-py').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+        }
+      },
+      "input": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'",
+        "history": {
+          "$revision": {
+            /* Prevent overwriting existing revisions. */
+            ".validate": "data.val() === null || newData.val() === null"
+          }
+        },
+        "checkpoint": {
+          /* Ensure author of checkpoint is the same as the author of the revision they're checkpointing. */
+          ".validate": "!root.child($secretid).exists() || root.child($secretid).child('input').child('history').child(newData.child('id').val()).child('a').val() === newData.child('a').val() && newData.hasChildren(['a', 'o', 'id'])"
+        }
+      },
+
+      "settings": {
+        ".read": true,
+        "$setting": {
+          ".write": "!root.child($secretid).child('settings').child('defaultPermission').exists() || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'"
+        },
+        "defaultPermission": {
+          ".write": "!root.child($secretid).child('settings').child('defaultPermission').exists() || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER'"
+        },
+        "creationTime": {
+          /* only write upon creation */
+          ".write": "!root.child($secretid).child('settings').child('creationTime').exists()"
+        }
+      },
+
+      "chat": {
+        ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+        ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

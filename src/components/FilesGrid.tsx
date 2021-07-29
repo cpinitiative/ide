@@ -4,6 +4,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
+import { TrashIcon, SaveIcon } from '@heroicons/react/solid';
+import firebase from 'firebase/app';
+
 export type File = {
   id: string;
   lastAccessTime: number;
@@ -11,6 +14,7 @@ export type File = {
   creationTime: number | null;
   lastPermission: string | null;
   lastDefaultPermission: string | null;
+  hidden: boolean | null;
 };
 
 export interface FilesGridProps {
@@ -19,6 +23,8 @@ export interface FilesGridProps {
 }
 
 import { permissionLabels } from '../components/UserList/UserListItem';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { useAtomValue } from 'jotai/utils';
 
 export const sharingPermissionLabels: Record<string, string> = {
   READ_WRITE: 'Public Read & Write',
@@ -27,6 +33,7 @@ export const sharingPermissionLabels: Record<string, string> = {
 };
 
 export default function FilesGrid(props: FilesGridProps): JSX.Element {
+  const firebaseUser = useAtomValue(firebaseUserAtom);
   const formatCreationTime = (creationTime: number | null): string => {
     if (!creationTime) return 'Unknown';
     // return String(creationTime);
@@ -47,7 +54,44 @@ export default function FilesGrid(props: FilesGridProps): JSX.Element {
             to={`/${file.id.substring(1)}`}
             className="bg-gray-800 hover:bg-gray-700 px-4 py-3 rounded-lg inline-block w-full max-w-sm m-2"
           >
-            <div className="text-gray-200">{file.title || 'Unnamed File'}</div>
+            <div className="flex justify-between">
+              <div className="text-gray-200">
+                {file.title || 'Unnamed File'}
+              </div>
+              <button
+                onClick={e => {
+                  e.preventDefault(); // not stopPropagation
+                  if (!firebaseUser) {
+                    alert('Firebase not loaded, please wait');
+                    return;
+                  }
+                  const confirmed = confirm(
+                    file.hidden ? 'Unhide this item?' : 'Hide this item?'
+                  );
+                  if (!confirmed) return;
+                  if (confirmed) {
+                    const ref = firebase
+                      .database()
+                      .ref('users')
+                      .child(firebaseUser.uid)
+                      .child(file.id);
+                    ref.update({ hidden: !file.hidden });
+                  }
+                }}
+              >
+                {file.hidden ? (
+                  <SaveIcon
+                    className="h-5 w-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <TrashIcon
+                    className="h-5 w-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+            </div>
             <div className="text-gray-400">
               Last Accessed: {dayjs(file.lastAccessTime).fromNow()}
             </div>
@@ -70,7 +114,6 @@ export default function FilesGrid(props: FilesGridProps): JSX.Element {
                   : 'Unknown'}
               </div>
             )}
-            {/* TODO: show default permissions otherwise */}
           </Link>
         ))}
     </div>

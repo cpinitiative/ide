@@ -77,7 +77,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
     if (firebaseRef) {
       const handleNewSetting = (snap: firebaseType.database.DataSnapshot) => {
         setSettings({
-          // set the title to nothing if the file doesn't have a title
+          // set workspaceName to nothing if the workspace doesn't have a name
           workspaceName: '',
           problem: null, // don't persist problem and compiler options to new file
           compilerOptions: {
@@ -102,7 +102,8 @@ export const SettingsProvider: React.FC = ({ children }) => {
       setSettings: (data: Partial<WorkspaceSettings>) => {
         if (firebaseRef) {
           firebaseRef.child('settings').update(data);
-          setSettings(data);
+          // setSettings(data);
+          // ^ firebase should auto-sync
         } else {
           alert("Firebase hasn't loaded yet, please wait");
         }

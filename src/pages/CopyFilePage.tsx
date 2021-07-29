@@ -31,6 +31,7 @@ export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
       'editor-py',
       'settings',
       'input',
+      'scribble',
     ];
     Promise.all(keysToCopy.map(key => oldRef.child(key).once('value')))
       .then(async data => {

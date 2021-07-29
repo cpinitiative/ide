@@ -34,7 +34,9 @@ const FirepadEditor = ({
   useEffect(() => {
     if (!firebaseRef || !editor || !userRef) return;
 
-    setLoading(true);
+    const { path } = props;
+    const affectsLoading = path && ['cpp', 'java', 'py'].includes(path);
+    if (affectsLoading) setLoading(true);
 
     // we reset the value here since firepad initialization can't have any text in it
     // firepad will fetch the text from firebase and update monaco
@@ -49,7 +51,7 @@ const FirepadEditor = ({
           editor.setValue(defaultValue);
         }
       }
-      setLoading(false);
+      if (affectsLoading) setLoading(false);
     });
 
     return () => firepad.dispose();

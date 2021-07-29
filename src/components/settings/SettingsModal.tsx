@@ -14,11 +14,11 @@ import { actualUserPermissionAtom } from '../../atoms/workspace';
 // import { allProblemDataAtom } from '../../atoms/workspaceUI';
 import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
 import {
+  displayNameAtom,
   EditorMode,
-  editorModeAtomWithPersistence,
-  userNameAtom,
+  userSettingsAtomWithPersistence,
 } from '../../atoms/userSettings';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue } from 'jotai/utils';
 import {
   DesktopComputerIcon,
   ServerIcon,
@@ -29,7 +29,6 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
-import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -74,18 +73,19 @@ export const SettingsModal = ({
     realWorkspaceSettings
   );
   const [userPermission] = useAtom(actualUserPermissionAtom);
-  const [firebaseUser] = useAtom(firebaseUserAtom);
-  const setUserNameAtom = useUpdateAtom(userNameAtom);
-  const [name, setName] = useState<string | null>(null);
+  const [name, setName] = useState<string>('');
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
-  const editorModeAtom = useAtom(editorModeAtomWithPersistence);
+  const [userSettings, setUserSettings] = useAtom(
+    userSettingsAtomWithPersistence
+  );
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
+  const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom);
   useEffect(() => {
     if (isOpen) {
       setWorkspaceSettings(realWorkspaceSettings);
-      setName(firebaseUser?.displayName || null);
-      setEditorMode(editorModeAtom[0]);
+      setName(actualDisplayName);
+      setEditorMode(userSettings.editorMode);
       dirtyRef.current = false;
       setTab('workspace');
     }
@@ -105,6 +105,10 @@ export const SettingsModal = ({
   };
 
   const saveAndClose = async () => {
+    if (!name) {
+      alert('User Name cannot be empty. Fix before saving.');
+      return;
+    }
     let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
     {
       // update has no effect if you try to overwrite creation time
@@ -119,13 +123,10 @@ export const SettingsModal = ({
       settingsToSet = toKeep;
     }
     setRealWorkspaceSettings(settingsToSet);
-    editorModeAtom[1](editorMode);
-    if (name !== firebaseUser?.displayName) {
-      firebaseUser?.updateProfile({
-        displayName: name,
-      });
+    setUserSettings({ editorMode });
+    if (name !== actualDisplayName) {
+      setDisplayName(name);
       userRef?.child('name').set(name);
-      setUserNameAtom(name);
     }
     onClose();
   };

@@ -342,6 +342,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
           creationTime: settings.creationTime ?? null,
           lastPermission: permission,
           lastDefaultPermission: settings.defaultPermission,
+          hidden: false,
         });
       }
     }
