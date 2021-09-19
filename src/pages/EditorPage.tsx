@@ -355,6 +355,30 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     settings.defaultPermission,
   ]);
 
+  /*This method keeps getting called multiple times (~100) per Ctrl+s press
+   * When I try creating a similar `document.addEventListener("keydown"...` method in somewhere with a higher scope, it still repeats itself, but does it fewer times
+   * (i.e. putting the method in src\App.tsx only repeats it 4 times)
+   * The only way I was able to get the code to run only a single time was to open up the Web Console and define the function there
+   ** (though it could not invoke the download method from the TypeScript code when defined in this manner)
+   * After half a day of trying to debug it (it's prob someting to do with scope based on above),
+   * I'm just going to stop trying to implement the `save` feature and just leave it at only suppressing Ctrl+s (similar to what repl.it does)
+   * End rant; if someone who is more competent at WebDev than me knows what the issue is here, a fix would be greatly appreciated!
+   */
+  document.addEventListener(
+    'keydown',
+    function (e) {
+      if (
+        e.key == 's' &&
+        (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)
+      ) {
+        e.preventDefault(); //Prevents the default "Save as HTML"
+        //handleDownloadFile();
+        return;
+      }
+    },
+    false
+  );
+
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
 
