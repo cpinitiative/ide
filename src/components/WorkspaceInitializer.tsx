@@ -63,7 +63,7 @@ if (!firebase.apps?.length) {
 }
 
 export const WorkspaceInitializer: React.FC = ({ children }) => {
-  const [firebaseUser] = useAtom(firebaseUserAtom);
+  const firebaseUser = useAtomValue(firebaseUserAtom);
   const firebaseRef = useAtomValue(firebaseRefAtom);
   const fileId = useAtomValue(fileIdAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
