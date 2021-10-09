@@ -13,20 +13,14 @@ export interface OutputProps {
   onMount: EditorProps['onMount'];
 }
 
-type JudgeOutputTab = 'stdout' | 'stderr' | 'compile_output' | 'message';
+type JudgeOutputTab = 'stdout' | 'stderr' | 'message';
 
-type OutputTab =
-  | 'stdout'
-  | 'stderr'
-  | 'compile_output'
-  | 'message'
-  | 'scribble';
+type OutputTab = 'stdout' | 'stderr' | 'message' | 'scribble';
 
 const tabs = [
   { label: 'stdout', value: 'stdout' },
   { label: 'stderr', value: 'stderr' },
-  { label: 'compile output', value: 'compile_output' },
-  { label: 'sandbox message', value: 'message' },
+  { label: 'compile output', value: 'message' },
   { label: 'scribble', value: 'scribble' },
 ];
 
@@ -34,8 +28,9 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
   const [option, setOption] = useState<OutputTab>('stdout');
 
   useEffect(() => {
-    const option = tabs.find(tab => result?.[tab.value as JudgeOutputTab])
-      ?.value;
+    const option = tabs.find(
+      tab => result?.[tab.value as JudgeOutputTab]
+    )?.value;
     if (option) setOption(option as JudgeOutputTab);
   }, [result]);
 
@@ -101,7 +96,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       <div className="text-sm font-mono text-right pr-4 text-gray-200">
         {result && (
           <>
-            {result.status.description}, {result.time ?? '-'}s,{' '}
+            {result.statusDescription}, {result.time?.substring(3) ?? '-'}s,{' '}
             {result.memory ?? '-'}KB
           </>
         )}

@@ -2,12 +2,14 @@
 export interface JudgeSuccessResult {
   stdout: string;
   stderr: string;
-  compile_output: string;
+  statusDescription: string;
+  status:
+    | 'success'
+    | 'compile_error'
+    | 'runtime_error'
+    | 'time_limit_exceeded'
+    | 'wrong_answer';
   message: string;
-  status: {
-    id: number;
-    description: string;
-  };
   time: string;
   memory: string;
 }
