@@ -1,4 +1,4 @@
-import { JudgeResult } from '../types/judge';
+import JudgeResult, { JudgeResultStatuses } from '../types/judge';
 
 export function encode(str: string | null): string {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -27,9 +27,17 @@ export function cleanJudgeResult(
   expectedOutput?: string,
   prefix?: string
 ): void {
-  if (!expectedOutput) {
-    if (data.status == 'success') data.statusDescription = 'Successful';
-  } else {
+  const statusDescriptions: { [key in JudgeResultStatuses]: string } = {
+    success: 'Successful',
+    compile_error: 'Compilation Error',
+    runtime_error: 'Runtime Error',
+    internal_error: 'Internal Server Error',
+    time_limit_exceeded: 'Time Limit Exceeded',
+    wrong_answer: 'Wrong Answer',
+  };
+  data.statusDescription = statusDescriptions[data.status];
+  if (expectedOutput && data.status === 'success') {
+    data.statusDescription = 'Successful';
     if (!data.stdout.endsWith('\n')) data.stdout += '\n';
     const { cleaned, replaced } = cleanAndReplaceOutput(data.stdout);
     if (data.status === 'success' && data.stdout !== expectedOutput) {
@@ -42,7 +50,7 @@ export function cleanJudgeResult(
       }
     }
   }
-  if (prefix && !data.statusDescription.includes('Compilation'))
+  if (prefix && data.status !== 'compile_error')
     // only add prefix when no compilation error
     data.statusDescription = prefix + data.statusDescription;
 }

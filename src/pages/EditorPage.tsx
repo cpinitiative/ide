@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
-import { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
@@ -185,7 +184,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   };
 
-  const setResultAt = (index: number, data: JudgeSuccessResult | null) => {
+  const setResultAt = (index: number, data: JudgeResult | null) => {
     const newJudgeResults = judgeResults;
     while (newJudgeResults.length <= index) newJudgeResults.push(null);
     newJudgeResults[index] = data;
@@ -240,16 +239,17 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       }
 
       const newJudgeResults = judgeResults;
-      const results = [];
+      const results: JudgeResult[] = [];
       for (let index = 0; index < samples.length; ++index) {
         const sample = samples[index];
         const resp = await promises[index];
         const data: JudgeResult = await resp.json();
-        if (data.error || !resp.ok) {
+        if (!resp.ok || data.status === 'internal_error') {
           alert(
             'Error: ' +
-              (data.error || resp.status + ' - ' + JSON.stringify(data))
+              (data.message || resp.status + ' - ' + JSON.stringify(data))
           );
+          console.error(data);
           throw new Error('bad judge result');
         }
         let prefix = 'Sample';
@@ -281,13 +281,15 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         )
           ++firstFailed;
 
-        const failedResult = JSON.parse(JSON.stringify(results[firstFailed]));
+        const failedResult: JudgeResult = JSON.parse(
+          JSON.stringify(results[firstFailed])
+        );
         if (verdicts.length > 1)
-          failedResult.status.description =
+          failedResult.statusDescription =
             'Sample Verdicts: ' +
             verdicts +
             '. ' +
-            failedResult.status.description;
+            failedResult.statusDescription;
         newJudgeResults[1] = failedResult;
         setJudgeResults(newJudgeResults);
       } else {
