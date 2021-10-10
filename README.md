@@ -128,3 +128,5 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
   ```
 
 - Compile error, stdout, stderr
+- Too large input
+- Too large output

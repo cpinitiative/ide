@@ -208,13 +208,24 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       .then(async resp => {
         const data: JudgeResult = await resp.json();
         if (!resp.ok) {
-          alert('Error: ' + (resp.status + ' - ' + JSON.stringify(data)));
+          if (data.debugData?.errorType === 'Function.ResponseSizeTooLarge') {
+            alert(
+              'Error: Your program printed too much data to stdout/stderr.'
+            );
+          } else {
+            alert('Error: ' + (resp.status + ' - ' + JSON.stringify(data)));
+          }
         } else {
           cleanJudgeResult(data, expectedOutput, prefix);
           setResultAt(inputTabIndex, data);
         }
       })
       .catch(e => {
+        alert(
+          'Error: ' +
+            e.message +
+            '. This could mean that your input is too large.'
+        );
         console.error(e);
       })
       .finally(() => setIsRunning(false));

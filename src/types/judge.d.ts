@@ -13,4 +13,5 @@ export default interface JudgeResult {
   message: string;
   time: string;
   memory: string;
+  debugData?: any;
 }
