@@ -30,13 +30,10 @@ import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
-import { JudgeSuccessResult } from '../../types/judge';
+import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 
-function resizeResults(
-  results: (JudgeSuccessResult | null)[],
-  newSize: number
-) {
+function resizeResults(results: (JudgeResult | null)[], newSize: number) {
   while (results.length > newSize) results.pop();
   while (results.length < newSize) results.push(null);
   return results;

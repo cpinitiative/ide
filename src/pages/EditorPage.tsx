@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react';
 import { RunButton } from '../components/RunButton';
 import defaultCode from '../scripts/defaultCode';
 import JudgeResult from '../types/judge';
-import { JudgeSuccessResult } from '../types/judge';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
@@ -47,7 +46,7 @@ import {
   tabsListAtom,
   inputTabIndexAtom,
 } from '../atoms/workspaceUI';
-import { encode, cleanJudgeResult, isFirebaseId } from './editorUtils';
+import { cleanJudgeResult, isFirebaseId } from './editorUtils';
 
 import { getSampleIndex } from '../components/JudgeInterface/Samples';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
@@ -124,15 +123,14 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
     const data = {
-      source_code: encode(code),
-      language_id: { cpp: 54, java: 62, py: 71 }[lang],
-      stdin: encode(input),
-      compiler_options: settings.compilerOptions[lang],
-      command_line_arguments: '',
-      redirect_stderr_to_stdout: false,
+      sourceCode: code,
+      filename: { cpp: 'main.cpp', java: 'Main.java', py: 'main.py' }[lang],
+      language: lang,
+      input,
+      compilerOptions: settings.compilerOptions[lang],
     };
     return fetch(
-      `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
+      `https://oh2kjsg6kh.execute-api.us-west-1.amazonaws.com/Prod/execute`,
       {
         method: 'POST',
         headers: {
@@ -141,6 +139,24 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         body: JSON.stringify(data),
       }
     );
+    // const data = {
+    //   source_code: encode(code),
+    //   language_id: { cpp: 54, java: 62, py: 71 }[lang],
+    //   stdin: encode(input),
+    //   compiler_options: settings.compilerOptions[lang],
+    //   command_line_arguments: '',
+    //   redirect_stderr_to_stdout: false,
+    // };
+    // return fetch(
+    //   `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
+    //   {
+    //     method: 'POST',
+    //     headers: {
+    //       'content-type': 'application/json',
+    //     },
+    //     body: JSON.stringify(data),
+    //   }
+    // );
   };
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
@@ -168,7 +184,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   };
 
-  const setResultAt = (index: number, data: JudgeSuccessResult | null) => {
+  const setResultAt = (index: number, data: JudgeResult | null) => {
     const newJudgeResults = judgeResults;
     while (newJudgeResults.length <= index) newJudgeResults.push(null);
     newJudgeResults[index] = data;
@@ -191,17 +207,25 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     fetchJudge(code, input)
       .then(async resp => {
         const data: JudgeResult = await resp.json();
-        if (data.error || !resp.ok) {
-          alert(
-            'Error: ' +
-              (data.error || resp.status + ' - ' + JSON.stringify(data))
-          );
+        if (!resp.ok) {
+          if (data.debugData?.errorType === 'Function.ResponseSizeTooLarge') {
+            alert(
+              'Error: Your program printed too much data to stdout/stderr.'
+            );
+          } else {
+            alert('Error: ' + (resp.status + ' - ' + JSON.stringify(data)));
+          }
         } else {
           cleanJudgeResult(data, expectedOutput, prefix);
           setResultAt(inputTabIndex, data);
         }
       })
       .catch(e => {
+        alert(
+          'Error: ' +
+            e.message +
+            '. This could mean that your input is too large.'
+        );
         console.error(e);
       })
       .finally(() => setIsRunning(false));
@@ -226,16 +250,17 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       }
 
       const newJudgeResults = judgeResults;
-      const results = [];
+      const results: JudgeResult[] = [];
       for (let index = 0; index < samples.length; ++index) {
         const sample = samples[index];
         const resp = await promises[index];
         const data: JudgeResult = await resp.json();
-        if (data.error || !resp.ok) {
+        if (!resp.ok || data.status === 'internal_error') {
           alert(
             'Error: ' +
-              (data.error || resp.status + ' - ' + JSON.stringify(data))
+              (data.message || resp.status + ' - ' + JSON.stringify(data))
           );
+          console.error(data);
           throw new Error('bad judge result');
         }
         let prefix = 'Sample';
@@ -249,16 +274,15 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         let verdicts = '';
         for (const result of results) {
           // https://newjudge0.usaco.guide/#statuses-and-languages-status-get
-          const id = result.status.id;
-          if (id === 6) {
+          if (result.status === 'compile_error') {
             // compilation error
             setJudgeResults([result]);
             break;
           }
-          if (id === 3) verdicts += 'A';
-          else if (id === 4) verdicts += 'W';
-          else if (id === 5) verdicts += 'T';
-          else if (7 <= id && id <= 12) verdicts += 'R';
+          if (result.status === 'success') verdicts += 'A';
+          else if (result.status === 'wrong_answer') verdicts += 'W';
+          else if (result.status === 'time_limit_exceeded') verdicts += 'T';
+          else if (result.status === 'runtime_error') verdicts += 'R';
           else verdicts += '?';
         }
         let firstFailed = 0;
@@ -268,13 +292,15 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         )
           ++firstFailed;
 
-        const failedResult = JSON.parse(JSON.stringify(results[firstFailed]));
+        const failedResult: JudgeResult = JSON.parse(
+          JSON.stringify(results[firstFailed])
+        );
         if (verdicts.length > 1)
-          failedResult.status.description =
+          failedResult.statusDescription =
             'Sample Verdicts: ' +
             verdicts +
             '. ' +
-            failedResult.status.description;
+            failedResult.statusDescription;
         newJudgeResults[1] = failedResult;
         setJudgeResults(newJudgeResults);
       } else {

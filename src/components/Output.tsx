@@ -1,32 +1,26 @@
 import { TabBar } from './TabBar';
 import Editor, { EditorProps } from '@monaco-editor/react';
 import React, { useState, useEffect, useMemo } from 'react';
-import { JudgeSuccessResult } from '../types/judge';
 import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
 import { LazyFirepadEditor } from './LazyFirepadEditor';
 
 import { actualUserPermissionAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
+import JudgeResult from '../types/judge';
 
 export interface OutputProps {
-  result: JudgeSuccessResult | null;
+  result: JudgeResult | null;
   onMount: EditorProps['onMount'];
 }
 
-type JudgeOutputTab = 'stdout' | 'stderr' | 'compile_output' | 'message';
+type JudgeOutputTab = 'stdout' | 'stderr' | 'compile_output';
 
-type OutputTab =
-  | 'stdout'
-  | 'stderr'
-  | 'compile_output'
-  | 'message'
-  | 'scribble';
+type OutputTab = 'stdout' | 'stderr' | 'compile_output' | 'scribble';
 
 const tabs = [
   { label: 'stdout', value: 'stdout' },
   { label: 'stderr', value: 'stderr' },
   { label: 'compile output', value: 'compile_output' },
-  { label: 'sandbox message', value: 'message' },
   { label: 'scribble', value: 'scribble' },
 ];
 
@@ -34,8 +28,14 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
   const [option, setOption] = useState<OutputTab>('stdout');
 
   useEffect(() => {
-    const option = tabs.find(tab => result?.[tab.value as JudgeOutputTab])
-      ?.value;
+    let option = null;
+    if (
+      result?.status === 'compile_error' ||
+      result?.status === 'internal_error'
+    )
+      option = 'compile_output';
+    else if (result?.stdout) option = 'stdout';
+    else if (result?.stderr) option = 'stderr';
     if (option) setOption(option as JudgeOutputTab);
   }, [result]);
 
@@ -49,6 +49,19 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
     }),
     [firebaseRef]
   );
+
+  let outputText;
+  if (option !== 'scribble') {
+    if (result?.status === 'internal_error') {
+      outputText =
+        'Internal Error: ' +
+        result.message +
+        '\n\nPlease report this as a Github issue.';
+    } else {
+      outputText =
+        result?.[option === 'compile_output' ? 'message' : option] ?? '';
+    }
+  }
 
   return (
     <>
@@ -85,7 +98,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
           <Editor
             theme="vs-dark"
             language={'plaintext'}
-            value={result?.[option] ?? ''}
+            value={outputText}
             saveViewState={false}
             path="output"
             options={{
@@ -101,7 +114,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       <div className="text-sm font-mono text-right pr-4 text-gray-200">
         {result && (
           <>
-            {result.status.description}, {result.time ?? '-'}s,{' '}
+            {result.statusDescription}, {result.time ?? '-'}s,{' '}
             {result.memory ?? '-'}KB
           </>
         )}

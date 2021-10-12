@@ -39,7 +39,6 @@ export const userSettingsRefAtom = atom<firebaseType.database.Reference | null>(
 );
 
 interface UserSettings {
-  name: string;
   color: string;
   editorMode: EditorMode;
   defaultPermission: DefaultPermission;
@@ -47,7 +46,6 @@ interface UserSettings {
 }
 
 const defaultUserSettings: UserSettings = {
-  name: '', // change in settings
   editorMode: 'Normal', // change in settings
   color: '', // fixed
   defaultPermission: 'READ_WRITE', // change in dashboard
@@ -72,7 +70,6 @@ export const _userSettingsAtom = atom<UserSettings, Partial<UserSettings>>(
     if (firebaseUser) {
       obj = {
         ...obj,
-        name: get(displayNameAtom),
         color: colorFromUserId(firebaseUser.uid),
       };
     }

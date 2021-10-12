@@ -1,6 +1,9 @@
 import { atom } from 'jotai';
 import type firebaseType from 'firebase';
-import { userSettingsAtomWithPersistence } from './userSettings';
+import {
+  displayNameAtom,
+  userSettingsAtomWithPersistence,
+} from './userSettings';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
 import { navigate } from '@reach/router';
@@ -75,8 +78,8 @@ export const connectionRefAtom = atom(
   }
 );
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
-export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(
-  get => {
+export const authenticatedFirebaseRefAtom =
+  atom<firebaseType.database.Reference | null>(get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(firebaseRefAtom);
     if (
@@ -87,10 +90,9 @@ export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference
       return ref;
     }
     return null;
-  }
-);
-export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | null>(
-  get => {
+  });
+export const authenticatedUserRefAtom =
+  atom<firebaseType.database.Reference | null>(get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(userRefAtom);
     if (
@@ -101,8 +103,7 @@ export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | n
       return ref;
     }
     return null;
-  }
-);
+  });
 
 export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
   const ref = get(firebaseRefAtom);
@@ -112,9 +113,8 @@ export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
     throw new Error(
       'userRef (and userRef.key) must be set before workspace can be joined'
     );
-  const { name, color, defaultPermission } = get(
-    userSettingsAtomWithPersistence
-  );
+  const { color, defaultPermission } = get(userSettingsAtomWithPersistence);
+  const name = get(displayNameAtom);
   if (!name)
     throw new Error('user name must be set before workspace can be joined');
   await ref.update({
@@ -133,7 +133,8 @@ export const joinExistingWorkspaceWithDefaultPermissionAtom = atom(
   async (get, _set, _: void) => {
     const ref = get(firebaseRefAtom);
     const userRef = get(userRefAtom);
-    const { name, color } = get(userSettingsAtomWithPersistence);
+    const { color } = get(userSettingsAtomWithPersistence);
+    const name = get(displayNameAtom);
     const permission = get(defaultPermissionAtom);
     if (!ref) throw new Error('ref must be set before workspace can be joined');
     if (!userRef || !userRef.key)

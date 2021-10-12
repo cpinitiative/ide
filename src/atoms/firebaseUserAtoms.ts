@@ -6,6 +6,7 @@ import firebase from 'firebase/app';
 import { connectionRefAtom } from './firebaseAtoms';
 import { shouldUseEmulator } from '../components/WorkspaceInitializer';
 import { displayNameAtom } from './userSettings';
+import ReactDOM from 'react-dom';
 
 const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
 export const firebaseUserAtom = atom(
@@ -27,7 +28,11 @@ export const firebaseUserAtom = atom(
 );
 firebaseUserAtom.onMount = setAtom => {
   const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-    setAtom(user);
+    // for some reason, batched updates is needed. otherwise components will rerender
+    // before the display name atom is set.
+    ReactDOM.unstable_batchedUpdates(() => {
+      setAtom(user);
+    });
     if (!user) {
       signInAnonymously();
     }
