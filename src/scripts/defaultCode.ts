@@ -73,7 +73,7 @@ class Kattio extends PrintWriter {
 \t\treturn token;
 \t}
 \tpublic boolean hasMoreTokens() { return peek() != null; }
-\tprivate String next() {
+\tpublic String next() {
 \t\tString ans = peek(); 
 \t\ttoken = null;
 \t\treturn ans;
