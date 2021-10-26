@@ -121,7 +121,7 @@ export default function DashboardPage(
 
         <div className="mb-4">
           <SharingPermissions
-            value={userSettings.defaultPermission}
+            value={!firebaseUser ? null : userSettings.defaultPermission}
             onChange={setDefaultPermissionActual}
             isOwner={true}
             lightMode
@@ -141,7 +141,9 @@ export default function DashboardPage(
           Create New File
         </button>
 
-        {!firebaseUser || firebaseUser.isAnonymous ? (
+        {!firebaseUser ? (
+          <div className="text-gray-400 mt-6">Loading...</div>
+        ) : firebaseUser.isAnonymous ? (
           <div className="text-gray-400 mt-6">
             Not signed in.{' '}
             <button
@@ -164,46 +166,51 @@ export default function DashboardPage(
         )}
 
         <div className="h-12"></div>
-        <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
-          Your Workspaces
-        </h2>
 
-        <div className="h-6"></div>
-        <RadioGroupContents
-          title="Show Hidden Files?"
-          value={showHidden}
-          onChange={setShowHidden}
-          options={[
-            {
-              label: 'Yes',
-              value: true,
-            },
-            {
-              label: 'No',
-              value: false,
-            },
-          ]}
-          lightMode
-        />
-        <div className="h-6"></div>
-
-        {ownedFiles && ownedFiles.length > 0 && (
+        {firebaseUser && (
           <>
-            <h3 className="text-gray-100 text-xl md:text-3xl font-black">
-              Owned by You
-            </h3>
-            <FilesGrid files={ownedFiles} showPerms={false} />
-          </>
-        )}
+            <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
+              Your Workspaces
+            </h2>
 
-        {files && files.length > 0 && (
-          <>
-            <div className="h-12"></div>
+            <div className="h-6"></div>
+            <RadioGroupContents
+              title="Show Hidden Files?"
+              value={showHidden}
+              onChange={setShowHidden}
+              options={[
+                {
+                  label: 'Yes',
+                  value: true,
+                },
+                {
+                  label: 'No',
+                  value: false,
+                },
+              ]}
+              lightMode
+            />
+            <div className="h-6"></div>
 
-            <h3 className="text-gray-100 text-xl md:text-3xl font-black">
-              Recently Accessed
-            </h3>
-            <FilesGrid files={files} showPerms={true} />
+            {ownedFiles && ownedFiles.length > 0 && (
+              <>
+                <h3 className="text-gray-100 text-xl md:text-3xl font-black">
+                  Owned by You
+                </h3>
+                <FilesGrid files={ownedFiles} showPerms={false} />
+              </>
+            )}
+
+            {files && files.length > 0 && (
+              <>
+                <div className="h-12"></div>
+
+                <h3 className="text-gray-100 text-xl md:text-3xl font-black">
+                  Recently Accessed
+                </h3>
+                <FilesGrid files={files} showPerms={true} />
+              </>
+            )}
           </>
         )}
       </div>

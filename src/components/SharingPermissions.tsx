@@ -11,7 +11,7 @@ export function RadioGroupContents<T>({
   lightMode,
 }: {
   title: string;
-  value: T;
+  value: T | null;
   onChange: (newVal: T) => void;
   options: {
     label: string;
@@ -99,7 +99,7 @@ export const SharingPermissions = ({
   isOwner,
   lightMode,
 }: {
-  value: string;
+  value: string | null;
   onChange: (newVal: string) => void;
   isOwner: boolean;
   lightMode?: boolean;
