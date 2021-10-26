@@ -232,7 +232,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   };
 
   const runAllSamples = async () => {
-    if (!problem || !mainMonacoEditor || !inputEditor) {
+    if (!problem || !mainMonacoEditor) {
       // editor is still loading
       return;
     }
