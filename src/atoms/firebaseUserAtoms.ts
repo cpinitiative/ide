@@ -43,6 +43,22 @@ firebaseUserAtom.onMount = setAtom => {
   };
 };
 
+// Initially it is just a dummy object, but before using it, error.credential are updated into it
+const CredentialforDataOverrideAtom = atom<object>(
+  {}
+);
+export const showConfirmModal = atom<boolean>(false);
+export const respondConfirmOverrideAtom = atom(
+  get => get(showConfirmModal),
+  (get, set, dataOverrideResponse: boolean) => {
+    if(dataOverrideResponse) {
+      // get(CredentialforDataOverrideAtom) is already been updated.
+      firebase.auth().signInWithCredential(get(CredentialforDataOverrideAtom));
+    }
+    set(showConfirmModal, false);
+  }
+)
+
 export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   const provider = new firebase.auth.GoogleAuthProvider();
   const prevUser = firebase.auth().currentUser;
@@ -51,6 +67,7 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   const prevConnectionRef = get(connectionRefAtom);
   if (prevConnectionRef) set(connectionRefAtom, null);
 
+  // Using only with emulator
   const confirmOverrideData = (callback: () => void) => {
     if (
       confirm(
@@ -79,9 +96,8 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
       .catch(error => {
         if (error.code === 'auth/credential-already-in-use') {
           // user already has an account. Sign in to that account and override our data.
-          confirmOverrideData(() => {
-            firebase.auth().signInWithCredential(error.credential);
-          });
+          set(CredentialforDataOverrideAtom, error.credential);
+          set(showConfirmModal, true);
         } else {
           alert('Error signing in: ' + error);
           if (prevConnectionRef) set(connectionRefAtom, prevConnectionRef);
