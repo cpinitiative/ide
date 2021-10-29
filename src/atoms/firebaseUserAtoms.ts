@@ -44,10 +44,22 @@ firebaseUserAtom.onMount = setAtom => {
 };
 
 // Initially it is just a dummy object, but before using it, error.credential are updated into it
-const CredentialforDataOverrideAtom = atom<object>(
-  {}
+const CredentialforDataOverrideAtom = atom<{
+  providerId: string,
+  signInMethod: string,
+  oauthIdToken: string,
+  oauthAccessToken: string,
+  toJSON(): Object
+}>(
+  {
+    providerId: "google.com",
+    signInMethod: "google.com",
+    oauthIdToken: "absolutely-dummy-string",
+    oauthAccessToken: "absolutely-dummy-string",
+    toJSON: () => JSON.stringify(this)
+}
 );
-export const showConfirmModal = atom<boolean>(false);
+const showConfirmModal = atom<boolean>(false);
 export const respondConfirmOverrideAtom = atom(
   get => get(showConfirmModal),
   (get, set, dataOverrideResponse: boolean) => {

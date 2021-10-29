@@ -1,15 +1,13 @@
 import React from 'react';
-import { useAtomValue } from 'jotai/utils';
-import { showConfirmModal, respondConfirmOverrideAtom } from '../atoms/firebaseUserAtoms';
+import { respondConfirmOverrideAtom } from '../atoms/firebaseUserAtoms';
 import { useAtom } from 'jotai';
 
 export const ConfirmOverrideModal = (): JSX.Element => {
-  const showModal = useAtomValue(showConfirmModal);
   const [ConfirmOverrideAtom, setConfirmOverrideAtom] = useAtom(respondConfirmOverrideAtom);
   return (
     <div>
       {
-        showModal ? 
+        ConfirmOverrideAtom ? 
           (
             <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
