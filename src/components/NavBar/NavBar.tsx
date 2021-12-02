@@ -71,19 +71,6 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
           Report an Issue
         </a>
         <a
-          href="https://ide-ljrw3mkrb-cpinitiative.vercel.app/"
-          target="_blank"
-          className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium flex-shrink-0"
-          rel="noreferrer"
-          onClick={e => {
-            alert(
-              'We recently migrated to a new online judge. If you experience any issues, please report an issue on Github. In the meantime, feel free to use the old IDE site.'
-            );
-          }}
-        >
-          Did something break? Use the old IDE
-        </a>
-        <a
           href="https://github.com/cpinitiative/ide"
           target="_blank"
           rel="noreferrer"
