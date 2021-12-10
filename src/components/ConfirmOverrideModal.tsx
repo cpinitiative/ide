@@ -79,7 +79,7 @@ export const ConfirmOverrideModal = (): JSX.Element => {
                     )
                   }
                 >
-                  Deactivate
+                  Override Data
                 </button>
                 <button
                   type="button"
