@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import FilesGrid from '../components/FilesGrid';
+import {ConfirmOverrideModal} from '../components/ConfirmOverrideModal';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import firebase from 'firebase/app';
 import { File } from '../components/FilesGrid';
@@ -112,6 +113,7 @@ export default function DashboardPage(
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-full flex flex-col">
+      <ConfirmOverrideModal />
       <div className="flex-1">
         <h1 className="text-gray-100 text-2xl md:text-4xl font-black">
           Real-Time Collaborative Online IDE
