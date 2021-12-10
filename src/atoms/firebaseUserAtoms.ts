@@ -43,33 +43,18 @@ firebaseUserAtom.onMount = setAtom => {
   };
 };
 
-// Initially it is just a dummy object, but before using it, error.credential are updated into it
-const CredentialforDataOverrideAtom = atom<{
-  providerId: string,
-  signInMethod: string,
-  oauthIdToken: string,
-  oauthAccessToken: string,
-  toJSON(): Object
-}>(
-  {
-    providerId: "google.com",
-    signInMethod: "google.com",
-    oauthIdToken: "absolutely-dummy-string",
-    oauthAccessToken: "absolutely-dummy-string",
-    toJSON: () => JSON.stringify(this)
-}
-);
-const showConfirmModal = atom<boolean>(false);
-export const respondConfirmOverrideAtom = atom(
-  get => get(showConfirmModal),
-  (get, set, dataOverrideResponse: boolean) => {
-    if(dataOverrideResponse) {
-      // get(CredentialforDataOverrideAtom) is already been updated.
-      firebase.auth().signInWithCredential(get(CredentialforDataOverrideAtom));
-    }
-    set(showConfirmModal, false);
-  }
-)
+/**
+ * This is set to a callback function when the modal asking the user
+ * to confirm overriding their local data after signing in is shown.
+ *
+ * If the user clicks OK, the callback function is called, and after
+ * the returned promise resolves, the atom is set to null.
+ *
+ * Otherwise, it is reset to null.
+ */
+export const confirmOverrideDataCallbackAtom = atom<
+  (() => Promise<any>) | null
+>(null);
 
 export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -79,23 +64,17 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
   const prevConnectionRef = get(connectionRefAtom);
   if (prevConnectionRef) set(connectionRefAtom, null);
 
-  // Using only with emulator
-  const confirmOverrideData = (callback: () => void) => {
-    if (
-      confirm(
-        'Warning: Your local data will be overwritten by your server data. Are you sure you want to proceed?'
-      )
-    ) {
-      callback();
-    }
-  };
-
   if (shouldUseEmulator) {
     // Note: for some reason firebase emulator does not work with `linkWithPopup`
     // so we're just going to always sign up with popup instead.
     // To test `linkWithPopup`, go to `src/components/WorkspaceInitializer.tsx`, find `shouldUseEmulator`,
     // and set that to false.
-    confirmOverrideData(() => firebase.auth().signInWithPopup(provider));
+    // a function returns a function because we want to set the atom to a callback function
+    // but if you pass a function into set() then jotai will use the function *return* value
+    // as the value of the atom
+    set(confirmOverrideDataCallbackAtom, () => () =>
+      firebase.auth().signInWithPopup(provider)
+    );
   } else {
     prevUser
       ?.linkWithPopup(provider)
@@ -108,8 +87,12 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
       .catch(error => {
         if (error.code === 'auth/credential-already-in-use') {
           // user already has an account. Sign in to that account and override our data.
-          set(CredentialforDataOverrideAtom, error.credential);
-          set(showConfirmModal, true);
+          // a function returns a function because we want to set the atom to a callback function
+          // but if you pass a function into set() then jotai will use the function *return* value
+          // as the value of the atom
+          set(confirmOverrideDataCallbackAtom, () => () =>
+            firebase.auth().signInWithCredential(error.credential)
+          );
         } else {
           alert('Error signing in: ' + error);
           if (prevConnectionRef) set(connectionRefAtom, prevConnectionRef);
