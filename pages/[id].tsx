@@ -76,6 +76,7 @@ export default function EditorPage(): JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
+    if (!router.isReady) return;
     if (
       router.query.lang === 'cpp' ||
       router.query.lang === 'java' ||
@@ -83,10 +84,10 @@ export default function EditorPage(): JSX.Element {
     ) {
       setCurrentLang(router.query.lang);
     }
-  }, [router.query.lang]);
+  }, [router.isReady]);
 
   useEffect(() => {
-    if (router.query.id === undefined) return;
+    if (!router.isReady) return;
     invariant(
       typeof router.query.id === 'string',
       'Expected router query ID to be a string'
@@ -153,24 +154,6 @@ export default function EditorPage(): JSX.Element {
         body: JSON.stringify(data),
       }
     );
-    // const data = {
-    //   source_code: encode(code),
-    //   language_id: { cpp: 54, java: 62, py: 71 }[lang],
-    //   stdin: encode(input),
-    //   compiler_options: settings.compilerOptions[lang],
-    //   command_line_arguments: '',
-    //   redirect_stderr_to_stdout: false,
-    // };
-    // return fetch(
-    //   `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'content-type': 'application/json',
-    //     },
-    //     body: JSON.stringify(data),
-    //   }
-    // );
   };
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
@@ -398,7 +381,6 @@ export default function EditorPage(): JSX.Element {
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
 
-  // https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
   return (
     <div className="h-full">
       <div className="h-full flex flex-col">
