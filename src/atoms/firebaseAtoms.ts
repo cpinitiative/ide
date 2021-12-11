@@ -6,7 +6,7 @@ import {
 } from './userSettings';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
-import { navigate } from '@reach/router';
+import invariant from 'tiny-invariant';
 
 const baseFileIdAtom = atom<{
   id: string;
@@ -27,6 +27,9 @@ export const fileIdAtom = atom(
     payload: {
       newId: string | null;
       isNewFile?: boolean;
+
+      // called to change the URLfor new files
+      navigate?: (url: string) => any;
     } | null
   ) => {
     if (payload === null) {
@@ -52,9 +55,11 @@ export const fileIdAtom = atom(
     });
 
     if (isNewFile) {
-      navigate('/' + ref.key!.substr(1) + window.location.search, {
-        replace: true,
-      });
+      invariant(
+        payload.navigate,
+        'Expected payload.navigate to be defined if isNewFile is true'
+      );
+      payload.navigate('/' + ref.key!.substr(1) + window.location.search);
     }
     set(firebaseRefAtom, ref);
   }
@@ -78,8 +83,8 @@ export const connectionRefAtom = atom(
   }
 );
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
-export const authenticatedFirebaseRefAtom =
-  atom<firebaseType.database.Reference | null>(get => {
+export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(firebaseRefAtom);
     if (
@@ -90,9 +95,10 @@ export const authenticatedFirebaseRefAtom =
       return ref;
     }
     return null;
-  });
-export const authenticatedUserRefAtom =
-  atom<firebaseType.database.Reference | null>(get => {
+  }
+);
+export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(userRefAtom);
     if (
@@ -103,7 +109,8 @@ export const authenticatedUserRefAtom =
       return ref;
     }
     return null;
-  });
+  }
+);
 
 export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
   const ref = get(firebaseRefAtom);

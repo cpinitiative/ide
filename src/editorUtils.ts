@@ -1,4 +1,4 @@
-import JudgeResult, { JudgeResultStatuses } from '../types/judge';
+import JudgeResult, { JudgeResultStatuses } from './types/judge';
 
 export function encode(str: string | null): string {
   return btoa(unescape(encodeURIComponent(str || '')));
@@ -11,7 +11,9 @@ export function isFirebaseId(queryId: string): boolean {
   return queryId.length === 19;
 }
 
-function cleanAndReplaceOutput(output: string): {
+function cleanAndReplaceOutput(
+  output: string
+): {
   replaced: string;
   cleaned: string;
 } {

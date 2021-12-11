@@ -1,29 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
-import FilesGrid from '../components/FilesGrid';
-import {ConfirmOverrideModal} from '../components/ConfirmOverrideModal';
+import FilesGrid from '../src/components/FilesGrid';
+import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import firebase from 'firebase/app';
-import { File } from '../components/FilesGrid';
+import { File } from '../src/components/FilesGrid';
 import {
   firebaseUserAtom,
   signInWithGoogleAtom,
   signOutAtom,
-} from '../atoms/firebaseUserAtoms';
-import { isFirebaseId } from './editorUtils';
-import { WorkspaceSettings } from '../components/SettingsContext';
-import { fileIdAtom } from '../atoms/firebaseAtoms';
+} from '../src/atoms/firebaseUserAtoms';
+import { isFirebaseId } from '../src/editorUtils';
+import { WorkspaceSettings } from '../src/components/SettingsContext';
+import { fileIdAtom } from '../src/atoms/firebaseAtoms';
 import {
   RadioGroupContents,
   SharingPermissions,
-} from '../components/SharingPermissions';
-import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
-import { DefaultPermission } from '../atoms/workspace';
+} from '../src/components/SharingPermissions';
+import { userSettingsAtomWithPersistence } from '../src/atoms/userSettings';
+import { DefaultPermission } from '../src/atoms/workspace';
 import { useAtom } from 'jotai';
+import { useRouter } from 'next/router';
 
-export default function DashboardPage(
-  _props: RouteComponentProps
-): JSX.Element {
+export default function DashboardPage(): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const signInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
   const signOut = useUpdateAtom(signOutAtom);
@@ -35,6 +33,7 @@ export default function DashboardPage(
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
+  const router = useRouter();
 
   // const permissionRef = firebaseUser
   //   ? firebase
@@ -69,6 +68,7 @@ export default function DashboardPage(
     setFileId({
       newId,
       isNewFile: true,
+      navigate: router.replace,
     });
   };
 

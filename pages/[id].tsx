@@ -6,11 +6,11 @@ loader.config({
 });
 
 import React, { useState, useEffect } from 'react';
-import { RunButton } from '../components/RunButton';
-import defaultCode from '../scripts/defaultCode';
-import JudgeResult from '../types/judge';
-import { SettingsModal } from '../components/settings/SettingsModal';
-import { useSettings } from '../components/SettingsContext';
+import { RunButton } from '../src/components/RunButton';
+import defaultCode from '../src/scripts/defaultCode';
+import JudgeResult from '../src/types/judge';
+import { SettingsModal } from '../src/components/settings/SettingsModal';
+import { useSettings } from '../src/components/SettingsContext';
 import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
@@ -21,22 +21,21 @@ import {
   loadingAtom,
   mainMonacoEditorAtom,
   userPermissionAtom,
-} from '../atoms/workspace';
-import { NavBar } from '../components/NavBar/NavBar';
-import { FileMenu } from '../components/NavBar/FileMenu';
-import download from '../scripts/download';
-import { useMediaQuery } from '../hooks/useMediaQuery';
-import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
+} from '../src/atoms/workspace';
+import { NavBar } from '../src/components/NavBar/NavBar';
+import { FileMenu } from '../src/components/NavBar/FileMenu';
+import download from '../src/scripts/download';
+import { useMediaQuery } from '../src/hooks/useMediaQuery';
+import { MobileBottomNav } from '../src/components/NavBar/MobileBottomNav';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   fileIdAtom,
   setFirebaseErrorAtom,
   userRefAtom,
-} from '../atoms/firebaseAtoms';
-import { MessagePage } from '../components/MessagePage';
-import { navigate, RouteComponentProps } from '@reach/router';
+} from '../src/atoms/firebaseAtoms';
+import { MessagePage } from '../src/components/MessagePage';
 import firebase from 'firebase/app';
-import Workspace from '../components/Workspace/Workspace';
+import Workspace from '../src/components/Workspace/Workspace';
 import {
   judgeResultsAtom,
   mobileActiveTabAtom,
@@ -45,17 +44,15 @@ import {
   problemAtom,
   tabsListAtom,
   inputTabIndexAtom,
-} from '../atoms/workspaceUI';
-import { cleanJudgeResult, isFirebaseId } from './editorUtils';
+} from '../src/atoms/workspaceUI';
+import { cleanJudgeResult, isFirebaseId } from '../src/editorUtils';
 
-import { getSampleIndex } from '../components/JudgeInterface/Samples';
-import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
+import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
+import { useRouter } from 'next/router';
+import invariant from 'tiny-invariant';
 
-export interface EditorPageProps extends RouteComponentProps {
-  fileId?: string;
-}
-
-export default function EditorPage(props: EditorPageProps): JSX.Element {
+export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
@@ -63,7 +60,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
   const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
   const [isRunning, setIsRunning] = useState(false);
-  const lang = useAtomValue(currentLangAtom);
+  const [lang, setCurrentLang] = useAtom(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
   const setUserPermission = useUpdateAtom(userPermissionAtom);
@@ -76,14 +73,31 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
   const problem = useAtomValue(problemAtom);
+  const router = useRouter();
 
   useEffect(() => {
-    const queryId: string = props.fileId ?? '';
+    if (
+      router.query.lang === 'cpp' ||
+      router.query.lang === 'java' ||
+      router.query.lang === 'py'
+    ) {
+      setCurrentLang(router.query.lang);
+    }
+  }, [router.query.lang]);
+
+  useEffect(() => {
+    if (router.query.id === undefined) return;
+    invariant(
+      typeof router.query.id === 'string',
+      'Expected router query ID to be a string'
+    );
+    const queryId: string = router.query.id;
 
     if (queryId === 'new') {
       setFileId({
         newId: null,
         isNewFile: true,
+        navigate: router.replace,
       });
     } else if (isFirebaseId(queryId)) {
       if (fileId?.id !== '-' + queryId) {
@@ -94,11 +108,11 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
       }
     } else {
       alert('Error: Bad URL');
-      navigate('/', { replace: true });
+      router.replace('/');
     }
     // We only want to update the file ID when props.fileId changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.fileId]);
+  }, [router.query.id]);
 
   useEffect(() => {
     return () => setFileId(null) as void;

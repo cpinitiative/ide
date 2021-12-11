@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { navigate, RouteComponentProps } from '@reach/router';
-import { ProblemData } from '../components/Workspace/Workspace';
+import { ProblemData } from '../../src/components/Workspace/Workspace';
 
 import firebase from 'firebase/app';
 import { useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
-import { fileIdAtom } from '../atoms/firebaseAtoms';
-import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
-import { WorkspaceSettings } from '../components/SettingsContext';
-import { fetchProblemData } from '../components/Workspace/Workspace';
+import { fileIdAtom } from '../../src/atoms/firebaseAtoms';
+import { firebaseUserAtom } from '../../src/atoms/firebaseUserAtoms';
+import { WorkspaceSettings } from '../../src/components/SettingsContext';
+import { fetchProblemData } from '../../src/components/Workspace/Workspace';
+import { useRouter } from 'next/router';
+import invariant from 'tiny-invariant';
 
-export interface CreateUSACOProps extends RouteComponentProps {
-  _usacoId?: string;
-}
+export default function CreateUSACO(): JSX.Element {
+  const router = useRouter();
 
-export default function CreateUSACO({
-  _usacoId,
-}: CreateUSACOProps): JSX.Element {
-  const usacoId = _usacoId ?? '';
+  const usacoId = router.query.id;
+  invariant(typeof usacoId === 'string', 'Expected USACO ID to be a string');
+
   const setFileId = useUpdateAtom(fileIdAtom);
   const [firebaseUser] = useAtom(firebaseUserAtom);
   const [problem, setProblem] = useState<ProblemData | undefined | null>(
@@ -40,7 +39,7 @@ export default function CreateUSACO({
       }
       if (problem === null) {
         alert('Could not identify problem ID.');
-        navigate('/', { replace: true });
+        router.replace('/');
         return;
       }
       const idToUrlRef = firebase
@@ -53,9 +52,7 @@ export default function CreateUSACO({
       let newId = null;
       if (snapshot.exists()) {
         newId = snapshot.val();
-        navigate('/' + newId + window.location.search, {
-          replace: true,
-        });
+        router.replace('/' + newId + window.location.search);
       } else {
         const fileRef = firebase.database().ref().push();
         newId = fileRef.key!.slice(1);
@@ -68,6 +65,7 @@ export default function CreateUSACO({
         setFileId({
           newId,
           isNewFile: true,
+          navigate: router.replace,
         });
       }
     };

@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useUpdateAtom } from 'jotai/utils';
-import { fileIdAtom } from '../atoms/firebaseAtoms';
+import { fileIdAtom } from '../../src/atoms/firebaseAtoms';
 import firebase from 'firebase/app';
-import { navigate, RouteComponentProps } from '@reach/router';
-import { MessagePage } from '../components/MessagePage';
-import { isFirebaseId } from './editorUtils';
+import { MessagePage } from '../../src/components/MessagePage';
+import { isFirebaseId } from '../../src/editorUtils';
+import { useRouter } from 'next/router';
+import invariant from 'tiny-invariant';
 
-export interface CopyFilePageProps extends RouteComponentProps {
-  fileId?: string;
-}
+export default function CopyFilePage(): JSX.Element {
+  const router = useRouter();
+  const fileId = router.query.id ?? undefined;
 
-export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
   const setFileId = useUpdateAtom(fileIdAtom);
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
-    const queryId: string = props.fileId ?? '';
+    if (!fileId) return; // server side rendering -- ignore
+
+    invariant(typeof fileId === 'string', 'Expected fileId to be a string');
+
+    const queryId: string = fileId;
 
     if (!isFirebaseId(queryId)) {
       alert('Error: Bad URL');
-      navigate('/', { replace: true });
+      router.replace('/');
       return;
     }
 
@@ -50,6 +54,7 @@ export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
         setFileId({
           newId: newRef.key!.slice(1), // first character is dash which we want to ignore
           isNewFile: true,
+          navigate: router.replace,
         });
       })
       .catch(e => {
@@ -60,7 +65,7 @@ export default function CopyFilePage(props: CopyFilePageProps): JSX.Element {
           throw new Error(e.message);
         }
       });
-  }, [props.fileId, setFileId]);
+  }, [fileId, setFileId]);
 
   if (permissionDenied) {
     return <MessagePage message="This file is private." />;
