@@ -109,17 +109,10 @@ export default function EditorPage(): JSX.Element {
     );
     const queryId: string = router.query.id;
 
-    if (queryId === 'new') {
-      setFileId({
-        newId: null,
-        isNewFile: true,
-        navigate: router.replace,
-      });
-    } else if (isFirebaseId(queryId)) {
+    if (isFirebaseId(queryId)) {
       if (fileId?.id !== '-' + queryId) {
         setFileId({
           newId: queryId,
-          isNewFile: false,
         });
       }
     } else {

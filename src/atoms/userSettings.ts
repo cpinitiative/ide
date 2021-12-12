@@ -62,6 +62,7 @@ export const displayNameAtom = atom(
   }
 );
 
+export const isUserSettingsLoadingAtom = atom<boolean>(true);
 export const baseUserSettingsAtom = atom<UserSettings>(defaultUserSettings);
 export const _userSettingsAtom = atom<UserSettings, Partial<UserSettings>>(
   get => {

@@ -6,7 +6,6 @@ import {
 } from './userSettings';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
-import invariant from 'tiny-invariant';
 
 const baseFileIdAtom = atom<{
   id: string;
@@ -26,10 +25,6 @@ export const fileIdAtom = atom(
     set,
     payload: {
       newId: string | null;
-      isNewFile?: boolean;
-
-      // called to change the URLfor new files
-      navigate?: (url: string) => any;
     } | null
   ) => {
     if (payload === null) {
@@ -37,7 +32,7 @@ export const fileIdAtom = atom(
       set(firebaseRefAtom, null);
       return;
     }
-    const { newId, isNewFile } = payload;
+    const { newId } = payload;
 
     if (get(baseFileIdAtom)?.id === newId && !!newId) {
       // target file already loaded, ignore
@@ -51,16 +46,9 @@ export const fileIdAtom = atom(
     }
     set(baseFileIdAtom, {
       id: ref.key!,
-      isNewFile: !!isNewFile,
+      isNewFile: false,
     });
 
-    if (isNewFile) {
-      invariant(
-        payload.navigate,
-        'Expected payload.navigate to be defined if isNewFile is true'
-      );
-      payload.navigate('/' + ref.key!.substr(1) + window.location.search);
-    }
     set(firebaseRefAtom, ref);
   }
 );

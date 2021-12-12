@@ -16,7 +16,10 @@ import {
   RadioGroupContents,
   SharingPermissions,
 } from '../src/components/SharingPermissions';
-import { userSettingsAtomWithPersistence } from '../src/atoms/userSettings';
+import {
+  isUserSettingsLoadingAtom,
+  userSettingsAtomWithPersistence,
+} from '../src/atoms/userSettings';
 import { DefaultPermission } from '../src/atoms/workspace';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
@@ -33,6 +36,7 @@ export default function DashboardPage(): JSX.Element {
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
+  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
   const router = useRouter();
 
   // const permissionRef = firebaseUser
@@ -59,17 +63,25 @@ export default function DashboardPage(): JSX.Element {
   };
 
   const makeNewWorkspaceWithName = async (name: string) => {
-    const fileRef = firebase.database().ref().push();
-    const newId = fileRef.key!.slice(1);
-    const toUpdate: Partial<WorkspaceSettings> = {
-      workspaceName: name,
-    };
-    await fileRef.child('settings').update(toUpdate);
-    setFileId({
-      newId,
-      isNewFile: true,
-      navigate: router.replace,
+    if (!firebaseUser) return;
+    const resp = await fetch(`/api/createNewFile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workspaceName: name,
+        userID: firebaseUser.uid,
+        userName: firebaseUser.displayName,
+        defaultPermission: userSettings.defaultPermission,
+      }),
     });
+    const data = await resp.json();
+    if (resp.ok) {
+      router.push(`/${data.fileID}`);
+    } else {
+      alert('Error: ' + data.message);
+    }
   };
 
   useEffect(() => {
@@ -121,31 +133,37 @@ export default function DashboardPage(): JSX.Element {
 
         <div className="h-6"></div>
 
-        <div className="mb-4">
-          <SharingPermissions
-            value={!firebaseUser ? null : userSettings.defaultPermission}
-            onChange={setDefaultPermissionActual}
-            isOwner={true}
-            lightMode
-          />
-        </div>
-
-        <button
-          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
-          onClick={() => {
-            const workspaceName = prompt(
-              'Creating a new workspace. Please name it:'
-            );
-            if (workspaceName === null) return;
-            makeNewWorkspaceWithName(workspaceName);
-          }}
-        >
-          Create New File
-        </button>
-
-        {!firebaseUser ? (
+        {(!firebaseUser || isUserSettingsLoading) && (
           <div className="text-gray-400 mt-6">Loading...</div>
-        ) : firebaseUser.isAnonymous ? (
+        )}
+
+        {!isUserSettingsLoading && (
+          <>
+            <div className="mb-4">
+              <SharingPermissions
+                value={!firebaseUser ? null : userSettings.defaultPermission}
+                onChange={setDefaultPermissionActual}
+                isOwner={true}
+                lightMode
+              />
+            </div>
+
+            <button
+              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+              onClick={() => {
+                const workspaceName = prompt(
+                  'Creating a new workspace. Please name it:'
+                );
+                if (workspaceName === null) return;
+                makeNewWorkspaceWithName(workspaceName);
+              }}
+            >
+              Create New File
+            </button>
+          </>
+        )}
+
+        {firebaseUser && !isUserSettingsLoading && firebaseUser.isAnonymous ? (
           <div className="text-gray-400 mt-6">
             Not signed in.{' '}
             <button
@@ -155,7 +173,7 @@ export default function DashboardPage(): JSX.Element {
               Sign in now
             </button>
           </div>
-        ) : (
+        ) : firebaseUser && !isUserSettingsLoading ? (
           <div className="text-gray-400 mt-6">
             Signed in as {firebaseUser.displayName}.
             <button
@@ -165,11 +183,11 @@ export default function DashboardPage(): JSX.Element {
               Sign Out
             </button>
           </div>
-        )}
+        ) : null}
 
         <div className="h-12"></div>
 
-        {firebaseUser && (
+        {firebaseUser && !isUserSettingsLoading && (
           <>
             <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
               Your Workspaces

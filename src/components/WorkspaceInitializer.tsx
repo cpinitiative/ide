@@ -20,7 +20,11 @@ import {
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
-import { userSettingsRefAtom, _userSettingsAtom } from '../atoms/userSettings';
+import {
+  isUserSettingsLoadingAtom,
+  userSettingsRefAtom,
+  _userSettingsAtom,
+} from '../atoms/userSettings';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -76,17 +80,22 @@ export const WorkspaceInitializer: React.FC = ({ children }) => {
   const setConnectionRef = useUpdateAtom(connectionRefAtom);
 
   const userSettingsRef = useAtomValue(userSettingsRefAtom);
+  const [isUserSettingsLoading, setIsUserSettingsLoading] = useAtom(
+    isUserSettingsLoadingAtom
+  );
   const setUserSettings = useUpdateAtom(_userSettingsAtom);
   // const currentLang = useAtomValue(actualLangAtom);
   // console.log(`CURRENT LANG ${currentLang}`);
   const updateLangFromFirebase = useUpdateAtom(updateLangFromFirebaseAtom);
   useEffect(() => {
     if (userSettingsRef) {
+      setIsUserSettingsLoading(true);
       const handleUserSettingsChange = (
         snap: firebaseType.database.DataSnapshot
       ) => {
         const val = snap.val();
         setUserSettings(val);
+        setIsUserSettingsLoading(false);
         const lang = val?.defaultLang;
         if (lang) updateLangFromFirebase(lang);
       };
