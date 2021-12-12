@@ -90,6 +90,13 @@
       "chat": {
         ".read": "root.child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
         ".write": "root.child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'"
+      },
+
+      "classroom": {
+        ".read": true,
+        "$setting": {
+          ".write": "root.child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER'"
+        }
       }
     },
     ".read": false,

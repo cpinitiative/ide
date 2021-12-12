@@ -226,7 +226,8 @@ export default function DashboardPage(): JSX.Element {
         >
           USACO Guide
         </a>
-        !
+        !<br />
+        Not for commercial use.
       </div>
     </div>
   );
