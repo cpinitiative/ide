@@ -236,7 +236,7 @@ export default function EditorPage(): JSX.Element {
         alert(
           'Error: ' +
             e.message +
-            '. This could mean that your input is too large.'
+            '. Perhaps the server is down, or your input is too large.'
         );
         console.error(e);
       })

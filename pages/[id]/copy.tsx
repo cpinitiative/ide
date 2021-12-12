@@ -15,7 +15,7 @@ export default function CopyFilePage(): JSX.Element {
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
-    if (!fileId) return; // server side rendering -- ignore
+    if (router.isReady) return; // server side rendering -- ignore
 
     invariant(typeof fileId === 'string', 'Expected fileId to be a string');
 
@@ -65,7 +65,7 @@ export default function CopyFilePage(): JSX.Element {
           throw new Error(e.message);
         }
       });
-  }, [fileId, setFileId]);
+  }, [router.isReady, fileId, setFileId]);
 
   if (permissionDenied) {
     return <MessagePage message="This file is private." />;
