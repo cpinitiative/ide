@@ -47,7 +47,7 @@ export default async (
         users: {
           [data.userID]: {
             name: data.userName,
-            color: colorFromUserId(data.userName),
+            color: colorFromUserId(data.userID),
             permission: 'OWNER',
           },
         },

@@ -28,6 +28,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "firebase": "^8.6.1",
+    "firebase-admin": "^10.0.0",
     "husky": "^6.0.0",
     "jotai": "^0.16.3",
     "jsdom": "^16.5.3",
