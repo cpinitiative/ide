@@ -5,7 +5,11 @@ import { signInAnonymously } from '../scripts/firebaseUtils';
 import firebase from 'firebase/app';
 import { connectionRefAtom } from './firebaseAtoms';
 import { shouldUseEmulator } from '../components/WorkspaceInitializer';
-import { displayNameAtom } from './userSettings';
+import {
+  baseUserSettingsAtom,
+  defaultUserSettings,
+  displayNameAtom,
+} from './userSettings';
 import ReactDOM from 'react-dom';
 
 const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
@@ -103,5 +107,6 @@ export const signInWithGoogleAtom = atom(null, (get, set, _) => {
 
 export const signOutAtom = atom(null, (_, set) => {
   set(connectionRefAtom, null);
+  set(baseUserSettingsAtom, defaultUserSettings);
   firebase.auth().signOut();
 });

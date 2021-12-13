@@ -45,7 +45,7 @@ interface UserSettings {
   defaultLang: Language;
 }
 
-const defaultUserSettings: UserSettings = {
+export const defaultUserSettings: UserSettings = {
   editorMode: 'Normal', // change in settings
   color: '', // fixed
   defaultPermission: 'READ_WRITE', // change in dashboard
