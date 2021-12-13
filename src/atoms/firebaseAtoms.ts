@@ -42,6 +42,7 @@ export const fileIdAtom = atom(
     if (newId) {
       ref = ref.child('-' + newId);
     } else {
+      alert('ERROR');
       ref = ref.push(); // generate unique location.
     }
     set(baseFileIdAtom, {

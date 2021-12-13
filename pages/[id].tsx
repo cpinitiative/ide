@@ -53,6 +53,7 @@ import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
 import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
 import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
+import { submitToJudge } from '../src/scripts/judge';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -110,11 +111,9 @@ export default function EditorPage(): JSX.Element {
     const queryId: string = router.query.id;
 
     if (isFirebaseId(queryId)) {
-      if (fileId?.id !== '-' + queryId) {
-        setFileId({
-          newId: queryId,
-        });
-      }
+      setFileId({
+        newId: queryId,
+      });
     } else {
       alert('Error: Bad URL');
       router.replace('/');
@@ -145,23 +144,7 @@ export default function EditorPage(): JSX.Element {
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
-    const data = {
-      sourceCode: code,
-      filename: { cpp: 'main.cpp', java: 'Main.java', py: 'main.py' }[lang],
-      language: lang,
-      input,
-      compilerOptions: settings.compilerOptions[lang],
-    };
-    return fetch(
-      `https://oh2kjsg6kh.execute-api.us-west-1.amazonaws.com/Prod/execute`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    return submitToJudge(lang, code, input, settings.compilerOptions[lang]);
   };
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
