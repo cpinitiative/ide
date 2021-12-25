@@ -1,7 +1,7 @@
 export default {
   cpp: `// Source: https://usaco.guide/general/io
 
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
 int main() {
