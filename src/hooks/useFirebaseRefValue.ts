@@ -1,5 +1,6 @@
 import type firebaseType from 'firebase';
 import { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 
 export default function useFirebaseRefValue<T>(
   ref: firebaseType.database.Reference | undefined
@@ -10,6 +11,7 @@ export default function useFirebaseRefValue<T>(
   useEffect(() => {
     if (!ref) {
       setIsLoading(false);
+      console.log('reset');
       setValue(null);
       return;
     }
@@ -17,7 +19,10 @@ export default function useFirebaseRefValue<T>(
     setValue(null);
 
     const callback = (snapshot: firebaseType.database.DataSnapshot) => {
-      setValue(snapshot.val());
+      ReactDOM.unstable_batchedUpdates(() => {
+        setIsLoading(false);
+        setValue(snapshot.val());
+      });
     };
     ref.on('value', callback);
 

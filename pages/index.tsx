@@ -84,6 +84,27 @@ export default function DashboardPage(): JSX.Element {
     }
   };
 
+  const makeNewClassroomWithName = async (name: string) => {
+    if (!firebaseUser) return;
+    const resp = await fetch(`/api/createNewClassroom`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workspaceName: name,
+        userID: firebaseUser.uid,
+        userName: firebaseUser.displayName,
+      }),
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      router.push(`/classrooms/${data.fileID}`);
+    } else {
+      alert('Error: ' + data.message);
+    }
+  };
+
   useEffect(() => {
     if (!firebaseUser) return;
 
@@ -148,18 +169,32 @@ export default function DashboardPage(): JSX.Element {
               />
             </div>
 
-            <button
-              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
-              onClick={() => {
-                const workspaceName = prompt(
-                  'Creating a new workspace. Please name it:'
-                );
-                if (workspaceName === null) return;
-                makeNewWorkspaceWithName(workspaceName);
-              }}
-            >
-              Create New File
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+                onClick={() => {
+                  const workspaceName = prompt(
+                    'Creating a new workspace. Please name it:'
+                  );
+                  if (workspaceName === null) return;
+                  makeNewWorkspaceWithName(workspaceName);
+                }}
+              >
+                Create New File
+              </button>
+              <button
+                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+                onClick={() => {
+                  const workspaceName = prompt(
+                    'Creating a new classroom. Please name it:'
+                  );
+                  if (workspaceName === null) return;
+                  makeNewClassroomWithName(workspaceName);
+                }}
+              >
+                Create New Classroom
+              </button>
+            </div>
           </>
         )}
 

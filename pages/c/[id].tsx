@@ -2,12 +2,12 @@ import { useAtomValue } from 'jotai/utils';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import invariant from 'tiny-invariant';
-import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
+import { firebaseUserAtom } from '../../src/atoms/firebaseUserAtoms';
 import {
-  isUserSettingsLoadingAtom,
   userSettingsAtomWithPersistence,
-} from '../src/atoms/userSettings';
-import { MessagePage } from '../src/components/MessagePage';
+  isUserSettingsLoadingAtom,
+} from '../../src/atoms/userSettings';
+import { MessagePage } from '../../src/components/MessagePage';
 
 export default function NewFilePage() {
   const firebaseUser = useAtomValue(firebaseUserAtom);
@@ -17,6 +17,7 @@ export default function NewFilePage() {
 
   useEffect(() => {
     if (!isUserSettingsLoading) {
+      const classID = router.query.id;
       invariant(
         firebaseUser,
         'Expected firebase user to be initialized when user settings are done loading'
@@ -26,13 +27,13 @@ export default function NewFilePage() {
         'Expected user settings to be initialized when user settings are done loading'
       );
       (async () => {
-        const resp = await fetch(`/api/createNewFile`, {
+        const resp = await fetch(`/api/joinClassroom`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            workspaceName: 'Unnamed Workspace',
+            classroomID: classID,
             userID: firebaseUser.uid,
             userName: firebaseUser.displayName,
             defaultPermission: userSettings.defaultPermission,
@@ -48,5 +49,5 @@ export default function NewFilePage() {
     }
   }, [isUserSettingsLoading]);
 
-  return <MessagePage showHomeButton={false} message="Creating new file..." />;
+  return <MessagePage showHomeButton={false} message="Joining Classroom..." />;
 }

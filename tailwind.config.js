@@ -6,9 +6,9 @@ module.exports = {
     'src/**/*.js',
     'src/**/*.ts',
     'src/**/*.tsx',
-    'pages/**/*.js',
-    'pages/**/*.ts',
-    'pages/**/*.tsx',
+    './pages/**/*.js',
+    './pages/**/*.ts',
+    './pages/**/*.tsx',
   ],
   darkMode: false, // or 'media' or 'class'
   theme: {
