@@ -39,7 +39,7 @@ export default function useUserFileConnection() {
       firebase
         .database()
         .ref(
-          `/classrooms/${settings.settings.classroomID}/students/${firebaseUser.uid}/connections`
+          `/classrooms/-${settings.settings.classroomID}/students/${firebaseUser.uid}/connections`
         ),
     [firebaseUser?.uid, settings.settings.classroomID]
   );
