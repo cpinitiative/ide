@@ -43,6 +43,7 @@ export interface WorkspaceSettings {
   workspaceName?: string;
   creationTime?: string;
   problem?: ProblemData | null;
+  classroomID?: string;
 }
 
 type SettingsContextType = {

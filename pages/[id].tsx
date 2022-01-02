@@ -54,6 +54,7 @@ import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
 import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
 import { submitToJudge } from '../src/scripts/judge';
+import useUserFileConnection from '../src/hooks/useUserFileConnection';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -142,6 +143,8 @@ export default function EditorPage(): JSX.Element {
       };
     }
   }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
+
+  useUserFileConnection();
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
     return submitToJudge(lang, code, input, settings.compilerOptions[lang]);

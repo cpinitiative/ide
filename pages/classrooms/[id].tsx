@@ -20,8 +20,8 @@ export interface ClassroomStudent {
   connections: { [key: string]: number };
 }
 
-interface ClassroomInfo {
-  students: {
+export interface ClassroomInfo {
+  students?: {
     [userID: string]: ClassroomStudent;
   };
   users: {
@@ -96,6 +96,13 @@ export default function ClassroomPage() {
                 }}
                 isInstructor={true}
               />
+              {Object.values(classroomInfo.students || {}).map(student => (
+                <ClassroomUserListItem
+                  user={student}
+                  isInstructor={false}
+                  key={student.studentID}
+                />
+              ))}
             </ClassroomUserList>
           </div>
           <div

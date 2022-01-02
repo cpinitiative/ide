@@ -1,24 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { isFirebaseId } from '../../src/editorUtils';
 import colorFromUserId from '../../src/scripts/colorFromUserId';
-import * as firebaseAdmin from 'firebase-admin';
-
-// get this JSON from the Firebase board
-// you can also store the values in environment variables
-// import serviceAccount from './secret.json';
-
-if (!firebaseAdmin.apps.length) {
-  // firebaseAdmin.initializeApp({
-  //   credential: firebaseAdmin.credential.cert({
-  //     privateKey: serviceAccount.private_key,
-  //     clientEmail: serviceAccount.client_email,
-  //     projectId: serviceAccount.project_id,
-  //   }),
-  //   databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com',
-  // });
-  // note: export FIREBASE_AUTH_EMULATOR_HOST="localhost:9099"
-  firebaseAdmin.initializeApp({ projectId: 'cp-ide' });
-}
+import { getAuth } from 'firebase-admin/auth';
+import firebaseApp from '../../src/firebaseAdmin';
 
 type RequestData = {
   idToken: string;
@@ -48,7 +32,7 @@ export default async (
 
   let decodedToken;
   try {
-    decodedToken = await firebaseAdmin.auth().verifyIdToken(data.idToken);
+    decodedToken = await getAuth(firebaseApp).verifyIdToken(data.idToken);
   } catch (e) {
     res.status(400).json({
       message: 'Error decoding ID Token',

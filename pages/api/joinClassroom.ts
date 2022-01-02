@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import colorFromUserId from '../../src/scripts/colorFromUserId';
+import { getDatabase, ServerValue } from 'firebase-admin/database';
+import firebaseApp from '../../src/firebaseAdmin';
+import { ClassroomInfo } from '../classrooms/[id]';
 
 type RequestData = {
   classroomID: string;
@@ -36,31 +39,52 @@ export default async (
     return;
   }
 
-  const resp = await fetch(
-    `http://127.0.0.1:9000/.json?ns=cp-ide-default-rtdb`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  const classroomData: ClassroomInfo = (
+    await getDatabase(firebaseApp).ref(`/classrooms/-${data.classroomID}`).get()
+  ).val();
+
+  if (!classroomData) {
+    res.status(400).json({
+      message: 'Classroom not found',
+    });
+    return;
+  }
+
+  if (classroomData.students?.[data.userID]) {
+    res.status(200).json({
+      fileID: classroomData.students[data.userID].studentFileID.substring(1),
+    });
+    return;
+  }
+
+  const fileRef = await getDatabase(firebaseApp)
+    .ref(`/`)
+    .push({
+      users: {
+        [data.userID]: {
+          name: data.userName,
+          color: colorFromUserId(data.userID),
+          permission: 'OWNER',
+        },
       },
-      body: JSON.stringify({
-        users: {
-          [data.userID]: {
-            name: data.userName,
-            color: colorFromUserId(data.userID),
-            permission: 'OWNER',
-          },
-        },
-        settings: {
-          workspaceName: data.workspaceName,
-          defaultPermission: data.defaultPermission,
-          creationTime: {
-            '.sv': 'timestamp',
-          },
-        },
-      }),
-    }
-  );
-  const fileID: string = (await resp.json()).name;
-  res.status(200).json({ fileID: fileID.substr(1) });
+      settings: {
+        workspaceName: classroomData.settings.workspaceName,
+        defaultPermission: data.defaultPermission,
+        creationTime: ServerValue.TIMESTAMP,
+        classroomID: data.classroomID,
+      },
+    });
+
+  const fileID: string = fileRef.key!;
+
+  await getDatabase(firebaseApp)
+    .ref(`/classrooms/-${data.classroomID}/students/${data.userID}`)
+    .update({
+      color: colorFromUserId(data.userID),
+      studentID: data.userID,
+      studentFileID: fileID.substring(1),
+      name: data.userName,
+    });
+
+  res.status(200).json({ fileID: fileID.substring(1) });
 };

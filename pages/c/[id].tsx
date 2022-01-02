@@ -16,7 +16,7 @@ export default function NewFilePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserSettingsLoading) {
+    if (!isUserSettingsLoading || !router.isReady) {
       const classID = router.query.id;
       invariant(
         firebaseUser,
@@ -47,7 +47,7 @@ export default function NewFilePage() {
         }
       })();
     }
-  }, [isUserSettingsLoading]);
+  }, [router.isReady, isUserSettingsLoading]);
 
   return <MessagePage showHomeButton={false} message="Joining Classroom..." />;
 }

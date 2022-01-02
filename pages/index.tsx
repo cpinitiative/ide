@@ -10,7 +10,6 @@ import {
   signOutAtom,
 } from '../src/atoms/firebaseUserAtoms';
 import { isFirebaseId } from '../src/editorUtils';
-import { WorkspaceSettings } from '../src/components/SettingsContext';
 import { fileIdAtom } from '../src/atoms/firebaseAtoms';
 import {
   RadioGroupContents,
@@ -23,6 +22,7 @@ import {
 import { DefaultPermission } from '../src/atoms/workspace';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
+import { useConnectionContext } from '../src/context/ConnectionContext';
 
 export default function DashboardPage(): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
@@ -38,6 +38,7 @@ export default function DashboardPage(): JSX.Element {
   );
   const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
   const router = useRouter();
+  const connectionContext = useConnectionContext();
 
   // const permissionRef = firebaseUser
   //   ? firebase
@@ -203,7 +204,7 @@ export default function DashboardPage(): JSX.Element {
             Not signed in.{' '}
             <button
               className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
-              onClick={signInWithGoogle}
+              onClick={() => signInWithGoogle(connectionContext)}
             >
               Sign in now
             </button>
@@ -213,7 +214,7 @@ export default function DashboardPage(): JSX.Element {
             Signed in as {firebaseUser.displayName}.
             <button
               className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
-              onClick={signOut}
+              onClick={() => signOut(connectionContext)}
             >
               Sign Out
             </button>
