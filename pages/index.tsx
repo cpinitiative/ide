@@ -100,7 +100,7 @@ export default function DashboardPage(): JSX.Element {
     });
     const data = await resp.json();
     if (resp.ok) {
-      router.push(`/classrooms/${data.fileID}`);
+      router.push(`/classrooms/${data.fileID}/instructor`);
     } else {
       alert('Error: ' + data.message);
     }

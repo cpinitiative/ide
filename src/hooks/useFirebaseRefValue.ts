@@ -1,5 +1,5 @@
 import type firebaseType from 'firebase';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 
 export default function useFirebaseRefValue<T>(
@@ -29,8 +29,11 @@ export default function useFirebaseRefValue<T>(
     return () => ref.off('value', callback);
   }, [ref?.key]);
 
-  return {
-    value,
-    isLoading,
-  };
+  return useMemo(
+    () => ({
+      value,
+      isLoading,
+    }),
+    [value, isLoading]
+  );
 }

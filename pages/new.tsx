@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import invariant from 'tiny-invariant';
 import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
 import {
+  displayNameAtom,
   isUserSettingsLoadingAtom,
   userSettingsAtomWithPersistence,
 } from '../src/atoms/userSettings';
@@ -11,12 +12,13 @@ import { MessagePage } from '../src/components/MessagePage';
 
 export default function NewFilePage() {
   const firebaseUser = useAtomValue(firebaseUserAtom);
+  const displayName = useAtomValue(displayNameAtom);
   const userSettings = useAtomValue(userSettingsAtomWithPersistence);
   const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserSettingsLoading) {
+    if (!isUserSettingsLoading && displayName) {
       invariant(
         firebaseUser,
         'Expected firebase user to be initialized when user settings are done loading'
@@ -46,7 +48,7 @@ export default function NewFilePage() {
         }
       })();
     }
-  }, [isUserSettingsLoading]);
+  }, [isUserSettingsLoading, displayName]);
 
   return <MessagePage showHomeButton={false} message="Creating new file..." />;
 }

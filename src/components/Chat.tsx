@@ -76,7 +76,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
 
   return (
     <div className={classNames(className, 'flex flex-col')}>
-      <div className="font-medium">Chat</div>
+      <div className="font-medium text-white">Chat</div>
       <div
         className="flex-1 space-y-1 mt-1 min-h-0 overflow-y-auto"
         ref={chatRef}
@@ -99,7 +99,7 @@ export const Chat = ({ className }: { className?: string }): JSX.Element => {
       {(userPermission === 'OWNER' || userPermission === 'READ_WRITE') && (
         <form onSubmit={handleSubmit}>
           <textarea
-            className="mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 focus:placeholder-gray-400 text-sm"
+            className="text-white mt-1 block w-full bg-[#1E1E1E] border-0 px-0 focus:ring-0 focus:placeholder-gray-400 text-sm"
             placeholder="Send a message"
             rows={3}
             value={message}

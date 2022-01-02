@@ -6,17 +6,19 @@ import { firebaseUserAtom } from '../../src/atoms/firebaseUserAtoms';
 import {
   userSettingsAtomWithPersistence,
   isUserSettingsLoadingAtom,
+  displayNameAtom,
 } from '../../src/atoms/userSettings';
 import { MessagePage } from '../../src/components/MessagePage';
 
 export default function NewFilePage() {
   const firebaseUser = useAtomValue(firebaseUserAtom);
+  const displayName = useAtomValue(displayNameAtom);
   const userSettings = useAtomValue(userSettingsAtomWithPersistence);
   const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserSettingsLoading || !router.isReady) {
+    if (!isUserSettingsLoading && router.isReady && displayName) {
       const classID = router.query.id;
       invariant(
         firebaseUser,
@@ -35,7 +37,7 @@ export default function NewFilePage() {
           body: JSON.stringify({
             classroomID: classID,
             userID: firebaseUser.uid,
-            userName: firebaseUser.displayName,
+            userName: displayName,
             defaultPermission: userSettings.defaultPermission,
           }),
         });
@@ -47,7 +49,7 @@ export default function NewFilePage() {
         }
       })();
     }
-  }, [router.isReady, isUserSettingsLoading]);
+  }, [router.isReady, isUserSettingsLoading, displayName]);
 
   return <MessagePage showHomeButton={false} message="Joining Classroom..." />;
 }

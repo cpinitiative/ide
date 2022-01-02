@@ -69,7 +69,7 @@ export default async (
       },
       settings: {
         workspaceName: classroomData.settings.workspaceName,
-        defaultPermission: data.defaultPermission,
+        defaultPermission: 'READ_WRITE', // todo maybe use data.defaultPermission?
         creationTime: ServerValue.TIMESTAMP,
         classroomID: data.classroomID,
       },
