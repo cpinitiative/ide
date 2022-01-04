@@ -58,8 +58,15 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
         result.message +
         '\n\nPlease report this as a Github issue.';
     } else {
-      outputText =
-        result?.[option === 'compile_output' ? 'message' : option] ?? '';
+      if (option === 'compile_output') {
+        if (result?.status === 'compile_error') {
+          outputText = result.message ?? '';
+        } else {
+          outputText = result?.compilationMessage ?? '';
+        }
+      } else {
+        outputText = result?.[option] ?? '';
+      }
     }
   }
 
