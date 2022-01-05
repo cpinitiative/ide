@@ -1,10 +1,3 @@
-import loader from '@monaco-editor/loader';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
-
 import React, { useState, useEffect } from 'react';
 import { RunButton } from '../src/components/RunButton';
 import defaultCode from '../src/scripts/defaultCode';
