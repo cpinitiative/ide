@@ -48,6 +48,7 @@ import invariant from 'tiny-invariant';
 import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
 import { submitToJudge } from '../src/scripts/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
+import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissions';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -60,11 +61,9 @@ export default function EditorPage(): JSX.Element {
   const [lang, setCurrentLang] = useAtom(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
-  const setUserPermission = useUpdateAtom(userPermissionAtom);
   const permission = useAtomValue(actualUserPermissionAtom);
   const loading = useAtomValue(loadingAtom);
   const setShowSidebar = useUpdateAtom(showSidebarAtom);
-  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
@@ -120,23 +119,7 @@ export default function EditorPage(): JSX.Element {
     return () => setFileId(null) as void;
   }, [setFileId]);
 
-  const potentiallyUnauthenticatedUserRef = useAtomValue(userRefAtom);
-  useEffect(() => {
-    if (potentiallyUnauthenticatedUserRef) {
-      const handleChange = (snap: firebaseType.database.DataSnapshot) => {
-        if (!snap.exists()) return;
-        const permission = snap.val().permission;
-        setUserPermission(permission);
-      };
-      potentiallyUnauthenticatedUserRef.on('value', handleChange, e => {
-        setFirebaseError(e);
-      });
-      return () => {
-        potentiallyUnauthenticatedUserRef.off('value', handleChange);
-      };
-    }
-  }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
-
+  useUpdateUserFilePermissions();
   useUserFileConnection();
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
