@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import colorFromUserId from '../../src/scripts/colorFromUserId';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
 import firebaseApp from '../../src/firebaseAdmin';
-import { ClassroomInfo } from '../classrooms/[id]';
+import { ClassroomInfo } from '../../src/context/ClassroomContext';
 
 type RequestData = {
   classroomID: string;

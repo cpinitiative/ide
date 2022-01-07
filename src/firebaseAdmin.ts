@@ -1,4 +1,4 @@
-import { getApp, getApps, initializeApp } from 'firebase-admin/app';
+import { getApp, getApps, initializeApp, cert } from 'firebase-admin/app';
 
 // // get this JSON from the Firebase board
 // // you can also store the values in environment variables
@@ -19,10 +19,21 @@ import { getApp, getApps, initializeApp } from 'firebase-admin/app';
 // }
 
 if (getApps().length === 0) {
-  initializeApp({
-    projectId: 'cp-ide',
-    databaseURL: 'http://127.0.0.1:9000?ns=cp-ide-default-rtdb',
-  });
+  if (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      }),
+      databaseURL: 'https://cp-ide.firebaseio.com',
+    });
+  } else {
+    initializeApp({
+      projectId: 'cp-ide',
+      databaseURL: 'http://127.0.0.1:9000?ns=cp-ide-default-rtdb',
+    });
+  }
 }
 
 const firebaseApp = getApp();

@@ -1,4 +1,6 @@
+import { getDatabase, ServerValue } from 'firebase-admin/database';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import firebaseApp from '../../src/firebaseAdmin';
 import colorFromUserId from '../../src/scripts/colorFromUserId';
 
 type RequestData = {
@@ -36,31 +38,22 @@ export default async (
     return;
   }
 
-  const resp = await fetch(
-    `http://127.0.0.1:9000/.json?ns=cp-ide-default-rtdb`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  const resp = await getDatabase(firebaseApp)
+    .ref('/')
+    .push({
+      users: {
+        [data.userID]: {
+          name: data.userName,
+          color: colorFromUserId(data.userID),
+          permission: 'OWNER',
+        },
       },
-      body: JSON.stringify({
-        users: {
-          [data.userID]: {
-            name: data.userName,
-            color: colorFromUserId(data.userID),
-            permission: 'OWNER',
-          },
-        },
-        settings: {
-          workspaceName: data.workspaceName,
-          defaultPermission: data.defaultPermission,
-          creationTime: {
-            '.sv': 'timestamp',
-          },
-        },
-      }),
-    }
-  );
-  const fileID: string = (await resp.json()).name;
-  res.status(200).json({ fileID: fileID.substr(1) });
+      settings: {
+        workspaceName: data.workspaceName,
+        defaultPermission: data.defaultPermission,
+        creationTime: ServerValue.TIMESTAMP,
+      },
+    });
+  const fileID: string = resp.key!;
+  res.status(200).json({ fileID: fileID.substring(1) });
 };
