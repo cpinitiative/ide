@@ -64,8 +64,8 @@ export default function CreateUSACO(): JSX.Element {
         await fileRef.child('settings').update(toUpdate);
         setFileId({
           newId,
-          isNewFile: true,
-          navigate: router.replace,
+          // isNewFile: true,
+          // navigate: router.replace,
         });
       }
     };
