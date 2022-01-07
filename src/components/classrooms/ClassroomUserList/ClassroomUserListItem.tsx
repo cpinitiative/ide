@@ -1,7 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { ClassroomStudent } from '../../../../pages/classrooms/[classroomID]/[fileID]';
-import { useClassroomContext } from '../../../context/ClassroomContext';
+import {
+  ClassroomStudent,
+  useClassroomContext,
+} from '../../../context/ClassroomContext';
 
 const isUserOnline = (user: ClassroomStudent) => {
   return Object.keys(user.connections || {}).length > 0;
