@@ -49,6 +49,7 @@ import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
 import { submitToJudge } from '../src/scripts/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissions';
+import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolbar';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -388,6 +389,7 @@ export default function EditorPage(): JSX.Element {
             onToggleSidebar={handleToggleSidebar}
             showSidebarButton={isDesktop}
           />
+          <ClassroomToolbar />
         </div>
         <div className="flex-1 min-h-0">
           <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
