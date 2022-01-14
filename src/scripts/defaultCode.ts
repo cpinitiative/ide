@@ -6,7 +6,7 @@ using namespace std;
 
 int main() {
 \tint a, b, c; cin >> a >> b >> c;
-\tcout << "sum is " << a+b+c << "\\n";
+\tcout << "The sum of these three numbers is " << a + b + c << "\\n";
 }
 `,
   java: `// Source: https://usaco.guide/general/io
@@ -35,7 +35,7 @@ public class Main {
 `,
   py: `# Source: https://usaco.guide/general/io
 
-a,b,c = map(int, input().split())
-print("sum is",a+b+c)
+a, b, c = map(int, input().split())
+print("The sum of these three numbers is", a + b + c)
 `,
 };
