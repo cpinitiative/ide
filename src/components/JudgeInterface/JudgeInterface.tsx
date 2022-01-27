@@ -7,7 +7,7 @@ import SubmitButton from './SubmitButton';
 import { PlayIcon } from '@heroicons/react/solid';
 
 export const judgePrefix =
-  process.env.NODE_ENV === 'development' && false
+  process.env.NODE_ENV === 'development'
     ? 'http://localhost:5000'
     : 'https://vjudge.usaco.guide';
 
