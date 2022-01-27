@@ -6,12 +6,13 @@ export type JudgeResultStatuses =
   | 'wrong_answer'
   | 'internal_error';
 export default interface JudgeResult {
-  stdout: string;
-  stderr: string;
   statusDescription: string;
   status: JudgeResultStatuses;
-  message: string;
-  time: string;
-  memory: string;
+  stdout?: string;
+  stderr?: string;
+  message?: string;
+  compilationMessage?: string;
+  time?: string;
+  memory?: string;
   debugData?: any;
 }
