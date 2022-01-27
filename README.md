@@ -25,7 +25,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 - Monaco Editor
 - React
 - Jotai
-- Vite
+- Next.js
 - Typescript
 - Tailwind CSS
 - Firebase Realtime Database
@@ -130,3 +130,4 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 - Compile error, stdout, stderr
 - Too large input
 - Too large output
+- Classrooms
