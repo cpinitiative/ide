@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ProblemData } from '../../src/components/Workspace/Workspace';
 
 import firebase from 'firebase/app';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
 import { fileIdAtom } from '../../src/atoms/firebaseAtoms';
@@ -11,65 +11,56 @@ import { WorkspaceSettings } from '../../src/components/SettingsContext';
 import { fetchProblemData } from '../../src/components/Workspace/Workspace';
 import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
+import { MessagePage } from '../../src/components/MessagePage';
+import {
+  userSettingsAtomWithPersistence,
+  isUserSettingsLoadingAtom,
+} from '../../src/atoms/userSettings';
 
 export default function CreateUSACO(): JSX.Element {
-  // const router = useRouter();
+  const router = useRouter();
 
-  // const usacoId = router.query.id;
-  // invariant(typeof usacoId === 'string', 'Expected USACO ID to be a string');
+  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const userSettings = useAtomValue(userSettingsAtomWithPersistence);
+  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
+  const [error, setError] = useState<string | null>(null);
 
-  // const setFileId = useUpdateAtom(fileIdAtom);
-  // const [firebaseUser] = useAtom(firebaseUserAtom);
-  // const [problem, setProblem] = useState<ProblemData | undefined | null>(
-  //   undefined
-  // );
+  useEffect(() => {
+    if (!router.isReady || !firebaseUser || isUserSettingsLoading) return;
+    const usacoID = router.query.id;
 
-  // useEffect(() => {
-  //   const lookupProblem = async () => {
-  //     setProblem(await fetchProblemData(usacoId));
-  //   };
-  //   lookupProblem();
-  // }, [usacoId]);
+    invariant(typeof usacoID === 'string', 'Expected USACO ID to be a string');
 
-  // useEffect(() => {
-  //   const checkProps = async () => {
-  //     if (problem === undefined) return;
-  //     if (setFileId === null || !firebaseUser) {
-  //       return;
-  //     }
-  //     if (problem === null) {
-  //       alert('Could not identify problem ID.');
-  //       router.replace('/');
-  //       return;
-  //     }
-  //     const idToUrlRef = firebase
-  //       .database()
-  //       .ref('users')
-  //       .child(firebaseUser.uid)
-  //       .child('usaco-id-to-url')
-  //       .child(String(problem.id));
-  //     const snapshot = await idToUrlRef.get();
-  //     let newId = null;
-  //     if (snapshot.exists()) {
-  //       newId = snapshot.val();
-  //       router.replace('/' + newId + window.location.search);
-  //     } else {
-  //       const fileRef = firebase.database().ref().push();
-  //       newId = fileRef.key!.slice(1);
-  //       await idToUrlRef.set(newId);
-  //       const toUpdate: Partial<WorkspaceSettings> = {
-  //         problem,
-  //         workspaceName: problem.source + ': ' + problem.title,
-  //       };
-  //       await fileRef.child('settings').update(toUpdate);
-  //       setFileId({
-  //         newId,
-  //         // isNewFile: true,
-  //         // navigate: router.replace,
-  //       });
-  //     }
-  //   };
-  //   checkProps();
-  // }, [setFileId, firebaseUser, problem]);
-  return <></>;
+    (async () => {
+      const resp = await fetch(`/api/createUSACOFile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usacoID: usacoID,
+          userID: firebaseUser.uid,
+          userName: firebaseUser.displayName,
+          defaultPermission: userSettings.defaultPermission,
+        }),
+      });
+      if (resp.status === 500) {
+        setError('An unknown error occurred.');
+      } else {
+        const data = await resp.json();
+        if (data.message) {
+          // error
+          setError(data.message);
+        } else {
+          router.replace(`/${data.fileID}`);
+        }
+      }
+    })();
+  }, [router.isReady, firebaseUser, isUserSettingsLoading]);
+
+  if (error) {
+    return <MessagePage message={'Error: ' + error} />;
+  }
+
+  return <MessagePage message="Loading File..." showHomeButton={false} />;
 }

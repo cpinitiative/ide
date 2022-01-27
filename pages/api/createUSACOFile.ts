@@ -47,58 +47,38 @@ export default async (
     return;
   }
 
-  // useEffect(() => {
-  //   const checkProps = async () => {
-  //     if (problem === undefined) return;
-  //     if (setFileId === null || !firebaseUser) {
-  //       return;
-  //     }
-  //     const idToUrlRef = firebase
-  //       .database()
-  //       .ref('users')
-  //       .child(firebaseUser.uid)
-  //       .child('usaco-id-to-url')
-  //       .child(String(problem.id));
-  //     const snapshot = await idToUrlRef.get();
-  //     let newId = null;
-  //     if (snapshot.exists()) {
-  //       newId = snapshot.val();
-  //       router.replace('/' + newId + window.location.search);
-  //     } else {
-  //       const fileRef = firebase.database().ref().push();
-  //       newId = fileRef.key!.slice(1);
-  //       await idToUrlRef.set(newId);
-  //       const toUpdate: Partial<WorkspaceSettings> = {
-  //         problem,
-  //         workspaceName: problem.source + ': ' + problem.title,
-  //       };
-  //       await fileRef.child('settings').update(toUpdate);
-  //       setFileId({
-  //         newId,
-  //         // isNewFile: true,
-  //         // navigate: router.replace,
-  //       });
-  //     }
-  //   };
-  //   checkProps();
-  // }, [setFileId, firebaseUser, problem]);
+  const idToURLRef = getDatabase(firebaseApp)
+    .ref('users')
+    .child(data.userID)
+    .child('usaco-id-to-url')
+    .child('' + problem.id);
 
-  const resp = await getDatabase(firebaseApp)
-    .ref('/')
-    .push({
-      users: {
-        [data.userID]: {
-          name: data.userName,
-          color: colorFromUserId(data.userID),
-          permission: 'OWNER',
-        },
-      },
-      settings: {
-        workspaceName: data.workspaceName,
-        defaultPermission: data.defaultPermission,
-        creationTime: ServerValue.TIMESTAMP,
-      },
+  const idToURLSnap = await idToURLRef.get();
+
+  if (idToURLSnap.exists()) {
+    res.status(200).json({
+      fileID: idToURLSnap.val(),
     });
-  const fileID: string = resp.key!;
-  res.status(200).json({ fileID: fileID.substring(1) });
+  } else {
+    const resp = await getDatabase(firebaseApp)
+      .ref('/')
+      .push({
+        users: {
+          [data.userID]: {
+            name: data.userName,
+            color: colorFromUserId(data.userID),
+            permission: 'OWNER',
+          },
+        },
+        settings: {
+          workspaceName: problem.source + ': ' + problem.title,
+          defaultPermission: data.defaultPermission,
+          creationTime: ServerValue.TIMESTAMP,
+          problem,
+        },
+      });
+    const fileID: string = resp.key!.substring(1);
+    await idToURLRef.set(fileID);
+    res.status(200).json({ fileID: fileID });
+  }
 };

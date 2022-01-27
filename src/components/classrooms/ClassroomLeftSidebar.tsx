@@ -19,7 +19,7 @@ export default function ClassroomLeftSidebar() {
       <h3 className="text-white font-medium text-lg p-4">
         {classroomInfo.settings.workspaceName}
       </h3>
-      <JoinLink link={`ide.usaco.guide/c/${classroomID}`} />
+      <JoinLink link={`/c/${classroomID}`} />
       <div className="h-4"></div>
       <ClassroomUserList>
         <ClassroomUserListItem
