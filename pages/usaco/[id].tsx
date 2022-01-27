@@ -15,6 +15,7 @@ import { MessagePage } from '../../src/components/MessagePage';
 import {
   userSettingsAtomWithPersistence,
   isUserSettingsLoadingAtom,
+  displayNameAtom,
 } from '../../src/atoms/userSettings';
 
 export default function CreateUSACO(): JSX.Element {
@@ -23,10 +24,17 @@ export default function CreateUSACO(): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const userSettings = useAtomValue(userSettingsAtomWithPersistence);
   const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
+  const displayName = useAtomValue(displayNameAtom);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!router.isReady || !firebaseUser || isUserSettingsLoading) return;
+    if (
+      !router.isReady ||
+      !firebaseUser ||
+      isUserSettingsLoading ||
+      !displayName
+    )
+      return;
     const usacoID = router.query.id;
 
     invariant(typeof usacoID === 'string', 'Expected USACO ID to be a string');
@@ -40,7 +48,7 @@ export default function CreateUSACO(): JSX.Element {
         body: JSON.stringify({
           usacoID: usacoID,
           userID: firebaseUser.uid,
-          userName: firebaseUser.displayName,
+          userName: displayName,
           defaultPermission: userSettings.defaultPermission,
         }),
       });
@@ -56,7 +64,7 @@ export default function CreateUSACO(): JSX.Element {
         }
       }
     })();
-  }, [router.isReady, firebaseUser, isUserSettingsLoading]);
+  }, [router.isReady, firebaseUser, isUserSettingsLoading, displayName]);
 
   if (error) {
     return <MessagePage message={'Error: ' + error} />;

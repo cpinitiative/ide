@@ -36,7 +36,7 @@ export default function NewFilePage() {
           body: JSON.stringify({
             workspaceName: 'Unnamed Workspace',
             userID: firebaseUser.uid,
-            userName: firebaseUser.displayName,
+            userName: displayName, // this can't be firebaseUser.displayName bc this could still be null
             defaultPermission: userSettings.defaultPermission,
           }),
         });
