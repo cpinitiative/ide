@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
-import FilesGrid from '../components/FilesGrid';
-import {ConfirmOverrideModal} from '../components/ConfirmOverrideModal';
+import FilesGrid from '../src/components/FilesGrid';
+import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import firebase from 'firebase/app';
-import { File } from '../components/FilesGrid';
+import { File } from '../src/components/FilesGrid';
 import {
   firebaseUserAtom,
   signInWithGoogleAtom,
   signOutAtom,
-} from '../atoms/firebaseUserAtoms';
-import { isFirebaseId } from './editorUtils';
-import { WorkspaceSettings } from '../components/SettingsContext';
-import { fileIdAtom } from '../atoms/firebaseAtoms';
+} from '../src/atoms/firebaseUserAtoms';
+import { isFirebaseId } from '../src/editorUtils';
+import { fileIdAtom } from '../src/atoms/firebaseAtoms';
 import {
   RadioGroupContents,
   SharingPermissions,
-} from '../components/SharingPermissions';
-import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
-import { DefaultPermission } from '../atoms/workspace';
+} from '../src/components/SharingPermissions';
+import {
+  isUserSettingsLoadingAtom,
+  userSettingsAtomWithPersistence,
+} from '../src/atoms/userSettings';
+import { DefaultPermission } from '../src/atoms/workspace';
 import { useAtom } from 'jotai';
+import { useRouter } from 'next/router';
+import { useConnectionContext } from '../src/context/ConnectionContext';
 
-export default function DashboardPage(
-  _props: RouteComponentProps
-): JSX.Element {
+export default function DashboardPage(): JSX.Element {
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const signInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
   const signOut = useUpdateAtom(signOutAtom);
@@ -35,6 +36,9 @@ export default function DashboardPage(
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
+  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
+  const router = useRouter();
+  const connectionContext = useConnectionContext();
 
   // const permissionRef = firebaseUser
   //   ? firebase
@@ -60,16 +64,46 @@ export default function DashboardPage(
   };
 
   const makeNewWorkspaceWithName = async (name: string) => {
-    const fileRef = firebase.database().ref().push();
-    const newId = fileRef.key!.slice(1);
-    const toUpdate: Partial<WorkspaceSettings> = {
-      workspaceName: name,
-    };
-    await fileRef.child('settings').update(toUpdate);
-    setFileId({
-      newId,
-      isNewFile: true,
+    if (!firebaseUser) return;
+    const resp = await fetch(`/api/createNewFile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workspaceName: name,
+        userID: firebaseUser.uid,
+        userName: firebaseUser.displayName,
+        defaultPermission: userSettings.defaultPermission,
+      }),
     });
+    const data = await resp.json();
+    if (resp.ok) {
+      router.push(`/${data.fileID}`);
+    } else {
+      alert('Error: ' + data.message);
+    }
+  };
+
+  const makeNewClassroomWithName = async (name: string) => {
+    if (!firebaseUser) return;
+    const resp = await fetch(`/api/createNewClassroom`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workspaceName: name,
+        userID: firebaseUser.uid,
+        userName: firebaseUser.displayName,
+      }),
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      router.push(`/classrooms/${data.fileID}/instructor`);
+    } else {
+      alert('Error: ' + data.message);
+    }
   };
 
   useEffect(() => {
@@ -121,55 +155,75 @@ export default function DashboardPage(
 
         <div className="h-6"></div>
 
-        <div className="mb-4">
-          <SharingPermissions
-            value={!firebaseUser ? null : userSettings.defaultPermission}
-            onChange={setDefaultPermissionActual}
-            isOwner={true}
-            lightMode
-          />
-        </div>
-
-        <button
-          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
-          onClick={() => {
-            const workspaceName = prompt(
-              'Creating a new workspace. Please name it:'
-            );
-            if (workspaceName === null) return;
-            makeNewWorkspaceWithName(workspaceName);
-          }}
-        >
-          Create New File
-        </button>
-
-        {!firebaseUser ? (
+        {(!firebaseUser || isUserSettingsLoading) && (
           <div className="text-gray-400 mt-6">Loading...</div>
-        ) : firebaseUser.isAnonymous ? (
+        )}
+
+        {!isUserSettingsLoading && (
+          <>
+            <div className="mb-4">
+              <SharingPermissions
+                value={!firebaseUser ? null : userSettings.defaultPermission}
+                onChange={setDefaultPermissionActual}
+                isOwner={true}
+                lightMode
+              />
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button
+                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+                onClick={() => {
+                  const workspaceName = prompt(
+                    'Creating a new workspace. Please name it:'
+                  );
+                  if (workspaceName === null) return;
+                  makeNewWorkspaceWithName(workspaceName);
+                }}
+              >
+                Create New File
+              </button>
+              <button
+                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+                onClick={() => {
+                  const workspaceName = prompt(
+                    'Creating a new classroom. Please name it:'
+                  );
+                  if (workspaceName === null) return;
+                  makeNewClassroomWithName(workspaceName);
+                }}
+              >
+                Create New Classroom
+              </button>
+            </div>
+          </>
+        )}
+
+        {firebaseUser && !isUserSettingsLoading && firebaseUser.isAnonymous ? (
           <div className="text-gray-400 mt-6">
             Not signed in.{' '}
             <button
               className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
-              onClick={signInWithGoogle}
+              onClick={() => signInWithGoogle(connectionContext)}
             >
               Sign in now
             </button>
           </div>
-        ) : (
+        ) : firebaseUser && !isUserSettingsLoading ? (
           <div className="text-gray-400 mt-6">
             Signed in as {firebaseUser.displayName}.
             <button
               className="underline text-gray-200 focus:outline-none hover:bg-gray-700 p-1 leading-none transition"
-              onClick={signOut}
+              onClick={() => signOut(connectionContext)}
             >
               Sign Out
             </button>
           </div>
-        )}
+        ) : null}
 
         <div className="h-12"></div>
 
-        {firebaseUser && (
+        {firebaseUser && !isUserSettingsLoading && (
           <>
             <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
               Your Workspaces
@@ -226,7 +280,8 @@ export default function DashboardPage(
         >
           USACO Guide
         </a>
-        !
+        !<br />
+        Not for commercial use.
       </div>
     </div>
   );

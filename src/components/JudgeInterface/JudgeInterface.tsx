@@ -6,9 +6,8 @@ import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayIcon } from '@heroicons/react/solid';
 
-// https://vitejs.dev/guide/env-and-mode.html#env-variables
 export const judgePrefix =
-  import.meta.env.MODE === 'development'
+  process.env.NODE_ENV === 'development'
     ? 'http://localhost:5000'
     : 'https://vjudge.usaco.guide';
 

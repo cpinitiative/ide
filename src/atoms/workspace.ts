@@ -40,13 +40,6 @@ export const currentLangAtom = atom<Language, Language>(
     set(userSettingsAtomWithPersistence, { defaultLang: lang }); // silently fails if firebase isn't loaded yet
   }
 );
-currentLangAtom.onMount = setAtom => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const queryLang = urlParams.get('lang');
-  if (queryLang === 'cpp' || queryLang === 'java' || queryLang === 'py') {
-    setAtom(queryLang);
-  }
-};
 export const mainMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
   null
 );

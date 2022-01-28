@@ -45,7 +45,7 @@ interface UserSettings {
   defaultLang: Language;
 }
 
-const defaultUserSettings: UserSettings = {
+export const defaultUserSettings: UserSettings = {
   editorMode: 'Normal', // change in settings
   color: '', // fixed
   defaultPermission: 'READ_WRITE', // change in dashboard
@@ -62,6 +62,7 @@ export const displayNameAtom = atom(
   }
 );
 
+export const isUserSettingsLoadingAtom = atom<boolean>(true);
 export const baseUserSettingsAtom = atom<UserSettings>(defaultUserSettings);
 export const _userSettingsAtom = atom<UserSettings, Partial<UserSettings>>(
   get => {

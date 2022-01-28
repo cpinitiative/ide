@@ -6,7 +6,6 @@ import {
 } from './userSettings';
 import { actualUserPermissionAtom, defaultPermissionAtom } from './workspace';
 import firebase from 'firebase/app';
-import { navigate } from '@reach/router';
 
 const baseFileIdAtom = atom<{
   id: string;
@@ -26,7 +25,6 @@ export const fileIdAtom = atom(
     set,
     payload: {
       newId: string | null;
-      isNewFile?: boolean;
     } | null
   ) => {
     if (payload === null) {
@@ -34,7 +32,7 @@ export const fileIdAtom = atom(
       set(firebaseRefAtom, null);
       return;
     }
-    const { newId, isNewFile } = payload;
+    const { newId } = payload;
 
     if (get(baseFileIdAtom)?.id === newId && !!newId) {
       // target file already loaded, ignore
@@ -44,18 +42,14 @@ export const fileIdAtom = atom(
     if (newId) {
       ref = ref.child('-' + newId);
     } else {
+      alert('ERROR');
       ref = ref.push(); // generate unique location.
     }
     set(baseFileIdAtom, {
       id: ref.key!,
-      isNewFile: !!isNewFile,
+      isNewFile: false,
     });
 
-    if (isNewFile) {
-      navigate('/' + ref.key!.substr(1) + window.location.search, {
-        replace: true,
-      });
-    }
     set(firebaseRefAtom, ref);
   }
 );
@@ -63,23 +57,9 @@ export const fileIdAtom = atom(
 export const firebaseRefAtom = atom<firebaseType.database.Reference | null>(
   null
 );
-const baseConnectionRefAtom = atom<firebaseType.database.Reference | null>(
-  null
-);
-export const connectionRefAtom = atom(
-  get => get(baseConnectionRefAtom),
-  (get, set, newRef: firebaseType.database.Reference | null) => {
-    get(baseConnectionRefAtom)?.remove();
-    if (newRef) {
-      newRef.onDisconnect().remove();
-      newRef.set(true);
-    }
-    set(baseConnectionRefAtom, newRef);
-  }
-);
 export const userRefAtom = atom<firebaseType.database.Reference | null>(null);
-export const authenticatedFirebaseRefAtom =
-  atom<firebaseType.database.Reference | null>(get => {
+export const authenticatedFirebaseRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(firebaseRefAtom);
     if (
@@ -90,9 +70,10 @@ export const authenticatedFirebaseRefAtom =
       return ref;
     }
     return null;
-  });
-export const authenticatedUserRefAtom =
-  atom<firebaseType.database.Reference | null>(get => {
+  }
+);
+export const authenticatedUserRefAtom = atom<firebaseType.database.Reference | null>(
+  get => {
     const permission = get(actualUserPermissionAtom);
     const ref = get(userRefAtom);
     if (
@@ -103,7 +84,8 @@ export const authenticatedUserRefAtom =
       return ref;
     }
     return null;
-  });
+  }
+);
 
 export const joinNewWorkspaceAsOwnerAtom = atom(null, async (get, _set) => {
   const ref = get(firebaseRefAtom);

@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
 
-export const host = 'http://localhost:5000';
+export const host = 'http://localhost:3000';
 
 export async function createNew(page1: Page) {
   // page1.on('dialog', dialog => dialog.accept('nice title'));

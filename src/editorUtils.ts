@@ -1,4 +1,4 @@
-import JudgeResult, { JudgeResultStatuses } from '../types/judge';
+import JudgeResult, { JudgeResultStatuses } from './types/judge';
 
 export function encode(str: string | null): string {
   return btoa(unescape(encodeURIComponent(str || '')));

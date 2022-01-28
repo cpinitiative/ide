@@ -1,16 +1,9 @@
-import loader from '@monaco-editor/loader';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
-
 import React, { useState, useEffect } from 'react';
-import { RunButton } from '../components/RunButton';
-import defaultCode from '../scripts/defaultCode';
-import JudgeResult from '../types/judge';
-import { SettingsModal } from '../components/settings/SettingsModal';
-import { useSettings } from '../components/SettingsContext';
+import { RunButton } from '../src/components/RunButton';
+import defaultCode from '../src/scripts/defaultCode';
+import JudgeResult from '../src/types/judge';
+import { SettingsModal } from '../src/components/settings/SettingsModal';
+import { useSettings } from '../src/components/SettingsContext';
 import type firebaseType from 'firebase';
 import { useAtom } from 'jotai';
 import {
@@ -21,22 +14,22 @@ import {
   loadingAtom,
   mainMonacoEditorAtom,
   userPermissionAtom,
-} from '../atoms/workspace';
-import { NavBar } from '../components/NavBar/NavBar';
-import { FileMenu } from '../components/NavBar/FileMenu';
-import download from '../scripts/download';
-import { useMediaQuery } from '../hooks/useMediaQuery';
-import { MobileBottomNav } from '../components/NavBar/MobileBottomNav';
+} from '../src/atoms/workspace';
+import { NavBar } from '../src/components/NavBar/NavBar';
+import { FileMenu } from '../src/components/NavBar/FileMenu';
+import download from '../src/scripts/download';
+import { useMediaQuery } from '../src/hooks/useMediaQuery';
+import { MobileBottomNav } from '../src/components/NavBar/MobileBottomNav';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
+  authenticatedFirebaseRefAtom,
   fileIdAtom,
   setFirebaseErrorAtom,
   userRefAtom,
-} from '../atoms/firebaseAtoms';
-import { MessagePage } from '../components/MessagePage';
-import { navigate, RouteComponentProps } from '@reach/router';
+} from '../src/atoms/firebaseAtoms';
+import { MessagePage } from '../src/components/MessagePage';
 import firebase from 'firebase/app';
-import Workspace from '../components/Workspace/Workspace';
+import Workspace from '../src/components/Workspace/Workspace';
 import {
   judgeResultsAtom,
   mobileActiveTabAtom,
@@ -45,17 +38,20 @@ import {
   problemAtom,
   tabsListAtom,
   inputTabIndexAtom,
-} from '../atoms/workspaceUI';
-import { cleanJudgeResult, isFirebaseId } from './editorUtils';
+} from '../src/atoms/workspaceUI';
+import { cleanJudgeResult, isFirebaseId } from '../src/editorUtils';
 
-import { getSampleIndex } from '../components/JudgeInterface/Samples';
-import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
+import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
+import { useRouter } from 'next/router';
+import invariant from 'tiny-invariant';
+import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
+import { submitToJudge } from '../src/scripts/judge';
+import useUserFileConnection from '../src/hooks/useUserFileConnection';
+import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissions';
+import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolbar';
 
-export interface EditorPageProps extends RouteComponentProps {
-  fileId?: string;
-}
-
-export default function EditorPage(props: EditorPageProps): JSX.Element {
+export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
@@ -63,100 +59,72 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
   const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
   const [isRunning, setIsRunning] = useState(false);
-  const lang = useAtomValue(currentLangAtom);
+  const [lang, setCurrentLang] = useAtom(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
-  const setUserPermission = useUpdateAtom(userPermissionAtom);
   const permission = useAtomValue(actualUserPermissionAtom);
   const loading = useAtomValue(loadingAtom);
   const setShowSidebar = useUpdateAtom(showSidebarAtom);
-  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
+  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+
+  /*
+  Classroom structure
+  - isClassroom: true if this is the root classroom
+  - studentDocuments: array of document IDs
+  - parentClassroom: document ID of parent classroom
+  */
+  const classroomData = useFirebaseRefValue<{
+    isClassroom: boolean;
+    studentDocuments: string[];
+    parentClassroom: string;
+  }>(firebaseRef?.child('classroom'));
   const showSidebar = useAtomValue(showSidebarAtom);
   const problem = useAtomValue(problemAtom);
+  const router = useRouter();
 
   useEffect(() => {
-    const queryId: string = props.fileId ?? '';
+    if (!router.isReady) return;
+    if (
+      router.query.lang === 'cpp' ||
+      router.query.lang === 'java' ||
+      router.query.lang === 'py'
+    ) {
+      setCurrentLang(router.query.lang);
+    }
+  }, [router.isReady]);
 
-    if (queryId === 'new') {
+  useEffect(() => {
+    if (!router.isReady) return;
+    invariant(
+      typeof router.query.id === 'string',
+      'Expected router query ID to be a string'
+    );
+    const queryId: string = router.query.id;
+
+    if (isFirebaseId(queryId)) {
       setFileId({
-        newId: null,
-        isNewFile: true,
+        newId: queryId,
       });
-    } else if (isFirebaseId(queryId)) {
-      if (fileId?.id !== '-' + queryId) {
-        setFileId({
-          newId: queryId,
-          isNewFile: false,
-        });
-      }
     } else {
       alert('Error: Bad URL');
-      navigate('/', { replace: true });
+      router.replace('/');
     }
     // We only want to update the file ID when props.fileId changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.fileId]);
+  }, [router.query.id]);
 
   useEffect(() => {
     return () => setFileId(null) as void;
   }, [setFileId]);
 
-  const potentiallyUnauthenticatedUserRef = useAtomValue(userRefAtom);
-  useEffect(() => {
-    if (potentiallyUnauthenticatedUserRef) {
-      const handleChange = (snap: firebaseType.database.DataSnapshot) => {
-        if (!snap.exists()) return;
-        const permission = snap.val().permission;
-        setUserPermission(permission);
-      };
-      potentiallyUnauthenticatedUserRef.on('value', handleChange, e => {
-        setFirebaseError(e);
-      });
-      return () => {
-        potentiallyUnauthenticatedUserRef.off('value', handleChange);
-      };
-    }
-  }, [potentiallyUnauthenticatedUserRef, setUserPermission, setFirebaseError]);
+  useUpdateUserFilePermissions();
+  useUserFileConnection();
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
-    const data = {
-      sourceCode: code,
-      filename: { cpp: 'main.cpp', java: 'Main.java', py: 'main.py' }[lang],
-      language: lang,
-      input,
-      compilerOptions: settings.compilerOptions[lang],
-    };
-    return fetch(
-      `https://oh2kjsg6kh.execute-api.us-west-1.amazonaws.com/Prod/execute`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    // const data = {
-    //   source_code: encode(code),
-    //   language_id: { cpp: 54, java: 62, py: 71 }[lang],
-    //   stdin: encode(input),
-    //   compiler_options: settings.compilerOptions[lang],
-    //   command_line_arguments: '',
-    //   redirect_stderr_to_stdout: false,
-    // };
-    // return fetch(
-    //   `https://newjudge0.usaco.guide/submissions?base64_encoded=true&wait=true`,
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'content-type': 'application/json',
-    //     },
-    //     body: JSON.stringify(data),
-    //   }
-    // );
+    return submitToJudge(lang, code, input, settings.compilerOptions[lang]);
   };
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
@@ -224,7 +192,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
         alert(
           'Error: ' +
             e.message +
-            '. This could mean that your input is too large.'
+            '. Perhaps the server is down, or your input is too large.'
         );
         console.error(e);
       })
@@ -344,6 +312,17 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
     }
   };
 
+  const handleToggleClassroom = () => {
+    if (!firebaseRef) {
+      alert('File is still loading, please wait');
+      return;
+    }
+    firebaseRef
+      .child('classroom')
+      .child('isClassroom')
+      .set(!classroomData.value?.isClassroom);
+  };
+
   useEffect(() => {
     document.title = `${
       settings.workspaceName ? settings.workspaceName + ' · ' : ''
@@ -384,7 +363,6 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
   if (permission === 'PRIVATE')
     return <MessagePage message="This file is private." />;
 
-  // https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
   return (
     <div className="h-full">
       <div className="h-full flex flex-col">
@@ -394,6 +372,8 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
               <FileMenu
                 onDownloadFile={handleDownloadFile}
                 onInsertFileTemplate={handleInsertFileTemplate}
+                isClassroom={!!classroomData.value?.isClassroom}
+                onToggleClassroom={handleToggleClassroom}
                 onOpenSettings={() => setIsSettingsModalOpen(true)}
                 forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
               />
@@ -409,6 +389,7 @@ export default function EditorPage(props: EditorPageProps): JSX.Element {
             onToggleSidebar={handleToggleSidebar}
             showSidebarButton={isDesktop}
           />
+          <ClassroomToolbar />
         </div>
         <div className="flex-1 min-h-0">
           <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
