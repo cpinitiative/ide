@@ -68,19 +68,7 @@ export default function EditorPage(): JSX.Element {
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
 
-  /*
-  Classroom structure
-  - isClassroom: true if this is the root classroom
-  - studentDocuments: array of document IDs
-  - parentClassroom: document ID of parent classroom
-  */
-  const classroomData = useFirebaseRefValue<{
-    isClassroom: boolean;
-    studentDocuments: string[];
-    parentClassroom: string;
-  }>(firebaseRef?.child('classroom'));
   const showSidebar = useAtomValue(showSidebarAtom);
   const problem = useAtomValue(problemAtom);
   const router = useRouter();
@@ -312,17 +300,6 @@ export default function EditorPage(): JSX.Element {
     }
   };
 
-  const handleToggleClassroom = () => {
-    if (!firebaseRef) {
-      alert('File is still loading, please wait');
-      return;
-    }
-    firebaseRef
-      .child('classroom')
-      .child('isClassroom')
-      .set(!classroomData.value?.isClassroom);
-  };
-
   useEffect(() => {
     document.title = `${
       settings.workspaceName ? settings.workspaceName + ' · ' : ''
@@ -372,8 +349,6 @@ export default function EditorPage(): JSX.Element {
               <FileMenu
                 onDownloadFile={handleDownloadFile}
                 onInsertFileTemplate={handleInsertFileTemplate}
-                isClassroom={!!classroomData.value?.isClassroom}
-                onToggleClassroom={handleToggleClassroom}
                 onOpenSettings={() => setIsSettingsModalOpen(true)}
                 forkButtonUrl={`/${fileId?.id?.substring(1)}/copy`}
               />
