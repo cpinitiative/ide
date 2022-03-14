@@ -282,9 +282,9 @@ export default function EditorPage(): JSX.Element {
     }
 
     const fileNames = {
-      cpp: 'main.cpp',
-      java: 'Main.java',
-      py: 'main.py',
+      cpp: `${settings.workspaceName}.cpp`,
+      java: `${settings.workspaceName}.java`,
+      py: `${settings.workspaceName}.py`,
     };
 
     download(fileNames[lang], mainMonacoEditor.getValue());
