@@ -283,7 +283,7 @@ export default function EditorPage(): JSX.Element {
 
     const fileNames = {
       cpp: `${settings.workspaceName}.cpp`,
-      java: `${settings.workspaceName}.java`,
+      java: 'Main.java',
       py: `${settings.workspaceName}.py`,
     };
 
