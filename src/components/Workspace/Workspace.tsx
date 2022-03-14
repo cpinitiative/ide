@@ -32,6 +32,7 @@ import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
 import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
+import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 
 function resizeResults(results: (JudgeResult | null)[], newSize: number) {
   while (results.length > newSize) results.pop();
@@ -140,6 +141,7 @@ export default function Workspace({
   }, [settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
+  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
 
   return (
     <Split
@@ -181,7 +183,7 @@ export default function Workspace({
             <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
               {inputTab === 'input' && (
                 <LazyFirepadEditor
-                  theme="vs-dark"
+                  theme={lightMode ? 'light' : 'vs-dark'}
                   language={'plaintext'}
                   saveViewState={false}
                   path="input"

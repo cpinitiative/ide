@@ -7,6 +7,7 @@ import { LazyFirepadEditor } from './LazyFirepadEditor';
 import { actualUserPermissionAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
 import JudgeResult from '../types/judge';
+import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 
 export interface OutputProps {
   result: JudgeResult | null;
@@ -69,6 +70,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       }
     }
   }
+  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
 
   return (
     <>
@@ -82,7 +84,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden tw-forms-disable tw-forms-disable-all-descendants">
         {option === 'scribble' ? (
           <LazyFirepadEditor
-            theme="vs-dark"
+            theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             saveViewState={false}
             path="scribble"
@@ -103,7 +105,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
           />
         ) : (
           <Editor
-            theme="vs-dark"
+            theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             value={outputText}
             saveViewState={false}
@@ -112,7 +114,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
               minimap: { enabled: false },
               readOnly: true,
               automaticLayout: false,
-              insertSpaces: false,
+              insertSpaces: true,
             }}
             onMount={onMount}
           />

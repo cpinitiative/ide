@@ -47,7 +47,7 @@ export const CodeInterface = ({
     }
   }, [editor, setMainMonacoEditor]);
 
-  const { tabSize } = useAtomValue(userSettingsAtomWithPersistence);
+  const { tabSize, lightMode } = useAtomValue(userSettingsAtomWithPersistence);
 
   return (
     <div
@@ -67,7 +67,7 @@ export const CodeInterface = ({
       />
       <div className="flex-1 overflow-hidden">
         <LazyFirepadEditor
-          theme="vs-dark"
+          theme={lightMode ? 'light' : 'vs-dark'}
           language={{ cpp: 'cpp', java: 'java', py: 'python' }[lang]}
           path={lang}
           options={{
