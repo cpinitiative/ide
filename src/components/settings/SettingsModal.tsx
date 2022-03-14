@@ -75,6 +75,7 @@ export const SettingsModal = ({
   const [userPermission] = useAtom(actualUserPermissionAtom);
   const [name, setName] = useState<string>('');
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
+  const [tabSize, setTabSize] = useState<number>(4);
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
@@ -86,6 +87,7 @@ export const SettingsModal = ({
       setWorkspaceSettings(realWorkspaceSettings);
       setName(actualDisplayName);
       setEditorMode(userSettings.editorMode);
+      setTabSize(userSettings.tabSize);
       dirtyRef.current = false;
       setTab('workspace');
     }
@@ -123,7 +125,7 @@ export const SettingsModal = ({
       settingsToSet = toKeep;
     }
     setRealWorkspaceSettings(settingsToSet);
-    setUserSettings({ editorMode });
+    setUserSettings({ editorMode, tabSize });
     if (name !== actualDisplayName) {
       setDisplayName(name);
       userRef?.child('name').set(name);
@@ -217,6 +219,11 @@ export const SettingsModal = ({
                     editorMode={editorMode}
                     onEditorModeChange={mode => {
                       setEditorMode(mode);
+                      dirtyRef.current = true;
+                    }}
+                    tabSize={tabSize}
+                    onTabSizeChange={size => {
+                      setTabSize(size);
                       dirtyRef.current = true;
                     }}
                   />

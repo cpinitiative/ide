@@ -41,6 +41,7 @@ export const userSettingsRefAtom = atom<firebaseType.database.Reference | null>(
 interface UserSettings {
   color: string;
   editorMode: EditorMode;
+  tabSize: number;
   defaultPermission: DefaultPermission;
   defaultLang: Language;
 }
@@ -48,6 +49,7 @@ interface UserSettings {
 export const defaultUserSettings: UserSettings = {
   editorMode: 'Normal', // change in settings
   color: '', // fixed
+  tabSize: 4,
   defaultPermission: 'READ_WRITE', // change in dashboard
   defaultLang: 'cpp', // last viewed file
 };

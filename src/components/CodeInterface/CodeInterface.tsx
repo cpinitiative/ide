@@ -12,6 +12,7 @@ import {
 import { LazyFirepadEditor } from '../LazyFirepadEditor';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
+import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 
 export const CodeInterface = ({
   className,
@@ -46,6 +47,8 @@ export const CodeInterface = ({
     }
   }, [editor, setMainMonacoEditor]);
 
+  const { tabSize } = useAtomValue(userSettingsAtomWithPersistence);
+
   return (
     <div
       className={classNames(
@@ -70,6 +73,7 @@ export const CodeInterface = ({
           options={{
             minimap: { enabled: false },
             automaticLayout: false,
+            tabSize: tabSize,
             insertSpaces: false,
             readOnly,
           }}
