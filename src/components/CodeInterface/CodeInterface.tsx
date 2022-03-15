@@ -55,9 +55,9 @@ export const CodeInterface = ({
     >
       <TabBar
         tabs={[
-          { label: 'Main.cpp', value: 'cpp' },
-          { label: 'Main.java', value: 'java' },
-          { label: 'Main.py', value: 'py' },
+          { label: 'C++', value: 'cpp' },
+          { label: 'Java', value: 'java' },
+          { label: 'Python 3', value: 'py' },
         ]}
         activeTab={lang}
         onTabSelect={tab => setLang(tab.value as Language)}

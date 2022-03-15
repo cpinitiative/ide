@@ -33,15 +33,15 @@ export const forEachLang = async (
   page: Page,
   func: () => Promise<unknown>
 ): Promise<void> => {
-  await page.click('text=Main.java');
+  await page.click('text=Java');
   await page.waitForSelector('button:has-text("Run Code")');
   await func();
 
-  await page.click('text=Main.py');
+  await page.click('text="Python 3"');
   await page.waitForSelector('button:has-text("Run Code")');
   await func();
 
-  await page.click('text=Main.cpp');
+  await page.click('text=C++');
   await page.waitForSelector('button:has-text("Run Code")');
   await func();
 };

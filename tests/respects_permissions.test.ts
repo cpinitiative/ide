@@ -75,8 +75,8 @@ test('should support view only', async () => {
   // test run buttons -- both should work
   await testRunCode(page1);
   await testRunCode(page2);
-  await page1.click('text="Main.java"');
-  await page2.click('text="Main.java"');
+  await page1.click('text="Java"');
+  await page2.click('text="Java"');
   await page1.waitForSelector('button:has-text("Run Code")');
   await page2.waitForSelector('button:has-text("Run Code")');
   await page2.click('.view-lines div:nth-child(2)');
@@ -93,8 +93,8 @@ test('should support view only', async () => {
   // test run buttons -- both should work
   await testRunCode(page1);
   await testRunCode(page2);
-  await page1.click('text="Main.py"');
-  await page2.click('text="Main.py"');
+  await page1.click('text="Python 3"');
+  await page2.click('text="Python 3"');
   await page1.waitForSelector('button:has-text("Run Code")');
   await page2.waitForSelector('button:has-text("Run Code")');
   await page2.click('.view-lines div:nth-child(5)');

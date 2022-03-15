@@ -50,6 +50,7 @@ import { submitToJudge } from '../src/scripts/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissions';
 import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolbar';
+import { extractJavaFilename } from '../src/scripts/judge';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -281,13 +282,15 @@ export default function EditorPage(): JSX.Element {
       return;
     }
 
+    const code = mainMonacoEditor.getValue();
+
     const fileNames = {
       cpp: `${settings.workspaceName}.cpp`,
-      java: 'Main.java',
+      java: extractJavaFilename(code),
       py: `${settings.workspaceName}.py`,
     };
 
-    download(fileNames[lang], mainMonacoEditor.getValue());
+    download(fileNames[lang], code);
   };
 
   const handleInsertFileTemplate = () => {
