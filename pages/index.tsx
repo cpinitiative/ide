@@ -145,6 +145,10 @@ export default function DashboardPage(): JSX.Element {
     return () => ref.off('value', unsubscribe);
   }, [firebaseUser, showHidden]);
 
+  useEffect(() => {
+    document.title = 'Real-Time Collaborative Online IDE';
+  }, []);
+
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-full flex flex-col">
       <ConfirmOverrideModal />
