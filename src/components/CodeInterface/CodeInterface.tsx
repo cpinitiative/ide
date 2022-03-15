@@ -12,6 +12,7 @@ import {
 import { LazyFirepadEditor } from '../LazyFirepadEditor';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
+import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 
 export const CodeInterface = ({
   className,
@@ -46,6 +47,8 @@ export const CodeInterface = ({
     }
   }, [editor, setMainMonacoEditor]);
 
+  const { tabSize, lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+
   return (
     <div
       className={classNames(
@@ -64,12 +67,13 @@ export const CodeInterface = ({
       />
       <div className="flex-1 overflow-hidden">
         <LazyFirepadEditor
-          theme="vs-dark"
+          theme={lightMode ? 'light' : 'vs-dark'}
           language={{ cpp: 'cpp', java: 'java', py: 'python' }[lang]}
           path={lang}
           options={{
             minimap: { enabled: false },
             automaticLayout: false,
+            tabSize: tabSize,
             insertSpaces: false,
             readOnly,
           }}
