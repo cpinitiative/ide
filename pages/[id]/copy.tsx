@@ -20,7 +20,7 @@ export default function CopyFilePage(): JSX.Element {
     const queryId: string = fileId;
 
     (async () => {
-      const token = await firebaseUser.getIdToken();
+      const token = await firebaseUser.getIdToken(true); // we need to force refresh to update display name
       const resp = await fetch(`/api/copyFile`, {
         method: 'POST',
         headers: {
