@@ -14,13 +14,15 @@ firebase emulators:start
 yarn dev
 ```
 
+Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
+
 ### Configuring Firebase
 
 You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `src/components/WorkspaceInitializer.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
 
 ## Tech Stack
 
-- Code execution supported through [Judge0](https://judge0.com/)
+- Code execution through AWS Lambda
 - Realtime collaboration with [Firepad](https://firepad.io/)
 - Monaco Editor
 - React
