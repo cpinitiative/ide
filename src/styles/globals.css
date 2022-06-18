@@ -29,3 +29,19 @@ html {
 .firebase-emulator-warning {
   display: none !important;
 }
+
+/* This is vim normal input */
+.status-node > span + span {
+  padding-left: 0.75rem;
+}
+.status-node input {
+  padding: 0;
+  background-color: transparent;
+  font-size: 0.875rem;
+  border: none;
+  line-height: 1.25rem;
+}
+.status-node input:focus {
+  outline: none;
+  --tw-ring-color: transparent !important;
+}
