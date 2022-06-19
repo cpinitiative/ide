@@ -2,7 +2,7 @@ import { DotsHorizontalIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 /// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
@@ -33,6 +33,7 @@ import Samples, { Sample } from '../JudgeInterface/Samples';
 import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
+import { fileIdAtom } from '../../atoms/firebaseAtoms';
 
 function resizeResults(results: (JudgeResult | null)[], newSize: number) {
   while (results.length > newSize) results.pop();
@@ -122,11 +123,22 @@ export default function Workspace({
 
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
+  const fileId = useAtomValue(fileIdAtom);
+  const prevFileId = useRef('');
   useEffect(() => {
     const updateProblemData = (newProblem?: ProblemData | null) => {
       setStatusData(null);
       const newJudgeResults = judgeResults;
-      while (newJudgeResults.length > 1) newJudgeResults.pop();
+      const newFileId = fileId?.id ?? '';
+      if (newFileId !== prevFileId.current) {
+        // changed file, clear everything
+        while (newJudgeResults.length > 0) newJudgeResults.pop();
+        newJudgeResults.push(null);
+        prevFileId.current = newFileId;
+      } else {
+        // don't clear input tab
+        while (newJudgeResults.length > 1) newJudgeResults.pop();
+      }
       setProblem(newProblem);
       if (newProblem) {
         const samples = newProblem.samples;
@@ -138,7 +150,7 @@ export default function Workspace({
     };
     updateProblemData(settings.problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.problem]);
+  }, [settings.problem, fileId?.id]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
   const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
