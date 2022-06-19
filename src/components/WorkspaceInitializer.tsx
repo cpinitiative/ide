@@ -2,7 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
 import 'firebase/analytics';
-import React, { useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import type firebaseType from 'firebase';
 import {
   updateLangFromFirebaseAtom,
@@ -26,7 +26,7 @@ import {
 } from '../atoms/userSettings';
 import { useConnectionContext } from '../context/ConnectionContext';
 
-export const WorkspaceInitializer: React.FC = ({ children }) => {
+export const WorkspaceInitializer = ({ children }: { children: ReactNode }) => {
   const firebaseUser = useAtomValue(firebaseUserAtom);
   const firebaseRef = useAtomValue(firebaseRefAtom);
   const fileId = useAtomValue(fileIdAtom);
