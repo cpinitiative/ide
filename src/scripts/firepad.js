@@ -2388,7 +2388,82 @@ var MonacoAdapter = (function () {
       clazz = clazz.replace('selection', 'cursor');
 
       /** Generate Style rules and add them to document */
-      css = getCSS(clazz, 'transparent', color);
+
+      // for the cursor, we want to make the color brigher so it's more visible.
+      function rgbToHsl(r, g, b) {
+        (r /= 255), (g /= 255), (b /= 255);
+        var max = Math.max(r, g, b),
+          min = Math.min(r, g, b);
+        var h,
+          s,
+          l = (max + min) / 2;
+
+        if (max == min) {
+          h = s = 0; // achromatic
+        } else {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r:
+              h = (g - b) / d + (g < b ? 6 : 0);
+              break;
+            case g:
+              h = (b - r) / d + 2;
+              break;
+            case b:
+              h = (r - g) / d + 4;
+              break;
+          }
+          h /= 6;
+        }
+
+        return [h, s, l];
+      }
+      function hslToRgb(h, s, l) {
+        var r, g, b;
+
+        if (s == 0) {
+          r = g = b = l; // achromatic
+        } else {
+          var hue2rgb = function hue2rgb(p, q, t) {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+          };
+
+          var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          var p = 2 * l - q;
+          r = hue2rgb(p, q, h + 1 / 3);
+          g = hue2rgb(p, q, h);
+          b = hue2rgb(p, q, h - 1 / 3);
+        }
+
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+      }
+      function lightenShade(colorValue, SHADE_SHIFT_AMOUNT) {
+        if (colorValue && colorValue.length >= 6) {
+          var redValue = parseInt(colorValue.slice(-6, -4), 16);
+          var greenValue = parseInt(colorValue.slice(-4, -2), 16);
+          var blueValue = parseInt(colorValue.slice(-2), 16);
+
+          var hsl = rgbToHsl(redValue, greenValue, blueValue);
+          hsl[2] = Math.min(hsl[2] + SHADE_SHIFT_AMOUNT, 1);
+          var rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
+          return (
+            '#' +
+            rgb[0].toString(16) +
+            rgb[1].toString(16) +
+            rgb[2].toString(16)
+          );
+        }
+        return null;
+      }
+      let lighterColor = lightenShade(color, 0.4);
+      css = getCSS(clazz, 'transparent', lighterColor);
+
       ret = addStyleRule.call(this, clazz, css);
     } else {
       /** Generate Style rules and add them to document */
@@ -2501,65 +2576,62 @@ var MonacoAdapter = (function () {
    * @returns Pair of Operation and Inverse
    * Note: OT.js Operation expects the cursor to be at the end of content
    */
-  MonacoAdapter.prototype.operationFromMonacoChanges = function operationFromMonacoChanges(
-    change,
-    content,
-    offset
-  ) {
-    /** Change Informations */
-    var text = change.text;
-    var rangeLength = change.rangeLength;
-    var rangeOffset = change.rangeOffset;
+  MonacoAdapter.prototype.operationFromMonacoChanges =
+    function operationFromMonacoChanges(change, content, offset) {
+      /** Change Informations */
+      var text = change.text;
+      var rangeLength = change.rangeLength;
+      var rangeOffset = change.rangeOffset;
 
-    /** Additional SEEK distance */
-    var restLength = content.length + offset - rangeOffset;
+      /** Additional SEEK distance */
+      var restLength = content.length + offset - rangeOffset;
 
-    /** Declare OT.js Operation Variables */
-    var change_op, inverse_op, replaced_text;
+      /** Declare OT.js Operation Variables */
+      var change_op, inverse_op, replaced_text;
 
-    if (text.length === 0 && rangeLength > 0) {
-      /** Delete Operation */
-      replaced_text = content.slice(rangeOffset, rangeOffset + rangeLength);
+      if (text.length === 0 && rangeLength > 0) {
+        /** Delete Operation */
+        replaced_text = content.slice(rangeOffset, rangeOffset + rangeLength);
 
-      change_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .delete(rangeLength)
-        .retain(restLength - rangeLength);
+        change_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .delete(rangeLength)
+          .retain(restLength - rangeLength);
 
-      inverse_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .insert(replaced_text)
-        .retain(restLength - rangeLength);
-    } else if (text.length > 0 && rangeLength > 0) {
-      /** Replace Operation */
-      replaced_text = content.slice(rangeOffset, rangeOffset + rangeLength);
+        inverse_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .insert(replaced_text)
+          .retain(restLength - rangeLength);
+      } else if (text.length > 0 && rangeLength > 0) {
+        /** Replace Operation */
+        replaced_text = content.slice(rangeOffset, rangeOffset + rangeLength);
 
-      change_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .delete(rangeLength)
-        .insert(text)
-        .retain(restLength - rangeLength);
+        change_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .delete(rangeLength)
+          .insert(text)
+          .retain(restLength - rangeLength);
 
-      inverse_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .delete(text.length)
-        .insert(replaced_text)
-        .retain(restLength - rangeLength);
-    } else {
-      /** Insert Operation */
-      change_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .insert(text)
-        .retain(restLength);
+        inverse_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .delete(text.length)
+          .insert(replaced_text)
+          .retain(restLength - rangeLength);
+      } else {
+        /** Insert Operation */
+        change_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .insert(text)
+          .retain(restLength);
 
-      inverse_op = new firepad.TextOperation()
-        .retain(rangeOffset)
-        .delete(text)
-        .retain(restLength);
-    }
+        inverse_op = new firepad.TextOperation()
+          .retain(rangeOffset)
+          .delete(text)
+          .retain(restLength);
+      }
 
-    return [change_op, inverse_op];
-  };
+      return [change_op, inverse_op];
+    };
 
   /**
    * @method onChange - OnChange Event Handler
