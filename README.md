@@ -133,3 +133,4 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 - Too large input
 - Too large output
 - Classrooms
+- Copying files (#64, this broke already lol)
