@@ -231,8 +231,8 @@ export const SettingsModal = ({
                       dirtyRef.current = true;
                     }}
                     insertSpaces={insertSpaces}
-                    onInsertSpacesChange={size => {
-                      setInsertSpaces(size);
+                    onInsertSpacesChange={insertSpaces => {
+                      setInsertSpaces(insertSpaces);
                       dirtyRef.current = true;
                     }}
                     lightMode={lightMode}

@@ -205,8 +205,8 @@ export default function Workspace({
                   options={{
                     minimap: { enabled: false },
                     automaticLayout: false,
-                    insertSpaces,
                     tabSize,
+                    insertSpaces,
                     readOnly,
                   }}
                   onMount={e => {
