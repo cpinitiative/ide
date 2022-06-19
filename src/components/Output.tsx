@@ -70,7 +70,9 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       }
     }
   }
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { lightMode, tabSize, insertSpaces } = useAtomValue(
+    userSettingsAtomWithPersistence
+  );
 
   return (
     <>
@@ -92,7 +94,8 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             options={{
               minimap: { enabled: false },
               automaticLayout: false,
-              insertSpaces: false,
+              tabSize,
+              insertSpaces,
               readOnly,
             }}
             onMount={e => {
@@ -112,9 +115,10 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             path="output"
             options={{
               minimap: { enabled: false },
-              readOnly: true,
               automaticLayout: false,
-              insertSpaces: true,
+              tabSize,
+              insertSpaces,
+              readOnly: true,
             }}
             onMount={onMount}
           />

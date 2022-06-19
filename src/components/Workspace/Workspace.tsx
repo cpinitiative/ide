@@ -153,7 +153,9 @@ export default function Workspace({
   }, [settings.problem, fileId?.id]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { lightMode, insertSpaces, tabSize } = useAtomValue(
+    userSettingsAtomWithPersistence
+  );
 
   return (
     <Split
@@ -203,7 +205,8 @@ export default function Workspace({
                   options={{
                     minimap: { enabled: false },
                     automaticLayout: false,
-                    insertSpaces: false,
+                    insertSpaces,
+                    tabSize,
                     readOnly,
                   }}
                   onMount={e => {

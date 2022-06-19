@@ -47,7 +47,9 @@ export const CodeInterface = ({
     }
   }, [editor, setMainMonacoEditor]);
 
-  const { tabSize, lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { tabSize, lightMode, insertSpaces } = useAtomValue(
+    userSettingsAtomWithPersistence
+  );
 
   return (
     <div
@@ -73,8 +75,8 @@ export const CodeInterface = ({
           options={{
             minimap: { enabled: false },
             automaticLayout: false,
-            tabSize: tabSize,
-            insertSpaces: false,
+            tabSize,
+            insertSpaces,
             readOnly,
           }}
           onMount={e => {

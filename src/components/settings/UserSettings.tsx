@@ -13,6 +13,8 @@ export default function UserSettings({
   onTabSizeChange,
   lightMode,
   onLightModeChange,
+  insertSpaces,
+  onInsertSpacesChange,
 }: {
   name: string;
   onNameChange: (name: string) => void;
@@ -22,6 +24,8 @@ export default function UserSettings({
   onTabSizeChange: (tabSize: number) => void;
   lightMode: boolean;
   onLightModeChange: (lightMode: boolean) => void;
+  insertSpaces: boolean;
+  onInsertSpacesChange: (insertSpaces: boolean) => void;
 }): JSX.Element {
   return (
     <div className="space-y-6">
@@ -123,6 +127,51 @@ export default function UserSettings({
                         )}
                       >
                         {setting}
+                      </RadioGroup.Label>
+                    </div>
+                  </>
+                )}
+              </RadioGroup.Option>
+            ))}
+          </div>
+        </RadioGroup>
+      </div>
+
+      <div>
+        <RadioGroup value={insertSpaces} onChange={onInsertSpacesChange}>
+          <RadioGroup.Label className="font-medium text-gray-800 mb-4">
+            Insert Spaces
+          </RadioGroup.Label>
+          <div className="bg-white rounded-md space-x-4">
+            {[false, true].map(setting => (
+              <RadioGroup.Option
+                key={setting ? 'Yes' : 'No'}
+                value={setting}
+                className="relative inline-flex items-center cursor-pointer focus:outline-none"
+              >
+                {({ active, checked }) => (
+                  <>
+                    <span
+                      className={classNames(
+                        checked
+                          ? 'bg-indigo-600 border-transparent'
+                          : 'bg-white border-gray-300',
+                        active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                        'h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center'
+                      )}
+                      aria-hidden="true"
+                    >
+                      <span className="rounded-full bg-white w-1.5 h-1.5" />
+                    </span>
+                    <div className="ml-2 flex flex-col">
+                      <RadioGroup.Label
+                        as="span"
+                        className={classNames(
+                          checked ? 'text-gray-800' : 'text-gray-600',
+                          'block text-sm font-medium'
+                        )}
+                      >
+                        {setting ? 'Yes' : 'No'}
                       </RadioGroup.Label>
                     </div>
                   </>

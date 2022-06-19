@@ -42,6 +42,7 @@ interface UserSettings {
   color: string;
   editorMode: EditorMode;
   tabSize: number;
+  insertSpaces: boolean;
   lightMode: boolean;
   defaultPermission: DefaultPermission;
   defaultLang: Language;
@@ -51,6 +52,7 @@ export const defaultUserSettings: UserSettings = {
   editorMode: 'Normal', // change in settings
   color: '', // fixed
   tabSize: 4,
+  insertSpaces: false,
   lightMode: false,
   defaultPermission: 'READ_WRITE', // change in dashboard
   defaultLang: 'cpp', // last viewed file

@@ -77,6 +77,7 @@ export const SettingsModal = ({
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
   const [tabSize, setTabSize] = useState<number>(4);
   const [lightMode, setLightMode] = useState<boolean>(false);
+  const [insertSpaces, setInsertSpaces] = useState<boolean>(false);
   const [userSettings, setUserSettings] = useAtom(
     userSettingsAtomWithPersistence
   );
@@ -89,6 +90,7 @@ export const SettingsModal = ({
       setName(actualDisplayName);
       setEditorMode(userSettings.editorMode);
       setTabSize(userSettings.tabSize);
+      setInsertSpaces(userSettings.insertSpaces);
       setLightMode(userSettings.lightMode);
       dirtyRef.current = false;
       setTab('workspace');
@@ -127,7 +129,7 @@ export const SettingsModal = ({
       settingsToSet = toKeep;
     }
     setRealWorkspaceSettings(settingsToSet);
-    setUserSettings({ editorMode, tabSize, lightMode });
+    setUserSettings({ editorMode, tabSize, lightMode, insertSpaces });
     if (name !== actualDisplayName) {
       setDisplayName(name);
       userRef?.child('name').set(name);
@@ -226,6 +228,11 @@ export const SettingsModal = ({
                     tabSize={tabSize}
                     onTabSizeChange={size => {
                       setTabSize(size);
+                      dirtyRef.current = true;
+                    }}
+                    insertSpaces={insertSpaces}
+                    onInsertSpacesChange={size => {
+                      setInsertSpaces(size);
                       dirtyRef.current = true;
                     }}
                     lightMode={lightMode}
