@@ -94,8 +94,8 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             options={{
               minimap: { enabled: false },
               automaticLayout: false,
-              // tabSize,
-              // insertSpaces,
+              tabSize,
+              insertSpaces,
               readOnly,
             }}
             onMount={e => {
@@ -116,8 +116,8 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             options={{
               minimap: { enabled: false },
               automaticLayout: false,
-              // tabSize,
-              // insertSpaces,
+              tabSize,
+              insertSpaces,
               readOnly: true,
             }}
             onMount={onMount}
