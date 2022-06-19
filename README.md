@@ -31,7 +31,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 - Typescript
 - Tailwind CSS
 - Firebase Realtime Database
-- Jest and Playwright for end-to-end testing
+- Playwright for end-to-end testing
 - Deployed with [Vercel](https://vercel.com/?utm_source=cp-initiative&utm_campaign=oss)
 
 ## Contact Info
@@ -69,20 +69,13 @@ loader.config({
 });
 ```
 
-### Enabling Playwright Debugging
+### Playwright Debugging
 
-Windows:
-
-```
-set PWDEBUG=1 && yarn test
-
-to unset debugging:
-set PWDEBUG=
-```
+We use the [Playwright Test test runner](https://playwright.dev/docs/intro), not the Playwright library. If you use VSCode, the Playwright Test test runner extension for VSCode is really nice.
 
 ### Troubleshooting `firebase emulators:exec`
 
-If `firebase emulators:exec` fails for unknown reason, try running `firebase emulators:exec "yarn test" || cat firebase-debug.log`.
+If `firebase emulators:exec` fails for unknown reason, try running `firebase emulators:exec "yarn playwright test" || cat firebase-debug.log`.
 
 ### Tests that should be written
 
