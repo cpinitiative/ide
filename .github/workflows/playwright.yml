@@ -13,12 +13,37 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install dependencies
-        run: yarn
+        run: |
+          yarn install
+          npm install -g firebase-tools
+          firebase setup:emulators:database
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
+      - name: Build
+        run: yarn build
+
+      - name: Setup background services
+        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
+
       - name: Run Playwright tests
-        run: yarn playwright test
+        run: firebase emulators:exec "yarn playwright test"
+
       - uses: actions/upload-artifact@v2
         if: always()
         with:
