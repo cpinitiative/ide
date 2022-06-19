@@ -1,4 +1,4 @@
-import { Page } from 'playwright';
+import { Page, expect } from '@playwright/test';
 
 export const host = 'http://localhost:3000';
 
