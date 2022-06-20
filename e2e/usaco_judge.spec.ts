@@ -22,6 +22,8 @@ test.describe('USACO Judge Functionality', () => {
   test('should throw an error for an invalid USACO ID', async ({ page }) => {
     await page.goto(`${host}/usaco/sfkj23`);
 
+    await page.locator('text=Loading').waitFor({ state: 'detached' });
+
     expect(
       await page.$('text=Error: Could not identify problem ID.')
     ).toBeTruthy();
