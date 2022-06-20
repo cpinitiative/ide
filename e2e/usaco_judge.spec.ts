@@ -46,6 +46,7 @@ test.describe('USACO Judge Functionality', () => {
     ).toContainText('Sample Verdicts: WW. Sample 1: Wrong Answer');
 
     await page.locator('button:has-text("Java")').click();
+    await page.waitForSelector('button:has-text("Run Code")');
     // Click editor
     await page.locator('.view-lines').first().click();
 
