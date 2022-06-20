@@ -20,6 +20,7 @@ export async function goToPage(page1: Page, page2: Page) {
 }
 
 export const testRunCode = async (page: Page): Promise<void> => {
+  await page.locator('button:has-text("stdout")').click();
   await page.click('button:has-text("Run Code")');
   expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
   await page.waitForSelector('button:has-text("Run Code")');

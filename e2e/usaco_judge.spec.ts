@@ -42,8 +42,8 @@ test.describe('USACO Judge Functionality', () => {
       .locator('[data-test-id="run-code-loading"]')
       .waitFor({ state: 'detached' });
     expect(
-      await page.$('text=Sample Verdicts: WW. Sample 1: Wrong Answer')
-    ).toBeTruthy();
+      page.locator('[data-test-id="code-execution-output-status"]')
+    ).toContainText('Sample Verdicts: WW. Sample 1: Wrong Answer');
 
     await page.locator('button:has-text("Java")').click();
     // Click editor
@@ -84,8 +84,8 @@ System.out.println(hIndex(papers));
       .waitFor({ state: 'detached' });
 
     expect(
-      await page.$('text=Sample Verdicts: AA. Sample 2: Successful')
-    ).toBeTruthy();
+      page.locator('[data-test-id="code-execution-output-status"]')
+    ).toContainText('Sample Verdicts: AA. Sample 2: Successful');
   });
 
   test('should be able to submit to USACO server', async ({ page }) => {
