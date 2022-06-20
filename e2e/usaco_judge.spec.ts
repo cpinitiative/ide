@@ -49,6 +49,8 @@ test.describe('USACO Judge Functionality', () => {
     await page.waitForSelector('button:has-text("Run Code")');
     // Click editor
     await page.locator('.view-lines').first().click();
+    // sometimes monaco is slow to register the click
+    await page.waitForTimeout(500);
 
     await page.locator('[data-test-id="code-editor"]').press('Control+a');
     await page.locator('[data-test-id="code-editor"]').type(
