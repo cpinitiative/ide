@@ -23,7 +23,7 @@ test.describe('USACO Judge Functionality', () => {
     await page.goto(`${host}/usaco/sfkj23`);
 
     expect(
-      await page.$('text="Error: Could not identify problem ID."')
+      await page.$('text=Error: Could not identify problem ID.')
     ).toBeTruthy();
   });
 
