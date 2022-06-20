@@ -25,6 +25,7 @@ export const testRunCode = async (page: Page): Promise<void> => {
   expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
   await page.waitForSelector('button:has-text("Run Code")');
   expect(await page.$('text=Successful')).toBeTruthy();
+  await page.locator('button:has-text("stdout")').click();
   expect(
     await page.$('text="The sum of these three numbers is 6"')
   ).toBeTruthy();
