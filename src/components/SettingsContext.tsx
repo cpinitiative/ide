@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useMemo,
@@ -53,7 +54,7 @@ type SettingsContextType = {
 
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
-export const SettingsProvider: React.FC = ({ children }) => {
+export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const [settings, setSettings] = useReducer(
@@ -65,8 +66,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
     },
     {
       compilerOptions: {
-        cpp:
-          '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+        cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
         java: '',
         py: '',
       },
@@ -82,8 +82,7 @@ export const SettingsProvider: React.FC = ({ children }) => {
           workspaceName: '',
           problem: null, // don't persist problem and compiler options to new file
           compilerOptions: {
-            cpp:
-              '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+            cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
             java: '',
             py: '',
           },

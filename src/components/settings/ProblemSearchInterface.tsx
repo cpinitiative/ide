@@ -97,6 +97,7 @@ const ProblemSearchInterface: React.FC<{
   canChange: boolean;
 }> = ({ onSelect, canChange }) => {
   return (
+    // @ts-ignore -- react instantsearch hooks was released and we should upgrade to that anyway
     <InstantSearch indexName={indexName} searchClient={searchClient}>
       <ConnectedSearch onSelect={onSelect} canChange={canChange} />
     </InstantSearch>

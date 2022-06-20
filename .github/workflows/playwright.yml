@@ -1,23 +1,18 @@
-name: Tests
-
+name: Playwright Tests
 on:
   push:
-    branches:
-      - master
+    branches: [main, master]
   pull_request:
-    branches:
-      - master
-
+    branches: [main, master]
 jobs:
-  e2e-tests:
-    runs-on: ubuntu-latest # or macos-latest, windows-latest
-
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '14.x'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -32,13 +27,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - uses: microsoft/playwright-github-action@v1
-
       - name: Install dependencies
         run: |
           yarn install
           npm install -g firebase-tools
           firebase setup:emulators:database
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
       - name: Build
         run: yarn build
@@ -46,7 +41,12 @@ jobs:
       - name: Setup background services
         run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
 
-      - name: Run tests
-        run: firebase emulators:exec "yarn test"
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Run Playwright tests
+        run: firebase emulators:exec "yarn playwright test"
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

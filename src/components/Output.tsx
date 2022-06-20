@@ -120,7 +120,10 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
           />
         )}
       </div>
-      <div className="text-sm font-mono text-right pr-4 text-gray-200">
+      <div
+        className="text-sm font-mono text-right pr-4 text-gray-200"
+        data-test-id="code-execution-output-status"
+      >
         {result && (
           <>
             {result.statusDescription}, {result.time ?? '-'}s,{' '}
