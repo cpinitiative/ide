@@ -41,20 +41,14 @@ test.describe('USACO Judge Functionality', () => {
     await page
       .locator('[data-test-id="run-code-loading"]')
       .waitFor({ state: 'detached' });
-    expect(
+    await expect(
       page.locator('[data-test-id="code-execution-output-status"]')
     ).toContainText('Sample Verdicts: WW. Sample 1: Wrong Answer');
 
     await page.locator('button:has-text("Java")').click();
     await page.waitForSelector('button:has-text("Run Code")');
-    // Click editor
-    await page.locator('.view-lines').first().click();
-    // sometimes monaco is slow to register the click
-    await page.waitForTimeout(500);
 
-    await page.locator('[data-test-id="code-editor"]').press('Control+a');
-    await page.locator('[data-test-id="code-editor"]').type(
-      `import java.io.BufferedReader;
+    const code = `import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -77,16 +71,18 @@ Arrays.sort(papers, Comparator.reverseOrder());
 System.out.println(hIndex(papers));
 }
 }
-`.replace(/\n/g, '') // without this, sometimes monaco adds closing braces that causes test to fail
+`.replace(/\n/g, '');
+    await page.evaluate(
+      `this.monaco.editor.getModels().at(-1).setValue(\`${code}\`)`
     );
 
     await page.locator('button:has-text("Run Samples")').click();
 
     await page
-      .locator('[data-test-id="run-code-loading"]')
-      .waitFor({ state: 'detached' });
+      .locator('[data-test-id="code-execution-output-status"]')
+      .waitFor({ state: 'visible' });
 
-    expect(
+    await expect(
       page.locator('[data-test-id="code-execution-output-status"]')
     ).toContainText('Sample Verdicts: AA. Sample 2: Successful');
   });
