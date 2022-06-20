@@ -87,9 +87,7 @@ test.describe('Respects Permissions', () => {
     await page.waitForTimeout(200);
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
-    // test run buttons -- both should work
-    await testRunCode(page);
-    await testRunCode(page2);
+
     await page.click('text="Python 3"');
     await page2.click('text="Python 3"');
     await page.waitForSelector('button:has-text("Run Code")');
@@ -105,9 +103,6 @@ test.describe('Respects Permissions', () => {
     await page.waitForTimeout(200);
     expect(await page.$('text="# this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="# this is a comment"');
-    // test run buttons -- both should work
-    await testRunCode(page);
-    await testRunCode(page2);
 
     await page2.close();
     await context2.close();
@@ -161,6 +156,8 @@ test.describe('Respects Permissions', () => {
     await page.click('div[role="radio"]:has-text("Public Read & Write")');
     await page.click('text=Save');
     await page2.waitForSelector('button:has-text("Run Code")');
+    // let monaco load
+    await page2.waitForTimeout(500);
 
     // test input: we should be able to type stuff now
     await page2.click('[data-test-id="input-editor"]');
