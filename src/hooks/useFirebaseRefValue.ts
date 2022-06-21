@@ -11,7 +11,6 @@ export default function useFirebaseRefValue<T>(
   useEffect(() => {
     if (!ref) {
       setIsLoading(false);
-      console.log('reset');
       setValue(null);
       return;
     }

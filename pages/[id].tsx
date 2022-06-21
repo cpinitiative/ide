@@ -31,11 +31,9 @@ import { MessagePage } from '../src/components/MessagePage';
 import firebase from 'firebase/app';
 import Workspace from '../src/components/Workspace/Workspace';
 import {
-  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
-  problemAtom,
   tabsListAtom,
   inputTabIndexAtom,
 } from '../src/atoms/workspaceUI';
@@ -45,12 +43,12 @@ import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
 import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
 import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
-import useFirebaseRefValue from '../src/hooks/useFirebaseRefValue';
 import { submitToJudge } from '../src/scripts/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissions';
 import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolbar';
 import { extractJavaFilename } from '../src/scripts/judge';
+import useFirebaseState from '../src/hooks/useFirebaseState';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -58,8 +56,14 @@ export default function EditorPage(): JSX.Element {
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
-  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
-  const [isRunning, setIsRunning] = useState(false);
+  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const [judgeResults, setJudgeResults] = useFirebaseState<
+    (JudgeResult | null)[]
+  >(authenticatedFirebaseRef?.child('state').child('judge_results'), []);
+  const [isRunning, setIsRunning] = useFirebaseState(
+    authenticatedFirebaseRef?.child('state').child('is_running'),
+    false
+  );
   const [lang, setCurrentLang] = useAtom(currentLangAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { settings } = useSettings();
@@ -71,7 +75,7 @@ export default function EditorPage(): JSX.Element {
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
 
   const showSidebar = useAtomValue(showSidebarAtom);
-  const problem = useAtomValue(problemAtom);
+  const problem = settings.problem;
   const router = useRouter();
 
   useEffect(() => {
@@ -259,10 +263,10 @@ export default function EditorPage(): JSX.Element {
             '. ' +
             failedResult.statusDescription;
         newJudgeResults[1] = failedResult;
-        setJudgeResults(newJudgeResults);
       } else {
         newJudgeResults[1] = newJudgeResults[2];
       }
+      setJudgeResults(newJudgeResults);
     } catch (e) {
       console.error(e);
     }

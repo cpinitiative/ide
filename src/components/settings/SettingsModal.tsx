@@ -12,7 +12,10 @@ import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
 // import { allProblemDataAtom } from '../../atoms/workspaceUI';
-import { authenticatedUserRefAtom } from '../../atoms/firebaseAtoms';
+import {
+  authenticatedFirebaseRefAtom,
+  authenticatedUserRefAtom,
+} from '../../atoms/firebaseAtoms';
 import {
   displayNameAtom,
   EditorMode,
@@ -29,6 +32,8 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
+import useFirebaseState from '../../hooks/useFirebaseState';
+import JudgeResult from '../../types/judge';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -82,6 +87,11 @@ export const SettingsModal = ({
   );
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
+  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const [judgeResults, setJudgeResults] = useFirebaseState<
+    (JudgeResult | null)[]
+  >(authenticatedFirebaseRef?.child('state').child('judge_results'), []);
+
   const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom);
   useEffect(() => {
     if (isOpen) {
@@ -126,6 +136,28 @@ export const SettingsModal = ({
       const { defaultPermission, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;
     }
+
+    if (realWorkspaceSettings.problem != settingsToSet.problem) {
+      const newJudgeResults = judgeResults;
+      while (newJudgeResults.length > 1) newJudgeResults.pop();
+
+      if (settingsToSet.problem) {
+        function resizeResults(
+          results: (JudgeResult | null)[],
+          newSize: number
+        ) {
+          while (results.length > newSize) results.pop();
+          while (results.length < newSize) results.push(null);
+          return results;
+        }
+
+        const samples = settingsToSet.problem.samples;
+        setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
+      } else {
+        setJudgeResults(newJudgeResults);
+      }
+    }
+
     setRealWorkspaceSettings(settingsToSet);
     setUserSettings({ editorMode, tabSize, lightMode });
     if (name !== actualDisplayName) {
@@ -271,7 +303,7 @@ export const SettingsModal = ({
                       className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       onClick={() => {
                         onChange({
-                          problem: undefined,
+                          problem: null,
                         });
                       }}
                     >
