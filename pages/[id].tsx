@@ -363,6 +363,7 @@ export default function EditorPage(): JSX.Element {
               <RunButton
                 onClick={handleRunCode}
                 showLoading={isRunning || loading}
+                disabledForViewOnly={readOnly}
               />
             }
             showViewOnly={!loading && readOnly}
