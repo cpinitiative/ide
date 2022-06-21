@@ -3,7 +3,7 @@ import { useUpdateAtom } from 'jotai/utils';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import invariant from 'tiny-invariant';
-import { fileIdAtom } from '../../atoms/firebaseAtoms';
+import firebase from 'firebase/app';
 import {
   firebaseUserAtom,
   signInWithGoogleAtom,
