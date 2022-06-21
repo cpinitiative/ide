@@ -34,6 +34,7 @@ import JudgeSettings from './JudgeSettings';
 import SignInSettings from './SignInSettings';
 import useFirebaseState from '../../hooks/useFirebaseState';
 import JudgeResult from '../../types/judge';
+import useJudgeResults from '../../hooks/useJudgeResults';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -87,10 +88,7 @@ export const SettingsModal = ({
   );
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
-  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const [judgeResults, setJudgeResults] = useFirebaseState<
-    (JudgeResult | null)[]
-  >(authenticatedFirebaseRef?.child('state').child('judge_results'), []);
+  const [judgeResults, setJudgeResults] = useJudgeResults();
 
   const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom);
   useEffect(() => {

@@ -49,6 +49,7 @@ import useUpdateUserFilePermissions from '../src/hooks/useUpdateUserFilePermissi
 import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolbar';
 import { extractJavaFilename } from '../src/scripts/judge';
 import useFirebaseState from '../src/hooks/useFirebaseState';
+import useJudgeResults from '../src/hooks/useJudgeResults';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -57,9 +58,7 @@ export default function EditorPage(): JSX.Element {
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
   const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const [judgeResults, setJudgeResults] = useFirebaseState<
-    (JudgeResult | null)[]
-  >(authenticatedFirebaseRef?.child('state').child('judge_results'), []);
+  const [judgeResults, setJudgeResults] = useJudgeResults();
   const [isRunning, setIsRunning] = useFirebaseState(
     authenticatedFirebaseRef?.child('state').child('is_running'),
     false

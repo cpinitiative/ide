@@ -34,6 +34,7 @@ import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 import { fileIdAtom } from '../../atoms/firebaseAtoms';
 import useFirebaseState from '../../hooks/useFirebaseState';
+import useJudgeResults from '../../hooks/useJudgeResults';
 
 export type ProblemData = {
   id: number;
@@ -91,9 +92,7 @@ export default function Workspace({
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const [judgeResults, setJudgeResults] = useFirebaseState<
-    (JudgeResult | null)[]
-  >(authenticatedFirebaseRef?.child('state').child('judge_results'), []);
+  const [judgeResults, setJudgeResults] = useJudgeResults();
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
     () => ({
