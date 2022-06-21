@@ -2,7 +2,7 @@ import type firebaseType from 'firebase';
 import { useEffect, useMemo, useState } from 'react';
 
 export default function useFirebaseState<T>(
-  ref: firebaseType.database.Reference | null,
+  ref: firebaseType.database.Reference | null | undefined,
   defaultValue: T
 ): [T, (value: T) => void] {
   const [value, setValue] = useState<T>(defaultValue);
