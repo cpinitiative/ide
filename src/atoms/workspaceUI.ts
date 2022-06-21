@@ -4,7 +4,6 @@ import { ProblemData } from '../components/Workspace/Workspace';
 
 export const mobileActiveTabAtom = atom<'code' | 'io' | 'users'>('code');
 export const showSidebarAtom = atom<boolean>(false);
-export const judgeResultsAtom = atom<(JudgeResult | null)[]>([]);
 export const inputTabAtom = atom<string>('input');
 export const problemAtom = atom<ProblemData | null | undefined>(undefined);
 export const tabsListAtom = atom(get => {

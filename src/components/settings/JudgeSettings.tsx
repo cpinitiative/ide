@@ -1,9 +1,6 @@
-// import { useAtom } from 'jotai';
 import React from 'react';
 import { WorkspaceSettings } from '../SettingsContext';
 
-// import { allProblemDataAtom } from '../../atoms/workspaceUI';
-// import { useAtom } from 'jotai';
 import ProblemSearchInterface from './ProblemSearchInterface';
 
 export default function JudgeSettings({

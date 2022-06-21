@@ -7,16 +7,24 @@ export interface RunButtonProps {
     | ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void)
     | undefined;
   showLoading: boolean;
+  disabledForViewOnly: boolean;
 }
 
 export const RunButton = ({
   onClick,
   showLoading,
+  disabledForViewOnly,
 }: RunButtonProps): JSX.Element => (
   <button
     type="button"
-    className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-32 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
+    className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-32 shadow-sm text-sm font-medium text-white bg-indigo-900 enabled:hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none disabled:text-indigo-300/50 disabled:bg-indigo-900/50 disabled:cursor-not-allowed"
     onClick={onClick}
+    disabled={disabledForViewOnly}
+    title={
+      disabledForViewOnly
+        ? "You can't run code in a view-only document."
+        : undefined
+    }
   >
     {showLoading ? (
       <LoadingIndicator

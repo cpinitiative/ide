@@ -13,7 +13,6 @@ import {
   actualUserPermissionAtom,
 } from '../../atoms/workspace';
 import {
-  judgeResultsAtom,
   mobileActiveTabAtom,
   showSidebarAtom,
   inputTabAtom,
@@ -34,12 +33,8 @@ import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 import { fileIdAtom } from '../../atoms/firebaseAtoms';
-
-function resizeResults(results: (JudgeResult | null)[], newSize: number) {
-  while (results.length > newSize) results.pop();
-  while (results.length < newSize) results.push(null);
-  return results;
-}
+import useFirebaseState from '../../hooks/useFirebaseState';
+import useJudgeResults from '../../hooks/useJudgeResults';
 
 export type ProblemData = {
   id: number;
@@ -96,8 +91,8 @@ export default function Workspace({
 
   const permission = useAtomValue(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const [judgeResults, setJudgeResults] = useAtom(judgeResultsAtom);
-
+  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const [judgeResults, setJudgeResults] = useJudgeResults();
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const firebaseRefs = useMemo(
     () => ({
@@ -123,37 +118,19 @@ export default function Workspace({
 
   const [statusData, setStatusData] = useState<StatusData | null>(null);
 
-  const fileId = useAtomValue(fileIdAtom);
-  const prevFileId = useRef('');
   useEffect(() => {
-    const updateProblemData = (newProblem?: ProblemData | null) => {
-      setStatusData(null);
-      const newJudgeResults = judgeResults;
-      const newFileId = fileId?.id ?? '';
-      if (newFileId !== prevFileId.current) {
-        // changed file, clear everything
-        while (newJudgeResults.length > 0) newJudgeResults.pop();
-        newJudgeResults.push(null);
-        prevFileId.current = newFileId;
-      } else {
-        // don't clear input tab
-        while (newJudgeResults.length > 1) newJudgeResults.pop();
-      }
-      setProblem(newProblem);
-      if (newProblem) {
-        const samples = newProblem.samples;
-        setJudgeResults(resizeResults(newJudgeResults, 2 + samples.length));
-        setInputTab('judge');
-      } else {
-        setJudgeResults(newJudgeResults);
-      }
-    };
-    updateProblemData(settings.problem);
+    setStatusData(null);
+    setProblem(settings.problem);
+    if (settings.problem) {
+      setInputTab('judge');
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.problem, fileId?.id]);
+  }, [settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
   const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+
+  console.log(judgeResults[inputTabIndex], judgeResults, inputTabIndex);
 
   return (
     <Split
