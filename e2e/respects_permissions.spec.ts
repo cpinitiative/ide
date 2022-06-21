@@ -18,7 +18,6 @@ test.describe('Respects Permissions', () => {
     await page.click('text=Save');
 
     await goToPage(page, page2);
-    await page2.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('text="View Only"');
 
     // let monaco load
@@ -69,9 +68,11 @@ test.describe('Respects Permissions', () => {
     await page.waitForTimeout(200);
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
-    // test run buttons -- both should work
+
+    // test run buttons -- only the first page should work
     await testRunCode(page);
-    await testRunCode(page2);
+    expect(await page2.locator('button:has-text("Run Code")')).toBeDisabled();
+
     await page.click('text="Java"');
     await page2.click('text="Java"');
     await page.waitForSelector('button:has-text("Run Code")');
