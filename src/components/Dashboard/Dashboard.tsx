@@ -85,11 +85,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!firebaseUser) return;
 
-    const ref = firebase
-      .database()
-      .ref('users')
-      .child(firebaseUser.uid)
-      .child('files');
+    const ref = firebase.database().ref('users').child(firebaseUser.uid);
     const unsubscribe = ref.orderByChild('lastAccessTime').on('value', snap => {
       if (!snap.exists) {
         setFiles(null);
@@ -99,10 +95,12 @@ export default function Dashboard() {
           const data = child.val();
           if (!showHidden && data.hidden) return;
           const key = child.key;
-          files.push({
-            id: key,
-            ...data,
-          });
+          if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
+            files.push({
+              id: key,
+              ...data,
+            });
+          }
         });
         files.reverse();
         setFiles(files);

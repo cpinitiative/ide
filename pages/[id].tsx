@@ -319,7 +319,6 @@ export default function EditorPage(): JSX.Element {
         .database()
         .ref('users')
         .child(firebaseUser.uid)
-        .child('files')
         .child(fileId.id);
       if (permission === 'PRIVATE') {
         // remove from dashboard recently accessed files
