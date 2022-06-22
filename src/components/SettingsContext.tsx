@@ -54,6 +54,19 @@ type SettingsContextType = {
 
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
+const initialValue: WorkspaceSettings = {
+  workspaceName: undefined,
+  problem: undefined,
+  compilerOptions: {
+    cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+    java: '',
+    py: '',
+  },
+  creationTime: undefined,
+  classroomID: undefined,
+  defaultPermission: 'READ_WRITE',
+};
+
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
@@ -64,14 +77,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         ...next,
       };
     },
-    {
-      compilerOptions: {
-        cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
-        java: '',
-        py: '',
-      },
-      defaultPermission: 'READ_WRITE',
-    }
+    initialValue
   );
 
   useEffect(() => {
@@ -93,6 +99,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         .child('settings')
         .on('value', handleNewSetting, e => setFirebaseError(e));
       return () => firebaseRef.child('settings').off('value', handleNewSetting);
+    } else {
+      // file changed, reset everything
+      setSettings(initialValue);
     }
   }, [firebaseRef, setFirebaseError]);
 
