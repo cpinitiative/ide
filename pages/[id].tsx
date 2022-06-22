@@ -331,6 +331,7 @@ export default function EditorPage(): JSX.Element {
           lastPermission: permission,
           lastDefaultPermission: settings.defaultPermission,
           hidden: false,
+          version: 1,
         });
       }
     }
