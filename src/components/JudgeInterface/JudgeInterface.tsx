@@ -124,7 +124,11 @@ export default function JudgeInterface({
               <span className="font-bold">I/O:</span> {problem.input}/
               {problem.output}
               {problem.input.includes('.in') && (
-                <> (&quot;Run Samples&quot; still runs on stdin/stdout)</>
+                <>
+                  {' '}
+                  (&quot;Run Samples&quot; supports both file I/O and
+                  stdin/stdout)
+                </>
               )}
             </p>
             {problem.samples.length > 0 && (

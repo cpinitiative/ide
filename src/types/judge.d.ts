@@ -15,4 +15,5 @@ export default interface JudgeResult {
   time?: string;
   memory?: string;
   debugData?: any;
+  fileOutput?: string;
 }

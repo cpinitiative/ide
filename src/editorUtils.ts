@@ -11,9 +11,7 @@ export function isFirebaseId(queryId: string): boolean {
   return queryId.length === 19;
 }
 
-function cleanAndReplaceOutput(
-  output: string
-): {
+function cleanAndReplaceOutput(output: string): {
   replaced: string;
   cleaned: string;
 } {
@@ -38,6 +36,9 @@ export function cleanJudgeResult(
     wrong_answer: 'Wrong Answer',
   };
   data.statusDescription = statusDescriptions[data.status];
+  if (data.fileOutput) {
+    data.stdout = data.fileOutput;
+  }
   if (expectedOutput && data.status === 'success') {
     data.statusDescription = 'Successful';
     let stdout = data.stdout ?? '';

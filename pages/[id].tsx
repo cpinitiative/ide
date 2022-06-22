@@ -116,7 +116,15 @@ export default function EditorPage(): JSX.Element {
   useUserFileConnection();
 
   const fetchJudge = (code: string, input: string): Promise<Response> => {
-    return submitToJudge(lang, code, input, settings.compilerOptions[lang]);
+    return submitToJudge(
+      lang,
+      code,
+      input,
+      settings.compilerOptions[lang],
+      problem?.input?.endsWith('.in')
+        ? problem.input.substring(0, problem.input.length - 3)
+        : undefined
+    );
   };
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);

@@ -130,8 +130,6 @@ export default function Workspace({
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
   const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
 
-  console.log(judgeResults[inputTabIndex], judgeResults, inputTabIndex);
-
   return (
     <Split
       onDragEnd={() => layoutEditors()}
