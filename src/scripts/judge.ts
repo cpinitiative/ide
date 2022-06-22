@@ -11,7 +11,8 @@ export const submitToJudge = (
   language: 'cpp' | 'java' | 'py',
   code: string,
   input: string,
-  compilerOptions: string
+  compilerOptions: string,
+  fileIOName?: string
 ): Promise<Response> => {
   const data = {
     sourceCode: code,
@@ -23,6 +24,11 @@ export const submitToJudge = (
     language,
     input,
     compilerOptions: compilerOptions,
+    ...(fileIOName
+      ? {
+          fileIOName,
+        }
+      : {}),
   };
   return fetch(
     `https://oh2kjsg6kh.execute-api.us-west-1.amazonaws.com/Prod/execute`,

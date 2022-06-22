@@ -99,4 +99,76 @@ System.out.println(hIndex(papers));
       .locator('text=Incorrect answer on sample input case -- details below')
       .waitFor({ state: 'attached', timeout: 20000 });
   });
+
+  test('should be able to use file I/O for usaco problems', async ({
+    page,
+  }) => {
+    await page.goto(`${host}/usaco/363`);
+    await page.waitForSelector('button:has-text("Run Code")');
+    expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
+
+    const code = `#include <iostream>
+    #include <algorithm>
+    #include <cstdio>
+    #include <cstring>
+    
+    using namespace std;
+    
+    #define MAXN 100010
+    
+    int X[MAXN];
+    int Y[MAXN];
+    int PI[MAXN];
+    
+    void compose(int* R, int* A, int* B, int N) {
+      for(int i = 0; i < N; i++) {
+        R[i] = A[B[i]];
+      }
+    }
+    
+    int main() {
+      freopen("shuffle.in", "r", stdin);
+      freopen("shuffle.out", "w", stdout);
+    
+      int N, M, Q; cin >> N >> M >> Q;
+      int T = N - M + 1;
+      for(int i = 0; i < N; i++) {
+        X[i] = i;
+        if(i < M) {
+          int x; cin >> x; x--;
+          PI[x] = i;
+        } else {
+          PI[i] = i;
+        }
+      }
+      rotate(PI, PI + 1, PI + N);
+    
+      for(int i = 31 - __builtin_clz(T); i >= 0; i--) {
+        compose(Y, X, X, N);
+        memcpy(X, Y, sizeof(X));
+        if(T & 1 << i) {
+          compose(Y, X, PI, N);
+          memcpy(X, Y, sizeof(X));
+        }
+      }
+      for(int i = 0; i < Q; i++) {
+        int x; cin >> x;
+        cout << X[(N + M - 1 - x) % N] + 1 << endl;
+      }
+      return 0;
+    }`;
+    await page.evaluate(
+      `this.monaco.editor.getModels()[0].setValue(\`${code}\`)`
+    );
+
+    await page.locator('button:has-text("Run Samples")').click();
+
+    await page
+      .locator('[data-test-id="code-execution-output-status"]')
+      .waitFor({ state: 'visible' });
+
+    await expect(
+      page.locator('[data-test-id="code-execution-output-status"]')
+    ).toContainText('Sample: Successful');
+  });
 });
