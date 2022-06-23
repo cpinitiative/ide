@@ -334,11 +334,7 @@ export default function EditorPage(): JSX.Element {
   }, [onlineUsers]);
 
   useEffect(() => {
-    if (
-      permission === null ||
-      !fileOwner ||
-      settings.workspaceName === undefined
-    )
+    if (permission === null || !fileOwner || settings.workspaceName === null)
       return;
     if (firebaseUser && fileId?.id) {
       const fileRef = firebase

@@ -41,10 +41,10 @@ export interface UserSettings {
 export interface WorkspaceSettings {
   compilerOptions: { [key in Language]: string };
   defaultPermission: string;
-  workspaceName?: string;
-  creationTime?: string;
-  problem?: ProblemData | null;
-  classroomID?: string;
+  workspaceName: string | null;
+  creationTime: string | null;
+  problem: ProblemData | null;
+  classroomID: string | null;
 }
 
 type SettingsContextType = {
@@ -55,15 +55,15 @@ type SettingsContextType = {
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
 const initialValue: WorkspaceSettings = {
-  workspaceName: undefined,
-  problem: undefined,
+  workspaceName: null,
+  problem: null,
   compilerOptions: {
     cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
     java: '',
     py: '',
   },
-  creationTime: undefined,
-  classroomID: undefined,
+  creationTime: null,
+  classroomID: null,
   defaultPermission: 'READ_WRITE',
 };
 

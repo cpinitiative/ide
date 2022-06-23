@@ -9,6 +9,7 @@ test.describe('Dashboard Page', () => {
 
     await page.goto(`${host}/new`);
     await page.waitForSelector('button:has-text("Run Code")');
+    await page.waitForSelector('button:has-text("1 User Online")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
     await page.goto(`${host}`);
