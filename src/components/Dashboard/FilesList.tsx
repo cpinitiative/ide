@@ -111,12 +111,12 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                   <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6 md:pl-0">
                     {file.hidden ? (
                       <span className="text-gray-400">
-                        {file.title} (Hidden)
+                        {file.title || '(Unnamed File)'} (Hidden)
                       </span>
                     ) : (
                       <Link href={`/${file.id.substring(1)}`}>
                         <a className="text-gray-100 hover:text-white">
-                          {file.title}
+                          {file.title || '(Unnamed File)'}
                         </a>
                       </Link>
                     )}
