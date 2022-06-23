@@ -11,7 +11,7 @@ test.describe('Dashboard Page', () => {
     await page.waitForSelector('button:has-text("Run Code")');
     await page.waitForSelector('button:has-text("1 User Online")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
-    await page.waitForTimeout(500); // waiting for file info to be uploaded to firebase
+    await page.waitForTimeout(1500); // waiting for file info to be uploaded to firebase
 
     await page.goto(`${host}`);
 
@@ -39,7 +39,7 @@ test.describe('Dashboard Page', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("2 Users Online")');
     expect(page2.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
-    await page2.waitForTimeout(500); // waiting for file info to be uploaded to firebase
+    await page2.waitForTimeout(1500); // waiting for file info to be uploaded to firebase
 
     await page2.goto(`${host}`);
     await page.goto(`${host}`);
