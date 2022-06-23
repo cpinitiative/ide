@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { RunButton } from '../src/components/RunButton';
 import defaultCode from '../src/scripts/defaultCode';
 import JudgeResult from '../src/types/judge';
@@ -50,6 +50,7 @@ import ClassroomToolbar from '../src/components/ClassroomToolbar/ClassroomToolba
 import { extractJavaFilename } from '../src/scripts/judge';
 import useFirebaseState from '../src/hooks/useFirebaseState';
 import useJudgeResults from '../src/hooks/useJudgeResults';
+import { useOnlineUsers } from '../src/hooks/useOnlineUsers';
 
 export default function EditorPage(): JSX.Element {
   const [fileId, setFileId] = useAtom(fileIdAtom);
@@ -69,6 +70,7 @@ export default function EditorPage(): JSX.Element {
   const permission = useAtomValue(actualUserPermissionAtom);
   const loading = useAtomValue(loadingAtom);
   const setShowSidebar = useUpdateAtom(showSidebarAtom);
+  const onlineUsers = useOnlineUsers();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
@@ -320,8 +322,20 @@ export default function EditorPage(): JSX.Element {
     }Real-Time Collaborative Online IDE`;
   }, [settings.workspaceName]);
 
+  const fileOwner = useMemo(() => {
+    const user = onlineUsers?.find(user => user.permission === 'OWNER');
+    if (user) {
+      return {
+        name: user.name,
+        id: user.id,
+      };
+    }
+    return null;
+  }, [onlineUsers]);
+
   useEffect(() => {
-    if (permission === null) return;
+    if (permission === null || !fileOwner || settings.workspaceName === null)
+      return;
     if (firebaseUser && fileId?.id) {
       const fileRef = firebase
         .database()
@@ -339,7 +353,8 @@ export default function EditorPage(): JSX.Element {
           lastPermission: permission,
           lastDefaultPermission: settings.defaultPermission,
           hidden: false,
-          version: 1,
+          version: 2,
+          ...(fileOwner ? { owner: fileOwner } : {}),
         });
       }
     }
@@ -347,6 +362,7 @@ export default function EditorPage(): JSX.Element {
     firebaseUser,
     fileId,
     permission,
+    fileOwner?.id,
     settings.workspaceName,
     settings.creationTime,
     settings.defaultPermission,

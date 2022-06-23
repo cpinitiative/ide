@@ -16,6 +16,10 @@ export type File = {
   lastDefaultPermission: string | null;
   hidden: boolean | null;
   version: number;
+  owner?: {
+    name: string;
+    id: string;
+  }; // added in v2
 };
 
 export interface FilesListProps {
@@ -85,6 +89,12 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                   scope="col"
                   className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
                 >
+                  Owner
+                </th>
+                <th
+                  scope="col"
+                  className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
+                >
                   Permissions
                 </th>
                 <th
@@ -116,6 +126,13 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                   </td>
                   <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
                     {formatCreationTime(file.creationTime)}
+                  </td>
+                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                    {file.owner
+                      ? file.owner.id === firebaseUser.uid
+                        ? 'Me'
+                        : file.owner.name
+                      : ''}
                   </td>
                   <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
                     {file.lastPermission &&
