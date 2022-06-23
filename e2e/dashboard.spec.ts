@@ -11,6 +11,7 @@ test.describe('Dashboard Page', () => {
     await page.waitForSelector('button:has-text("Run Code")');
     await page.waitForSelector('button:has-text("1 User Online")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
+    await page.waitForTimeout(500); // waiting for file info to be uploaded to firebase
 
     await page.goto(`${host}`);
 
