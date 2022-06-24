@@ -1,6 +1,6 @@
 # Realtime Collaborative IDE
 
-A realtime collaborative IDE with code execution, input/output, and built-in USACO submissions. Designed primarily for Competitive Programming and USACO, with mobile support for coding on the go.
+A realtime collaborative IDE with code execution, intellisense, and built-in USACO submissions. Designed primarily for Competitive Programming and USACO, with mobile support for coding on the go.
 
 This IDE is built and maintained by [Nathan Wang](https://github.com/thecodingwizard) and [Benjamin Qi](https://github.com/bqi343/), and is part of the [Competitive Programming Initiative](https://joincpi.org/).
 
