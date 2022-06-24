@@ -7,21 +7,10 @@ import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js';
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 import { initVimMode } from 'monaco-vim';
-import {
-  MonacoLanguageClient,
-  CloseAction,
-  ErrorAction,
-  MonacoServices,
-  MessageTransports,
-} from 'monaco-languageclient';
-import {
-  toSocket,
-  WebSocketMessageReader,
-  WebSocketMessageWriter,
-} from 'vscode-ws-jsonrpc';
-import normalizeUrl from 'normalize-url';
+import { MonacoServices } from 'monaco-languageclient';
 import { getOrCreateModel, usePrevious, useUpdate } from './utils';
 import { EditorProps } from './monaco-editor-types';
+import createLSPConnection from './lsp';
 
 buildWorkerDefinition(
   'monaco-workers',
@@ -35,7 +24,7 @@ monaco.languages.register({
   aliases: ['cpp'],
 });
 
-MonacoServices.install();
+MonacoServices.install(); // todo disposable here...
 
 const viewStates = new Map();
 
@@ -99,56 +88,7 @@ export default function MonacoEditor({
 
   useEffect(() => {
     if (lspEnabled) {
-      const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
-      const webSocket = new WebSocket(url);
-      let languageClient: MonacoLanguageClient;
-
-      webSocket.onopen = () => {
-        const socket = toSocket(webSocket);
-        const reader = new WebSocketMessageReader(socket);
-        const writer = new WebSocketMessageWriter(socket);
-        languageClient = createLanguageClient({
-          reader,
-          writer,
-        });
-        languageClient.start();
-        // todo add alive check
-        reader.onClose(() => {
-          languageClient.stop();
-        });
-      };
-
-      function createLanguageClient(
-        transports: MessageTransports
-      ): MonacoLanguageClient {
-        return new MonacoLanguageClient({
-          name: 'Sample Language Client',
-          clientOptions: {
-            // use a language id as a document selector
-            documentSelector: ['cpp'],
-            // disable the default error handler
-            errorHandler: {
-              error: () => ({ action: ErrorAction.Continue }),
-              closed: () => ({ action: CloseAction.DoNotRestart }),
-            },
-          },
-          // create a language client connection from the JSON RPC connection on demand
-          connectionProvider: {
-            get: () => {
-              return Promise.resolve(transports);
-            },
-          },
-        });
-      }
-
-      function createUrl(hostname: string, port: number, path: string): string {
-        const protocol = location.protocol === 'https:' ? 'wss' : 'wss';
-        return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
-      }
-
-      return () => {
-        languageClient?.stop();
-      };
+      return createLSPConnection();
     }
   }, [lspEnabled]);
 
