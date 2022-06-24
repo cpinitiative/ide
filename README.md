@@ -22,7 +22,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 
 ## Tech Stack
 
-- Code execution through AWS Lambda
+- Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge)
 - Realtime collaboration with [Firepad](https://firepad.io/)
 - Monaco Editor
 - [monaco-languageclient](https://github.com/TypeFox/monaco-languageclient) with `clangd-12` for LSP
