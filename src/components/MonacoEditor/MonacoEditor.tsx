@@ -99,7 +99,7 @@ export default function MonacoEditor({
 
   useEffect(() => {
     if (lspEnabled) {
-      const url = createUrl('52.180.147.96', 3000, '/sampleServer');
+      const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
       const webSocket = new WebSocket(url);
       let languageClient: MonacoLanguageClient;
 
@@ -142,8 +142,7 @@ export default function MonacoEditor({
       }
 
       function createUrl(hostname: string, port: number, path: string): string {
-        // first one shud be wss
-        const protocol = location.protocol === 'https:' ? 'ws' : 'ws';
+        const protocol = location.protocol === 'https:' ? 'wss' : 'wss';
         return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
       }
 
