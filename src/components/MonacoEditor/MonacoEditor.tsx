@@ -7,6 +7,21 @@ import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js';
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 import { initVimMode } from 'monaco-vim';
+import {
+  MonacoLanguageClient,
+  CloseAction,
+  ErrorAction,
+  MonacoServices,
+  MessageTransports,
+} from 'monaco-languageclient';
+import {
+  toSocket,
+  WebSocketMessageReader,
+  WebSocketMessageWriter,
+} from 'vscode-ws-jsonrpc';
+import normalizeUrl from 'normalize-url';
+import { getOrCreateModel, usePrevious, useUpdate } from './utils';
+import { EditorProps } from './monaco-editor-types';
 
 buildWorkerDefinition(
   'monaco-workers',
@@ -14,8 +29,13 @@ buildWorkerDefinition(
   false
 );
 
-import { getOrCreateModel, usePrevious, useUpdate } from './utils';
-import { EditorProps } from './monaco-editor-types';
+monaco.languages.register({
+  id: 'cpp',
+  extensions: ['.cpp'],
+  aliases: ['cpp'],
+});
+
+MonacoServices.install();
 
 const viewStates = new Map();
 
@@ -33,6 +53,7 @@ export default function MonacoEditor({
   value = '',
   onBeforeDispose,
   vim = false,
+  lspEnabled = false,
 }: EditorProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -75,6 +96,61 @@ export default function MonacoEditor({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (lspEnabled) {
+      const url = createUrl('52.180.147.96', 3000, '/sampleServer');
+      const webSocket = new WebSocket(url);
+      let languageClient: MonacoLanguageClient;
+
+      webSocket.onopen = () => {
+        const socket = toSocket(webSocket);
+        const reader = new WebSocketMessageReader(socket);
+        const writer = new WebSocketMessageWriter(socket);
+        languageClient = createLanguageClient({
+          reader,
+          writer,
+        });
+        languageClient.start();
+        // todo add alive check
+        reader.onClose(() => {
+          languageClient.stop();
+        });
+      };
+
+      function createLanguageClient(
+        transports: MessageTransports
+      ): MonacoLanguageClient {
+        return new MonacoLanguageClient({
+          name: 'Sample Language Client',
+          clientOptions: {
+            // use a language id as a document selector
+            documentSelector: ['cpp'],
+            // disable the default error handler
+            errorHandler: {
+              error: () => ({ action: ErrorAction.Continue }),
+              closed: () => ({ action: CloseAction.DoNotRestart }),
+            },
+          },
+          // create a language client connection from the JSON RPC connection on demand
+          connectionProvider: {
+            get: () => {
+              return Promise.resolve(transports);
+            },
+          },
+        });
+      }
+
+      function createUrl(hostname: string, port: number, path: string): string {
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
+      }
+
+      return () => {
+        languageClient?.stop();
+      };
+    }
+  }, [lspEnabled]);
 
   useEffect(() => {
     if (vim) {

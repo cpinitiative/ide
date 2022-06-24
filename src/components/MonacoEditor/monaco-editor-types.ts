@@ -115,4 +115,6 @@ export interface EditorProps {
   onBeforeDispose?: Function;
 
   vim?: boolean;
+
+  lspEnabled?: boolean;
 }

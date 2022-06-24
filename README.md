@@ -40,6 +40,30 @@ If you have any questions, please open an issue or reach out to us at usacoguide
 
 ## Misc Notes
 
+### LSP Installation
+
+Ubuntu 20.04 on Azure, B2ms or something. update port 3000 firewall rule as needed
+
+```
+sudo apt update
+sudo apt install clangd-12
+
+sudo apt install nodejs npm
+sudo npm install -g n
+sudo n install lts
+sudo n # choose v16 or whatever lts is
+
+git clone https://github.com/TypeFox/monaco-languageclient.git
+
+# maybe https://stackoverflow.com/questions/33870520/npm-install-cannot-find-module-semver
+npm install
+npm run build
+
+cd packages/examples/node
+# update dist/json-server-launcher.js
+node dist/server.js --external
+```
+
 ### Firepad Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
 
 Replace something similar to

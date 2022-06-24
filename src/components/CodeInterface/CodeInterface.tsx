@@ -68,7 +68,7 @@ export const CodeInterface = ({
         <LazyFirepadEditor
           theme={lightMode ? 'light' : 'vs-dark'}
           language={{ cpp: 'cpp', java: 'java', py: 'python' }[lang]}
-          path={lang}
+          path={`myfile.${lang}`}
           options={{
             minimap: { enabled: false },
             automaticLayout: false,
@@ -86,6 +86,7 @@ export const CodeInterface = ({
           defaultValue={defaultCode[lang]}
           firebaseRef={firebaseRefs[lang]}
           useEditorWithVim={true}
+          lspEnabled={lang === 'cpp'}
           dataTestId="code-editor"
         />
       </div>
