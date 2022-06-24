@@ -11,7 +11,7 @@ import { authenticatedUserRefAtom } from '../atoms/firebaseAtoms';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import type * as monaco from 'monaco-editor';
-import LazyMonacoEditorWithVim from './MonacoEditorWithVim/LazyMonacoEditorWithVim';
+import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -32,6 +32,7 @@ const FirepadEditor = ({
   const userRef = useAtomValue(authenticatedUserRefAtom);
   const [, setLoading] = useAtom(loadingAtom);
   const disposeFirepadRef = useRef<Function | null>(null);
+  const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
 
   useEffect(() => {
     if (!firebaseRef || !editor || !userRef) return;
@@ -70,16 +71,12 @@ const FirepadEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, userRef, editor]);
 
-  const EditorComponent = useEditorWithVim
-    ? LazyMonacoEditorWithVim
-    : LazyMonacoEditor;
-
   return (
     <div
       className="tw-forms-disable tw-forms-disable-all-descendants h-full"
       data-test-id={dataTestId}
     >
-      <EditorComponent
+      <LazyMonacoEditor
         {...props}
         onMount={(e, m) => {
           setEditor(e);
@@ -93,6 +90,7 @@ const FirepadEditor = ({
             disposeFirepadRef.current = null;
           }
         }}
+        vim={useEditorWithVim && mode === 'Vim'}
       />
     </div>
   );

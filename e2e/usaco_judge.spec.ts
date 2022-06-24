@@ -158,7 +158,7 @@ System.out.println(hIndex(papers));
       return 0;
     }`;
     await page.evaluate(
-      `this.monaco.editor.getModels()[0].setValue(\`${code}\`)`
+      `this.monaco.editor.getModels().at(-1).setValue(\`${code}\`)`
     );
 
     await page.locator('button:has-text("Run Samples")').click();

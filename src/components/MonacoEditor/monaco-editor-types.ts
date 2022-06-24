@@ -113,4 +113,6 @@ export interface EditorProps {
   onMount?: OnMount;
 
   onBeforeDispose?: Function;
+
+  vim?: boolean;
 }

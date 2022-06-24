@@ -6,6 +6,7 @@ import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js';
 import { buildWorkerDefinition } from 'monaco-editor-workers';
+import { initVimMode } from 'monaco-vim';
 
 buildWorkerDefinition(
   'monaco-workers',
@@ -31,6 +32,7 @@ export default function MonacoEditor({
   className,
   value = '',
   onBeforeDispose,
+  vim = false,
 }: EditorProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -73,6 +75,20 @@ export default function MonacoEditor({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (vim) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let editorMode: any;
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const statusNode = document.querySelector('.status-node');
+      editorMode = initVimMode(editorRef.current, statusNode);
+
+      return () => editorMode.dispose();
+    }
+  }, [vim]);
 
   /* Note: path update handler needs to run first. Otherwise, changing both path and language
      at the same time will result in the wrong language being used */
