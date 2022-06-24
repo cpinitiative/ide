@@ -1,5 +1,4 @@
 import { TabBar } from './TabBar';
-import Editor, { EditorProps } from '@monaco-editor/react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
 import { LazyFirepadEditor } from './LazyFirepadEditor';
@@ -8,6 +7,8 @@ import { actualUserPermissionAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
 import JudgeResult from '../types/judge';
 import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
+import { EditorProps } from './MonacoEditor/monaco-editor-types';
+import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
 
 export interface OutputProps {
   result: JudgeResult | null;
@@ -104,7 +105,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             firebaseRef={firebaseRefs.scribble}
           />
         ) : (
-          <Editor
+          <LazyMonacoEditor
             theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             value={outputText}

@@ -1,5 +1,4 @@
-import Editor, { EditorProps } from '@monaco-editor/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Firepad from '../scripts/firepad';
@@ -9,7 +8,10 @@ import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedUserRefAtom } from '../atoms/firebaseAtoms';
-import MonacoEditor from './MonacoEditor/MonacoEditor';
+import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
+import { EditorProps } from './MonacoEditor/monaco-editor-types';
+import type * as monaco from 'monaco-editor';
+import LazyMonacoEditorWithVim from './MonacoEditorWithVim/LazyMonacoEditorWithVim';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -29,6 +31,7 @@ const FirepadEditor = ({
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const userRef = useAtomValue(authenticatedUserRefAtom);
   const [, setLoading] = useAtom(loadingAtom);
+  const disposeFirepadRef = useRef<Function | null>(null);
 
   useEffect(() => {
     if (!firebaseRef || !editor || !userRef) return;
@@ -53,13 +56,23 @@ const FirepadEditor = ({
       if (affectsLoading) setLoading(false);
     });
 
-    return () => firepad.dispose();
+    disposeFirepadRef.current = () => {
+      firepad.dispose();
+    };
+
+    return () => {
+      if (disposeFirepadRef.current) {
+        disposeFirepadRef.current();
+        disposeFirepadRef.current = null;
+      }
+    };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, userRef, editor]);
 
-  // const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
-  const EditorComponent = MonacoEditor;
+  const EditorComponent = useEditorWithVim
+    ? LazyMonacoEditorWithVim
+    : LazyMonacoEditor;
 
   return (
     <div
@@ -71,6 +84,14 @@ const FirepadEditor = ({
         onMount={(e, m) => {
           setEditor(e);
           if (onMount) onMount(e, m);
+        }}
+        // this is necessary because sometimes the editor component will unmount before firepad
+        // and firepad needs to be disposed before editor can be disposed
+        onBeforeDispose={() => {
+          if (disposeFirepadRef.current) {
+            disposeFirepadRef.current();
+            disposeFirepadRef.current = null;
+          }
         }}
       />
     </div>
