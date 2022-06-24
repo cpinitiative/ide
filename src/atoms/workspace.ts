@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { Language } from '../components/SettingsContext';
 import { userSettingsAtomWithPersistence } from './userSettings';
+import type * as monaco from 'monaco-editor';
 
 type Permission = 'OWNER' | 'READ_WRITE' | 'READ' | 'PRIVATE';
 export type DefaultPermission = 'READ_WRITE' | 'READ' | 'PRIVATE';
@@ -40,15 +41,12 @@ export const currentLangAtom = atom<Language, Language>(
     set(userSettingsAtomWithPersistence, { defaultLang: lang }); // silently fails if firebase isn't loaded yet
   }
 );
-export const mainMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
-  null
-);
-export const inputMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
-  null
-);
-export const outputMonacoEditorAtom = atom<monaco.editor.IStandaloneCodeEditor | null>(
-  null
-);
+export const mainMonacoEditorAtom =
+  atom<monaco.editor.IStandaloneCodeEditor | null>(null);
+export const inputMonacoEditorAtom =
+  atom<monaco.editor.IStandaloneCodeEditor | null>(null);
+export const outputMonacoEditorAtom =
+  atom<monaco.editor.IStandaloneCodeEditor | null>(null);
 export const layoutEditorsAtom = atom(null, (get, _set, _arg) => {
   get(mainMonacoEditorAtom)?.layout();
   get(inputMonacoEditorAtom)?.layout();

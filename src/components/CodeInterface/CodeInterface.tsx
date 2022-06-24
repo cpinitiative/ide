@@ -13,6 +13,7 @@ import { LazyFirepadEditor } from '../LazyFirepadEditor';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
+import type * as monaco from 'monaco-editor';
 
 export const CodeInterface = ({
   className,
@@ -22,10 +23,8 @@ export const CodeInterface = ({
   const [lang, setLang] = useAtom(currentLangAtom);
   const [permission] = useAtom(actualUserPermissionAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const [
-    editor,
-    setEditor,
-  ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editor, setEditor] =
+    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [, setMainMonacoEditor] = useAtom(mainMonacoEditorAtom);
 
   const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
@@ -69,7 +68,7 @@ export const CodeInterface = ({
         <LazyFirepadEditor
           theme={lightMode ? 'light' : 'vs-dark'}
           language={{ cpp: 'cpp', java: 'java', py: 'python' }[lang]}
-          path={lang}
+          path={`myfile.${lang}`}
           options={{
             minimap: { enabled: false },
             automaticLayout: false,
@@ -87,6 +86,7 @@ export const CodeInterface = ({
           defaultValue={defaultCode[lang]}
           firebaseRef={firebaseRefs[lang]}
           useEditorWithVim={true}
+          lspEnabled={lang === 'cpp'}
           dataTestId="code-editor"
         />
       </div>

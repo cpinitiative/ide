@@ -9,12 +9,7 @@ import 'firebase/database';
 import 'firebase/auth';
 import 'firebase/analytics';
 import { ConnectionProvider } from '../src/context/ConnectionContext';
-import loader from '@monaco-editor/loader';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
+import { Toaster } from 'react-hot-toast';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -58,13 +53,16 @@ if (!firebase.apps?.length) {
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ConnectionProvider>
-      <WorkspaceInitializer>
-        <SettingsProvider>
-          <Component {...pageProps} />
-        </SettingsProvider>
-      </WorkspaceInitializer>
-    </ConnectionProvider>
+    <>
+      <Toaster position="bottom-right" />
+      <ConnectionProvider>
+        <WorkspaceInitializer>
+          <SettingsProvider>
+            <Component {...pageProps} />
+          </SettingsProvider>
+        </WorkspaceInitializer>
+      </ConnectionProvider>
+    </>
   );
 }
 
