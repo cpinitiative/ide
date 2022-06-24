@@ -75,6 +75,12 @@ export const CodeInterface = ({
             tabSize: tabSize,
             insertSpaces: false,
             readOnly,
+
+            // this next option is to prevent annoying autocompletes
+            // ex. type return space and it adds two spaces + semicolon
+            // ex. type vecto< and it autocompletes weirdly
+            acceptSuggestionOnCommitCharacter: false,
+            // suggestOnTriggerCharacters: false,
           }}
           onMount={e => {
             setEditor(e);
