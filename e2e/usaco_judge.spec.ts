@@ -73,7 +73,7 @@ System.out.println(hIndex(papers));
 }
 `.replace(/\n/g, '');
     await page.evaluate(
-      `this.monaco.editor.getModels().at(-1).setValue(\`${code}\`)`
+      `this.monaco.editor.getModels().find(x => x.getLanguageId() === "java").setValue(\`${code}\`)`
     );
 
     await page.locator('button:has-text("Run Samples")').click();
@@ -158,7 +158,7 @@ System.out.println(hIndex(papers));
       return 0;
     }`;
     await page.evaluate(
-      `this.monaco.editor.getModels().at(-1).setValue(\`${code}\`)`
+      `this.monaco.editor.getModels().find(x => x.getLanguageId() === "cpp").setValue(\`${code}\`)`
     );
 
     await page.locator('button:has-text("Run Samples")').click();
