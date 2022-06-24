@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 // @ts-ignore
 import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
-import { EditorWithVim } from './EditorWithVim';
+// import { EditorWithVim } from './EditorWithVim';
 import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedUserRefAtom } from '../atoms/firebaseAtoms';
+import MonacoEditor from './MonacoEditor/MonacoEditor';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -24,10 +25,8 @@ const FirepadEditor = ({
   dataTestId = '',
   ...props
 }: FirepadEditorProps): JSX.Element => {
-  const [
-    editor,
-    setEditor,
-  ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editor, setEditor] =
+    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const userRef = useAtomValue(authenticatedUserRefAtom);
   const [, setLoading] = useAtom(loadingAtom);
 
@@ -59,7 +58,8 @@ const FirepadEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, userRef, editor]);
 
-  const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
+  // const EditorComponent = useEditorWithVim ? EditorWithVim : Editor;
+  const EditorComponent = MonacoEditor;
 
   return (
     <div

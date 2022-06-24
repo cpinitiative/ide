@@ -58,16 +58,16 @@ with
 return '\n';
 ```
 
-in `public/vs/editor/editor.main.js`. Then, patch `@monaco-editor/loader` to fetch the appropriate files (ie. fetch monaco from our server instead of jsdelivr):
+using package-patch.
 
-```javascript
-import loader from '@monaco-editor/loader';
-loader.config({
-  paths: {
-    vs: '/vs',
-  },
-});
+Run
+
 ```
+mkdir ./public/monaco-workers
+cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/monaco-workers
+```
+
+needed for monacoeditor.tsx to add workers
 
 ### Playwright Debugging
 

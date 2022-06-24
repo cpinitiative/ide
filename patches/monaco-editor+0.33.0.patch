@@ -1,0 +1,13 @@
+diff --git a/node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js b/node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js
+index 6554e81..119d85f 100644
+--- a/node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js
++++ b/node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js
+@@ -434,7 +434,7 @@ let StandaloneResourcePropertiesService = class StandaloneResourcePropertiesServ
+         if (eol && typeof eol === 'string' && eol !== 'auto') {
+             return eol;
+         }
+-        return (isLinux || isMacintosh) ? '\n' : '\r\n';
++        return (isLinux || isMacintosh) ? '\n' : '\n';
+     }
+ };
+ StandaloneResourcePropertiesService = __decorate([
