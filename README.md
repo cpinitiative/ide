@@ -61,7 +61,12 @@ npm run build
 
 cd packages/examples/node
 # update dist/json-server-launcher.js
+
+tmux
 node dist/server.js --external
+ctrl+b d #https://askubuntu.com/questions/8653/how-to-keep-processes-running-after-ending-ssh-session
+
+# later, tmux attach -t 0
 ```
 
 ### Firepad Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))

@@ -142,7 +142,8 @@ export default function MonacoEditor({
       }
 
       function createUrl(hostname: string, port: number, path: string): string {
-        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        // first one shud be wss
+        const protocol = location.protocol === 'https:' ? 'ws' : 'ws';
         return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
       }
 
