@@ -16,6 +16,7 @@ test.describe('Dashboard Page', () => {
     await page.goto(`${host}`);
 
     await page.locator('text=Loading...').waitFor({ state: 'hidden' });
+    await page.locator('text=Loading files...').waitFor({ state: 'hidden' });
 
     expect(await page.$('text=Unnamed Workspace')).toBeTruthy();
     expect(await page.$('text="Me"')).toBeTruthy();
@@ -46,6 +47,8 @@ test.describe('Dashboard Page', () => {
 
     await page2.locator('text=Loading...').waitFor({ state: 'hidden' });
     await page.locator('text=Loading...').waitFor({ state: 'hidden' });
+    await page2.locator('text=Loading files...').waitFor({ state: 'hidden' });
+    await page.locator('text=Loading files...').waitFor({ state: 'hidden' });
 
     expect(await page2.$('text="My Name"')).toBeTruthy();
     expect(await page.$('text="Me"')).toBeTruthy();
