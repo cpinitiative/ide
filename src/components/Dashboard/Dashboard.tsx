@@ -85,39 +85,39 @@ export default function Dashboard() {
   useEffect(() => {
     if (!firebaseUser) return;
 
-    // const ref = firebase.database().ref('users').child(firebaseUser.uid);
-    // const unsubscribe = ref.orderByChild('lastAccessTime').on('value', snap => {
-    //   if (!snap.exists) {
-    //     setFiles([]);
-    //   } else {
-    //     const files: File[] = [];
-    //     snap.forEach(child => {
-    //       const data = child.val();
-    //       if (!showHidden && data.hidden) return;
-    //       const key = child.key;
-    //       if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
-    //         files.push({
-    //           id: key,
-    //           ...data,
-    //         });
-    //       }
-    //     });
-    //     files.reverse();
-    //     setFiles(files);
-    //     // const yourOwnedFiles: File[] = [];
-    //     // const yourOtherFiles: File[] = [];
-    //     // for (const file of yourFiles) {
-    //     //   if (file.hidden && !showHidden) continue;
-    //     //   if (file.lastPermission === 'OWNER') {
-    //     //     yourOwnedFiles.push(file);
-    //     //   } else {
-    //     //     yourOtherFiles.push(file);
-    //     //   }
-    //     // }
-    //     // setOwnedFiles(yourOwnedFiles);
-    //   }
-    // });
-    // return () => ref.off('value', unsubscribe);
+    const ref = firebase.database().ref('users').child(firebaseUser.uid);
+    const unsubscribe = ref.orderByChild('lastAccessTime').on('value', snap => {
+      if (!snap.exists) {
+        setFiles([]);
+      } else {
+        const files: File[] = [];
+        snap.forEach(child => {
+          const data = child.val();
+          if (!showHidden && data.hidden) return;
+          const key = child.key;
+          if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
+            files.push({
+              id: key,
+              ...data,
+            });
+          }
+        });
+        files.reverse();
+        setFiles(files);
+        // const yourOwnedFiles: File[] = [];
+        // const yourOtherFiles: File[] = [];
+        // for (const file of yourFiles) {
+        //   if (file.hidden && !showHidden) continue;
+        //   if (file.lastPermission === 'OWNER') {
+        //     yourOwnedFiles.push(file);
+        //   } else {
+        //     yourOtherFiles.push(file);
+        //   }
+        // }
+        // setOwnedFiles(yourOwnedFiles);
+      }
+    });
+    return () => ref.off('value', unsubscribe);
   }, [firebaseUser, showHidden]);
 
   return (
