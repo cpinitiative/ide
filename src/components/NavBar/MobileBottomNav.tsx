@@ -1,5 +1,9 @@
 import React from 'react';
-import { CodeIcon, DatabaseIcon, UsersIcon } from '@heroicons/react/solid';
+import {
+  CodeBracketIcon,
+  CircleStackIcon,
+  UsersIcon,
+} from '@heroicons/react/20/solid';
 
 const MobileBottomNavButton = ({
   IconComponent,
@@ -33,13 +37,13 @@ export const MobileBottomNav = (props: MobileBottomNavProps): JSX.Element => {
   return (
     <div className="bg-[#1E1E1E] grid grid-cols-3">
       <MobileBottomNavButton
-        IconComponent={CodeIcon}
+        IconComponent={CodeBracketIcon}
         label="Code"
         isActive={props.activeTab === 'code'}
         onClick={() => props.onActiveTabChange('code')}
       />
       <MobileBottomNavButton
-        IconComponent={DatabaseIcon}
+        IconComponent={CircleStackIcon}
         label="Input/Output"
         isActive={props.activeTab === 'io'}
         onClick={() => props.onActiveTabChange('io')}

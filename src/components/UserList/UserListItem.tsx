@@ -2,7 +2,7 @@ import { isUserOnline, User } from '../../hooks/useOnlineUsers';
 import React, { Fragment, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Menu, Transition } from '@headlessui/react';
-import { DotsVerticalIcon } from '@heroicons/react/solid';
+import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import {
@@ -102,7 +102,10 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
                   ref={setReferenceElement}
                 >
                   <span className="sr-only">Open options</span>
-                  <DotsVerticalIcon className="h-5 w-5" aria-hidden="true" />
+                  <EllipsisVerticalIcon
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  />
                 </Menu.Button>
               </div>
 
@@ -126,16 +129,18 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
                       >
                         <div className="origin-top-right absolute right-0 bg-gray-800 rounded-md mt-2 w-48 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
-                            {([
-                              ['OWNER', 'Owner'],
-                              ['READ_WRITE', 'Read & Write'],
-                              ['READ', 'View Only'],
+                            {(
                               [
-                                'DEFAULT',
-                                `Default (${permissionLabels[defaultPermission]})`,
-                              ],
-                              ['PRIVATE', 'Blocked'],
-                            ] as [PermissionUpdate, string][]).map(option => (
+                                ['OWNER', 'Owner'],
+                                ['READ_WRITE', 'Read & Write'],
+                                ['READ', 'View Only'],
+                                [
+                                  'DEFAULT',
+                                  `Default (${permissionLabels[defaultPermission]})`,
+                                ],
+                                ['PRIVATE', 'Blocked'],
+                              ] as [PermissionUpdate, string][]
+                            ).map(option => (
                               <Menu.Item key={option[0]}>
                                 {({ active }) => (
                                   <button

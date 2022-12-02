@@ -1,4 +1,3 @@
-// import { SearchIcon } from '@heroicons/react/solid';
 import React from 'react';
 import {
   connectAutoComplete,

@@ -1,4 +1,4 @@
-import { DuplicateIcon } from '@heroicons/react/solid';
+import { DocumentDuplicateIcon } from '@heroicons/react/20/solid';
 import React from 'react';
 import { useAtomValue } from 'jotai/utils';
 import { fileIdAtom } from '../atoms/firebaseAtoms';
@@ -13,7 +13,7 @@ export const ForkButton = (): JSX.Element => {
       target="_blank"
       rel="noreferrer"
     >
-      <DuplicateIcon
+      <DocumentDuplicateIcon
         className="-ml-1 mr-2 h-5 w-5 text-gray-400"
         aria-hidden="true"
       />

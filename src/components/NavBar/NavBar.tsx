@@ -3,7 +3,7 @@ import {
   ChevronRightIcon,
   HomeIcon,
   ShareIcon,
-} from '@heroicons/react/solid';
+} from '@heroicons/react/20/solid';
 import React, { useState } from 'react';
 import { isUserOnline, useOnlineUsers } from '../../hooks/useOnlineUsers';
 import Link from 'next/link';

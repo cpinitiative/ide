@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayIcon } from '@heroicons/react/solid';
+import { PlayCircleIcon } from '@heroicons/react/20/solid';
 
 export interface Sample {
   input: string;
@@ -29,7 +29,7 @@ export default function Samples({
         className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
         onClick={handleRunCode}
       >
-        <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+        <PlayCircleIcon className="mr-2 h-5 w-5" aria-hidden="true" />
         <span className="text-center flex-1">Run {inputTab}</span>
       </button>
       <p className="font-bold mt-4">INPUT:</p>

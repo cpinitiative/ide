@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayIcon } from '@heroicons/react/solid';
+import { PlayCircleIcon } from '@heroicons/react/20/solid';
 import LoadingIndicator from './LoadingIndicator';
 
 export interface RunButtonProps {
@@ -33,7 +33,7 @@ export const RunButton = ({
       />
     ) : (
       <>
-        <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+        <PlayCircleIcon className="mr-2 h-5 w-5" aria-hidden="true" />
         <span className="text-center flex-1">Run Code</span>
       </>
     )}

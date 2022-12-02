@@ -4,7 +4,7 @@ import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
-import { PlayIcon } from '@heroicons/react/solid';
+import { PlayCircleIcon } from '@heroicons/react/solid';
 
 export const judgePrefix =
   process.env.NODE_ENV === 'development' && false // note: having this as localhost:5000 will break testing
@@ -137,7 +137,7 @@ export default function JudgeInterface({
                 className="relative flex-shrink-0 inline-flex items-center px-4 py-2 w-40 shadow-sm text-sm font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-none"
                 onClick={handleRunCode}
               >
-                <PlayIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                <PlayCircleIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                 <span className="text-center flex-1">Run Samples</span>
               </button>
             )}

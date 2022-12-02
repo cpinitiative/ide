@@ -1,4 +1,4 @@
-import { DuplicateIcon } from '@heroicons/react/solid';
+import { DocumentDuplicateIcon } from '@heroicons/react/20/solid';
 import React, { useState } from 'react';
 
 export const ShareInfo = ({
@@ -32,7 +32,7 @@ export const ShareInfo = ({
       </span>
       <span className="font-mono pl-3 pr-10 py-2 bg-gray-900 group-hover:text-gray-100 rounded inline-flex items-center flex-1 min-w-0 relative">
         <span className="truncate">{displayUrl}</span>
-        <DuplicateIcon className="h-5 w-5 mr-3 mt-2 text-gray-400 group-hover:text-gray-200 absolute right-0 top-0 bottom-0 " />
+        <DocumentDuplicateIcon className="h-5 w-5 mr-3 mt-2 text-gray-400 group-hover:text-gray-200 absolute right-0 top-0 bottom-0 " />
       </span>
     </div>
   );

@@ -2,12 +2,11 @@ import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
   CogIcon,
-  DownloadIcon,
   PlusIcon,
-  TemplateIcon,
-  DuplicateIcon,
-  LibraryIcon,
-} from '@heroicons/react/solid';
+  ArrowDownTrayIcon,
+  ArrowPathIcon,
+  DocumentDuplicateIcon,
+} from '@heroicons/react/20/solid';
 import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import ReactDOM from 'react-dom';
@@ -109,7 +108,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                                   )}
                                   onClick={() => props.onDownloadFile()}
                                 >
-                                  <DownloadIcon
+                                  <ArrowDownTrayIcon
                                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
                                     aria-hidden="true"
                                   />
@@ -130,7 +129,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                                     'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
                                   )}
                                 >
-                                  <DuplicateIcon
+                                  <DocumentDuplicateIcon
                                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
                                     aria-hidden="true"
                                   />
@@ -151,7 +150,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                                     )}
                                     onClick={() => props.onInsertFileTemplate()}
                                   >
-                                    <TemplateIcon
+                                    <ArrowPathIcon
                                       className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
                                       aria-hidden="true"
                                     />

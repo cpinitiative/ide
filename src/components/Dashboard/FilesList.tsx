@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
-import { TrashIcon, SaveIcon } from '@heroicons/react/solid';
 import firebase from 'firebase/app';
 
 export type File = {

@@ -1,4 +1,4 @@
-import { DotsHorizontalIcon } from '@heroicons/react/solid';
+import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
@@ -230,7 +230,7 @@ export default function Workspace({
               )}
             >
               {!isDesktop && (
-                <DotsHorizontalIcon className="h-5 w-5 text-gray-200" />
+                <EllipsisHorizontalIcon className="h-5 w-5 text-gray-200" />
               )}
             </div>
           </div>

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import classNames from 'classnames';
-import { XIcon } from '@heroicons/react/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
 import { actualUserPermissionAtom } from '../../atoms/workspace';
@@ -23,10 +23,10 @@ import {
 } from '../../atoms/userSettings';
 import { useAtomValue } from 'jotai/utils';
 import {
-  DesktopComputerIcon,
+  ComputerDesktopIcon,
   ServerIcon,
   UserIcon,
-} from '@heroicons/react/solid';
+} from '@heroicons/react/20/solid';
 import UserSettings from './UserSettings';
 import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
@@ -45,7 +45,7 @@ const tabs = [
   {
     id: 'workspace',
     label: 'Workspace',
-    icon: DesktopComputerIcon,
+    icon: ComputerDesktopIcon,
   },
   {
     id: 'user',
@@ -324,7 +324,7 @@ export const SettingsModal = ({
                   onClick={() => closeWithoutSaving()}
                 >
                   <span className="sr-only">Close</span>
-                  <XIcon className="h-6 w-6" aria-hidden="true" />
+                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
             </div>
