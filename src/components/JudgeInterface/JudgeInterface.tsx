@@ -4,7 +4,7 @@ import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
-import { PlayCircleIcon } from '@heroicons/react/solid';
+import { PlayCircleIcon } from '@heroicons/react/20/solid';
 
 export const judgePrefix =
   process.env.NODE_ENV === 'development' && false // note: having this as localhost:5000 will break testing
