@@ -75,13 +75,14 @@ export const CodeInterface = ({
             tabSize: tabSize,
             insertSpaces: false,
             readOnly,
+            'bracketPairColorization.enabled': true, // monaco doesn't expect an IBracketPairColorizationOptions
 
             // this next option is to prevent annoying autocompletes
             // ex. type return space and it adds two spaces + semicolon
             // ex. type vecto< and it autocompletes weirdly
             acceptSuggestionOnCommitCharacter: false,
             // suggestOnTriggerCharacters: false,
-          }}
+          } as any}
           onMount={e => {
             setEditor(e);
             setTimeout(() => {
