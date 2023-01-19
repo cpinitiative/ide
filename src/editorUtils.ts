@@ -43,9 +43,9 @@ export function cleanJudgeResult(
     data.statusDescription = 'Successful';
     let stdout = data.stdout ?? '';
     if (!stdout.endsWith('\n')) stdout += '\n';
-    const { cleaned, replaced } = cleanAndReplaceOutput(stdout);
-    if (data.status === 'success' && data.stdout !== expectedOutput) {
+    if (data.status === 'success' && stdout !== expectedOutput) {
       data.status = 'wrong_answer';
+      const { cleaned, replaced } = cleanAndReplaceOutput(stdout);
       if (cleaned === expectedOutput.trim()) {
         data.statusDescription = 'Wrong Answer (Extra Whitespace)';
         data.stdout = replaced; // show the extra whitespace
