@@ -13,12 +13,17 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import '../styles/yjs.css';
+import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
   useEditorWithVim?: boolean;
   dataTestId?: string;
 }
+
+const WEBSOCKET_SERVER = `${
+  location.protocol === 'http:' ? 'ws:' : 'wss:'
+}//localhost:1234`;
 
 const FirepadEditor = ({
   onMount,
@@ -33,7 +38,7 @@ const FirepadEditor = ({
   const userRef = useAtomValue(authenticatedUserRefAtom);
   const { id: fileId } = useAtomValue(fileIdAtom) || { id: null };
   const [, setLoading] = useAtom(loadingAtom);
-  const disposeFirepadRef = useRef<Function | null>(null);
+  const cleanupYjsRef = useRef<Function | null>(null);
   const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
 
   const [connectionStatus, setConnectionStatus] = useState<
@@ -53,7 +58,7 @@ const FirepadEditor = ({
 
     const ydocument = new Y.Doc();
     const provider = new WebsocketProvider(
-      `${location.protocol === 'http:' ? 'ws:' : 'wss:'}//localhost:1234`,
+      WEBSOCKET_SERVER,
       documentId,
       ydocument
     );
@@ -66,8 +71,8 @@ const FirepadEditor = ({
     provider.on('sync', (isSynced: boolean) => {
       setIsSynced(isSynced);
     });
-    const type = ydocument.getText('monaco');
 
+    const type = ydocument.getText('monaco');
     // Bind Yjs to the editor model
     const monacoBinding = new MonacoBinding(
       type,
@@ -76,16 +81,16 @@ const FirepadEditor = ({
       provider.awareness
     );
 
-    disposeFirepadRef.current = () => {
+    cleanupYjsRef.current = () => {
       monacoBinding.destroy();
       provider.destroy();
       ydocument.destroy();
     };
 
     return () => {
-      if (disposeFirepadRef.current) {
-        disposeFirepadRef.current();
-        disposeFirepadRef.current = null;
+      if (cleanupYjsRef.current) {
+        cleanupYjsRef.current();
+        cleanupYjsRef.current = null;
       }
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
@@ -94,13 +99,13 @@ const FirepadEditor = ({
 
   return (
     <div
-      className="tw-forms-disable tw-forms-disable-all-descendants h-full"
+      className="tw-forms-disable tw-forms-disable-all-descendants h-full relative"
       data-test-id={dataTestId}
     >
-      <div>
-        Connection status: {connectionStatus}. Sync status:{' '}
-        {isSynced ? 'Synced' : 'Not Synced'}
-      </div>
+      <EditorConnectionStatusIndicator
+        connectionStatus={connectionStatus}
+        isSynced={isSynced}
+      />
       <LazyMonacoEditor
         {...props}
         onMount={(e, m) => {
@@ -110,9 +115,9 @@ const FirepadEditor = ({
         // this is necessary because sometimes the editor component will unmount before firepad
         // and firepad needs to be disposed before editor can be disposed
         onBeforeDispose={() => {
-          if (disposeFirepadRef.current) {
-            disposeFirepadRef.current();
-            disposeFirepadRef.current = null;
+          if (cleanupYjsRef.current) {
+            cleanupYjsRef.current();
+            cleanupYjsRef.current = null;
           }
         }}
         vim={useEditorWithVim && mode === 'Vim'}
