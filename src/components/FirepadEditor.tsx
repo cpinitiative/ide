@@ -37,7 +37,6 @@ const FirepadEditor = ({
   const userRef = useAtomValue(authenticatedUserRefAtom);
   const { id: fileId } = useAtomValue(fileIdAtom) || { id: null };
   const [, setLoading] = useAtom(loadingAtom);
-  const cleanupYjsRef = useRef<Function | null>(null);
   const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
 
   const [connectionStatus, setConnectionStatus] = useState<
@@ -89,19 +88,14 @@ const FirepadEditor = ({
       setIsSynced(isSynced);
     });
 
-    cleanupYjsRef.current = () => {
+    return () => {
       setConnectionStatus('disconnected');
       setIsSynced(false);
-      monacoBinding.destroy();
-      provider.destroy();
+      // No need to destroy monacoBinding -- it is auto destroyed
+      // when monaco unmounts.
+      // monacoBinding.destroy();
       ydocument.destroy();
-    };
-
-    return () => {
-      if (cleanupYjsRef.current) {
-        cleanupYjsRef.current();
-        cleanupYjsRef.current = null;
-      }
+      provider.destroy();
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,14 +123,6 @@ const FirepadEditor = ({
         onMount={(e, m) => {
           setEditor(e);
           if (onMount) onMount(e, m);
-        }}
-        // this is necessary because sometimes the editor component will unmount before yjs
-        // and yjs needs to be disposed before editor can be disposed
-        onBeforeDispose={() => {
-          if (cleanupYjsRef.current) {
-            cleanupYjsRef.current();
-            cleanupYjsRef.current = null;
-          }
         }}
         vim={useEditorWithVim && mode === 'Vim'}
       />
