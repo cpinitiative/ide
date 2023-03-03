@@ -13,6 +13,7 @@ import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
+import colorFromUserId from '../scripts/colorFromUserId';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -61,6 +62,13 @@ const FirepadEditor = ({
       ydocument
     );
 
+    // Set the cursor color
+    // Note that this is actually stored in firebase, but for now we'll just use this
+    provider.awareness.setLocalStateField(
+      'cursorColor',
+      colorFromUserId(userRef.key)
+    );
+
     // Bind Yjs to the editor model
     const monacoText = ydocument.getText('monaco');
     const monacoBinding = new MonacoBinding(
@@ -68,6 +76,45 @@ const FirepadEditor = ({
       editor.getModel()!,
       new Set([editor]),
       provider.awareness
+    );
+
+    // add custom color for every selector
+    provider.awareness.on(
+      'change',
+      ({
+        added,
+        updated,
+        removed,
+      }: {
+        added: Array<number>;
+        updated: Array<number>;
+        removed: Array<number>;
+      }) => {
+        // We should be responsible and remove styles when someone leaves (ie. removed.length > 0)
+        // but I'm lazy...
+        if (added.length === 0) return;
+        type UserAwarenessData = Map<
+          number,
+          {
+            cursorColor: string;
+            selection: any;
+          }
+        >;
+        let awarenessState =
+          provider.awareness.getStates() as UserAwarenessData;
+        for (let addedUserID of added) {
+          const userColor =
+            awarenessState.get(addedUserID)?.cursorColor ?? 'orange';
+          const styleToAdd = `.yRemoteSelection-${addedUserID}, .yRemoteSelectionHead-${addedUserID} {
+              --yjs-selection-color: ${userColor};
+            }`;
+          console.log(styleToAdd);
+          document.body.insertAdjacentHTML(
+            'beforeend',
+            `<style>${styleToAdd}</style>`
+          );
+        }
+      }
     );
 
     provider.on(
