@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 // copied from firepad
-// note that if we want to allow users to change colors in the future, we'll have to update FirepadEditor
+// note that if we want to allow users to change colors in the future, we'll have to update RealtimeEditor
 
 function rgb2hex(r, g, b) {
   function digits(n) {

@@ -23,7 +23,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 ## Tech Stack
 
 - Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge)
-- Realtime collaboration with [Firepad](https://firepad.io/)
+- Realtime collaboration with [YJS](https://github.com/yjs/yjs)
 - Monaco Editor
 - [monaco-languageclient](https://github.com/TypeFox/monaco-languageclient) with `clangd-12` for LSP
 - React
@@ -205,7 +205,7 @@ ctrl+b d
 tmux attach -t 0
 ```
 
-### Firepad Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
+### (Potential) Firepad / YJS Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
 
 Replace something similar to
 
@@ -228,6 +228,8 @@ return n && 'auto' !== n ? n : d.isLinux || d.isMacintosh ? '\n' : '\n';
 ```
 
 using `package-patch`.
+
+This was an issue for Firepad; I don't know if this is an issue for YJS, but we kept the change regardless.
 
 ### Monaco Workers
 

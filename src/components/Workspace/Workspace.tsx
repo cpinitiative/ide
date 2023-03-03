@@ -23,7 +23,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
 import { CodeInterface } from '../CodeInterface/CodeInterface';
 import JudgeInterface from '../JudgeInterface/JudgeInterface';
-import { LazyFirepadEditor } from '../LazyFirepadEditor';
+import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
 import { Output } from '../Output';
 import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
@@ -169,7 +169,7 @@ export default function Workspace({
             />
             <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
               {inputTab === 'input' && (
-                <LazyFirepadEditor
+                <LazyRealtimeEditor
                   theme={lightMode ? 'light' : 'vs-dark'}
                   language={'plaintext'}
                   saveViewState={false}

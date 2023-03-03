@@ -4,7 +4,5 @@ yarn.lock
 public
 node_modules
 patches
-scripts/firepad.js
-styles/firepad.css
 types/monaco.d.ts
 types/react-split-grid.d.ts

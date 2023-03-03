@@ -9,7 +9,7 @@ import {
   currentLangAtom,
   mainMonacoEditorAtom,
 } from '../../atoms/workspace';
-import { LazyFirepadEditor } from '../LazyFirepadEditor';
+import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
 import { useAtomValue } from 'jotai/utils';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
@@ -65,24 +65,26 @@ export const CodeInterface = ({
         onTabSelect={tab => setLang(tab.value as Language)}
       />
       <div className="flex-1 overflow-hidden">
-        <LazyFirepadEditor
+        <LazyRealtimeEditor
           theme={lightMode ? 'light' : 'vs-dark'}
           language={{ cpp: 'cpp', java: 'java', py: 'python' }[lang]}
           path={`myfile.${lang}`}
-          options={{
-            minimap: { enabled: false },
-            automaticLayout: false,
-            tabSize: tabSize,
-            insertSpaces: false,
-            readOnly,
-            'bracketPairColorization.enabled': true, // monaco doesn't expect an IBracketPairColorizationOptions
+          options={
+            {
+              minimap: { enabled: false },
+              automaticLayout: false,
+              tabSize: tabSize,
+              insertSpaces: false,
+              readOnly,
+              'bracketPairColorization.enabled': true, // monaco doesn't expect an IBracketPairColorizationOptions
 
-            // this next option is to prevent annoying autocompletes
-            // ex. type return space and it adds two spaces + semicolon
-            // ex. type vecto< and it autocompletes weirdly
-            acceptSuggestionOnCommitCharacter: false,
-            // suggestOnTriggerCharacters: false,
-          } as any}
+              // this next option is to prevent annoying autocompletes
+              // ex. type return space and it adds two spaces + semicolon
+              // ex. type vecto< and it autocompletes weirdly
+              acceptSuggestionOnCommitCharacter: false,
+              // suggestOnTriggerCharacters: false,
+            } as any
+          }
           onMount={e => {
             setEditor(e);
             setTimeout(() => {

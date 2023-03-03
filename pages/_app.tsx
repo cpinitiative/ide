@@ -3,7 +3,6 @@ import { SettingsProvider } from '../src/components/SettingsContext';
 import { WorkspaceInitializer } from '../src/components/WorkspaceInitializer';
 import 'tailwindcss/tailwind.css';
 import '../src/styles/globals.css';
-import '../src/styles/firepad.css';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
@@ -22,13 +21,6 @@ const firebaseConfig = {
   appId: '1:1068328460784:web:9385b3f43a0e2604a9fd35',
   measurementId: 'G-G22TZ5YCKV',
 };
-
-if (typeof window !== 'undefined') {
-  // firepad needs access to firebase
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  window.firebase = firebase;
-}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

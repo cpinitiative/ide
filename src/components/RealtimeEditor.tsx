@@ -15,7 +15,7 @@ import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
 import colorFromUserId from '../scripts/colorFromUserId';
 
-export interface FirepadEditorProps extends EditorProps {
+export interface RealtimeEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
   useEditorWithVim?: boolean;
   dataTestId?: string;
@@ -25,14 +25,14 @@ const WEBSOCKET_SERVER = `${
   location.protocol === 'http:' ? 'ws:' : 'wss:'
 }//localhost:1234`;
 
-const FirepadEditor = ({
+const RealtimeEditor = ({
   onMount,
   defaultValue,
   firebaseRef,
   useEditorWithVim = false,
   dataTestId = '',
   ...props
-}: FirepadEditorProps): JSX.Element => {
+}: RealtimeEditorProps): JSX.Element => {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const userRef = useAtomValue(authenticatedUserRefAtom);
@@ -177,4 +177,4 @@ const FirepadEditor = ({
   );
 };
 
-export default FirepadEditor;
+export default RealtimeEditor;

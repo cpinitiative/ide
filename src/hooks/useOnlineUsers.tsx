@@ -33,10 +33,6 @@ export function useOnlineUsers(): User[] | null {
           ...snap.val()[id],
         }));
         setUsers(users);
-        // pass info to firepad so they can render user name on selection
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        window['firepadUsers'] = users;
       };
       firebaseRef
         .child('users')

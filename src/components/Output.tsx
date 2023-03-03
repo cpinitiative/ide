@@ -1,7 +1,7 @@
 import { TabBar } from './TabBar';
 import React, { useState, useEffect, useMemo } from 'react';
 import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
-import { LazyFirepadEditor } from './LazyFirepadEditor';
+import { LazyRealtimeEditor } from './LazyRealtimeEditor';
 
 import { actualUserPermissionAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
@@ -84,7 +84,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       />
       <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden tw-forms-disable tw-forms-disable-all-descendants">
         {option === 'scribble' ? (
-          <LazyFirepadEditor
+          <LazyRealtimeEditor
             theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             saveViewState={false}
