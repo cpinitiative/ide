@@ -4,6 +4,7 @@
 // always be true...
 
 // future todo: somehow communicate ^ to the user?
+// can probably listen to doc transactions to learn about this
 
 export default function EditorConnectionStatusIndicator({
   connectionStatus,

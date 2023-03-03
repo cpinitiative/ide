@@ -25,7 +25,7 @@ const wsReadyStateClosed = 3; // eslint-disable-line
 const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0';
 const persistenceDir = process.env.YPERSISTENCE;
 /**
- * @type {{bindState: function(string,WSSharedDoc):void, writeState:function(string,WSSharedDoc):Promise<any>, provider: any}|null}
+ * @type {{bindState: function(string,WSSharedDoc):Promise<any>, writeState:function(string,WSSharedDoc):Promise<any>, provider: any}|null}
  */
 let persistence = null;
 if (typeof persistenceDir === 'string') {
@@ -154,18 +154,20 @@ class WSSharedDoc extends Y.Doc {
  * @param {boolean} gc - whether to allow gc on the doc (applies only when created)
  * @return {WSSharedDoc}
  */
-const getYDoc = (docname, gc = true) =>
-  map.setIfUndefined(docs, docname, () => {
-    const doc = new WSSharedDoc(docname);
+const getYDoc = async (docname, gc = true) => {
+  let doc = docs.get(docname);
+  if (doc === undefined) {
+    doc = new WSSharedDoc(docname);
     doc.gc = gc;
     if (persistence !== null) {
-      persistence.bindState(docname, doc);
+      // we need await here to load the doc from the persisted disk
+      // before syncing the doc to the user
+      await persistence.bindState(docname, doc);
     }
     docs.set(docname, doc);
-    return doc;
-  });
-
-exports.getYDoc = getYDoc;
+  }
+  return doc;
+};
 
 /**
  * @param {any} conn
@@ -263,14 +265,14 @@ const pingTimeout = 30000;
  * @param {any} req
  * @param {any} opts
  */
-exports.setupWSConnection = (
+exports.setupWSConnection = async (
   conn,
   req,
   { docName = req.url.slice(1).split('?')[0], gc = true } = {}
 ) => {
   conn.binaryType = 'arraybuffer';
   // get doc, initialize if it does not exist yet
-  const doc = getYDoc(docName, gc);
+  const doc = await getYDoc(docName, gc);
   doc.conns.set(conn, new Set());
   // listen and reply to events
   conn.on(
