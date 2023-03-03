@@ -12,6 +12,7 @@ import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
+import '../styles/yjs.css';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
