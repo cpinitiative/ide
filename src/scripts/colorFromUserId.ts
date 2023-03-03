@@ -45,5 +45,7 @@ export default function colorFromUserId(userId) {
   }
   const hue = a / 360;
 
-  return hsl2hex(hue, 0.75, 0.6);
+  // return hsl2hex(hue, 0.75, 0.6);
+  // Make the color darker so that it appears better in monaco
+  return hsl2hex(hue, 0.4, 0.3);
 }
