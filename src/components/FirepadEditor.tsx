@@ -62,6 +62,16 @@ const FirepadEditor = ({
       documentId,
       ydocument
     );
+
+    // Bind Yjs to the editor model
+    const monacoText = ydocument.getText('monaco');
+    const monacoBinding = new MonacoBinding(
+      monacoText,
+      editor.getModel()!,
+      new Set([editor]),
+      provider.awareness
+    );
+
     provider.on(
       'status',
       ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
@@ -69,17 +79,16 @@ const FirepadEditor = ({
       }
     );
     provider.on('sync', (isSynced: boolean) => {
+      if (isSynced) {
+        // Check if file needs to be initialized
+        const isInitializedMap = ydocument.getMap('isInitialized');
+        if (!isInitializedMap.get('isInitialized')) {
+          isInitializedMap.set('isInitialized', true);
+          monacoText.insert(0, defaultValue ?? '');
+        }
+      }
       setIsSynced(isSynced);
     });
-
-    const type = ydocument.getText('monaco');
-    // Bind Yjs to the editor model
-    const monacoBinding = new MonacoBinding(
-      type,
-      editor.getModel()!,
-      new Set([editor]),
-      provider.awareness
-    );
 
     cleanupYjsRef.current = () => {
       monacoBinding.destroy();
