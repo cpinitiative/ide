@@ -15,19 +15,15 @@ export default function EditorConnectionStatusIndicator({
 }) {
   let connectionText;
   let statusIndicatorClass;
-  if (connectionStatus === 'disconnected')
-    (connectionText = 'Disconnected'), (statusIndicatorClass = 'bg-red-600');
-  else if (connectionStatus === 'connecting')
-    (connectionText = 'Connecting...'),
-      (statusIndicatorClass = 'bg-yellow-500');
-  else if (connectionStatus === 'connected') {
-    if (isSynced)
-      (connectionText = 'Connected'), (statusIndicatorClass = 'bg-green-500');
-    else
-      (connectionText = 'Connecting...'),
-        (statusIndicatorClass = 'bg-yellow-500');
-  } else
-    connectionText = 'Error: Unknown Connection Status ' + connectionStatus;
+
+  // for now, our editors are either connecting or connected.
+  if (connectionStatus === 'connected' && isSynced) {
+    connectionText = 'Connected';
+    statusIndicatorClass = 'bg-green-500';
+  } else {
+    connectionText = 'Connecting...';
+    statusIndicatorClass = 'bg-yellow-500';
+  }
 
   return (
     <div className="absolute z-10 bg-black rounded-md py-1.5 px-2 right-[1.25rem] top-[0.25rem] flex items-center opacity-80 hover:opacity-0 transition">

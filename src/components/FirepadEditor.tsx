@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type firebaseType from 'firebase';
-// import { EditorWithVim } from './EditorWithVim';
 import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
@@ -91,6 +90,8 @@ const FirepadEditor = ({
     });
 
     cleanupYjsRef.current = () => {
+      setConnectionStatus('disconnected');
+      setIsSynced(false);
       monacoBinding.destroy();
       provider.destroy();
       ydocument.destroy();
@@ -106,6 +107,13 @@ const FirepadEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseRef, userRef, editor, fileId]);
 
+  // make editor read only until yjs syncs with server
+  const editorOptions = useMemo(() => {
+    let editorOptions = { ...(props.options || {}) };
+    if (!isSynced) editorOptions.readOnly = true;
+    return editorOptions;
+  }, [isSynced, props.options]);
+
   return (
     <div
       className="tw-forms-disable tw-forms-disable-all-descendants h-full relative"
@@ -117,12 +125,13 @@ const FirepadEditor = ({
       />
       <LazyMonacoEditor
         {...props}
+        options={editorOptions}
         onMount={(e, m) => {
           setEditor(e);
           if (onMount) onMount(e, m);
         }}
-        // this is necessary because sometimes the editor component will unmount before firepad
-        // and firepad needs to be disposed before editor can be disposed
+        // this is necessary because sometimes the editor component will unmount before yjs
+        // and yjs needs to be disposed before editor can be disposed
         onBeforeDispose={() => {
           if (cleanupYjsRef.current) {
             cleanupYjsRef.current();
