@@ -152,21 +152,22 @@ class WSSharedDoc extends Y.Doc {
  *
  * @param {string} docname - the name of the Y.Doc to find or create
  * @param {boolean} gc - whether to allow gc on the doc (applies only when created)
- * @return {WSSharedDoc}
+ * @return {doc: WSSharedDoc, docLoadedPromise: Promise<any>|null} docLoadedPromise resolves then leveldb loaded the doc
  */
-const getYDoc = async (docname, gc = true) => {
+const getYDoc = (docname, gc = true) => {
   let doc = docs.get(docname);
+  let docLoadedPromise = null;
   if (doc === undefined) {
     doc = new WSSharedDoc(docname);
     doc.gc = gc;
     if (persistence !== null) {
       // we need await here to load the doc from the persisted disk
       // before syncing the doc to the user
-      await persistence.bindState(docname, doc);
+      docLoadedPromise = persistence.bindState(docname, doc);
     }
     docs.set(docname, doc);
   }
-  return doc;
+  return { doc, docLoadedPromise };
 };
 
 /**
@@ -265,20 +266,28 @@ const pingTimeout = 30000;
  * @param {any} req
  * @param {any} opts
  */
-exports.setupWSConnection = async (
+exports.setupWSConnection = (
   conn,
   req,
   { docName = req.url.slice(1).split('?')[0], gc = true } = {}
 ) => {
   conn.binaryType = 'arraybuffer';
   // get doc, initialize if it does not exist yet
-  const doc = await getYDoc(docName, gc);
+  const { doc, docLoadedPromise } = getYDoc(docName, gc);
   doc.conns.set(conn, new Set());
+
+  // it might take some time to load the doc from leveldb
+  // but before then we still need to listen for websocket events
+  let isDocLoaded = docLoadedPromise ? false : true;
+  let queuedMessages = [];
+  let isConnectionAlive = true;
+
   // listen and reply to events
   conn.on(
     'message',
     /** @param {ArrayBuffer} message */ message => {
-      messageListener(conn, doc, new Uint8Array(message));
+      if (isDocLoaded) messageListener(conn, doc, new Uint8Array(message));
+      else queuedMessages.push(new Uint8Array(message));
     }
   );
 
@@ -288,6 +297,7 @@ exports.setupWSConnection = async (
     if (!pongReceived) {
       if (doc.conns.has(conn)) {
         closeConn(doc, conn);
+        isConnectionAlive = false;
       }
       clearInterval(pingInterval);
     } else if (doc.conns.has(conn)) {
@@ -296,20 +306,23 @@ exports.setupWSConnection = async (
         conn.ping();
       } catch (e) {
         closeConn(doc, conn);
+        isConnectionAlive = false;
         clearInterval(pingInterval);
       }
     }
   }, pingTimeout);
   conn.on('close', () => {
     closeConn(doc, conn);
+    isConnectionAlive = false;
     clearInterval(pingInterval);
   });
   conn.on('pong', () => {
     pongReceived = true;
   });
+
   // put the following in a variables in a block so the interval handlers don't keep in in
   // scope
-  {
+  const sendSyncStep1 = () => {
     // send sync step 1
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageSync);
@@ -328,5 +341,16 @@ exports.setupWSConnection = async (
       );
       send(doc, conn, encoding.toUint8Array(encoder));
     }
+  };
+
+  if (docLoadedPromise) {
+    docLoadedPromise.then(() => {
+      if (!isConnectionAlive) return;
+
+      isDocLoaded = true;
+      queuedMessages.forEach(message => messageListener(conn, doc, message));
+      queuedMessages = null;
+      sendSyncStep1();
+    });
   }
 };
