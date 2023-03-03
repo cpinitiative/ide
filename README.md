@@ -18,7 +18,7 @@ Note: If you get a firebase emulators timeout error on Mac, see [firebase/fireba
 
 ### Configuring Firebase
 
-You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `src/components/WorkspaceInitializer.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
+You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
 
 ## Tech Stack
 

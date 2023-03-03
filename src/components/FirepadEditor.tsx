@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import Firepad from '../scripts/firepad';
 import type firebaseType from 'firebase';
 // import { EditorWithVim } from './EditorWithVim';
 import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
 import { useAtomValue } from 'jotai/utils';
-import { authenticatedUserRefAtom } from '../atoms/firebaseAtoms';
+import { authenticatedUserRefAtom, fileIdAtom } from '../atoms/firebaseAtoms';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import type * as monaco from 'monaco-editor';
 import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco';
 
 export interface FirepadEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -30,36 +30,55 @@ const FirepadEditor = ({
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const userRef = useAtomValue(authenticatedUserRefAtom);
+  const { id: fileId } = useAtomValue(fileIdAtom) || { id: null };
   const [, setLoading] = useAtom(loadingAtom);
   const disposeFirepadRef = useRef<Function | null>(null);
   const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
 
+  const [connectionStatus, setConnectionStatus] = useState<
+    'disconnected' | 'connecting' | 'connected'
+  >('disconnected');
+  const [isSynced, setIsSynced] = useState<boolean>(false);
+
   useEffect(() => {
-    if (!firebaseRef || !editor || !userRef) return;
+    if (!firebaseRef || !editor || !userRef || !fileId) return;
 
     const { path } = props;
     const affectsLoading =
       path && ['myfile.cpp', 'myfile.java', 'myfile.py'].includes(path);
-    if (affectsLoading) setLoading(true);
+    if (affectsLoading) setLoading(false);
 
-    // we reset the value here since firepad initialization can't have any text in it
-    // firepad will fetch the text from firebase and update monaco
-    editor.setValue('');
-    const firepad = Firepad.fromMonaco(firebaseRef, editor, {
-      userId: userRef.key,
-    });
+    const documentId = `${fileId}.${firebaseRef.key}`;
 
-    firepad.on('ready', function () {
-      if (defaultValue) {
-        if (editor.getValue().length === 0) {
-          editor.setValue(defaultValue);
-        }
+    const ydocument = new Y.Doc();
+    const provider = new WebsocketProvider(
+      `${location.protocol === 'http:' ? 'ws:' : 'wss:'}//localhost:1234`,
+      documentId,
+      ydocument
+    );
+    provider.on(
+      'status',
+      ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
+        setConnectionStatus(status);
       }
-      if (affectsLoading) setLoading(false);
+    );
+    provider.on('sync', (isSynced: boolean) => {
+      setIsSynced(isSynced);
     });
+    const type = ydocument.getText('monaco');
+
+    // Bind Yjs to the editor model
+    const monacoBinding = new MonacoBinding(
+      type,
+      editor.getModel()!,
+      new Set([editor]),
+      provider.awareness
+    );
 
     disposeFirepadRef.current = () => {
-      firepad.dispose();
+      monacoBinding.destroy();
+      provider.destroy();
+      ydocument.destroy();
     };
 
     return () => {
@@ -70,13 +89,17 @@ const FirepadEditor = ({
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseRef, userRef, editor]);
+  }, [firebaseRef, userRef, editor, fileId]);
 
   return (
     <div
       className="tw-forms-disable tw-forms-disable-all-descendants h-full"
       data-test-id={dataTestId}
     >
+      <div>
+        Connection status: {connectionStatus}. Sync status:{' '}
+        {isSynced ? 'Synced' : 'Not Synced'}
+      </div>
       <LazyMonacoEditor
         {...props}
         onMount={(e, m) => {
