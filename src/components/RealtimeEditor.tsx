@@ -21,9 +21,10 @@ export interface RealtimeEditorProps extends EditorProps {
   dataTestId?: string;
 }
 
-const WEBSOCKET_SERVER = `${
-  location.protocol === 'http:' ? 'ws:' : 'wss:'
-}//localhost:1234`;
+const WEBSOCKET_SERVER =
+  location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'ws://localhost:1234'
+    : 'wss://yjs.usaco.guide:443';
 
 const RealtimeEditor = ({
   onMount,
