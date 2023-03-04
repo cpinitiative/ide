@@ -52,7 +52,7 @@ const RealtimeEditor = ({
     const { path } = props;
     const affectsLoading =
       path && ['myfile.cpp', 'myfile.java', 'myfile.py'].includes(path);
-    if (affectsLoading) setLoading(false);
+    if (affectsLoading) setLoading(true);
 
     const documentId = `${fileId}.${firebaseRef.key}`;
 
@@ -108,7 +108,6 @@ const RealtimeEditor = ({
               --yjs-selection-color-bg: ${bgColorFromUserId(firebaseUserID)};
               --yjs-selection-color: ${colorFromUserId(firebaseUserID)};
             }`;
-          console.log(styleToAdd);
           document.body.insertAdjacentHTML(
             'beforeend',
             `<style>${styleToAdd}</style>`
@@ -133,6 +132,7 @@ const RealtimeEditor = ({
         }
       }
       setIsSynced(isSynced);
+      setLoading(false);
     });
 
     return () => {
