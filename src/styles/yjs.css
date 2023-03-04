@@ -1,7 +1,7 @@
 /* Styles for remote cursors for monaco */
 .yRemoteSelection {
   /* background-color: rgb(250, 129, 0, 0.5); */
-  background-color: var(--yjs-selection-color, rgb(250, 129, 0, 0.5));
+  background-color: var(--yjs-selection-color-bg, rgb(250, 129, 0, 0.5));
 }
 .yRemoteSelectionHead {
   position: absolute;

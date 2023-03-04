@@ -13,7 +13,7 @@ import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
-import colorFromUserId from '../scripts/colorFromUserId';
+import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
 
 export interface RealtimeEditorProps extends EditorProps {
   firebaseRef: firebaseType.database.Reference | undefined;
@@ -65,10 +65,7 @@ const RealtimeEditor = ({
 
     // Set the cursor color
     // Note that this is actually stored in firebase, but for now we'll just use this
-    provider.awareness.setLocalStateField(
-      'cursorColor',
-      colorFromUserId(userRef.key)
-    );
+    provider.awareness.setLocalStateField('firebaseUserID', userRef.key);
 
     // Bind Yjs to the editor model
     const monacoText = ydocument.getText('monaco');
@@ -97,17 +94,19 @@ const RealtimeEditor = ({
         type UserAwarenessData = Map<
           number,
           {
-            cursorColor: string;
+            firebaseUserID: string;
             selection: any;
           }
         >;
         let awarenessState =
           provider.awareness.getStates() as UserAwarenessData;
         for (let addedUserID of added) {
-          const userColor =
-            awarenessState.get(addedUserID)?.cursorColor ?? 'orange';
+          const firebaseUserID =
+            awarenessState.get(addedUserID)?.firebaseUserID ??
+            '-NPeGgrWL0zpVHHZ2aECh';
           const styleToAdd = `.yRemoteSelection-${addedUserID}, .yRemoteSelectionHead-${addedUserID} {
-              --yjs-selection-color: ${userColor};
+              --yjs-selection-color-bg: ${bgColorFromUserId(firebaseUserID)};
+              --yjs-selection-color: ${colorFromUserId(firebaseUserID)};
             }`;
           console.log(styleToAdd);
           document.body.insertAdjacentHTML(
