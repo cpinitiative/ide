@@ -92,6 +92,10 @@ System.out.println(hIndex(papers));
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
+    // Previous tests entered Java code. I think this might cause this to AC instead of WA
+    await page.locator('button:has-text("C++")').click();
+    await page.waitForSelector('button:has-text("Run Code")');
+
     // Submit code
     await page.locator('button:has-text("Submit")').click();
 

@@ -61,7 +61,7 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
-    "@playwright/test": "^1.22.2",
+    "@playwright/test": "^1.31.2",
     "@types/reach__router": "^1.3.10",
     "@types/react": "^18.0.14",
     "@typescript-eslint/eslint-plugin": "^5.28.0",

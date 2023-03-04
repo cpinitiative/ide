@@ -12,6 +12,9 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 yarn install
 firebase emulators:start
 yarn dev
+
+# to run playwright tests:
+yarn playwright test
 ```
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
