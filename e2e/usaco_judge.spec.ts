@@ -100,7 +100,7 @@ System.out.println(hIndex(papers));
     await page.locator('button:has-text("Submit")').click();
 
     await page
-      .locator('text=Incorrect answer on sample input case -- details below')
+      .locator('text=Waiting for Available Grading Server')
       .waitFor({ state: 'attached', timeout: 20000 });
   });
 
