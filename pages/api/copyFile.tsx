@@ -69,7 +69,7 @@ export default async (
     }
   }
 
-  const resp = await getDatabase(firebaseApp)
+  const ref = getDatabase(firebaseApp)
     .ref('/')
     .push({
       users: {
@@ -79,16 +79,47 @@ export default async (
           permission: 'OWNER',
         },
       },
-      'editor-cpp': fileData['editor-cpp'] ?? null,
-      'editor-java': fileData['editor-java'] ?? null,
-      'editor-py': fileData['editor-py'] ?? null,
-      input: fileData.input ?? null,
-      scribble: fileData.scribble ?? null,
       settings: {
         ...fileData.settings,
         creationTime: ServerValue.TIMESTAMP,
       },
     });
-  const fileID: string = resp.key!;
+  const fileID: string = ref.key!;
+
+  const copyYjsPromies = [
+    'editor-cpp',
+    'editor-java',
+    'editor-py',
+    'input',
+    'scribble',
+  ].map(key => {
+    const HOST_URL =
+      process.env.NODE_ENV === 'production'
+        ? 'https://yjs.usaco.guide'
+        : 'http://0.0.0.0:1234';
+    return fetch(`${HOST_URL}/copyFile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        securityKey: process.env.YJS_SECURITY_KEY,
+        sourceFile: `-${data.fileID}.${key}`,
+        targetFile: `${fileID}.${key}`,
+      }),
+    })
+      .then(resp => resp.text())
+      .then(resp => {
+        // it's ok if source file doesn't exist -- maybe the file only had Java and not C++
+        if (resp !== 'OK' && resp !== "Source file doesn't exist") {
+          throw new Error(
+            'Failed to copy file ' + `-${data.fileID}.${key}` + ': ' + resp
+          );
+        }
+      });
+  });
+
+  await Promise.all([ref, ...copyYjsPromies]);
+
   res.status(200).json({ fileID: fileID.substr(1) });
 };

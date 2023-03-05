@@ -9,7 +9,7 @@ export default function CopyFilePage(): JSX.Element {
   const router = useRouter();
 
   const firebaseUser = useAtomValue(firebaseUserAtom);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!router.isReady || !firebaseUser) return;
@@ -31,12 +31,15 @@ export default function CopyFilePage(): JSX.Element {
           fileID: queryId,
         }),
       });
-      const data = await resp.json();
-      if (data.message) {
-        // error
-        setError(data.message);
+      if (resp.status === 500) {
+        setError('Internal server error: ' + (await resp.text()));
       } else {
-        router.replace(`/${data.fileID}`);
+        const data = await resp.json();
+        if (data.message || resp.status !== 200) {
+          setError(data.message ?? 'Unknown error');
+        } else {
+          router.replace(`/${data.fileID}`);
+        }
       }
     })();
   }, [router.isReady, firebaseUser]);
