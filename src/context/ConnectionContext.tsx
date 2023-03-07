@@ -57,7 +57,6 @@ export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
         connectionRefs.current.push(ref);
       },
       removeConnectionRef: (ref: firebaseType.database.Reference) => {
-        console.log('removing ref', ref.key);
         ref.remove();
         connectionRefs.current = connectionRefs.current.filter(
           x => !x.isEqual(ref)

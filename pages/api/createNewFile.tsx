@@ -39,7 +39,7 @@ export default async (
   }
 
   const resp = await getDatabase(firebaseApp)
-    .ref('/')
+    .ref('/files')
     .push({
       users: {
         [data.userID]: {
@@ -52,6 +52,7 @@ export default async (
         workspaceName: data.workspaceName,
         defaultPermission: data.defaultPermission,
         creationTime: ServerValue.TIMESTAMP,
+        language: 'cpp',
       },
     });
   const fileID: string = resp.key!;

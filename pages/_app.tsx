@@ -50,9 +50,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Toaster position="bottom-right" />
       <ConnectionProvider>
         <WorkspaceInitializer>
-          <SettingsProvider>
-            <Component {...pageProps} />
-          </SettingsProvider>
+          <Component {...pageProps} />
         </WorkspaceInitializer>
       </ConnectionProvider>
       <Analytics />
