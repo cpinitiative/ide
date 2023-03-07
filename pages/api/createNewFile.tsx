@@ -53,6 +53,12 @@ export default async (
         defaultPermission: data.defaultPermission,
         creationTime: ServerValue.TIMESTAMP,
         language: 'cpp',
+        problem: null,
+        compilerOptions: {
+          cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+          java: '',
+          py: '',
+        },
       },
     });
   const fileID: string = resp.key!;

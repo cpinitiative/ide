@@ -14,9 +14,10 @@ import { MonacoBinding } from 'y-monaco';
 import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
 import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
+import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 
 export interface RealtimeEditorProps extends EditorProps {
-  firebaseRef: firebaseType.database.Reference | undefined;
+  yjsDocumentId: string;
   useEditorWithVim?: boolean;
   dataTestId?: string;
 }
@@ -29,15 +30,14 @@ const WEBSOCKET_SERVER =
 const RealtimeEditor = ({
   onMount,
   defaultValue,
-  firebaseRef,
+  yjsDocumentId,
   useEditorWithVim = false,
   dataTestId = '',
   ...props
 }: RealtimeEditorProps): JSX.Element => {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const userRef = useAtomValue(authenticatedUserRefAtom);
-  const { id: fileId } = useAtomValue(fileIdAtom) || { id: null };
+  const firebaseUser = useAtomValue(firebaseUserAtom);
   const [, setLoading] = useAtom(loadingAtom);
   const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
 
@@ -47,14 +47,14 @@ const RealtimeEditor = ({
   const [isSynced, setIsSynced] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!firebaseRef || !editor || !userRef || !fileId) return;
+    if (!editor || !firebaseUser) return;
 
     const { path } = props;
     const affectsLoading =
       path && ['myfile.cpp', 'myfile.java', 'myfile.py'].includes(path);
     if (affectsLoading) setLoading(true);
 
-    const documentId = `${fileId}.${firebaseRef.key}`;
+    const documentId = yjsDocumentId;
 
     const ydocument = new Y.Doc();
     const provider = new WebsocketProvider(
@@ -65,7 +65,7 @@ const RealtimeEditor = ({
 
     // Set the cursor color
     // Note that this is actually stored in firebase, but for now we'll just use this
-    provider.awareness.setLocalStateField('firebaseUserID', userRef.key);
+    provider.awareness.setLocalStateField('firebaseUserID', firebaseUser.uid);
 
     // Bind Yjs to the editor model
     const monacoText = ydocument.getText('monaco');
@@ -146,7 +146,7 @@ const RealtimeEditor = ({
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firebaseRef, userRef, editor, fileId]);
+  }, [yjsDocumentId, firebaseUser, editor]);
 
   // make editor read only until yjs syncs with server
   const editorOptions = useMemo(() => {

@@ -8,8 +8,10 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { ProblemData } from '../components/Workspace/Workspace';
 
 export type FileData = {
+  id: string;
   users: {
     [userID: string]: {
       name: string;
@@ -22,7 +24,14 @@ export type FileData = {
     defaultPermission: string;
     creationTime: any; // firebase timestamp
     language: 'cpp' | 'java' | 'py';
+    problem: ProblemData; // todo idk what this is;
+    compilerOptions: {
+      cpp: string;
+      java: string;
+      py: string;
+    };
   };
+  isCodeRunning: boolean;
 };
 
 export type EditorContextType = {
@@ -30,7 +39,7 @@ export type EditorContextType = {
   updateFileData: (firebaseUpdateData: Object) => Promise<any>;
 };
 
-export const EditorContext = createContext<EditorContextType | null>(null);
+const EditorContext = createContext<EditorContextType | null>(null);
 
 export function useEditorContext() {
   const context = useContext(EditorContext);
@@ -61,7 +70,10 @@ export function EditorProvider({
 
     const handleDataChange = (snap: firebase.database.DataSnapshot) => {
       setLoading(false);
-      setFileData(snap.val());
+      setFileData({
+        id: snap.key,
+        ...snap.val(),
+      });
     };
 
     firebase

@@ -25,7 +25,6 @@ import { CodeInterface } from '../CodeInterface/CodeInterface';
 import JudgeInterface from '../JudgeInterface/JudgeInterface';
 import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
 import { Output } from '../Output';
-import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
@@ -35,6 +34,7 @@ import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 import { fileIdAtom } from '../../atoms/firebaseAtoms';
 import useFirebaseState from '../../hooks/useFirebaseState';
 import useJudgeResults from '../../hooks/useJudgeResults';
+import { useEditorContext } from '../../context/EditorContext';
 
 export type ProblemData = {
   id: number;
@@ -79,12 +79,12 @@ export default function Workspace({
   handleRunCode: () => void;
   tabsList: { label: string; value: string }[];
 }): JSX.Element {
+  const { fileData } = useEditorContext();
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const mobileActiveTab = useAtomValue(mobileActiveTabAtom);
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
-  const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const [problem, setProblem] = useAtom(problemAtom);
@@ -93,13 +93,6 @@ export default function Workspace({
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      input: firebaseRef?.child('input'),
-    }),
-    [firebaseRef]
-  );
 
   useEffect(() => {
     function handleResize() {
@@ -120,12 +113,12 @@ export default function Workspace({
 
   useEffect(() => {
     setStatusData(null);
-    setProblem(settings.problem);
-    if (settings.problem) {
+    setProblem(fileData.settings.problem);
+    if (fileData.settings.problem) {
       setInputTab('judge');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.problem]);
+  }, [fileData.settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
   const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
@@ -188,7 +181,7 @@ export default function Workspace({
                     }, 0);
                   }}
                   defaultValue=""
-                  firebaseRef={firebaseRefs.input}
+                  yjsDocumentId={`${fileData.id}.input`}
                 />
               )}
               {inputTab === 'judge' && problem && (
