@@ -97,10 +97,11 @@ export function EditorProvider({
   if (!editorContextValue.fileData) {
     return <>{fileNotFoundUI}</>;
   }
-  invariant(editorContextValue.fileData !== null, 'fileData is null'); // wtf
 
+  // i don't know why the cast is needed. Somehow we should figure out how to
+  // assert editorContextValue.fileData is non null.
   return (
-    <EditorContext.Provider value={editorContextValue}>
+    <EditorContext.Provider value={editorContextValue as EditorContextType}>
       {children}
     </EditorContext.Provider>
   );

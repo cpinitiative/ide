@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
+import { MessagePage } from '../src/components/MessagePage';
 import { EditorContext, EditorProvider } from '../src/context/EditorContext';
 
 function EditorPage() {
@@ -14,15 +15,17 @@ export default function FilePage() {
 
   if (!queryId) return null;
 
+  const loadingUI = <MessagePage message="Loading..." showHomeButton={false} />;
+  const fileNotFoundUI = <MessagePage message="File Not Found" />;
+  const permissionDeniedUI = <MessagePage message="This file is private." />;
+
   return (
     <div>
-      <pre className="text-white">{queryId}</pre>
-
       <EditorProvider
         fileId={firebaseFileID}
-        loadingUI={null}
-        fileNotFoundUI={null}
-        permissionDeniedUI={null}
+        loadingUI={loadingUI}
+        fileNotFoundUI={fileNotFoundUI}
+        permissionDeniedUI={permissionDeniedUI}
       >
         <EditorPage />
       </EditorProvider>
