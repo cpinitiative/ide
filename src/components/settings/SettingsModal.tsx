@@ -84,7 +84,7 @@ export const SettingsModal = ({
 
   const [name, setName] = useState<string>('');
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
-  const [tabSize, setTabSize] = useState<number>(4);
+  const [tabSize, setTabSize] = useState<number>(-1);
   const [lightMode, setLightMode] = useState<boolean>(false);
   const dirtyRef = useRef<boolean>(false);
 
@@ -98,9 +98,9 @@ export const SettingsModal = ({
     if (isOpen) {
       setFileSettings(realFileSettings);
       setName(actualDisplayName);
-      setEditorMode(userData.editorMode ?? 'Normal');
-      setTabSize(userData.tabSize ?? 4);
-      setLightMode(userData.lightMode ?? false);
+      setEditorMode(userData.editorMode);
+      setTabSize(userData.tabSize);
+      setLightMode(userData.lightMode);
       dirtyRef.current = false;
       setTab('workspace');
     }

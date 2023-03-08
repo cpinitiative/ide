@@ -42,6 +42,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const data = snap.val() ?? {};
       setUserData({
         editorMode: data.editorMode ?? 'Normal',
+        tabSize: data.tabSize ?? 4,
+        lightMode: data.lightMode ?? false,
       });
     };
     firebase.database().ref(`users/${user.uid}`).on('value', handleSnapshot);
