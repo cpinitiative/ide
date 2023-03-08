@@ -1,4 +1,5 @@
 import React from 'react';
+import { FileSettings } from '../../context/EditorContext';
 import { WorkspaceSettings } from '../SettingsContext';
 
 import ProblemSearchInterface from './ProblemSearchInterface';
@@ -8,8 +9,8 @@ export default function JudgeSettings({
   onWorkspaceSettingsChange,
   userPermission,
 }: {
-  workspaceSettings: WorkspaceSettings;
-  onWorkspaceSettingsChange: (settings: Partial<WorkspaceSettings>) => void;
+  workspaceSettings: FileSettings;
+  onWorkspaceSettingsChange: (settings: Partial<FileSettings>) => void;
   userPermission: string;
 }): JSX.Element {
   const canChange =

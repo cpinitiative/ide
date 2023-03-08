@@ -10,6 +10,18 @@ import {
 } from 'react';
 import { ProblemData } from '../components/Workspace/Workspace';
 
+export type Language = 'cpp' | 'java' | 'py';
+
+export interface FileSettings {
+  compilerOptions: { [key in Language]: string };
+  defaultPermission: string;
+  workspaceName: string | null;
+  creationTime: string | null; // firebase timetsamp?
+  problem: ProblemData | null;
+  classroomID: string | null;
+  language: Language;
+}
+
 export type FileData = {
   id: string;
   users: {
@@ -19,18 +31,7 @@ export type FileData = {
       permission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
     };
   };
-  settings: {
-    workspaceName: string;
-    defaultPermission: string;
-    creationTime: any; // firebase timestamp
-    language: 'cpp' | 'java' | 'py';
-    problem: ProblemData; // todo idk what this is;
-    compilerOptions: {
-      cpp: string;
-      java: string;
-      py: string;
-    };
-  };
+  settings: FileSettings;
   isCodeRunning: boolean;
 };
 

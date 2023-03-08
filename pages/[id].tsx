@@ -16,6 +16,7 @@ import {
 import {
   inputTabAtom,
   inputTabIndexAtom,
+  mobileActiveTabAtom,
   showSidebarAtom,
   tabsListAtom,
 } from '../src/atoms/workspaceUI';
@@ -30,6 +31,7 @@ import {
   useUserContext,
 } from '../src/context/UserContext';
 import useUserPermission from '../src/hooks/useUserPermission';
+import { SettingsModal } from '../src/components/settings/SettingsModal';
 
 function EditorPage() {
   const { fileData } = useEditorContext();
@@ -40,6 +42,7 @@ function EditorPage() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
+  const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const tabsList = useAtomValue(tabsListAtom);
@@ -97,18 +100,18 @@ function EditorPage() {
         <div className="flex-1 min-h-0">
           <Workspace handleRunCode={handleRunCode} tabsList={tabsList} />
         </div>
-        {/* {!isDesktop && (
+        {!isDesktop && (
           <MobileBottomNav
             activeTab={mobileActiveTab}
             onActiveTabChange={setMobileActiveTab}
           />
-        )} */}
+        )}
       </div>
 
-      {/* <SettingsModal
+      <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
-      /> */}
+      />
     </div>
   );
 }

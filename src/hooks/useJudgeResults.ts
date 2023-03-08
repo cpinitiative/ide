@@ -1,13 +1,19 @@
-import { useAtomValue } from 'jotai';
-import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
+import firebase from 'firebase';
+import { useEditorContext } from '../context/EditorContext';
 import JudgeResult from '../types/judge';
 import useFirebaseState from './useFirebaseState';
 
 export default function useJudgeResults() {
-  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
+  const { fileData } = useEditorContext();
 
   return useFirebaseState<(JudgeResult | null)[]>(
-    authenticatedFirebaseRef?.child('state').child('judge_results'),
+    fileData
+      ? firebase
+          .database()
+          .ref(`files/${fileData.id}`)
+          .child('state')
+          .child('judge_results')
+      : null,
     []
   );
 }

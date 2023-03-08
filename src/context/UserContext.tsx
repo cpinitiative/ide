@@ -10,7 +10,9 @@ export type UserContextType = {
 };
 
 export type UserData = {
-  editorMode: 'Normal' | 'Vim' | 'Emacs';
+  editorMode: 'Normal' | 'Vim';
+  tabSize: number;
+  lightMode: boolean;
 };
 
 const UserContext = createContext<UserContextType | null>(null);

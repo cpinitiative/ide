@@ -1,5 +1,6 @@
 import React from 'react';
-import { LANGUAGES, WorkspaceSettings } from '../SettingsContext';
+import { FileSettings } from '../../context/EditorContext';
+import { LANGUAGES } from '../SettingsContext';
 import { SharingPermissions } from '../SharingPermissions';
 
 export default function WorkspaceSettingsUI({
@@ -7,8 +8,8 @@ export default function WorkspaceSettingsUI({
   onWorkspaceSettingsChange,
   userPermission,
 }: {
-  workspaceSettings: WorkspaceSettings;
-  onWorkspaceSettingsChange: (settings: Partial<WorkspaceSettings>) => void;
+  workspaceSettings: FileSettings;
+  onWorkspaceSettingsChange: (settings: Partial<FileSettings>) => void;
   userPermission: string;
 }): JSX.Element {
   return (
