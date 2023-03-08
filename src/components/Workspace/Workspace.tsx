@@ -35,6 +35,7 @@ import { fileIdAtom } from '../../atoms/firebaseAtoms';
 import useFirebaseState from '../../hooks/useFirebaseState';
 import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
+import useUserPermission from '../../hooks/useUserPermission';
 
 export type ProblemData = {
   id: number;
@@ -89,9 +90,8 @@ export default function Workspace({
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const [problem, setProblem] = useAtom(problemAtom);
 
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
 
   useEffect(() => {

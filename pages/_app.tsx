@@ -10,6 +10,7 @@ import 'firebase/analytics';
 import { ConnectionProvider } from '../src/context/ConnectionContext';
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
+import { UserProvider } from '../src/context/UserContext';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
@@ -48,11 +49,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Toaster position="bottom-right" />
-      <ConnectionProvider>
-        <WorkspaceInitializer>
-          <Component {...pageProps} />
-        </WorkspaceInitializer>
-      </ConnectionProvider>
+      <UserProvider>
+        <ConnectionProvider>
+          <WorkspaceInitializer>
+            <Component {...pageProps} />
+          </WorkspaceInitializer>
+        </ConnectionProvider>
+      </UserProvider>
       <Analytics />
     </>
   );

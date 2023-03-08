@@ -14,14 +14,18 @@ import { useAtomValue } from 'jotai/utils';
 import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
 import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 import type * as monaco from 'monaco-editor';
+import { useEditorContext } from '../../context/EditorContext';
+import { useUserContext } from '../../context/UserContext';
+import useUserPermission from '../../hooks/useUserPermission';
 
 export const CodeInterface = ({
   className,
 }: {
   className?: string;
 }): JSX.Element => {
-  const [lang, setLang] = useAtom(currentLangAtom);
-  const [permission] = useAtom(actualUserPermissionAtom);
+  const { fileData } = useEditorContext();
+  const lang = fileData.settings.language;
+  const permission = useUserPermission();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -55,15 +59,6 @@ export const CodeInterface = ({
         className
       )}
     >
-      <TabBar
-        tabs={[
-          { label: 'C++', value: 'cpp' },
-          { label: 'Java', value: 'java' },
-          { label: 'Python 3', value: 'py' },
-        ]}
-        activeTab={lang}
-        onTabSelect={tab => setLang(tab.value as Language)}
-      />
       <div className="flex-1 overflow-hidden">
         <LazyRealtimeEditor
           theme={lightMode ? 'light' : 'vs-dark'}
@@ -93,7 +88,7 @@ export const CodeInterface = ({
             }, 0);
           }}
           defaultValue={defaultCode[lang]}
-          firebaseRef={firebaseRefs[lang]}
+          yjsDocumentId={`${fileData.id}.code`}
           useEditorWithVim={true}
           lspEnabled={lang === 'cpp'}
           dataTestId="code-editor"

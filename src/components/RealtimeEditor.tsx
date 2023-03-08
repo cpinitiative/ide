@@ -15,6 +15,7 @@ import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
 import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
 import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
+import { useUserContext } from '../context/UserContext';
 
 export interface RealtimeEditorProps extends EditorProps {
   yjsDocumentId: string;
@@ -37,9 +38,9 @@ const RealtimeEditor = ({
 }: RealtimeEditorProps): JSX.Element => {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const { userData, user: firebaseUser } = useUserContext();
   const [, setLoading] = useAtom(loadingAtom);
-  const { editorMode: mode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { editorMode: mode } = userData;
 
   const [connectionStatus, setConnectionStatus] = useState<
     'disconnected' | 'connecting' | 'connected'

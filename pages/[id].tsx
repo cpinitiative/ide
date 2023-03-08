@@ -25,10 +25,15 @@ import { useEffect, useState } from 'react';
 import { useMediaQuery } from '../src/hooks/useMediaQuery';
 import Workspace from '../src/components/Workspace/Workspace';
 import { MobileBottomNav } from '../src/components/NavBar/MobileBottomNav';
+import {
+  useNullableUserContext,
+  useUserContext,
+} from '../src/context/UserContext';
+import useUserPermission from '../src/hooks/useUserPermission';
 
 function EditorPage() {
   const { fileData } = useEditorContext();
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
   const loading = useAtomValue(loadingAtom);
   const [showSidebar, setShowSidebar] = useAtom(showSidebarAtom);
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
@@ -112,11 +117,14 @@ export default function FilePage() {
   const queryId = useRouter().query.id;
   const firebaseFileID = '-' + queryId;
 
-  if (!queryId) return null;
+  const { userData } = useNullableUserContext();
 
   const loadingUI = <MessagePage message="Loading..." showHomeButton={false} />;
   const fileNotFoundUI = <MessagePage message="File Not Found" />;
   const permissionDeniedUI = <MessagePage message="This file is private." />;
+
+  if (!queryId) return null;
+  if (!userData) return loadingUI;
 
   return (
     <EditorProvider
