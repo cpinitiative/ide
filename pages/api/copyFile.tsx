@@ -45,7 +45,7 @@ export default async (
   const displayName = decodedToken.name;
 
   const fileDataResp = await getDatabase(firebaseApp)
-    .ref(`-${data.fileID}`)
+    .ref(`files/-${data.fileID}`)
     .get();
   const fileData = await fileDataResp.val();
   if (!fileData) {
@@ -70,7 +70,7 @@ export default async (
   }
 
   const ref = getDatabase(firebaseApp)
-    .ref('/')
+    .ref('/files')
     .push({
       users: {
         [uid]: {
@@ -86,13 +86,7 @@ export default async (
     });
   const fileID: string = ref.key!;
 
-  const copyYjsPromies = [
-    'editor-cpp',
-    'editor-java',
-    'editor-py',
-    'input',
-    'scribble',
-  ].map(key => {
+  const copyYjsPromies = ['code', 'input', 'scribble'].map(key => {
     const HOST_URL =
       process.env.NODE_ENV === 'production'
         ? 'https://yjs.usaco.guide'

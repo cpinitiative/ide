@@ -133,7 +133,7 @@ export default function Workspace({
         >
           <CodeInterface
             className={classNames(
-              'row-span-full min-w-0 overflow-hidden',
+              'row-span-full min-w-0 overflow-hidden border-t border-black',
               !isDesktop && 'col-span-full',
               !isDesktop && mobileActiveTab !== 'code' && 'hidden'
             )}

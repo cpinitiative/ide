@@ -3,12 +3,12 @@ import { useAtomValue } from 'jotai/utils';
 import { MessagePage } from '../../src/components/MessagePage';
 import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
-import { firebaseUserAtom } from '../../src/atoms/firebaseUserAtoms';
+import { useNullableUserContext } from '../../src/context/UserContext';
 
 export default function CopyFilePage(): JSX.Element {
   const router = useRouter();
 
-  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const { user: firebaseUser } = useNullableUserContext();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
