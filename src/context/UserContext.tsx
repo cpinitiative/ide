@@ -3,6 +3,7 @@ import { UserSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
 import firebase from 'firebase/app';
 import { signInAnonymously } from '../scripts/firebaseUtils';
+import animals from '../scripts/animals';
 
 export type UserContextType = {
   user: firebaseType.User | null;
@@ -27,6 +28,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (!user) {
         setUserData(null);
         signInAnonymously();
+      } else {
+        let displayName = user.displayName;
+        if (!displayName) {
+          displayName =
+            'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
+          user.updateProfile({ displayName });
+        }
       }
     });
 
