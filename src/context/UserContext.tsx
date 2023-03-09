@@ -14,6 +14,7 @@ export type UserData = {
   editorMode: 'Normal' | 'Vim';
   tabSize: number;
   lightMode: boolean;
+  defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 };
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -56,6 +57,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         editorMode: data.editorMode ?? 'Normal',
         tabSize: data.tabSize ?? 4,
         lightMode: data.lightMode ?? false,
+        defaultPermission: data.defaultPermission ?? 'READ_WRITE',
       });
     };
     firebase.database().ref(`users/${user.uid}`).on('value', handleSnapshot);

@@ -18,29 +18,25 @@ import { useConnectionContext } from '../../context/ConnectionContext';
 import { isFirebaseId } from '../../editorUtils';
 import FilesList, { File } from './FilesList';
 import { SharingPermissions, RadioGroupContents } from '../SharingPermissions';
+import {
+  useNullableUserContext,
+  UserData,
+  useUserContext,
+} from '../../context/UserContext';
+import { MessagePage } from '../MessagePage';
 
-export default function Dashboard() {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
-  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
-
-  invariant(
-    firebaseUser && !isUserSettingsLoading,
-    '<Dashboard /> should only be called after firebase user and settings are loaded.'
-  );
+function Dashboard() {
+  const { firebaseUser, userData } = useUserContext();
 
   const signInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
   const signOut = useUpdateAtom(signOutAtom);
+
   const [files, setFiles] = useState<File[] | null>(null);
   const [showHidden, setShowHidden] = useState<boolean>(false);
-  // const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
-  const [userSettings, setUserSettings] = useAtom(
-    userSettingsAtomWithPersistence
-  );
   const router = useRouter();
   const connectionContext = useConnectionContext();
 
   const makeNewWorkspaceWithName = async (name: string) => {
-    if (!firebaseUser) return;
     const resp = await fetch(`/api/createNewFile`, {
       method: 'POST',
       headers: {
@@ -50,42 +46,46 @@ export default function Dashboard() {
         workspaceName: name,
         userID: firebaseUser.uid,
         userName: firebaseUser.displayName,
-        defaultPermission: userSettings.defaultPermission,
+        defaultPermission: userData.defaultPermission,
       }),
     });
     const data = await resp.json();
     if (resp.ok) {
-      router.push(`/${data.fileID}`);
+      router.push(`/${data.fileID.substring(1)}`);
     } else {
       alert('Error: ' + data.message);
     }
   };
 
-  const makeNewClassroomWithName = async (name: string) => {
-    if (!firebaseUser) return;
-    const resp = await fetch(`/api/createNewClassroom`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        workspaceName: name,
-        userID: firebaseUser.uid,
-        userName: firebaseUser.displayName,
-      }),
-    });
-    const data = await resp.json();
-    if (resp.ok) {
-      router.push(`/classrooms/${data.fileID}/instructor`);
-    } else {
-      alert('Error: ' + data.message);
-    }
-  };
+  // const makeNewClassroomWithName = async (name: string) => {
+  //   if (!firebaseUser) return;
+  //   const resp = await fetch(`/api/createNewClassroom`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       workspaceName: name,
+  //       userID: firebaseUser.uid,
+  //       userName: firebaseUser.displayName,
+  //     }),
+  //   });
+  //   const data = await resp.json();
+  //   if (resp.ok) {
+  //     router.push(`/classrooms/${data.fileID}/instructor`);
+  //   } else {
+  //     alert('Error: ' + data.message);
+  //   }
+  // };
 
   useEffect(() => {
     if (!firebaseUser) return;
 
-    const ref = firebase.database().ref('users').child(firebaseUser.uid);
+    const ref = firebase
+      .database()
+      .ref('users')
+      .child(firebaseUser.uid)
+      .child('files');
     const unsubscribe = ref.orderByChild('lastAccessTime').on('value', snap => {
       if (!snap.exists) {
         setFiles([]);
@@ -120,14 +120,18 @@ export default function Dashboard() {
     return () => ref.off('value', unsubscribe);
   }, [firebaseUser, showHidden]);
 
+  const updateUserData = (upd: Partial<UserData>) => {
+    return firebase.database().ref(`users/${userData.id}`).update(upd);
+  };
+
   return (
     <div>
       <div className="mb-4">
         <SharingPermissions
-          value={!firebaseUser ? null : userSettings.defaultPermission}
+          value={!firebaseUser ? null : userData.defaultPermission}
           onChange={defaultPermission =>
-            setUserSettings({
-              defaultPermission: defaultPermission as DefaultPermission,
+            updateUserData({
+              defaultPermission: defaultPermission ?? 'READ_WRITE', // technically this should never be null??
             })
           }
           isOwner={true}
@@ -150,7 +154,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {firebaseUser && !isUserSettingsLoading && firebaseUser.isAnonymous ? (
+      {firebaseUser.isAnonymous ? (
         <div className="text-gray-400 mt-6">
           Not signed in.{' '}
           <button
@@ -160,7 +164,7 @@ export default function Dashboard() {
             Sign in now
           </button>
         </div>
-      ) : firebaseUser && !isUserSettingsLoading ? (
+      ) : (
         <div className="text-gray-400 mt-6">
           Signed in as {firebaseUser.displayName}.
           <button
@@ -170,42 +174,47 @@ export default function Dashboard() {
             Sign Out
           </button>
         </div>
-      ) : null}
+      )}
 
       <div className="h-12"></div>
 
-      {firebaseUser && !isUserSettingsLoading && (
-        <>
-          <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
-            Your Workspaces
-          </h2>
+      <h2 className="text-gray-100 text-2xl md:text-4xl font-black">
+        Your Workspaces
+      </h2>
 
-          <div className="h-6"></div>
-          <RadioGroupContents
-            title="Show Hidden Files?"
-            value={showHidden}
-            onChange={setShowHidden}
-            options={[
-              {
-                label: 'Yes',
-                value: true,
-              },
-              {
-                label: 'No',
-                value: false,
-              },
-            ]}
-            lightMode
-          />
-          <div className="h-6"></div>
+      <div className="h-6"></div>
+      <RadioGroupContents
+        title="Show Hidden Files?"
+        value={showHidden}
+        onChange={setShowHidden}
+        options={[
+          {
+            label: 'Yes',
+            value: true,
+          },
+          {
+            label: 'No',
+            value: false,
+          },
+        ]}
+        lightMode
+      />
+      <div className="h-6"></div>
 
-          {files && files.length > 0 && (
-            <FilesList files={files} showPerms={false} />
-          )}
-
-          {!files && <div className="text-gray-400">Loading files...</div>}
-        </>
+      {files && files.length > 0 && (
+        <FilesList files={files} showPerms={false} />
       )}
+
+      {!files && <div className="text-gray-400">Loading files...</div>}
     </div>
   );
+}
+
+export default function DashboardPage() {
+  const { userData } = useNullableUserContext();
+
+  const loadingUI = <MessagePage message="Loading..." showHomeButton={false} />;
+  if (!userData) return loadingUI;
+
+  return <Dashboard />;
 }

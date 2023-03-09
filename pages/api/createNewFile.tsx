@@ -62,5 +62,5 @@ export default async (
       },
     });
   const fileID: string = resp.key!;
-  res.status(200).json({ fileID: fileID.substring(1) });
+  res.status(200).json({ fileID });
 };

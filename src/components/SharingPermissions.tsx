@@ -100,7 +100,7 @@ export const SharingPermissions = ({
   lightMode,
 }: {
   value: string | null;
-  onChange: (newVal: string) => void;
+  onChange: (newVal: 'READ_WRITE' | 'READ' | 'PRIVATE') => void;
   isOwner: boolean;
   lightMode?: boolean;
 }): JSX.Element => {

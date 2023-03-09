@@ -38,6 +38,7 @@ import useJudgeResults from '../src/hooks/useJudgeResults';
 import { cleanJudgeResult } from '../src/editorUtils';
 import JudgeResult from '../src/types/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
+import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -54,6 +55,7 @@ function EditorPage() {
   const [judgeResults, setJudgeResults] = useJudgeResults();
 
   useUserFileConnection();
+  useUpdateUserDashboard();
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const tabsList = useAtomValue(tabsListAtom);
