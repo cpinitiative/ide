@@ -21,11 +21,12 @@ import { useEditorContext } from '../../context/EditorContext';
 import defaultCode from '../../scripts/defaultCode';
 import download from '../../scripts/download';
 import { extractJavaFilename } from '../../scripts/judge';
+import useUserPermission from '../../hooks/useUserPermission';
 
 export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
   const { fileData } = useEditorContext();
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
 
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
     null
