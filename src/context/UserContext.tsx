@@ -53,7 +53,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-      setUser(user);
       if (!user) {
         setUserData(null);
         signInAnonymously();
@@ -62,10 +61,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (!displayName) {
           displayName =
             'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-          user.updateProfile({ displayName });
+          user.updateProfile({ displayName }).then(() => setUser(user));
           // TODO also update the name on the current firebase document?
           // TODO debug: if the user was newly created, displayName wouldn't be set yet and new files would be created.
           // WARNING WARNING WARNING fix this bug smh
+        } else {
+          setUser(user);
         }
       }
     });
