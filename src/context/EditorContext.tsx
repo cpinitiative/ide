@@ -15,7 +15,7 @@ export type Language = 'cpp' | 'java' | 'py';
 
 export interface FileSettings {
   compilerOptions: { [key in Language]: string };
-  defaultPermission: string;
+  defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
   workspaceName: string | null;
   creationTime: string | null; // firebase timetsamp?
   problem: ProblemData | null;

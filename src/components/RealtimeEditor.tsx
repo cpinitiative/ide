@@ -1,20 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import type firebaseType from 'firebase';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { loadingAtom } from '../atoms/workspace';
-import { useAtomValue } from 'jotai/utils';
-import { authenticatedUserRefAtom, fileIdAtom } from '../atoms/firebaseAtoms';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import type * as monaco from 'monaco-editor';
-import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import '../styles/yjs.css';
 import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
 import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
-import { firebaseUserAtom } from '../atoms/firebaseUserAtoms';
 import { useUserContext } from '../context/UserContext';
 
 export interface RealtimeEditorProps extends EditorProps {

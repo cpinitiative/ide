@@ -1,9 +1,24 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { UserSettings } from '../components/SettingsContext';
 import type firebaseType from 'firebase';
 import firebase from 'firebase/app';
 import { signInAnonymously } from '../scripts/firebaseUtils';
 import animals from '../scripts/animals';
+
+export type Language = 'cpp' | 'java' | 'py';
+export const LANGUAGES: { label: string; value: Language }[] = [
+  {
+    label: 'C++',
+    value: 'cpp',
+  },
+  {
+    label: 'Java',
+    value: 'java',
+  },
+  {
+    label: 'Python 3.8.1',
+    value: 'py',
+  },
+];
 
 export type UserContextType = {
   firebaseUser: firebaseType.User | null;
@@ -15,7 +30,18 @@ export type UserData = {
   tabSize: number;
   lightMode: boolean;
   defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
+  defaultLanguage: Language;
 };
+
+export const defaultUserSettings: UserData = {
+  editorMode: 'Normal', // change in settings
+  tabSize: 4,
+  lightMode: false,
+  defaultPermission: 'READ_WRITE', // change in dashboard
+  defaultLanguage: 'cpp', // last viewed file
+};
+
+export type EditorMode = 'Normal' | 'Vim';
 
 const UserContext = createContext<UserContextType | null>(null);
 
@@ -37,7 +63,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           displayName =
             'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
           user.updateProfile({ displayName });
-          // TODO also update the name on the current firebase document.
+          // TODO also update the name on the current firebase document?
+          // TODO debug: if the user was newly created, displayName wouldn't be set yet and new files would be created.
+          // WARNING WARNING WARNING fix this bug smh
         }
       }
     });
@@ -58,6 +86,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         tabSize: data.tabSize ?? 4,
         lightMode: data.lightMode ?? false,
         defaultPermission: data.defaultPermission ?? 'READ_WRITE',
+        defaultLanguage: data.defaultLanguage ?? 'cpp',
       });
     };
     firebase.database().ref(`users/${user.uid}`).on('value', handleSnapshot);

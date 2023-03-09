@@ -1,6 +1,5 @@
 import React from 'react';
 import { FileSettings } from '../../context/EditorContext';
-import { WorkspaceSettings } from '../SettingsContext';
 
 import ProblemSearchInterface from './ProblemSearchInterface';
 

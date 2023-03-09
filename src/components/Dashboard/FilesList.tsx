@@ -27,9 +27,9 @@ export interface FilesListProps {
 }
 
 import { permissionLabels } from '../UserList/UserListItem';
-import { firebaseUserAtom } from '../../atoms/firebaseUserAtoms';
 import { useAtomValue } from 'jotai/utils';
 import invariant from 'tiny-invariant';
+import { useUserContext } from '../../context/UserContext';
 
 export const sharingPermissionLabels: Record<string, string> = {
   READ_WRITE: 'Public Read & Write',
@@ -38,7 +38,7 @@ export const sharingPermissionLabels: Record<string, string> = {
 };
 
 export default function FilesList(props: FilesListProps): JSX.Element {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const { firebaseUser } = useUserContext();
   invariant(!!firebaseUser);
   const formatCreationTime = (creationTime: number | null): string => {
     if (!creationTime) return 'Unknown';

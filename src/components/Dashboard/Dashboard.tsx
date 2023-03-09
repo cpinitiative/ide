@@ -1,19 +1,11 @@
-import { useAtom, useAtomValue } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import invariant from 'tiny-invariant';
 import firebase from 'firebase/app';
 import {
-  firebaseUserAtom,
   signInWithGoogleAtom,
   signOutAtom,
 } from '../../atoms/firebaseUserAtoms';
-import {
-  isUserSettingsLoadingAtom,
-  userSettingsAtomWithPersistence,
-} from '../../atoms/userSettings';
-import { DefaultPermission } from '../../atoms/workspace';
 import { useConnectionContext } from '../../context/ConnectionContext';
 import { isFirebaseId } from '../../editorUtils';
 import FilesList, { File } from './FilesList';
@@ -25,7 +17,7 @@ import {
 } from '../../context/UserContext';
 import { MessagePage } from '../MessagePage';
 
-function Dashboard() {
+export default function Dashboard() {
   const { firebaseUser, userData } = useUserContext();
 
   const signInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
@@ -208,13 +200,4 @@ function Dashboard() {
       {!files && <div className="text-gray-400">Loading files...</div>}
     </div>
   );
-}
-
-export default function DashboardPage() {
-  const { userData } = useNullableUserContext();
-
-  const loadingUI = <MessagePage message="Loading..." showHomeButton={false} />;
-  if (!userData) return loadingUI;
-
-  return <Dashboard />;
 }

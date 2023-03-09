@@ -12,10 +12,7 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import { usePopper } from 'react-popper';
 
-import {
-  actualUserPermissionAtom,
-  mainMonacoEditorAtom,
-} from '../../atoms/workspace';
+import { mainMonacoEditorAtom } from '../../atoms/workspace';
 import { useAtomValue } from 'jotai';
 import { useEditorContext } from '../../context/EditorContext';
 import defaultCode from '../../scripts/defaultCode';

@@ -1,12 +1,8 @@
 import { TabBar } from './TabBar';
-import React, { useState, useEffect, useMemo } from 'react';
-import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
+import React, { useState, useEffect } from 'react';
 import { LazyRealtimeEditor } from './LazyRealtimeEditor';
 
-import { actualUserPermissionAtom } from '../atoms/workspace';
-import { useAtomValue } from 'jotai/utils';
 import JudgeResult from '../types/judge';
-import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
 import useUserPermission from '../hooks/useUserPermission';

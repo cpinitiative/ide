@@ -8,20 +8,7 @@ import React, {
 import { Dialog, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
-import { actualUserPermissionAtom } from '../../atoms/workspace';
-// import { allProblemDataAtom } from '../../atoms/workspaceUI';
-import {
-  authenticatedFirebaseRefAtom,
-  authenticatedUserRefAtom,
-} from '../../atoms/firebaseAtoms';
-import {
-  displayNameAtom,
-  EditorMode,
-  userSettingsAtomWithPersistence,
-} from '../../atoms/userSettings';
-import { useAtomValue } from 'jotai/utils';
 import {
   ComputerDesktopIcon,
   ServerIcon,
@@ -32,10 +19,9 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
-import useFirebaseState from '../../hooks/useFirebaseState';
 import JudgeResult from '../../types/judge';
 import useJudgeResults from '../../hooks/useJudgeResults';
-import { useUserContext } from '../../context/UserContext';
+import { EditorMode, useUserContext } from '../../context/UserContext';
 import { FileSettings, useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import firebase from 'firebase';
@@ -92,12 +78,10 @@ export const SettingsModal = ({
 
   const [judgeResults, setJudgeResults] = useJudgeResults();
 
-  const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom); // todo wtf
-
   useEffect(() => {
     if (isOpen) {
       setFileSettings(realFileSettings);
-      setName(actualDisplayName);
+      setName(firebaseUser.displayName ?? ''); // todo this shouldn't really be an empty string ever?
       setEditorMode(userData.editorMode);
       setTabSize(userData.tabSize);
       setLightMode(userData.lightMode);
@@ -124,7 +108,7 @@ export const SettingsModal = ({
       alert('User Name cannot be empty. Fix before saving.');
       return;
     }
-    let settingsToSet: Partial<WorkspaceSettings> = fileSettings;
+    let settingsToSet: Partial<FileSettings> = fileSettings;
     {
       // update has no effect if you try to overwrite creation time
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -166,13 +150,13 @@ export const SettingsModal = ({
       .database()
       .ref(`users/${firebaseUser.uid}`)
       .update({ editorMode, tabSize, lightMode });
-    if (name !== actualDisplayName) {
-      setDisplayName(name);
+    if (name !== firebaseUser.displayName) {
+      // todo update the name on the current firebase document?
     }
     onClose();
   };
 
-  const onChange = (data: Partial<WorkspaceSettings>): void => {
+  const onChange = (data: Partial<FileSettings>): void => {
     dirtyRef.current = true;
     setFileSettings(data);
   };

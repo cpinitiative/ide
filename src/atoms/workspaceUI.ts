@@ -1,5 +1,4 @@
 import { atom } from 'jotai';
-import JudgeResult from '../types/judge';
 import { ProblemData } from '../components/Workspace/Workspace';
 
 export const mobileActiveTabAtom = atom<'code' | 'io' | 'users'>('code');

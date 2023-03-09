@@ -2,15 +2,13 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 /// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
-import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
 import {
   layoutEditorsAtom,
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
-  actualUserPermissionAtom,
 } from '../../atoms/workspace';
 import {
   mobileActiveTabAtom,
@@ -28,14 +26,11 @@ import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
-import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
-import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
-import { fileIdAtom } from '../../atoms/firebaseAtoms';
-import useFirebaseState from '../../hooks/useFirebaseState';
 import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
+import { useUserContext } from '../../context/UserContext';
 
 export type ProblemData = {
   id: number;
@@ -121,7 +116,7 @@ export default function Workspace({
   }, [fileData.settings.problem]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { lightMode } = useUserContext().userData;
 
   return (
     <Split

@@ -4,11 +4,10 @@ import { FileMenu } from '../src/components/NavBar/FileMenu';
 import { NavBar } from '../src/components/NavBar/NavBar';
 import { EditorProvider, useEditorContext } from '../src/context/EditorContext';
 import { RunButton } from '../src/components/RunButton';
-import { extractJavaFilename, submitToJudge } from '../src/scripts/judge';
+import { submitToJudge } from '../src/scripts/judge';
 import { useAtom, useAtomValue } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import {
-  actualUserPermissionAtom,
   inputMonacoEditorAtom,
   layoutEditorsAtom,
   loadingAtom,
@@ -21,16 +20,11 @@ import {
   showSidebarAtom,
   tabsListAtom,
 } from '../src/atoms/workspaceUI';
-import defaultCode from '../src/scripts/defaultCode';
-import download from '../src/scripts/download';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from '../src/hooks/useMediaQuery';
 import Workspace from '../src/components/Workspace/Workspace';
 import { MobileBottomNav } from '../src/components/NavBar/MobileBottomNav';
-import {
-  useNullableUserContext,
-  useUserContext,
-} from '../src/context/UserContext';
+import { useNullableUserContext } from '../src/context/UserContext';
 import useUserPermission from '../src/hooks/useUserPermission';
 import { SettingsModal } from '../src/components/settings/SettingsModal';
 import { getSampleIndex } from '../src/components/JudgeInterface/Samples';

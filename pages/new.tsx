@@ -1,32 +1,19 @@
 import { useAtomValue } from 'jotai/utils';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import invariant from 'tiny-invariant';
-import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
-import {
-  displayNameAtom,
-  isUserSettingsLoadingAtom,
-  userSettingsAtomWithPersistence,
-} from '../src/atoms/userSettings';
 import { MessagePage } from '../src/components/MessagePage';
+import { useNullableUserContext } from '../src/context/UserContext';
 
 export default function NewFilePage() {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
-  const displayName = useAtomValue(displayNameAtom);
-  const userSettings = useAtomValue(userSettingsAtomWithPersistence);
-  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
+  const { userData, firebaseUser } = useNullableUserContext();
   const router = useRouter();
 
+  const alreadyCreatedFile = useRef<boolean>(false);
+
   useEffect(() => {
-    if (!isUserSettingsLoading && displayName) {
-      invariant(
-        firebaseUser,
-        'Expected firebase user to be initialized when user settings are done loading'
-      );
-      invariant(
-        userSettings,
-        'Expected user settings to be initialized when user settings are done loading'
-      );
+    if (userData && firebaseUser && !alreadyCreatedFile.current) {
+      alreadyCreatedFile.current = true;
       (async () => {
         const resp = await fetch(`/api/createNewFile`, {
           method: 'POST',
@@ -36,19 +23,19 @@ export default function NewFilePage() {
           body: JSON.stringify({
             workspaceName: 'Unnamed Workspace',
             userID: firebaseUser.uid,
-            userName: displayName, // this can't be firebaseUser.displayName bc this could still be null
-            defaultPermission: userSettings.defaultPermission,
+            userName: firebaseUser.displayName, // TODO TEST
+            defaultPermission: userData.defaultPermission,
           }),
         });
         const data = await resp.json();
         if (resp.ok) {
-          router.push(`/${data.fileID}`);
+          router.push(`/${data.fileID.substring(1)}`);
         } else {
           alert('Error: ' + data.message);
         }
       })();
     }
-  }, [isUserSettingsLoading, displayName]);
+  }, [userData, firebaseUser]);
 
   return <MessagePage showHomeButton={false} message="Creating new file..." />;
 }

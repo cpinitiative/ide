@@ -1,6 +1,4 @@
 import { AppProps } from 'next/app';
-import { SettingsProvider } from '../src/components/SettingsContext';
-import { WorkspaceInitializer } from '../src/components/WorkspaceInitializer';
 import 'tailwindcss/tailwind.css';
 import '../src/styles/globals.css';
 import firebase from 'firebase/app';
@@ -51,9 +49,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Toaster position="bottom-right" />
       <UserProvider>
         <ConnectionProvider>
-          <WorkspaceInitializer>
-            <Component {...pageProps} />
-          </WorkspaceInitializer>
+          <Component {...pageProps} />
         </ConnectionProvider>
       </UserProvider>
       <Analytics />

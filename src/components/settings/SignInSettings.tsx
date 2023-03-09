@@ -1,17 +1,15 @@
 import React from 'react';
 import firebase from 'firebase/app';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import {
-  firebaseUserAtom,
-  signInWithGoogleAtom,
-} from '../../atoms/firebaseUserAtoms';
+import { signInWithGoogleAtom } from '../../atoms/firebaseUserAtoms';
 import { useConnectionContext } from '../../context/ConnectionContext';
+import { useUserContext } from '../../context/UserContext';
 
 const buttonClasses =
   'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-400';
 
 export default function SignInSettings(): JSX.Element {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const { firebaseUser } = useUserContext();
   const connectionContext = useConnectionContext();
   const handleSignInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
 

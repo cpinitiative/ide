@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileSettings } from '../../context/EditorContext';
-import { LANGUAGES } from '../SettingsContext';
+import { LANGUAGES } from '../../context/UserContext';
 import { SharingPermissions } from '../SharingPermissions';
 
 export default function WorkspaceSettingsUI({

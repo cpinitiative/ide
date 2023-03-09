@@ -1,22 +1,13 @@
-import { TabBar } from '../TabBar';
-import { Language } from '../SettingsContext';
 import defaultCode from '../../scripts/defaultCode';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
-import {
-  actualUserPermissionAtom,
-  currentLangAtom,
-  mainMonacoEditorAtom,
-} from '../../atoms/workspace';
+import { mainMonacoEditorAtom } from '../../atoms/workspace';
 import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
-import { useAtomValue } from 'jotai/utils';
-import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
-import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
 import type * as monaco from 'monaco-editor';
 import { useEditorContext } from '../../context/EditorContext';
-import { useUserContext } from '../../context/UserContext';
 import useUserPermission from '../../hooks/useUserPermission';
+import { useUserContext } from '../../context/UserContext';
 
 export const CodeInterface = ({
   className,
@@ -31,16 +22,6 @@ export const CodeInterface = ({
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [, setMainMonacoEditor] = useAtom(mainMonacoEditorAtom);
 
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      cpp: firebaseRef?.child(`editor-cpp`),
-      java: firebaseRef?.child(`editor-java`),
-      py: firebaseRef?.child(`editor-py`),
-    }),
-    [firebaseRef]
-  );
-
   useEffect(() => {
     if (editor) {
       setMainMonacoEditor(editor);
@@ -50,7 +31,7 @@ export const CodeInterface = ({
     }
   }, [editor, setMainMonacoEditor]);
 
-  const { tabSize, lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { tabSize, lightMode } = useUserContext().userData;
 
   return (
     <div

@@ -78,7 +78,10 @@ export function RadioGroupContents<T>({
   );
 }
 
-const sharingOptions = [
+const sharingOptions: {
+  label: string;
+  value: 'READ_WRITE' | 'READ' | 'PRIVATE';
+}[] = [
   {
     label: 'Public Read & Write',
     value: 'READ_WRITE',
@@ -99,7 +102,7 @@ export const SharingPermissions = ({
   isOwner,
   lightMode,
 }: {
-  value: string | null;
+  value: 'READ_WRITE' | 'READ' | 'PRIVATE' | null;
   onChange: (newVal: 'READ_WRITE' | 'READ' | 'PRIVATE') => void;
   isOwner: boolean;
   lightMode?: boolean;
