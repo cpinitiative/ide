@@ -9,6 +9,9 @@ import JudgeResult from '../types/judge';
 import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
+import useUserPermission from '../hooks/useUserPermission';
+import { useUserContext } from '../context/UserContext';
+import { useEditorContext } from '../context/EditorContext';
 
 export interface OutputProps {
   result: JudgeResult | null;
@@ -41,16 +44,8 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
     if (option) setOption(option as JudgeOutputTab);
   }, [result]);
 
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      scribble: firebaseRef?.child('scribble'),
-    }),
-    [firebaseRef]
-  );
 
   let outputText;
   if (option !== 'scribble') {
@@ -71,7 +66,9 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       }
     }
   }
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { fileData } = useEditorContext();
+  const { userData } = useUserContext();
+  const lightMode = userData.lightMode;
 
   return (
     <>
@@ -102,7 +99,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
               }, 0);
             }}
             defaultValue=""
-            firebaseRef={firebaseRefs.scribble}
+            yjsDocumentId={`${fileData.id}.scribble`}
           />
         ) : (
           <LazyMonacoEditor
