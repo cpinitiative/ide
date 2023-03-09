@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { ProblemData } from '../components/Workspace/Workspace';
+import { ChatMessage } from '../components/Chat';
 
 export type Language = 'cpp' | 'java' | 'py';
 
@@ -35,6 +36,9 @@ export type FileData = {
   isCodeRunning: boolean;
   state: {
     judge_resuts: any; // ???
+  };
+  chat: {
+    [key: string]: Omit<ChatMessage, 'key'>;
   };
 };
 
