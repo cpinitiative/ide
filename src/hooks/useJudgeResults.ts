@@ -4,16 +4,12 @@ import JudgeResult from '../types/judge';
 import useFirebaseState from './useFirebaseState';
 
 export default function useJudgeResults() {
-  const { fileData } = useEditorContext();
-
-  return useFirebaseState<(JudgeResult | null)[]>(
-    fileData
-      ? firebase
-          .database()
-          .ref(`files/${fileData.id}`)
-          .child('state')
-          .child('judge_results')
-      : null,
-    []
-  );
+  const { fileData, updateFileData } = useEditorContext();
+  return [
+    fileData.state?.judge_resuts ?? [],
+    (new_judge_results: any) =>
+      updateFileData({
+        state: { ...fileData.state, judge_resuts: new_judge_results },
+      }),
+  ];
 }

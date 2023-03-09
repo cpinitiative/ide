@@ -33,11 +33,14 @@ export type FileData = {
   };
   settings: FileSettings;
   isCodeRunning: boolean;
+  state: {
+    judge_resuts: any; // ???
+  };
 };
 
 export type EditorContextType = {
   fileData: FileData;
-  updateFileData: (firebaseUpdateData: Object) => Promise<any>;
+  updateFileData: (firebaseUpdateData: Partial<FileData>) => Promise<any>;
 };
 
 const EditorContext = createContext<EditorContextType | null>(null);
