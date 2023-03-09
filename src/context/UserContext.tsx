@@ -6,8 +6,8 @@ import { signInAnonymously } from '../scripts/firebaseUtils';
 import animals from '../scripts/animals';
 
 export type UserContextType = {
-  user: firebaseType.User | null;
-  userData: UserData | null;
+  firebaseUser: firebaseType.User | null;
+  userData: (UserData & { id: string }) | null;
 };
 
 export type UserData = {
@@ -20,7 +20,9 @@ const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<firebaseType.User | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<(UserData & { id: string }) | null>(
+    null
+  );
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
@@ -34,6 +36,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           displayName =
             'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
           user.updateProfile({ displayName });
+          // TODO also update the name on the current firebase document.
         }
       }
     });
@@ -49,6 +52,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const handleSnapshot = (snap: firebaseType.database.DataSnapshot) => {
       const data = snap.val() ?? {};
       setUserData({
+        id: user.uid,
         editorMode: data.editorMode ?? 'Normal',
         tabSize: data.tabSize ?? 4,
         lightMode: data.lightMode ?? false,
@@ -60,7 +64,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <UserContext.Provider value={{ user, userData }}>
+    <UserContext.Provider value={{ firebaseUser: user, userData }}>
       {children}
     </UserContext.Provider>
   );
@@ -75,10 +79,10 @@ export function useNullableUserContext() {
 }
 
 export function useUserContext() {
-  const { user, userData } = useNullableUserContext();
-  if (!user || !userData)
+  const { firebaseUser, userData } = useNullableUserContext();
+  if (!firebaseUser || !userData)
     throw new Error(
       "useUserContext() can only be called after UserProvider has finished loading. If you want to access userContext while it's still loading, use useNullableUserContext() instead"
     );
-  return { user, userData };
+  return { firebaseUser, userData };
 }

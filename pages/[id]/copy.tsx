@@ -8,7 +8,7 @@ import { useNullableUserContext } from '../../src/context/UserContext';
 export default function CopyFilePage(): JSX.Element {
   const router = useRouter();
 
-  const { user: firebaseUser } = useNullableUserContext();
+  const { firebaseUser } = useNullableUserContext();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

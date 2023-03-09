@@ -67,7 +67,7 @@ export const SettingsModal = ({
   isOpen,
   onClose,
 }: SettingsDialogProps): JSX.Element => {
-  const { userData, user: firebaseUser } = useUserContext();
+  const { userData, firebaseUser } = useUserContext();
   const { fileData, updateFileData: updateRealFileData } = useEditorContext();
   const realFileSettings = fileData.settings;
   const userPermission = useUserPermission();

@@ -38,7 +38,7 @@ const RealtimeEditor = ({
 }: RealtimeEditorProps): JSX.Element => {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const { userData, user: firebaseUser } = useUserContext();
+  const { userData, firebaseUser } = useUserContext();
   const [, setLoading] = useAtom(loadingAtom);
   const { editorMode: mode } = userData;
 

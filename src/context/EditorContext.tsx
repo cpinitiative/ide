@@ -28,7 +28,7 @@ export type FileData = {
     [userID: string]: {
       name: string;
       color: string; // hex format
-      permission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
+      permission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE' | null;
     };
   };
   settings: FileSettings;

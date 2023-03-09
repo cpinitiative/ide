@@ -3,9 +3,10 @@ import { useUserContext } from '../context/UserContext';
 
 export default function useUserPermission() {
   const { fileData } = useEditorContext();
-  const { user } = useUserContext();
+  const { userData } = useUserContext();
 
   return (
-    fileData.users[user.uid]?.permission ?? fileData.settings.defaultPermission
+    fileData.users[userData.id]?.permission ??
+    fileData.settings.defaultPermission
   );
 }

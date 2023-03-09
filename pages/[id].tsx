@@ -37,6 +37,7 @@ import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
 import useJudgeResults from '../src/hooks/useJudgeResults';
 import { cleanJudgeResult } from '../src/editorUtils';
 import JudgeResult from '../src/types/judge';
+import useUserFileConnection from '../src/hooks/useUserFileConnection';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -51,6 +52,8 @@ function EditorPage() {
   const inputEditor = useAtomValue(inputMonacoEditorAtom);
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
+
+  useUserFileConnection();
 
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const tabsList = useAtomValue(tabsListAtom);

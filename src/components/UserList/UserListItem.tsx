@@ -4,17 +4,11 @@ import ReactDOM from 'react-dom';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 import classNames from 'classnames';
-import { useAtom } from 'jotai';
-import {
-  actualUserPermissionAtom,
-  defaultPermissionAtom,
-} from '../../atoms/workspace';
 import { usePopper } from 'react-popper';
-import { useAtomValue } from 'jotai/utils';
-import {
-  authenticatedFirebaseRefAtom,
-  authenticatedUserRefAtom,
-} from '../../atoms/firebaseAtoms';
+import { useUserContext } from '../../context/UserContext';
+import useUserPermission from '../../hooks/useUserPermission';
+import { useEditorContext } from '../../context/EditorContext';
+import firebase from 'firebase';
 
 export const permissionLabels: Record<string, string> = {
   OWNER: 'Owner',
@@ -24,10 +18,10 @@ export const permissionLabels: Record<string, string> = {
 };
 
 export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
-  const userRef = useAtomValue(authenticatedUserRefAtom);
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const [permission] = useAtom(actualUserPermissionAtom);
-  const [defaultPermission] = useAtom(defaultPermissionAtom);
+  const { userData } = useUserContext();
+  const permission = useUserPermission();
+  const { fileData } = useEditorContext();
+  const defaultPermission = fileData.settings.defaultPermission;
 
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
     null
@@ -44,16 +38,23 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
     user: User,
     permission: PermissionUpdate
   ): void => {
-    if (!firebaseRef) {
-      alert("Firebase hasn't loaded yet, please wait");
-      return;
-    }
     if (permission === 'DEFAULT') {
-      firebaseRef.child('users').child(user.id).child('permission').remove();
+      firebase
+        .database()
+        .ref(`files/${fileData.id}`)
+        .child('users')
+        .child(user.id)
+        .child('permission')
+        .remove();
     } else {
-      firebaseRef.child('users').child(user.id).update({
-        permission,
-      });
+      firebase
+        .database()
+        .ref(`files/${fileData.id}`)
+        .child('users')
+        .child(user.id)
+        .update({
+          permission,
+        });
     }
   };
 
@@ -79,7 +80,7 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
           }`}
         >
           {user.name}
-          {user.id === userRef?.key ? ' (Me)' : ''}
+          {user.id === userData.id ? ' (Me)' : ''}
         </p>
         <p
           className={`text-sm ${
@@ -92,7 +93,7 @@ export const UserListItem = ({ user }: { user: User }): JSX.Element | null => {
         </p>
       </div>
 
-      {user.id !== userRef?.key && permission === 'OWNER' && (
+      {user.id !== userData.id && permission === 'OWNER' && (
         <Menu>
           {({ open }) => (
             <>
