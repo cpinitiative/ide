@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { ProblemData } from '../components/Workspace/Workspace';
 import { ChatMessage } from '../components/Chat';
+import { useUserContext } from './UserContext';
 
 export type Language = 'cpp' | 'java' | 'py';
 
@@ -70,6 +71,7 @@ export function EditorProvider({
   permissionDeniedUI: React.ReactNode;
   children: React.ReactNode;
 }): JSX.Element {
+  const { userData } = useUserContext();
   const [fileData, setFileData] = useState<FileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -116,6 +118,14 @@ export function EditorProvider({
 
   if (!editorContextValue.fileData) {
     return <>{fileNotFoundUI}</>;
+  }
+
+  const userPermission =
+    editorContextValue.fileData.users[userData.id]?.permission ??
+    editorContextValue.fileData.settings.defaultPermission;
+
+  if (userPermission === 'PRIVATE') {
+    return <>{permissionDeniedUI}</>;
   }
 
   // i don't know why the cast is needed. Somehow we should figure out how to
