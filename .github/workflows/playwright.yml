@@ -38,6 +38,13 @@ jobs:
       - name: Build
         run: IS_TEST_ENV=true yarn build
 
+      - name: Start YJS server
+        run: |
+          git clone https://github.com/cpinitiative/ide-yjs.git
+          cd ide-yjs
+          npm install
+          npm run dev &
+
       - name: Setup background services
         run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
 
