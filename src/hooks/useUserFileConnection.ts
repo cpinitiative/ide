@@ -17,6 +17,8 @@ export default function useUserFileConnection() {
   const { userData, firebaseUser } = useUserContext();
   const { fileData } = useEditorContext();
 
+  console.log(firebaseUser.displayName);
+
   useEffect(() => {
     firebase
       .database()
@@ -32,7 +34,7 @@ export default function useUserFileConnection() {
       .push();
     connectionContext.addConnectionRef(ref);
     return () => connectionContext.removeConnectionRef(ref);
-  }, [fileData.id]);
+  }, [fileData.id, firebaseUser.displayName]);
 
   // const classroomConnectionsRef = useMemo(
   //   () =>

@@ -36,7 +36,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Build
-        run: yarn build
+        run: IS_TEST_ENV=true yarn build
 
       - name: Setup background services
         run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &

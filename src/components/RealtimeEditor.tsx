@@ -19,7 +19,7 @@ export interface RealtimeEditorProps extends EditorProps {
 }
 
 const WEBSOCKET_SERVER =
-  process.env.NODE_ENV === 'development'
+  process.env.NODE_ENV === 'development' || process.env.IS_TEST_ENV
     ? 'ws://localhost:1234'
     : 'wss://yjs.usaco.guide:443';
 

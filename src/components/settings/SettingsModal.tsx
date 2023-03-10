@@ -53,7 +53,7 @@ export const SettingsModal = ({
   isOpen,
   onClose,
 }: SettingsDialogProps): JSX.Element => {
-  const { userData, firebaseUser } = useUserContext();
+  const { userData, firebaseUser, updateUsername } = useUserContext();
   const { fileData, updateFileData: updateRealFileData } = useEditorContext();
   const realFileSettings = fileData.settings;
   const userPermission = useUserPermission();
@@ -151,7 +151,7 @@ export const SettingsModal = ({
       .ref(`users/${firebaseUser.uid}`)
       .update({ editorMode, tabSize, lightMode });
     if (name !== firebaseUser.displayName) {
-      // todo update the name on the current firebase document?
+      updateUsername(name);
     }
     onClose();
   };

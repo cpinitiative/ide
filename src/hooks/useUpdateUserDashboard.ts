@@ -64,6 +64,7 @@ export default function useUpdateUserDashboard() {
     settings.creationTime,
     settings.defaultPermission,
     fileOwner?.id,
+    fileOwner?.name,
     fileData.id,
   ]);
 }

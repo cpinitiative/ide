@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import type firebaseType from 'firebase';
 import firebase from 'firebase/app';
 import { signInAnonymously } from '../scripts/firebaseUtils';
@@ -23,6 +29,13 @@ export const LANGUAGES: { label: string; value: Language }[] = [
 export type UserContextType = {
   firebaseUser: firebaseType.User | null;
   userData: (UserData & { id: string }) | null;
+  /**
+   * Updates firebaseUser.displayName. Normally doing this doesn't trigger rerender
+   * so use this function, which will force a UI rerender
+   * @param username The new value of firebaseUser.displayName
+   * @returns promise that resolves when firebaseUser is updated
+   */
+  updateUsername: (username: string) => Promise<any>;
 };
 
 export type UserData = {
@@ -50,6 +63,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<(UserData & { id: string }) | null>(
     null
   );
+  const [_, triggerRerender] = useState<number>(0);
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
@@ -62,9 +76,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           displayName =
             'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
           user.updateProfile({ displayName }).then(() => setUser(user));
-          // TODO also update the name on the current firebase document?
-          // TODO debug: if the user was newly created, displayName wouldn't be set yet and new files would be created.
-          // WARNING WARNING WARNING fix this bug smh
         } else {
           setUser(user);
         }
@@ -95,8 +106,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       firebase.database().ref(`users/${user.uid}`).off('value', handleSnapshot);
   }, [user]);
 
+  const updateUsername = useCallback(
+    (newName: string) => {
+      if (!user) throw new Error('Tried to update username but user is null');
+      return user.updateProfile({ displayName: newName }).then(() => {
+        // we need to trigger a rerender because firebase user never changes
+        // but some parts of the app needs to rerender when firebaseUser.displayName changes
+        triggerRerender(Date.now());
+      });
+    },
+    [user]
+  );
+
   return (
-    <UserContext.Provider value={{ firebaseUser: user, userData }}>
+    <UserContext.Provider
+      value={{ firebaseUser: user, userData, updateUsername }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -111,10 +136,10 @@ export function useNullableUserContext() {
 }
 
 export function useUserContext() {
-  const { firebaseUser, userData } = useNullableUserContext();
+  const { firebaseUser, userData, updateUsername } = useNullableUserContext();
   if (!firebaseUser || !userData)
     throw new Error(
       "useUserContext() can only be called after UserProvider has finished loading. If you want to access userContext while it's still loading, use useNullableUserContext() instead"
     );
-  return { firebaseUser, userData };
+  return { firebaseUser, userData, updateUsername };
 }
