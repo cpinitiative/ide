@@ -1,5 +1,12 @@
 import { test, expect, Page } from '@playwright/test';
-import { createNew, forEachLang, goToPage, host, testRunCode } from './helpers';
+import {
+  createNew,
+  forEachLang,
+  goToPage,
+  host,
+  switchLang,
+  testRunCode,
+} from './helpers';
 
 test.describe('USACO Judge Functionality', () => {
   test('should fetch usaco info correctly', async ({ page }) => {
@@ -45,7 +52,7 @@ test.describe('USACO Judge Functionality', () => {
       page.locator('[data-test-id="code-execution-output-status"]')
     ).toContainText('Sample Verdicts: WW. Sample 1: Wrong Answer');
 
-    await page.locator('button:has-text("Java")').click();
+    await switchLang(page, 'Java');
     await page.waitForSelector('button:has-text("Run Code")');
 
     const code = `import java.io.BufferedReader;
@@ -92,8 +99,6 @@ System.out.println(hIndex(papers));
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
-    // Previous tests entered Java code. I think this might cause this to AC instead of WA
-    await page.locator('button:has-text("C++")').click();
     await page.waitForSelector('button:has-text("Run Code")');
 
     // Submit code

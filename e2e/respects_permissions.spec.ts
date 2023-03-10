@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { testRunCode, goToPage, createNew } from './helpers';
+import { testRunCode, goToPage, createNew, switchLang } from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
 // rather than just silently failing.
@@ -69,13 +69,41 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
 
-    // TODO test for the remaining languages as well...
-
     // test run buttons -- only the first page should work
     await testRunCode(page);
     await expect(
       page2.getByRole('button', { name: 'Run Code' })
     ).toBeDisabled();
+
+    await switchLang(page, 'Java');
+    await page.waitForSelector('button:has-text("Run Code")');
+    await page2.waitForSelector('button:has-text("Run Code")');
+    await page2.click('.view-lines div:nth-child(2)');
+    await page.waitForTimeout(200);
+    await page2.keyboard.type('// this is a comment');
+    await page.waitForTimeout(200);
+    expect(await page2.$('text="// this is a comment"')).toBeFalsy();
+    await page.click('.view-lines div:nth-child(2)');
+    await page.waitForTimeout(200);
+    await page.keyboard.type('// this is a comment');
+    await page.waitForTimeout(200);
+    expect(await page.$('text="// this is a comment"')).toBeTruthy();
+    await page2.waitForSelector('text="// this is a comment"');
+
+    await switchLang(page, 'Python 3.8.1');
+    await page.waitForSelector('button:has-text("Run Code")');
+    await page2.waitForSelector('button:has-text("Run Code")');
+    await page2.click('.view-lines div:nth-child(5)');
+    await page.waitForTimeout(200);
+    await page2.keyboard.type('# this is a comment');
+    await page.waitForTimeout(200);
+    expect(await page2.$('text="# this is a comment"')).toBeFalsy();
+    await page.click('.view-lines div:nth-child(5)');
+    await page.waitForTimeout(200);
+    await page.keyboard.type('# this is a comment');
+    await page.waitForTimeout(200);
+    expect(await page.$('text="# this is a comment"')).toBeTruthy();
+    await page2.waitForSelector('text="# this is a comment"');
 
     await page2.close();
     await context2.close();

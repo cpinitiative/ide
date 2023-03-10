@@ -31,19 +31,27 @@ export const testRunCode = async (page: Page): Promise<void> => {
   ).toBeTruthy();
 };
 
+export const switchLang = async (
+  page: Page,
+  lang: 'Java' | 'Python 3.8.1' | 'C++'
+) => {
+  await page.getByRole('button', { name: 'File' }).click();
+  await page.getByRole('menuitem', { name: 'Settings' }).click();
+  await page.getByRole('radio', { name: lang }).click();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForSelector('button:has-text("Run Code")');
+};
+
 export const forEachLang = async (
   page: Page,
   func: () => Promise<unknown>
 ): Promise<void> => {
-  await page.click('text=Java');
-  await page.waitForSelector('button:has-text("Run Code")');
+  await switchLang(page, 'Java');
   await func();
 
-  await page.click('text="Python 3"');
-  await page.waitForSelector('button:has-text("Run Code")');
+  await switchLang(page, 'Python 3.8.1');
   await func();
 
-  await page.click('text=C++');
-  await page.waitForSelector('button:has-text("Run Code")');
+  await switchLang(page, 'C++');
   await func();
 };
