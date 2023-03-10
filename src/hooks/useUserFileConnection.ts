@@ -17,8 +17,6 @@ export default function useUserFileConnection() {
   const { userData, firebaseUser } = useUserContext();
   const { fileData } = useEditorContext();
 
-  console.log(firebaseUser.displayName);
-
   useEffect(() => {
     firebase
       .database()

@@ -69,7 +69,7 @@ export const CodeInterface = ({
             }, 0);
           }}
           defaultValue={defaultCode[lang]}
-          yjsDocumentId={`${fileData.id}.code`}
+          yjsDocumentId={`${fileData.id}.${lang}`}
           useEditorWithVim={true}
           lspEnabled={lang === 'cpp'}
           dataTestId="code-editor"

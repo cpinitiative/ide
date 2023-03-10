@@ -142,7 +142,7 @@ const RealtimeEditor = ({
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yjsDocumentId, firebaseUser, editor]);
+  }, [yjsDocumentId, firebaseUser, editor, props.path]);
 
   // make editor read only until yjs syncs with server
   const editorOptions = useMemo(() => {

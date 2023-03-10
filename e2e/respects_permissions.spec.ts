@@ -69,6 +69,8 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
 
+    // TODO test for the remaining languages as well...
+
     // test run buttons -- only the first page should work
     await testRunCode(page);
     await expect(

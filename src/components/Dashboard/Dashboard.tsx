@@ -9,7 +9,8 @@ import {
 import { useConnectionContext } from '../../context/ConnectionContext';
 import { isFirebaseId } from '../../editorUtils';
 import FilesList, { File } from './FilesList';
-import { SharingPermissions, RadioGroupContents } from '../SharingPermissions';
+import { SharingPermissions } from '../SharingPermissions';
+import { RadioGroupContents } from '../settings/RadioGroupContents';
 import {
   useNullableUserContext,
   UserData,
