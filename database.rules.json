@@ -1,17 +1,1 @@
-{
-  "rules": {
-    "users": {
-      "$secretid": {
-        ".read": "$secretid == auth.uid",
-        ".write": "auth.uid == $secretid",
-        ".indexOn": "lastAccessTime"
-      }
-    },
-    "$secretid": {
-      ".write": true,
-      ".read": true
-    },
-    ".read": false,
-    ".write": false
-  }
-}
+{ "rules": { ".read": true, ".write": true } }
