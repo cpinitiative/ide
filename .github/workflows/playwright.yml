@@ -40,16 +40,17 @@ jobs:
 
       - name: Start YJS server
         run: |
+          cd ..
           git clone https://github.com/cpinitiative/ide-yjs.git
           cd ide-yjs
           npm install
-          npm run dev
+          npm run dev &
 
       - name: Setup background services
         run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
 
       - name: Run Playwright tests
-        run: yarn playwright test
+        run: firebase emulators:exec "yarn playwright test"
 
       - uses: actions/upload-artifact@v3
         if: always()
