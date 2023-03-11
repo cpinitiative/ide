@@ -105,7 +105,7 @@ System.out.println(hIndex(papers));
     await page.locator('button:has-text("Submit")').click();
 
     await page
-      .locator('text=Waiting for Available Grading Server')
+      .locator('text="Incorrect answer on sample input case"')
       .waitFor({ state: 'attached', timeout: 20000 });
   });
 

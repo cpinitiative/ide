@@ -121,6 +121,7 @@ const RealtimeEditor = ({
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced) {
         // Check if file needs to be initialized
+        // todo only do the initialization once per file (ie. assign one client to initialize)
         const isInitializedMap = ydocument.getMap('isInitialized');
         if (!isInitializedMap.get('isInitialized')) {
           isInitializedMap.set('isInitialized', true);
