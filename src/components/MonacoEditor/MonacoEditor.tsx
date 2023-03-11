@@ -24,6 +24,7 @@ monaco.languages.register({
   aliases: ['cpp'],
 });
 
+// Registers some basic keywords in Java, so that they get highlighted in IDE. Link to issue: https://github.com/cpinitiative/ide/issues/91
 monaco.languages.register({
   id: 'java',
   extensions: ['.java'],
