@@ -54,7 +54,11 @@ export const SettingsModal = ({
   onClose,
 }: SettingsDialogProps): JSX.Element => {
   const { userData, firebaseUser, updateUsername } = useUserContext();
-  const { fileData, updateFileData: updateRealFileData } = useEditorContext();
+  const {
+    fileData,
+    updateFileData: updateRealFileData,
+    doNotInitializeCodeRef,
+  } = useEditorContext();
   const realFileSettings = fileData.settings;
   const userPermission = useUserPermission();
 
@@ -143,6 +147,15 @@ export const SettingsModal = ({
       }
     }
 
+    if (realFileSettings.language !== settingsToSet.language) {
+      // The language changed.
+      // This means we might have to initialize the code for the new language.
+      // We need this ref here to prevent all connected clients from initializing
+      // the code (we only want the client who initiated the language change
+      // to initialize the code)
+      // For more info, see EditorContex.tsx
+      doNotInitializeCodeRef.current = false;
+    }
     updateRealFileData({
       settings: { ...realFileSettings, ...settingsToSet },
     });

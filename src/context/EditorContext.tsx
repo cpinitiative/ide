@@ -2,10 +2,14 @@ import firebase from 'firebase/app';
 import invariant from 'tiny-invariant';
 import {
   createContext,
+  MutableRefObject,
+  Ref,
+  RefObject,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ProblemData } from '../components/Workspace/Workspace';
@@ -46,6 +50,20 @@ export type FileData = {
 export type EditorContextType = {
   fileData: FileData;
   updateFileData: (firebaseUpdateData: Partial<FileData>) => Promise<any>;
+  /**
+   * If true, this client should NOT initialize the code if it's empty.
+   * This solves the bug that if multiple people are on the same document,
+   * and the document changes languages, every client will try to initialize
+   * the code (resuting in multiple templates being inserted).
+   *
+   * Instead, after the file is loaded & synced, doNotInitializeCode is set
+   * to true. Then, if the language is changed, the client who triggered the
+   * language change (and only that client) will have this set to false.
+   *
+   * Note that with our current implementation, only one defaultValue will work
+   * (ie. you can only have one RealtimeEdtior component with a defaultValue)
+   */
+  doNotInitializeCodeRef: MutableRefObject<boolean>;
 };
 
 const EditorContext = createContext<EditorContextType | null>(null);
@@ -74,6 +92,7 @@ export function EditorProvider({
   const { userData } = useUserContext();
   const [fileData, setFileData] = useState<FileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const doNotInitializeCodeRef = useRef<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
@@ -109,8 +128,8 @@ export function EditorProvider({
   );
 
   const editorContextValue = useMemo(() => {
-    return { fileData, updateFileData };
-  }, [fileData, updateFileData]);
+    return { fileData, updateFileData, doNotInitializeCodeRef };
+  }, [fileData, updateFileData, doNotInitializeCodeRef]);
 
   if (loading) {
     return <>{loadingUI}</>;
