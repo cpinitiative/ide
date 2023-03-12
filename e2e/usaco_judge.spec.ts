@@ -106,7 +106,7 @@ System.out.println(hIndex(papers));
 
     await page
       .locator('text="Incorrect answer on sample input case"')
-      .waitFor({ state: 'attached', timeout: 20000 });
+      .waitFor({ state: 'attached', timeout: 60000 }); // sometimes USACO server is slow...
   });
 
   test('should be able to use file I/O for usaco problems', async ({
