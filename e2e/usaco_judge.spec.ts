@@ -105,7 +105,7 @@ System.out.println(hIndex(papers));
     await page.locator('button:has-text("Submit")').click();
 
     await page
-      .locator('text="Incorrect answer on sample input case"')
+      .locator('text="Incorrect answer on sample input case -- details below"')
       .waitFor({ state: 'attached', timeout: 60000 }); // sometimes USACO server is slow...
   });
 
