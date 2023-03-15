@@ -17,6 +17,7 @@ import {
   useUserContext,
 } from '../../context/UserContext';
 import { MessagePage } from '../MessagePage';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const { firebaseUser, userData } = useUserContext();
@@ -28,27 +29,6 @@ export default function Dashboard() {
   const [showHidden, setShowHidden] = useState<boolean>(false);
   const router = useRouter();
   const connectionContext = useConnectionContext();
-
-  const makeNewWorkspaceWithName = async (name: string) => {
-    const resp = await fetch(`/api/createNewFile`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        workspaceName: name,
-        userID: firebaseUser.uid,
-        userName: firebaseUser.displayName,
-        defaultPermission: userData.defaultPermission,
-      }),
-    });
-    const data = await resp.json();
-    if (resp.ok) {
-      router.push(`/${data.fileID.substring(1)}`);
-    } else {
-      alert('Error: ' + data.message);
-    }
-  };
 
   // const makeNewClassroomWithName = async (name: string) => {
   //   if (!firebaseUser) return;
@@ -133,18 +113,11 @@ export default function Dashboard() {
       </div>
 
       <div className="flex items-center space-x-4">
-        <button
-          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
-          onClick={() => {
-            const workspaceName = prompt(
-              'Creating a new workspace. Please name it:'
-            );
-            if (workspaceName === null) return;
-            makeNewWorkspaceWithName(workspaceName);
-          }}
-        >
-          Create New File
-        </button>
+        <Link href="/new">
+          <a className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500">
+            Create New File
+          </a>
+        </Link>
       </div>
 
       {firebaseUser.isAnonymous ? (
