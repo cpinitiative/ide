@@ -161,7 +161,7 @@ export const SettingsModal = ({
     });
     firebase
       .database()
-      .ref(`users/${firebaseUser.uid}`)
+      .ref(`users/${firebaseUser.uid}/data`)
       .update({ editorMode, tabSize, lightMode });
     if (name !== firebaseUser.displayName) {
       updateUsername(name);

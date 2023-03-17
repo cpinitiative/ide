@@ -56,7 +56,7 @@ export default function NewFilePage() {
       return;
     }
     (async () => {
-      firebase.database().ref(`users/${firebaseUser.uid}`).update({
+      firebase.database().ref(`users/${firebaseUser.uid}/data`).update({
         defaultLanguage: lang,
         defaultPermission: defaultPerimssion,
       });

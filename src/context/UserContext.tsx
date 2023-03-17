@@ -101,9 +101,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         defaultLanguage: data.defaultLanguage ?? 'cpp',
       });
     };
-    firebase.database().ref(`users/${user.uid}`).on('value', handleSnapshot);
+    firebase
+      .database()
+      .ref(`users/${user.uid}/data`)
+      .on('value', handleSnapshot);
     return () =>
-      firebase.database().ref(`users/${user.uid}`).off('value', handleSnapshot);
+      firebase
+        .database()
+        .ref(`users/${user.uid}/data`)
+        .off('value', handleSnapshot);
   }, [user]);
 
   const updateUsername = useCallback(
