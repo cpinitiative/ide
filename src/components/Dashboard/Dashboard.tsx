@@ -93,25 +93,8 @@ export default function Dashboard() {
     return () => ref.off('value', unsubscribe);
   }, [firebaseUser, showHidden]);
 
-  const updateUserData = (upd: Partial<UserData>) => {
-    return firebase.database().ref(`users/${userData.id}`).update(upd);
-  };
-
   return (
     <div>
-      <div className="mb-4">
-        <SharingPermissions
-          value={!firebaseUser ? null : userData.defaultPermission}
-          onChange={defaultPermission =>
-            updateUserData({
-              defaultPermission: defaultPermission ?? 'READ_WRITE', // technically this should never be null??
-            })
-          }
-          isOwner={true}
-          lightMode
-        />
-      </div>
-
       <div className="flex items-center space-x-4">
         <Link href="/new">
           <a className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500">

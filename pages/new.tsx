@@ -10,6 +10,7 @@ import { RadioGroup } from '@headlessui/react';
 import { Language } from '../src/context/EditorContext';
 import Link from 'next/link';
 import firebase from 'firebase/app';
+import { SharingPermissions } from '../src/components/SharingPermissions';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -26,6 +27,9 @@ export default function NewFilePage() {
   const router = useRouter();
   const [lang, setLang] = useState<Language>('cpp');
   const [fileName, setFileName] = useState('');
+  const [defaultPerimssion, setDefaultPermission] = useState<
+    'READ_WRITE' | 'READ' | 'PRIVATE' | null
+  >(null);
   const [compilerOptions, setCompilerOptions] = useState('');
 
   const isPageLoading = !router.isReady || !userData || !firebaseUser;
@@ -35,7 +39,10 @@ export default function NewFilePage() {
   }, [lang]);
 
   useEffect(() => {
-    if (!isPageLoading) setLang(userData.defaultLanguage);
+    if (!isPageLoading) {
+      setLang(userData.defaultLanguage);
+      setDefaultPermission(userData.defaultPermission);
+    }
   }, [isPageLoading]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,10 +56,10 @@ export default function NewFilePage() {
       return;
     }
     (async () => {
-      firebase
-        .database()
-        .ref(`users/${firebaseUser.uid}/defaultLanguage`)
-        .set(lang);
+      firebase.database().ref(`users/${firebaseUser.uid}`).update({
+        defaultLanguage: lang,
+        defaultPermission: defaultPerimssion,
+      });
       const resp = await fetch(`/api/createNewFile`, {
         method: 'POST',
         headers: {
@@ -62,7 +69,7 @@ export default function NewFilePage() {
           workspaceName: fileName,
           userID: firebaseUser.uid,
           userName: firebaseUser.displayName,
-          defaultPermission: userData.defaultPermission,
+          defaultPermission: defaultPerimssion,
           language: lang,
           compilerOptions: {
             ...DEFAULT_COMPILER_OPTIONS,
@@ -104,6 +111,14 @@ export default function NewFilePage() {
                 className="block w-full max-w-md rounded-md border-0 py-1.5 bg-gray-900 text-gray-100 shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-700 sm:text-sm sm:leading-6"
               />
             </div>
+          </div>
+          <div className="mb-4">
+            <SharingPermissions
+              value={defaultPerimssion}
+              onChange={setDefaultPermission}
+              isOwner={true}
+              lightMode
+            />
           </div>
           <div>
             <span className="block text-sm font-medium leading-6 text-gray-100">
