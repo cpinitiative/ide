@@ -31,6 +31,7 @@ export default function NewFilePage() {
     'READ_WRITE' | 'READ' | 'PRIVATE' | null
   >(null);
   const [compilerOptions, setCompilerOptions] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isPageLoading = !router.isReady || !userData || !firebaseUser;
 
@@ -55,6 +56,10 @@ export default function NewFilePage() {
       alert('Please enter a file name.');
       return;
     }
+    if (isSubmitting) {
+      return;
+    }
+    setIsSubmitting(true);
     (async () => {
       firebase.database().ref(`users/${firebaseUser.uid}/data`).update({
         defaultLanguage: lang,
@@ -178,10 +183,10 @@ export default function NewFilePage() {
         <div className="space-x-4">
           <button
             type="submit"
-            disabled={isPageLoading}
+            disabled={isPageLoading || isSubmitting}
             className="rounded-md bg-indigo-700 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Create File
+            {isSubmitting ? 'Creating...' : 'Create File'}
           </button>
           <Link href="/">
             <a className="rounded-md bg-white/5 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-white/10 focus-visible:outline-offset-gray-900 focus-visible:outline-2 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-gray-700">
