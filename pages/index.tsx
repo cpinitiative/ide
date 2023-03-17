@@ -2,7 +2,10 @@ import React, { useEffect } from 'react';
 import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import { useAtomValue } from 'jotai/utils';
 import Dashboard from '../src/components/Dashboard/Dashboard';
-import { ExclamationTriangleIcon } from '@heroicons/react/20/solid';
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/20/solid';
 import {
   useNullableUserContext,
   useUserContext,
@@ -24,31 +27,40 @@ export default function DashboardPage(): JSX.Element {
         </h1>
 
         <div className="my-6">
-          <div className="rounded-md bg-yellow-800/25 p-4 max-w-xl">
+          <div className="rounded-md bg-blue-800/25 p-4 max-w-2xl">
             <div className="flex">
               <div className="flex-shrink-0">
-                <ExclamationTriangleIcon
-                  className="h-5 w-5 text-yellow-600"
+                <InformationCircleIcon
+                  className="h-5 w-5 text-blue-400"
                   aria-hidden="true"
                 />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-400">
-                  Classrooms Feature is Leaving
+                <h3 className="text-sm font-medium text-blue-100">
+                  Welcome to the beta IDE!
                 </h3>
-                <div className="mt-2 text-sm text-yellow-500">
+                <div className="mt-2 text-sm text-blue-200">
                   <p>
-                    Classrooms will no longer be accessible sometime soon.
-                    Please back up any code you need from classrooms locally. If
-                    you still need this feature, please email us at{' '}
+                    This new IDE should have improved performance and stability.
+                    The{' '}
                     <a
-                      href="mailto:contact@joincpi.org"
-                      className="text-yellow-400 underline"
+                      href="https://ide.usaco.guide/"
                       target="_blank"
+                      className="underline"
                     >
-                      contact@joincpi.org
+                      old IDE
+                    </a>{' '}
+                    will eventually be removed. Currently, files on the old IDE
+                    are not visible on the new IDE. For more information, and to
+                    report issues,{' '}
+                    <a
+                      href="https://github.com/cpinitiative/ide/issues/98"
+                      target="_blank"
+                      className="underline"
+                    >
+                      visit our GitHub repository
                     </a>
-                    .
+                    . Thank you for helping us test the new IDE!
                   </p>
                 </div>
               </div>
