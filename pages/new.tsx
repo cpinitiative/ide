@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { RadioGroup } from '@headlessui/react';
 import { Language } from '../src/context/EditorContext';
 import Link from 'next/link';
+import firebase from 'firebase/app';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -48,6 +49,10 @@ export default function NewFilePage() {
       return;
     }
     (async () => {
+      firebase
+        .database()
+        .ref(`users/${firebaseUser.uid}/defaultLanguage`)
+        .set(lang);
       const resp = await fetch(`/api/createNewFile`, {
         method: 'POST',
         headers: {
