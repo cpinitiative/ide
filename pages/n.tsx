@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import invariant from 'tiny-invariant';
 import { MessagePage } from '../src/components/MessagePage';
 import { useNullableUserContext } from '../src/context/UserContext';
+import { DEFAULT_COMPILER_OPTIONS } from './new';
 
 export default function NewFilePage() {
   const { userData, firebaseUser } = useNullableUserContext();
@@ -25,6 +26,8 @@ export default function NewFilePage() {
             userID: firebaseUser.uid,
             userName: firebaseUser.displayName, // TODO TEST
             defaultPermission: userData.defaultPermission,
+            language: userData.defaultLanguage,
+            compilerOptions: DEFAULT_COMPILER_OPTIONS,
           }),
         });
         const data = await resp.json();

@@ -14,7 +14,7 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-const DEFAULT_COMPILER_OPTIONS = {
+export const DEFAULT_COMPILER_OPTIONS = {
   cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
   java: '',
   py: '',
@@ -32,6 +32,10 @@ export default function NewFilePage() {
   useEffect(() => {
     setCompilerOptions(DEFAULT_COMPILER_OPTIONS[lang]);
   }, [lang]);
+
+  useEffect(() => {
+    if (!isPageLoading) setLang(userData.defaultLanguage);
+  }, [isPageLoading]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,6 +58,11 @@ export default function NewFilePage() {
           userID: firebaseUser.uid,
           userName: firebaseUser.displayName,
           defaultPermission: userData.defaultPermission,
+          language: lang,
+          compilerOptions: {
+            ...DEFAULT_COMPILER_OPTIONS,
+            [lang]: compilerOptions,
+          },
         }),
       });
       const data = await resp.json();

@@ -111,7 +111,7 @@ export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
                             <Menu.Item>
                               {({ active }) => (
                                 <a
-                                  href="/"
+                                  href="/new"
                                   target="_blank"
                                   className={classNames(
                                     active
