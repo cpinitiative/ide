@@ -11,14 +11,14 @@ import { Analytics } from '@vercel/analytics/react';
 import { UserProvider } from '../src/context/UserContext';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBlzBGNIqAQSOjHZ1V7JJxZ3Nw70ld2EP0',
-  authDomain: 'cp-ide.firebaseapp.com',
-  databaseURL: 'https://cp-ide-default-rtdb.firebaseio.com',
-  projectId: 'cp-ide',
-  storageBucket: 'cp-ide.appspot.com',
-  messagingSenderId: '1068328460784',
-  appId: '1:1068328460784:web:9385b3f43a0e2604a9fd35',
-  measurementId: 'G-G22TZ5YCKV',
+  apiKey: 'AIzaSyC2C7XWrCKcmM0RDAVZZHDQSxOlo6g3JTU',
+  authDomain: 'cp-ide-2.firebaseapp.com',
+  databaseURL: 'https://cp-ide-2-default-rtdb.firebaseio.com',
+  projectId: 'cp-ide-2',
+  storageBucket: 'cp-ide-2.appspot.com',
+  messagingSenderId: '1010490112765',
+  appId: '1:1010490112765:web:bd1ba8b522169c1eb45c94',
+  measurementId: 'G-9C903QL4KZ',
 };
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
