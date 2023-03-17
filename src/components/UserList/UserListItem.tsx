@@ -8,7 +8,7 @@ import { usePopper } from 'react-popper';
 import { useUserContext } from '../../context/UserContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import { useEditorContext } from '../../context/EditorContext';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 
 export const permissionLabels: Record<string, string> = {
   OWNER: 'Owner',

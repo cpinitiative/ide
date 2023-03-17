@@ -24,7 +24,7 @@ import useJudgeResults from '../../hooks/useJudgeResults';
 import { EditorMode, useUserContext } from '../../context/UserContext';
 import { FileSettings, useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 
 export interface SettingsDialogProps {
   isOpen: boolean;

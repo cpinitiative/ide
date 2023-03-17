@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import { useEditorContext } from '../context/EditorContext';
 import JudgeResult from '../types/judge';
 import useFirebaseState from './useFirebaseState';
