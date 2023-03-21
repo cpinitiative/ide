@@ -46,7 +46,7 @@ export default function DashboardPage(): JSX.Element {
                     <a
                       href="https://ide.usaco.guide/"
                       target="_blank"
-                      className="underline"
+                      className="text-blue-100 underline"
                     >
                       old IDE
                     </a>{' '}
@@ -56,7 +56,7 @@ export default function DashboardPage(): JSX.Element {
                     <a
                       href="https://github.com/cpinitiative/ide/issues/98"
                       target="_blank"
-                      className="underline"
+                      className="text-blue-100 underline"
                     >
                       visit our GitHub repository
                     </a>
