@@ -55,6 +55,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
       .database()
       .ref('users')
       .child(firebaseUser.uid)
+      .child('files')
       .child(file.id);
     ref.update({ hidden: !file.hidden });
   };
