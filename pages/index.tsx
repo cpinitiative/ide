@@ -27,7 +27,7 @@ export default function DashboardPage(): JSX.Element {
         </h1>
 
         <div className="my-6">
-          <div className="rounded-md bg-blue-800/25 p-4 max-w-2xl">
+          <div className="rounded-md bg-blue-800/25 p-4 max-w-3xl">
             <div className="flex">
               <div className="flex-shrink-0">
                 <InformationCircleIcon
@@ -51,8 +51,8 @@ export default function DashboardPage(): JSX.Element {
                       old IDE
                     </a>{' '}
                     will eventually be removed. Currently, files on the old IDE
-                    are not visible on the new IDE. For more information, and to
-                    report issues,{' '}
+                    are not available on the new IDE. For more information, and
+                    to report issues,{' '}
                     <a
                       href="https://github.com/cpinitiative/ide/issues/98"
                       target="_blank"
@@ -60,7 +60,10 @@ export default function DashboardPage(): JSX.Element {
                     >
                       visit our GitHub repository
                     </a>
-                    . Thank you for helping us test the new IDE!
+                    . Please note that as this is in beta, there is a chance you
+                    may experience data loss, so please download important files
+                    after you finish coding. Thank you for helping us test the
+                    new IDE!
                   </p>
                 </div>
               </div>
