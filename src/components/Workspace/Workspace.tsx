@@ -113,7 +113,7 @@ export default function Workspace({
       setInputTab('judge');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileData.settings.problem]);
+  }, [fileData.settings.problem?.id]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
   const { lightMode } = useUserContext().userData;
