@@ -99,10 +99,14 @@ export function EditorProvider({
 
     const handleDataChange = (snap: firebase.database.DataSnapshot) => {
       setLoading(false);
-      setFileData({
-        id: snap.key,
-        ...snap.val(),
-      });
+      setFileData(
+        snap.exists()
+          ? {
+              id: snap.key,
+              ...snap.val(),
+            }
+          : null
+      );
     };
 
     firebase
