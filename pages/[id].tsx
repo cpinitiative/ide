@@ -413,6 +413,45 @@ export default function EditorPage(): JSX.Element {
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
       />
+
+      <LegacyIDEWarning />
     </div>
   );
 }
+
+import { XMarkIcon } from '@heroicons/react/20/solid';
+
+const LegacyIDEWarning = () => {
+  const [closed, setClosed] = useState(false);
+  if (closed) return null;
+  return (
+    <>
+      {/*
+        Make sure you add some bottom padding to pages that include a sticky banner like this to prevent
+        your content from being obscured when the user scrolls to the bottom of the page.
+      */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 sm:flex sm:justify-center sm:px-6 sm:pb-5 lg:px-8 z-10">
+        <div className="pointer-events-auto flex items-center justify-between gap-x-6 bg-gray-700 px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pl-4 sm:pr-3.5">
+          <p className="text-sm leading-6 text-white">
+            <a href="https://ide.usaco.guide/" target="_blank">
+              <strong className="font-semibold">
+                You're on a legacy version of the IDE.
+              </strong>{' '}
+              Files on the legacy IDE may be eventually deleted. Visit the
+              updated IDE&nbsp;
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </p>
+          <button
+            type="button"
+            className="-m-1.5 flex-none p-1.5"
+            onClick={() => setClosed(true)}
+          >
+            <span className="sr-only">Dismiss</span>
+            <XMarkIcon className="h-5 w-5 text-white" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
