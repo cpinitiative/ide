@@ -85,6 +85,7 @@ export default async (
       });
     const fileID: string = resp.key!;
     await idToURLRef.set(fileID);
+
     res.status(200).json({ fileID: fileID });
   }
 };

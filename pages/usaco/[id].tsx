@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
 import { MessagePage } from '../../src/components/MessagePage';
 import { useNullableUserContext } from '../../src/context/UserContext';
+import va from '@vercel/analytics';
 
 export default function CreateUSACO(): JSX.Element {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function CreateUSACO(): JSX.Element {
     invariant(typeof usacoID === 'string', 'Expected USACO ID to be a string');
 
     (async () => {
+      va.track('Create File', { type: 'usaco-file' });
+
       const resp = await fetch(`/api/createUSACOFile`, {
         method: 'POST',
         headers: {

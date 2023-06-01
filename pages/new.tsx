@@ -11,6 +11,7 @@ import { Language } from '../src/context/EditorContext';
 import Link from 'next/link';
 import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
+import va from '@vercel/analytics';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -61,6 +62,7 @@ export default function NewFilePage() {
     }
     setIsSubmitting(true);
     (async () => {
+      va.track('Create File', { type: 'new-file' });
       firebase.database().ref(`users/${firebaseUser.uid}/data`).update({
         defaultLanguage: lang,
         defaultPermission: defaultPerimssion,

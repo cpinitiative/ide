@@ -5,6 +5,7 @@ import invariant from 'tiny-invariant';
 import { MessagePage } from '../src/components/MessagePage';
 import { useNullableUserContext } from '../src/context/UserContext';
 import { DEFAULT_COMPILER_OPTIONS } from './new';
+import va from '@vercel/analytics';
 
 export default function NewFilePage() {
   const { userData, firebaseUser } = useNullableUserContext();
@@ -16,6 +17,7 @@ export default function NewFilePage() {
     if (userData && firebaseUser && !alreadyCreatedFile.current) {
       alreadyCreatedFile.current = true;
       (async () => {
+        va.track('Create File', { type: 'new-file-shortcut' });
         const resp = await fetch(`/api/createNewFile`, {
           method: 'POST',
           headers: {
