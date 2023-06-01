@@ -14,7 +14,7 @@ export default function DashboardPage(): JSX.Element {
   const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
 
   useEffect(() => {
-    document.title = 'Real-Time Collaborative Online IDE';
+    document.title = '(Legacy) Real-Time Collaborative Online IDE';
   }, []);
 
   return (
@@ -36,19 +36,23 @@ export default function DashboardPage(): JSX.Element {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-100">
-                  Help Test the New IDE!
+                  THIS IDE IS DEPRECATED.
                 </h3>
                 <div className="mt-2 text-sm text-blue-200">
                   <p>
-                    We're working on a new IDE that should have improved
-                    performance and reliability. Please help us test it!{' '}
+                    We released a new IDE that should have improved performance
+                    and reliability.{' '}
                     <a
-                      href="https://beta.ide.usaco.guide/"
+                      href="https://ide.usaco.guide/"
                       className="text-blue-100 underline"
                     >
                       Check out the new IDE
                     </a>
-                    .
+                    ! Note that{' '}
+                    <span className="font-medium text-white">
+                      files on the legacy IDE are not accessible on the new IDE
+                    </span>
+                    , so please copy important files to the new IDE.
                   </p>
                 </div>
               </div>
