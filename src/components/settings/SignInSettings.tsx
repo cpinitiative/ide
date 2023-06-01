@@ -1,17 +1,15 @@
 import React from 'react';
 import firebase from 'firebase/app';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import {
-  firebaseUserAtom,
-  signInWithGoogleAtom,
-} from '../../atoms/firebaseUserAtoms';
+import { signInWithGoogleAtom } from '../../atoms/firebaseUserAtoms';
 import { useConnectionContext } from '../../context/ConnectionContext';
+import { useUserContext } from '../../context/UserContext';
 
 const buttonClasses =
   'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-400';
 
 export default function SignInSettings(): JSX.Element {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
+  const { firebaseUser } = useUserContext();
   const connectionContext = useConnectionContext();
   const handleSignInWithGoogle = useUpdateAtom(signInWithGoogleAtom);
 
@@ -42,7 +40,7 @@ export default function SignInSettings(): JSX.Element {
       {!firebaseUser || firebaseUser.isAnonymous ? (
         <button
           className={buttonClasses + ' pl-3'}
-          onClick={() => handleSignInWithGoogle}
+          onClick={() => handleSignInWithGoogle(connectionContext)}
         >
           <svg
             version="1.1"
@@ -75,7 +73,11 @@ export default function SignInSettings(): JSX.Element {
           <span className="ml-3">Sign In With Google</span>
         </button>
       ) : (
-        <button className={buttonClasses + ' pl-3'} onClick={handleSignOut}>
+        <button
+          className={buttonClasses + ' pl-3'}
+          onClick={handleSignOut}
+          type="button"
+        >
           <span>Sign Out</span>
         </button>
       )}

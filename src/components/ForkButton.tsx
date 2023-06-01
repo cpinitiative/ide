@@ -1,15 +1,14 @@
 import { DocumentDuplicateIcon } from '@heroicons/react/20/solid';
 import React from 'react';
-import { useAtomValue } from 'jotai/utils';
-import { fileIdAtom } from '../atoms/firebaseAtoms';
+import { useEditorContext } from '../context/EditorContext';
 
 export const ForkButton = (): JSX.Element => {
-  const fileId = useAtomValue(fileIdAtom);
+  const { fileData } = useEditorContext();
 
   return (
     <a
       className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none"
-      href={`/${fileId?.id?.substring(1)}/copy`}
+      href={`/${fileData.id.substring(1)}/copy`}
       target="_blank"
       rel="noreferrer"
     >

@@ -1,16 +1,11 @@
 import classNames from 'classnames';
-import React, { FormEvent, useEffect, useRef, useState } from 'react';
+import React, { FormEvent, useLayoutEffect, useRef, useState } from 'react';
 import firebase from 'firebase/app';
-import type firebaseType from 'firebase';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { ChatMessageItem } from './ChatMessageItem';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { actualUserPermissionAtom } from '../atoms/workspace';
-import {
-  authenticatedFirebaseRefAtom,
-  authenticatedUserRefAtom,
-  setFirebaseErrorAtom,
-} from '../atoms/firebaseAtoms';
+import useUserPermission from '../hooks/useUserPermission';
+import { useEditorContext } from '../context/EditorContext';
+import { useUserContext } from '../context/UserContext';
 
 export interface ChatMessage {
   timestamp: number;
@@ -20,52 +15,39 @@ export interface ChatMessage {
 }
 
 export const Chat = ({ className }: { className?: string }): JSX.Element => {
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const userRef = useAtomValue(authenticatedUserRefAtom);
-  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
   const onlineUsers = useOnlineUsers();
-  const [chatMessages, setChatMessages] = useState<ChatMessage[] | null>(null);
-  const [message, setMessage] = useState('');
-  const userPermission = useAtomValue(actualUserPermissionAtom);
+  const userPermission = useUserPermission();
   const chatRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
+  const [message, setMessage] = useState('');
+  const { fileData } = useEditorContext();
+  const { userData } = useUserContext();
+
+  const chatMessages = Object.entries(fileData.chat || {}).map(
+    ([key, message]) => ({
+      key,
+      ...message,
+    })
+  );
 
   const handleSubmit = (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (message.trim() === '') return;
 
-    if (!firebaseRef || !userRef) {
-      alert('Firebase not loaded, please wait');
-    } else {
-      firebaseRef.child('chat').push({
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        userId: userRef.key,
-        message: message.trim(),
-      });
-      setMessage('');
-      chatInputRef.current?.focus();
-    }
+    firebase.database().ref(`files/${fileData.id}`).child('chat').push({
+      timestamp: firebase.database.ServerValue.TIMESTAMP,
+      userId: userData.id,
+      message: message.trim(),
+    });
+    setMessage('');
+    chatInputRef.current?.focus();
   };
 
-  useEffect(() => {
-    if (firebaseRef) {
-      const handleChange = (snap: firebaseType.database.DataSnapshot) => {
-        setChatMessages(
-          Object.keys(snap.val() || {}).map(key => ({
-            key,
-            ...snap.val()[key],
-          }))
-        );
-        if (chatRef.current) {
-          chatRef.current.scrollTop = chatRef.current.scrollHeight;
-        }
-      };
-      firebaseRef
-        .child('chat')
-        .on('value', handleChange, e => setFirebaseError(e));
-      return () => firebaseRef.child('chat').off('value', handleChange);
+  useLayoutEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [firebaseRef, setFirebaseError]);
+  }, [chatMessages.length]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {

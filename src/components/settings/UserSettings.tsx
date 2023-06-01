@@ -1,8 +1,9 @@
 import { RadioGroup } from '@headlessui/react';
 import classNames from 'classnames';
 import React from 'react';
-import { EditorMode } from '../../atoms/userSettings';
-import { EDITOR_MODES } from '../SettingsContext';
+import { EditorMode } from '../../context/UserContext';
+
+const EDITOR_MODES = ['Normal', 'Vim' /*'Emacs'*/];
 
 export default function UserSettings({
   name,

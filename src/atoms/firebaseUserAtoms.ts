@@ -1,51 +1,7 @@
 import { atom } from 'jotai';
-import type firebaseType from 'firebase';
-import animals from '../scripts/animals';
-import { signInAnonymously } from '../scripts/firebaseUtils';
 import firebase from 'firebase/app';
-import {
-  baseUserSettingsAtom,
-  defaultUserSettings,
-  displayNameAtom,
-} from './userSettings';
-import ReactDOM from 'react-dom';
 import { shouldUseEmulator } from '../../pages/_app';
 import { ConnectionContextType } from '../context/ConnectionContext';
-
-const baseFirebaseUserAtom = atom<firebaseType.User | null>(null);
-export const firebaseUserAtom = atom(
-  get => get(baseFirebaseUserAtom),
-  (_get, set, user: firebaseType.User | null) => {
-    set(baseFirebaseUserAtom, user);
-    if (user) {
-      let displayName = user.displayName;
-      if (!displayName) {
-        displayName =
-          'Anonymous ' + animals[Math.floor(animals.length * Math.random())];
-        user.updateProfile({ displayName });
-      }
-      set(displayNameAtom, displayName);
-    } else {
-      set(displayNameAtom, '');
-    }
-  }
-);
-firebaseUserAtom.onMount = setAtom => {
-  const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-    // for some reason, batched updates is needed. otherwise components will rerender
-    // before the display name atom is set.
-    ReactDOM.unstable_batchedUpdates(() => {
-      setAtom(user);
-    });
-    if (!user) {
-      signInAnonymously();
-    }
-  });
-
-  return () => {
-    unsubscribe();
-  };
-};
 
 /**
  * This is set to a callback function when the modal asking the user
@@ -78,8 +34,9 @@ export const signInWithGoogleAtom = atom(
       // a function returns a function because we want to set the atom to a callback function
       // but if you pass a function into set() then jotai will use the function *return* value
       // as the value of the atom
-      set(confirmOverrideDataCallbackAtom, () => () =>
-        firebase.auth().signInWithPopup(provider)
+      set(
+        confirmOverrideDataCallbackAtom,
+        () => () => firebase.auth().signInWithPopup(provider)
       );
     } else {
       prevUser
@@ -98,8 +55,9 @@ export const signInWithGoogleAtom = atom(
             // a function returns a function because we want to set the atom to a callback function
             // but if you pass a function into set() then jotai will use the function *return* value
             // as the value of the atom
-            set(confirmOverrideDataCallbackAtom, () => () =>
-              firebase.auth().signInWithCredential(error.credential)
+            set(
+              confirmOverrideDataCallbackAtom,
+              () => () => firebase.auth().signInWithCredential(error.credential)
             );
           } else {
             alert('Error signing in: ' + error);
@@ -116,7 +74,6 @@ export const signOutAtom = atom(
   null,
   (_, set, connectionContext: ConnectionContextType) => {
     connectionContext.clearConnectionRefs();
-    set(baseUserSettingsAtom, defaultUserSettings);
     firebase.auth().signOut();
   }
 );

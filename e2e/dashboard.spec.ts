@@ -7,7 +7,7 @@ test.describe('Dashboard Page', () => {
     await page.locator('text=Loading...').waitFor({ state: 'hidden' });
     expect(await page.$('text=Unnamed Workspace')).toBeFalsy();
 
-    await page.goto(`${host}/new`);
+    await page.goto(`${host}/n`);
     await page.waitForSelector('button:has-text("Run Code")');
     await page.waitForSelector('button:has-text("1 User Online")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
@@ -23,7 +23,7 @@ test.describe('Dashboard Page', () => {
   });
 
   test('should show owner field properly', async ({ page, browser }) => {
-    await page.goto(`${host}/new`);
+    await page.goto(`${host}/n`);
     await page.waitForSelector('button:has-text("Run Code")');
     await page.locator('text=File').click();
     await page.locator('text=Settings').click();

@@ -11,7 +11,6 @@ import type firebaseType from 'firebase';
 import invariant from 'tiny-invariant';
 import firebase from 'firebase/app';
 import { useUpdateAtom } from 'jotai/utils';
-import { setFirebaseErrorAtom } from '../atoms/firebaseAtoms';
 
 export type ConnectionContextType = {
   addConnectionRef: (ref: firebaseType.database.Reference) => void;
@@ -27,7 +26,8 @@ const ConnectionContext = createContext<ConnectionContextType | undefined>(
 export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
   const isConnectedRef = useRef<boolean>(false);
   const connectionRefs = useRef<firebaseType.database.Reference[]>([]);
-  const setFirebaseError = useUpdateAtom(setFirebaseErrorAtom);
+  const setFirebaseError = (e: any) =>
+    alert('Error in ConnectionContext.tsx: ' + e?.message);
 
   const setRef = (ref: firebaseType.database.Reference) => {
     ref.onDisconnect().remove();
@@ -57,7 +57,6 @@ export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
         connectionRefs.current.push(ref);
       },
       removeConnectionRef: (ref: firebaseType.database.Reference) => {
-        console.log('removing ref', ref.key);
         ref.remove();
         connectionRefs.current = connectionRefs.current.filter(
           x => !x.isEqual(ref)

@@ -8,20 +8,7 @@ import React, {
 import { Dialog, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { WorkspaceSettings, useSettings } from '../SettingsContext';
 import { useAtom } from 'jotai';
-import { actualUserPermissionAtom } from '../../atoms/workspace';
-// import { allProblemDataAtom } from '../../atoms/workspaceUI';
-import {
-  authenticatedFirebaseRefAtom,
-  authenticatedUserRefAtom,
-} from '../../atoms/firebaseAtoms';
-import {
-  displayNameAtom,
-  EditorMode,
-  userSettingsAtomWithPersistence,
-} from '../../atoms/userSettings';
-import { useAtomValue } from 'jotai/utils';
 import {
   ComputerDesktopIcon,
   ServerIcon,
@@ -32,9 +19,12 @@ import WorkspaceSettingsUI from './WorkspaceSettingsUI';
 import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
-import useFirebaseState from '../../hooks/useFirebaseState';
 import JudgeResult from '../../types/judge';
 import useJudgeResults from '../../hooks/useJudgeResults';
+import { EditorMode, useUserContext } from '../../context/UserContext';
+import { FileSettings, useEditorContext } from '../../context/EditorContext';
+import useUserPermission from '../../hooks/useUserPermission';
+import firebase from 'firebase/app';
 
 export interface SettingsDialogProps {
   isOpen: boolean;
@@ -63,41 +53,42 @@ export const SettingsModal = ({
   isOpen,
   onClose,
 }: SettingsDialogProps): JSX.Element => {
+  const { userData, firebaseUser, updateUsername } = useUserContext();
   const {
-    settings: realWorkspaceSettings,
-    setSettings: setRealWorkspaceSettings,
-  } = useSettings();
-  const userRef = useAtomValue(authenticatedUserRefAtom);
-  const dirtyRef = useRef<boolean>(false);
-  const [workspaceSettings, setWorkspaceSettings] = useReducer(
-    (prev: WorkspaceSettings, next: Partial<WorkspaceSettings>) => {
+    fileData,
+    updateFileData: updateRealFileData,
+    doNotInitializeCodeRef,
+  } = useEditorContext();
+  const realFileSettings = fileData.settings;
+  const userPermission = useUserPermission();
+
+  const [fileSettings, setFileSettings] = useReducer(
+    (prev: FileSettings, next: Partial<FileSettings>) => {
       return {
         ...prev,
         ...next,
       };
     },
-    realWorkspaceSettings
+    realFileSettings
   );
-  const [userPermission] = useAtom(actualUserPermissionAtom);
+
   const [name, setName] = useState<string>('');
   const [editorMode, setEditorMode] = useState<EditorMode>('Normal');
-  const [tabSize, setTabSize] = useState<number>(4);
+  const [tabSize, setTabSize] = useState<number>(-1);
   const [lightMode, setLightMode] = useState<boolean>(false);
-  const [userSettings, setUserSettings] = useAtom(
-    userSettingsAtomWithPersistence
-  );
+  const dirtyRef = useRef<boolean>(false);
+
   const [tab, setTab] = useState<typeof tabs[number]['id']>('workspace');
 
   const [judgeResults, setJudgeResults] = useJudgeResults();
 
-  const [actualDisplayName, setDisplayName] = useAtom(displayNameAtom);
   useEffect(() => {
     if (isOpen) {
-      setWorkspaceSettings(realWorkspaceSettings);
-      setName(actualDisplayName);
-      setEditorMode(userSettings.editorMode);
-      setTabSize(userSettings.tabSize);
-      setLightMode(userSettings.lightMode);
+      setFileSettings(realFileSettings);
+      setName(firebaseUser.displayName ?? ''); // todo this shouldn't really be an empty string ever?
+      setEditorMode(userData.editorMode);
+      setTabSize(userData.tabSize);
+      setLightMode(userData.lightMode);
       dirtyRef.current = false;
       setTab('workspace');
     }
@@ -121,21 +112,21 @@ export const SettingsModal = ({
       alert('User Name cannot be empty. Fix before saving.');
       return;
     }
-    let settingsToSet: Partial<WorkspaceSettings> = workspaceSettings;
+    let settingsToSet: Partial<FileSettings> = fileSettings;
     {
       // update has no effect if you try to overwrite creation time
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creationTime, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;
     }
-    if (userPermission === 'READ_WRITE') {
+    if (userPermission !== 'OWNER') {
       // update has no effect if you try to overwrite default permission
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { defaultPermission, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;
     }
 
-    if (realWorkspaceSettings.problem != settingsToSet.problem) {
+    if (realFileSettings.problem != settingsToSet.problem) {
       const newJudgeResults = judgeResults;
       while (newJudgeResults.length > 1) newJudgeResults.pop();
 
@@ -156,18 +147,31 @@ export const SettingsModal = ({
       }
     }
 
-    setRealWorkspaceSettings(settingsToSet);
-    setUserSettings({ editorMode, tabSize, lightMode });
-    if (name !== actualDisplayName) {
-      setDisplayName(name);
-      userRef?.child('name').set(name);
+    if (realFileSettings.language !== settingsToSet.language) {
+      // The language changed.
+      // This means we might have to initialize the code for the new language.
+      // We need this ref here to prevent all connected clients from initializing
+      // the code (we only want the client who initiated the language change
+      // to initialize the code)
+      // For more info, see EditorContex.tsx
+      doNotInitializeCodeRef.current = false;
+    }
+    updateRealFileData({
+      settings: { ...realFileSettings, ...settingsToSet },
+    });
+    firebase
+      .database()
+      .ref(`users/${firebaseUser.uid}/data`)
+      .update({ editorMode, tabSize, lightMode });
+    if (name !== firebaseUser.displayName) {
+      updateUsername(name);
     }
     onClose();
   };
 
-  const onChange = (data: Partial<WorkspaceSettings>): void => {
+  const onChange = (data: Partial<FileSettings>): void => {
     dirtyRef.current = true;
-    setWorkspaceSettings(data);
+    setFileSettings(data);
   };
 
   return (
@@ -267,14 +271,14 @@ export const SettingsModal = ({
                 )}
                 {tab === 'workspace' && (
                   <WorkspaceSettingsUI
-                    workspaceSettings={workspaceSettings}
+                    workspaceSettings={fileSettings}
                     onWorkspaceSettingsChange={onChange}
                     userPermission={userPermission || 'READ'}
                   />
                 )}
                 {tab === 'judge' && (
                   <JudgeSettings
-                    workspaceSettings={workspaceSettings}
+                    workspaceSettings={fileSettings}
                     onWorkspaceSettingsChange={onChange}
                     userPermission={userPermission || 'READ'}
                   />
@@ -295,7 +299,7 @@ export const SettingsModal = ({
                   >
                     Save
                   </button>
-                  {tab == 'judge' && (
+                  {tab === 'judge' && (
                     <button
                       type="button"
                       className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

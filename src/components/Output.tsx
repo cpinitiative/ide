@@ -1,14 +1,13 @@
 import { TabBar } from './TabBar';
-import React, { useState, useEffect, useMemo } from 'react';
-import { authenticatedFirebaseRefAtom } from '../atoms/firebaseAtoms';
-import { LazyFirepadEditor } from './LazyFirepadEditor';
+import React, { useState, useEffect } from 'react';
+import { LazyRealtimeEditor } from './LazyRealtimeEditor';
 
-import { actualUserPermissionAtom } from '../atoms/workspace';
-import { useAtomValue } from 'jotai/utils';
 import JudgeResult from '../types/judge';
-import { userSettingsAtomWithPersistence } from '../atoms/userSettings';
 import { EditorProps } from './MonacoEditor/monaco-editor-types';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
+import useUserPermission from '../hooks/useUserPermission';
+import { useUserContext } from '../context/UserContext';
+import { useEditorContext } from '../context/EditorContext';
 
 export interface OutputProps {
   result: JudgeResult | null;
@@ -41,16 +40,8 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
     if (option) setOption(option as JudgeOutputTab);
   }, [result]);
 
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      scribble: firebaseRef?.child('scribble'),
-    }),
-    [firebaseRef]
-  );
 
   let outputText;
   if (option !== 'scribble') {
@@ -71,7 +62,9 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       }
     }
   }
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { fileData } = useEditorContext();
+  const { userData } = useUserContext();
+  const lightMode = userData.lightMode;
 
   return (
     <>
@@ -84,7 +77,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
       />
       <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden tw-forms-disable tw-forms-disable-all-descendants">
         {option === 'scribble' ? (
-          <LazyFirepadEditor
+          <LazyRealtimeEditor
             theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             saveViewState={false}
@@ -102,7 +95,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
               }, 0);
             }}
             defaultValue=""
-            firebaseRef={firebaseRefs.scribble}
+            yjsDocumentId={`${fileData.id}.scribble`}
           />
         ) : (
           <LazyMonacoEditor

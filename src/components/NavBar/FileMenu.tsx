@@ -12,17 +12,19 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import { usePopper } from 'react-popper';
 
-import { actualUserPermissionAtom } from '../../atoms/workspace';
-import { useAtom } from 'jotai';
+import { mainMonacoEditorAtom } from '../../atoms/workspace';
+import { useAtomValue } from 'jotai';
+import { useEditorContext } from '../../context/EditorContext';
+import defaultCode from '../../scripts/defaultCode';
+import download from '../../scripts/download';
+import { extractJavaFilename } from '../../scripts/judge';
+import useUserPermission from '../../hooks/useUserPermission';
 
-export interface FileMenuProps {
-  onDownloadFile: () => void;
-  onInsertFileTemplate: () => void;
-  onOpenSettings: () => void;
-  forkButtonUrl: string;
-}
+export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
+  const { fileData } = useEditorContext();
+  const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
+  const permission = useUserPermission();
 
-export const FileMenu = (props: FileMenuProps): JSX.Element => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
     null
   );
@@ -30,13 +32,43 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: 'bottom-start',
   });
-  const [permission] = useAtom(actualUserPermissionAtom);
   const canWrite = permission === 'OWNER' || permission === 'READ_WRITE';
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  /* ======= BEGIN DROPDOWN ACTIONS ======= */
+  const handleDownloadFile = () => {
+    if (!mainMonacoEditor) {
+      alert("Editor hasn't loaded yet. Please wait.");
+      return;
+    }
+
+    const code = mainMonacoEditor.getValue();
+
+    const fileNames = {
+      cpp: `${fileData.settings.workspaceName}.cpp`,
+      java: extractJavaFilename(code),
+      py: `${fileData.settings.workspaceName}.py`,
+    };
+
+    download(fileNames[fileData.settings.language], code);
+  };
+
+  const handleInsertFileTemplate = () => {
+    if (!mainMonacoEditor) {
+      alert("Editor hasn't loaded yet, please wait");
+      return;
+    }
+    if (confirm('Reset current file? Any changes you made will be lost.')) {
+      mainMonacoEditor.setValue(defaultCode[fileData.settings.language]);
+    }
+  };
+
+  const forkButtonURL = `/${fileData.id.substring(1)}/copy`;
+  /* ======= END DROPDOWN ACTIONS ======= */
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -79,7 +111,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                             <Menu.Item>
                               {({ active }) => (
                                 <a
-                                  href="/"
+                                  href="/new"
                                   target="_blank"
                                   className={classNames(
                                     active
@@ -106,7 +138,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                                       : 'text-gray-200',
                                     'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
                                   )}
-                                  onClick={() => props.onDownloadFile()}
+                                  onClick={handleDownloadFile}
                                 >
                                   <ArrowDownTrayIcon
                                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"
@@ -119,7 +151,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                             <Menu.Item>
                               {({ active }) => (
                                 <a
-                                  href={props.forkButtonUrl}
+                                  href={forkButtonURL}
                                   target="_blank"
                                   rel="noreferrer"
                                   className={classNames(
@@ -148,7 +180,7 @@ export const FileMenu = (props: FileMenuProps): JSX.Element => {
                                         : 'text-gray-200',
                                       'group flex items-center px-4 py-2 text-sm w-full focus:outline-none'
                                     )}
-                                    onClick={() => props.onInsertFileTemplate()}
+                                    onClick={handleInsertFileTemplate}
                                   >
                                     <ArrowPathIcon
                                       className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300"

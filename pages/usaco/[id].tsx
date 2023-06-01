@@ -1,41 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { ProblemData } from '../../src/components/Workspace/Workspace';
+import React, { useEffect, useRef, useState } from 'react';
 
-import firebase from 'firebase/app';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai/utils';
 
-import { fileIdAtom } from '../../src/atoms/firebaseAtoms';
-import { firebaseUserAtom } from '../../src/atoms/firebaseUserAtoms';
-import { WorkspaceSettings } from '../../src/components/SettingsContext';
-import { fetchProblemData } from '../../src/components/Workspace/Workspace';
 import { useRouter } from 'next/router';
 import invariant from 'tiny-invariant';
 import { MessagePage } from '../../src/components/MessagePage';
-import {
-  userSettingsAtomWithPersistence,
-  isUserSettingsLoadingAtom,
-  displayNameAtom,
-} from '../../src/atoms/userSettings';
+import { useNullableUserContext } from '../../src/context/UserContext';
 
 export default function CreateUSACO(): JSX.Element {
   const router = useRouter();
 
-  const firebaseUser = useAtomValue(firebaseUserAtom);
-  const userSettings = useAtomValue(userSettingsAtomWithPersistence);
-  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
-  const displayName = useAtomValue(displayNameAtom);
+  const { firebaseUser, userData } = useNullableUserContext();
   const [error, setError] = useState<string | null>(null);
 
+  const createdRef = useRef<boolean>(false);
+
   useEffect(() => {
-    if (
-      !router.isReady ||
-      !firebaseUser ||
-      isUserSettingsLoading ||
-      !displayName
-    )
+    if (!router.isReady || !firebaseUser || !userData || createdRef.current)
       return;
     const usacoID = router.query.id;
+    createdRef.current = true;
 
     invariant(typeof usacoID === 'string', 'Expected USACO ID to be a string');
 
@@ -48,8 +32,8 @@ export default function CreateUSACO(): JSX.Element {
         body: JSON.stringify({
           usacoID: usacoID,
           userID: firebaseUser.uid,
-          userName: displayName,
-          defaultPermission: userSettings.defaultPermission,
+          userName: firebaseUser.displayName,
+          defaultPermission: userData.defaultPermission,
         }),
       });
       if (resp.status === 500) {
@@ -60,11 +44,11 @@ export default function CreateUSACO(): JSX.Element {
           // error
           setError(data.message);
         } else {
-          router.replace(`/${data.fileID}`);
+          router.replace(`/${data.fileID.substring(1)}`);
         }
       }
     })();
-  }, [router.isReady, firebaseUser, isUserSettingsLoading, displayName]);
+  }, [router.isReady, firebaseUser, userData]);
 
   if (error) {
     return <MessagePage message={'Error: ' + error} />;

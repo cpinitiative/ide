@@ -2,15 +2,13 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
 import classNames from 'classnames';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 /// <reference path="./types/react-split-grid.d.ts" />
 import Split from 'react-split-grid';
-import { authenticatedFirebaseRefAtom } from '../../atoms/firebaseAtoms';
 import {
   layoutEditorsAtom,
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
-  actualUserPermissionAtom,
 } from '../../atoms/workspace';
 import {
   mobileActiveTabAtom,
@@ -23,18 +21,16 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
 import { CodeInterface } from '../CodeInterface/CodeInterface';
 import JudgeInterface from '../JudgeInterface/JudgeInterface';
-import { LazyFirepadEditor } from '../LazyFirepadEditor';
+import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
 import { Output } from '../Output';
-import { useSettings } from '../SettingsContext';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
-import JudgeResult from '../../types/judge';
 import { judgePrefix } from '../JudgeInterface/JudgeInterface';
-import { userSettingsAtomWithPersistence } from '../../atoms/userSettings';
-import { fileIdAtom } from '../../atoms/firebaseAtoms';
-import useFirebaseState from '../../hooks/useFirebaseState';
 import useJudgeResults from '../../hooks/useJudgeResults';
+import { useEditorContext } from '../../context/EditorContext';
+import useUserPermission from '../../hooks/useUserPermission';
+import { useUserContext } from '../../context/UserContext';
 
 export type ProblemData = {
   id: number;
@@ -79,27 +75,19 @@ export default function Workspace({
   handleRunCode: () => void;
   tabsList: { label: string; value: string }[];
 }): JSX.Element {
+  const { fileData } = useEditorContext();
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const mobileActiveTab = useAtomValue(mobileActiveTabAtom);
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
-  const { settings } = useSettings();
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const [problem, setProblem] = useAtom(problemAtom);
 
-  const permission = useAtomValue(actualUserPermissionAtom);
+  const permission = useUserPermission();
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
-  const authenticatedFirebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
-  const firebaseRef = useAtomValue(authenticatedFirebaseRefAtom);
-  const firebaseRefs = useMemo(
-    () => ({
-      input: firebaseRef?.child('input'),
-    }),
-    [firebaseRef]
-  );
 
   useEffect(() => {
     function handleResize() {
@@ -120,15 +108,15 @@ export default function Workspace({
 
   useEffect(() => {
     setStatusData(null);
-    setProblem(settings.problem);
-    if (settings.problem) {
+    setProblem(fileData.settings.problem);
+    if (fileData.settings.problem) {
       setInputTab('judge');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.problem]);
+  }, [fileData.settings.problem?.id]);
 
   const inputTabIndex = useAtomValue(inputTabIndexAtom);
-  const { lightMode } = useAtomValue(userSettingsAtomWithPersistence);
+  const { lightMode } = useUserContext().userData;
 
   return (
     <Split
@@ -140,7 +128,7 @@ export default function Workspace({
         >
           <CodeInterface
             className={classNames(
-              'row-span-full min-w-0 overflow-hidden',
+              'row-span-full min-w-0 overflow-hidden border-t border-black',
               !isDesktop && 'col-span-full',
               !isDesktop && mobileActiveTab !== 'code' && 'hidden'
             )}
@@ -169,7 +157,7 @@ export default function Workspace({
             />
             <div className="flex-1 bg-[#1E1E1E] text-white min-h-0 overflow-hidden">
               {inputTab === 'input' && (
-                <LazyFirepadEditor
+                <LazyRealtimeEditor
                   theme={lightMode ? 'light' : 'vs-dark'}
                   language={'plaintext'}
                   saveViewState={false}
@@ -188,7 +176,7 @@ export default function Workspace({
                     }, 0);
                   }}
                   defaultValue=""
-                  firebaseRef={firebaseRefs.input}
+                  yjsDocumentId={`${fileData.id}.input`}
                 />
               )}
               {inputTab === 'judge' && problem && (

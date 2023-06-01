@@ -1,0 +1,21 @@
+/* Styles for remote cursors for monaco */
+.yRemoteSelection {
+  /* background-color: rgb(250, 129, 0, 0.5); */
+  background-color: var(--yjs-selection-color-bg, rgb(250, 129, 0, 0.5));
+}
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: var(--yjs-selection-color, orange) solid 2px;
+  border-top: var(--yjs-selection-color, orange) solid 2px;
+  border-bottom: var(--yjs-selection-color, orange) solid 2px;
+  height: 100%;
+  box-sizing: border-box;
+}
+.yRemoteSelectionHead::after {
+  position: absolute;
+  content: ' ';
+  border: 3px solid var(--yjs-selection-color, orange);
+  border-radius: 4px;
+  left: -4px;
+  top: -5px;
+}

@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { testRunCode, goToPage, createNew } from './helpers';
+import { testRunCode, goToPage, createNew, switchLang } from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
 // rather than just silently failing.
@@ -71,10 +71,11 @@ test.describe('Respects Permissions', () => {
 
     // test run buttons -- only the first page should work
     await testRunCode(page);
-    expect(await page2.locator('button:has-text("Run Code")')).toBeDisabled();
+    await expect(
+      page2.getByRole('button', { name: 'Run Code' })
+    ).toBeDisabled();
 
-    await page.click('text="Java"');
-    await page2.click('text="Java"');
+    await switchLang(page, 'Java');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
     await page2.click('.view-lines div:nth-child(2)');
@@ -89,8 +90,7 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
 
-    await page.click('text="Python 3"');
-    await page2.click('text="Python 3"');
+    await switchLang(page, 'Python 3.8.1');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
     await page2.click('.view-lines div:nth-child(5)');

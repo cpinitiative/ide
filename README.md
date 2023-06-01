@@ -12,18 +12,21 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 yarn install
 firebase emulators:start
 yarn dev
+
+# to run playwright tests:
+yarn playwright test
 ```
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
 
 ### Configuring Firebase
 
-You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `src/components/WorkspaceInitializer.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
+You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
 
 ## Tech Stack
 
 - Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge)
-- Realtime collaboration with [Firepad](https://firepad.io/)
+- Realtime collaboration with [YJS](https://github.com/yjs/yjs)
 - Monaco Editor
 - [monaco-languageclient](https://github.com/TypeFox/monaco-languageclient) with `clangd-12` for LSP
 - React
@@ -205,7 +208,7 @@ ctrl+b d
 tmux attach -t 0
 ```
 
-### Firepad Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
+### (Potential) Firepad / YJS Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
 
 Replace something similar to
 
@@ -228,6 +231,8 @@ return n && 'auto' !== n ? n : d.isLinux || d.isMacintosh ? '\n' : '\n';
 ```
 
 using `package-patch`.
+
+This was an issue for Firepad; I don't know if this is an issue for YJS, but we kept the change regardless.
 
 ### Monaco Workers
 

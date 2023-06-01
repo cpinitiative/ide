@@ -1,10 +1,12 @@
 import { useAtomValue } from 'jotai/utils';
 import React from 'react';
-import { currentLangAtom, mainMonacoEditorAtom } from '../../atoms/workspace';
+import { mainMonacoEditorAtom } from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayCircleIcon } from '@heroicons/react/20/solid';
+import { useUserContext } from '../../context/UserContext';
+import { useEditorContext } from '../../context/EditorContext';
 
 export const judgePrefix =
   process.env.NODE_ENV === 'development' && false // note: having this as localhost:5000 will break testing
@@ -47,7 +49,7 @@ export default function JudgeInterface({
   handleRunCode: () => void;
 }): JSX.Element {
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
-  const lang = useAtomValue(currentLangAtom);
+  const lang = useEditorContext().fileData.settings.language;
 
   const handleSubmit = async () => {
     if (!mainMonacoEditor || !lang) {

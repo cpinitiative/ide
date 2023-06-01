@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
 import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import { useAtomValue } from 'jotai/utils';
-import { firebaseUserAtom } from '../src/atoms/firebaseUserAtoms';
-import { isUserSettingsLoadingAtom } from '../src/atoms/userSettings';
 import Dashboard from '../src/components/Dashboard/Dashboard';
 import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from '@heroicons/react/20/solid';
+import {
+  useNullableUserContext,
+  useUserContext,
+} from '../src/context/UserContext';
 
 export default function DashboardPage(): JSX.Element {
-  const firebaseUser = useAtomValue(firebaseUserAtom);
-  const isUserSettingsLoading = useAtomValue(isUserSettingsLoadingAtom);
+  const { userData } = useNullableUserContext();
 
   useEffect(() => {
     document.title = 'Real-Time Collaborative Online IDE';
@@ -26,7 +27,7 @@ export default function DashboardPage(): JSX.Element {
         </h1>
 
         <div className="my-6">
-          <div className="rounded-md bg-blue-800/25 p-4 max-w-xl">
+          <div className="rounded-md bg-blue-800/25 p-4 max-w-3xl">
             <div className="flex">
               <div className="flex-shrink-0">
                 <InformationCircleIcon
@@ -36,17 +37,39 @@ export default function DashboardPage(): JSX.Element {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-100">
-                  Help Test the New IDE!
+                  Welcome to the new IDE!
                 </h3>
                 <div className="mt-2 text-sm text-blue-200">
                   <p>
-                    We're working on a new IDE that should have improved
-                    performance and reliability. Please help us test it!{' '}
+                    This new IDE should have improved performance and stability.
+                    The{' '}
                     <a
-                      href="https://beta.ide.usaco.guide/"
+                      href="https://legacy.ide.usaco.guide/"
+                      target="_blank"
                       className="text-blue-100 underline"
                     >
-                      Check out the new IDE
+                      old IDE
+                    </a>{' '}
+                    will eventually be removed.{' '}
+                    <span className="text-white font-medium">
+                      Files on the old IDE are not available on the new IDE, but
+                      can still be temporarily accessed at{' '}
+                      <a
+                        href="https://legacy.ide.usaco.guide/"
+                        target="_blank"
+                        className="text-blue-100 underline"
+                      >
+                        https://legacy.ide.usaco.guide/
+                      </a>
+                      .
+                    </span>{' '}
+                    For more information, and to report issues,{' '}
+                    <a
+                      href="https://github.com/cpinitiative/ide/issues/98"
+                      target="_blank"
+                      className="text-blue-100 underline"
+                    >
+                      visit our GitHub repository
                     </a>
                     .
                   </p>
@@ -58,7 +81,7 @@ export default function DashboardPage(): JSX.Element {
 
         {/* <div className="h-6"></div> */}
 
-        {!firebaseUser || isUserSettingsLoading ? (
+        {!userData ? (
           <div className="text-gray-400 mt-6">Loading...</div>
         ) : (
           <Dashboard />

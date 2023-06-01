@@ -50,7 +50,7 @@ export default async (
   const idToURLRef = getDatabase(firebaseApp)
     .ref('users')
     .child(data.userID)
-    .child('usaco-id-to-url')
+    .child('usaco-id-to-file-id')
     .child('' + problem.id);
 
   const idToURLSnap = await idToURLRef.get();
@@ -61,7 +61,7 @@ export default async (
     });
   } else {
     const resp = await getDatabase(firebaseApp)
-      .ref('/')
+      .ref('/files')
       .push({
         users: {
           [data.userID]: {
@@ -74,10 +74,16 @@ export default async (
           workspaceName: problem.source + ': ' + problem.title,
           defaultPermission: data.defaultPermission,
           creationTime: ServerValue.TIMESTAMP,
+          language: 'cpp',
           problem,
+          compilerOptions: {
+            cpp: '-std=c++17 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+            java: '',
+            py: '',
+          },
         },
       });
-    const fileID: string = resp.key!.substring(1);
+    const fileID: string = resp.key!;
     await idToURLRef.set(fileID);
     res.status(200).json({ fileID: fileID });
   }

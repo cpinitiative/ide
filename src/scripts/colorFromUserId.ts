@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 // copied from firepad
-// note that if we want to allow users to change colors in the future, we'll have to update FirepadEditor
+// note that if we want to allow users to change colors in the future, we'll have to update RealtimeEditor
 
 function rgb2hex(r, g, b) {
   function digits(n) {
@@ -46,4 +46,15 @@ export default function colorFromUserId(userId) {
   const hue = a / 360;
 
   return hsl2hex(hue, 0.75, 0.6);
+}
+
+export function bgColorFromUserId(userId) {
+  let a = 1;
+  for (let i = 0; i < userId.length; i++) {
+    a = (17 * (a + userId.charCodeAt(i))) % 360;
+  }
+  const hue = a / 360;
+
+  // Make the color darker so that it appears better in monaco
+  return hsl2hex(hue, 0.4, 0.3);
 }

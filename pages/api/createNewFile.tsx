@@ -8,6 +8,12 @@ type RequestData = {
   userID: string;
   userName: string;
   defaultPermission: string;
+  language: 'cpp' | 'java' | 'py';
+  compilerOptions: {
+    cpp: string;
+    java: string;
+    py: string;
+  };
 };
 
 type ResponseData =
@@ -30,7 +36,9 @@ export default async (
     !data.userName ||
     !data.defaultPermission ||
     !data.userID ||
-    !data.workspaceName
+    !data.workspaceName ||
+    !data.language ||
+    !data.compilerOptions
   ) {
     res.status(400).json({
       message: 'Bad data',
@@ -39,7 +47,7 @@ export default async (
   }
 
   const resp = await getDatabase(firebaseApp)
-    .ref('/')
+    .ref('/files')
     .push({
       users: {
         [data.userID]: {
@@ -52,8 +60,11 @@ export default async (
         workspaceName: data.workspaceName,
         defaultPermission: data.defaultPermission,
         creationTime: ServerValue.TIMESTAMP,
+        language: data.language,
+        problem: null,
+        compilerOptions: data.compilerOptions,
       },
     });
   const fileID: string = resp.key!;
-  res.status(200).json({ fileID: fileID.substring(1) });
+  res.status(200).json({ fileID });
 };
