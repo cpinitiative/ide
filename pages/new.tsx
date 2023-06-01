@@ -114,6 +114,7 @@ export default function NewFilePage() {
                 value={fileName}
                 onChange={e => setFileName(e.target.value)}
                 className="block w-full max-w-md rounded-md border-0 py-1.5 bg-gray-900 text-gray-100 shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-700 sm:text-sm sm:leading-6"
+                autoFocus
               />
             </div>
           </div>

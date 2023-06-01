@@ -40,7 +40,7 @@ export default function SignInSettings(): JSX.Element {
       {!firebaseUser || firebaseUser.isAnonymous ? (
         <button
           className={buttonClasses + ' pl-3'}
-          onClick={() => handleSignInWithGoogle}
+          onClick={() => handleSignInWithGoogle(connectionContext)}
         >
           <svg
             version="1.1"
@@ -73,7 +73,11 @@ export default function SignInSettings(): JSX.Element {
           <span className="ml-3">Sign In With Google</span>
         </button>
       ) : (
-        <button className={buttonClasses + ' pl-3'} onClick={handleSignOut}>
+        <button
+          className={buttonClasses + ' pl-3'}
+          onClick={handleSignOut}
+          type="button"
+        >
           <span>Sign Out</span>
         </button>
       )}

@@ -33,6 +33,7 @@ import { cleanJudgeResult } from '../src/editorUtils';
 import JudgeResult from '../src/types/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
+import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -284,13 +285,16 @@ export default function FilePage() {
   if (!userData) return loadingUI;
 
   return (
-    <EditorProvider
-      fileId={firebaseFileID}
-      loadingUI={loadingUI}
-      fileNotFoundUI={fileNotFoundUI}
-      permissionDeniedUI={permissionDeniedUI}
-    >
-      <EditorPage />
-    </EditorProvider>
+    <>
+      <EditorProvider
+        fileId={firebaseFileID}
+        loadingUI={loadingUI}
+        fileNotFoundUI={fileNotFoundUI}
+        permissionDeniedUI={permissionDeniedUI}
+      >
+        <EditorPage />
+      </EditorProvider>
+      <ConfirmOverrideModal />
+    </>
   );
 }
