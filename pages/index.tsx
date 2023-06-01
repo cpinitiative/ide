@@ -37,22 +37,33 @@ export default function DashboardPage(): JSX.Element {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-100">
-                  Welcome to the beta IDE!
+                  Welcome to the new IDE!
                 </h3>
                 <div className="mt-2 text-sm text-blue-200">
                   <p>
                     This new IDE should have improved performance and stability.
                     The{' '}
                     <a
-                      href="https://ide.usaco.guide/"
+                      href="https://legacy.ide.usaco.guide/"
                       target="_blank"
                       className="text-blue-100 underline"
                     >
                       old IDE
                     </a>{' '}
-                    will eventually be removed. Currently, files on the old IDE
-                    are not available on the new IDE. For more information, and
-                    to report issues,{' '}
+                    will eventually be removed.{' '}
+                    <span className="text-white font-medium">
+                      Files on the old IDE are not available on the new IDE, but
+                      can still be temporarily accessed at{' '}
+                      <a
+                        href="https://legacy.ide.usaco.guide/"
+                        target="_blank"
+                        className="text-blue-100 underline"
+                      >
+                        https://legacy.ide.usaco.guide/
+                      </a>
+                      .
+                    </span>{' '}
+                    For more information, and to report issues,{' '}
                     <a
                       href="https://github.com/cpinitiative/ide/issues/98"
                       target="_blank"
@@ -60,10 +71,7 @@ export default function DashboardPage(): JSX.Element {
                     >
                       visit our GitHub repository
                     </a>
-                    . Please note that as this is in beta, there is a chance you
-                    may experience data loss, so please download important files
-                    after you finish coding. Thank you for helping us test the
-                    new IDE!
+                    .
                   </p>
                 </div>
               </div>
