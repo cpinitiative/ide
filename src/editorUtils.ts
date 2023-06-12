@@ -5,8 +5,10 @@ export function encode(str: string | null): string {
 }
 
 export function isFirebaseId(queryId: string): boolean {
-  const re = /^(?!\.\.?$)(?!.*__.*__)([^/]{1,1500})$/;
-  return re.test(queryId) && queryId.length === 19;
+  return (
+    /^(?!\.\.?$)(?!.*__.*__)([^/]{1,1500})$/.test(queryId) &&
+    queryId.length === 19
+  );
 }
 
 function cleanAndReplaceOutput(output: string): {
