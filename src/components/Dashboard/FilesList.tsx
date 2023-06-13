@@ -73,6 +73,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
             java: extractJavaFilename(code),
             py: `${fileData.settings.workspaceName}.py`,
           };
+          // @ts-ignore
           download(fileNames[fileData.settings.language], code);
         });
     });
