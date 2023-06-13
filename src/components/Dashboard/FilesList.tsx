@@ -65,7 +65,8 @@ export default function FilesList(props: FilesListProps): JSX.Element {
       firebase
         .database()
         .ref('files/' + file.id)
-        .on('value', (snap: firebase.database.DataSnapshot) => {
+        .get()
+        .then((snap: firebase.database.DataSnapshot) => {
           const fileData = snap.val();
           console.log('fileData:');
           console.log(fileData);
@@ -77,6 +78,9 @@ export default function FilesList(props: FilesListProps): JSX.Element {
           };
           // @ts-ignore
           download(fileNames[fileData.settings.language], code);
+        })
+        .catch(error => {
+          console.error(error);
         });
     });
   };
