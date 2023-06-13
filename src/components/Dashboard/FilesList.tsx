@@ -67,6 +67,8 @@ export default function FilesList(props: FilesListProps): JSX.Element {
         .ref('files/' + file.id)
         .on('value', (snap: firebase.database.DataSnapshot) => {
           const fileData = snap.val();
+          console.log('fileData:');
+          console.log(fileData);
           const code = 'TODO'; // extract from fileData?
           const fileNames = {
             cpp: `${fileData.settings.workspaceName}.cpp`,
