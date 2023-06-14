@@ -11,7 +11,7 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 ```
 yarn install
 yarn dev
-firebase emulators:start # in a separate tab
+firebase emulators:start # in a separate tab. make sure you are using emulators iff shouldUseEmulator is true!
 ```
 
 Also, if you do not want to run the yjs server locally, change the yjs URLs in
