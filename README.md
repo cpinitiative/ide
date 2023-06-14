@@ -10,8 +10,8 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 
 ```
 yarn install
-firebase emulators:start
 yarn dev
+firebase emulators:start # in a separate tab. make sure you are using emulators iff shouldUseEmulator is true!
 ```
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
