@@ -60,45 +60,100 @@ export default function FilesList(props: FilesListProps): JSX.Element {
     ref.update({ hidden: !file.hidden });
   };
 
-  const downloadAll = (files: File[]) => {
-    // @ts-ignore
-    import('../../scripts/firepad.js').then(module => {
-      const Headless = module.Headless;
-      files.forEach(file => {
-        firebase
-          .database()
-          .ref(file.id)
-          .get()
-          .then((snap: firebase.database.DataSnapshot) => {
-            const fileData = snap.val();
-            console.log(fileData);
-            for (const language of ['cpp', 'java', 'py']) {
-              const editorKey = `editor-${language}`;
-              if (editorKey in fileData) {
-                const firepadRef = firebase
-                  .database()
-                  .ref(file.id)
-                  .child(editorKey);
-                const headless = new Headless(firepadRef);
-                headless.getText((code: string) => {
-                  const fileNames = {
-                    cpp: `${fileData.settings.workspaceName}.cpp`,
-                    java: extractJavaFilename(code),
-                    py: `${fileData.settings.workspaceName}.py`,
-                  };
-                  if (code == defaultCode[language as keyof typeof defaultCode])
-                    return; // code is default code, don't download
-                  download(fileNames[language as keyof typeof fileNames], code);
-                  // keyof is to resolve https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
-                });
-              }
-            }
-          })
-          .catch(error => {
-            console.error(error);
-          });
+  const getFileToDownload = (
+    headless: any,
+    fileData: any,
+    language: string
+  ) => {
+    return new Promise(resolve => {
+      headless.getText((code: string) => {
+        const workspaceName =
+          fileData?.settings?.workspaceName || '(Unnamed File)';
+        const fileNames = {
+          cpp: `${workspaceName}.cpp`,
+          java: extractJavaFilename(code),
+          py: `${workspaceName}.py`,
+        };
+        if (
+          code == defaultCode[language as keyof typeof defaultCode] ||
+          code == ''
+          // code is default code or empty, don't download
+        ) {
+          // keyof is to resolve https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
+          resolve(null);
+        }
+        resolve({
+          name: fileNames[language as keyof typeof fileNames],
+          code: code,
+        });
       });
     });
+  };
+
+  const getFilesToDownload = async (Headless: any, file: File, idx: any) => {
+    return firebase
+      .database()
+      .ref(file.id)
+      .get()
+      .then(async (snap: firebase.database.DataSnapshot) => {
+        const fileData = snap.val();
+        const filesToDownload: any[] = [];
+        if (fileData == null) {
+          console.log(`Unexpected null ${file.title} ${file.id}`);
+          return filesToDownload;
+        }
+        for (const language of ['cpp', 'java', 'py']) {
+          const editorKey = `editor-${language}`;
+          if (editorKey in fileData) {
+            const firepadRef = firebase
+              .database()
+              .ref(file.id)
+              .child(editorKey);
+            const headless = new Headless(firepadRef);
+            const fileToDownload = await getFileToDownload(
+              headless,
+              fileData,
+              language
+            );
+            if (fileToDownload) filesToDownload.push(fileToDownload);
+          }
+        }
+        return filesToDownload;
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const downloadAll = async (files: File[]) => {
+    // @ts-ignore
+    import('../../scripts/firepad.js')
+      .then(async module => {
+        const Headless = module.Headless;
+        const promises = files.map(async (file, idx) => {
+          return await getFilesToDownload(Headless, file, idx);
+        });
+        const results = await Promise.all(promises);
+        return results;
+      })
+      .then(filesToDownloadPerFile => {
+        return filesToDownloadPerFile.flat();
+      })
+      .then(async filesToDownload => {
+        console.log(`# files to download: ${filesToDownload.length}`);
+        let count = 0;
+        for (const file of filesToDownload) {
+          download(file.name, file.code);
+          if (++count >= 10) {
+            // pause due to chrome download limit
+            // https://stackoverflow.com/questions/53560991/automatic-file-downloads-limited-to-10-files-on-chrome-browser
+            await new Promise(resolve => {
+              setTimeout(resolve, 1000);
+            });
+            count = 0;
+          }
+        }
+      });
   };
 
   const downloadAllButton = (
