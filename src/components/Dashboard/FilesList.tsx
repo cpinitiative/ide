@@ -61,6 +61,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
   };
 
   const downloadAll = (files: File[]) => {
+    // @ts-ignore
     import('../../scripts/firepad.js').then(module => {
       const Headless = module.Headless;
       files.forEach(file => {
