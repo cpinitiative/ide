@@ -3,9 +3,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import firebase from 'firebase/app';
 import Link from 'next/link';
 dayjs.extend(relativeTime);
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import Firepad from '../../scripts/firepad';
 import { extractJavaFilename } from '../../scripts/judge';
 
 export type File = {
@@ -62,39 +59,42 @@ export default function FilesList(props: FilesListProps): JSX.Element {
   };
 
   const downloadAll = (files: File[]) => {
-    files.forEach(file => {
-      firebase
-        .database()
-        .ref(file.id)
-        .get()
-        .then((snap: firebase.database.DataSnapshot) => {
-          const fileData = snap.val();
-          console.log(fileData);
-          for (const language of ['cpp', 'java', 'py']) {
-            const editorKey = `editor-${language}`;
-            if (editorKey in fileData) {
-              const firepadRef = firebase
-                .database()
-                .ref(file.id)
-                .child(editorKey);
-              // console.log('REF');
-              // console.log(firepadRef);
-              const headless = new Firepad.Headless(firepadRef);
-              headless.getText(code => {
-                const fileNames = {
-                  cpp: `${fileData.settings.workspaceName}.cpp`,
-                  java: extractJavaFilename(code),
-                  py: `${fileData.settings.workspaceName}.py`,
-                };
-                // @ts-ignore
-                download(fileNames[fileData.settings.language], code);
-              });
+    import('../../scripts/firepad.js').then(module => {
+      const Headless = module.Headless;
+      files.forEach(file => {
+        firebase
+          .database()
+          .ref(file.id)
+          .get()
+          .then((snap: firebase.database.DataSnapshot) => {
+            const fileData = snap.val();
+            console.log(fileData);
+            for (const language of ['cpp', 'java', 'py']) {
+              const editorKey = `editor-${language}`;
+              if (editorKey in fileData) {
+                const firepadRef = firebase
+                  .database()
+                  .ref(file.id)
+                  .child(editorKey);
+                // console.log('REF');
+                // console.log(firepadRef);
+                const headless = new Headless(firepadRef);
+                headless.getText(code => {
+                  const fileNames = {
+                    cpp: `${fileData.settings.workspaceName}.cpp`,
+                    java: extractJavaFilename(code),
+                    py: `${fileData.settings.workspaceName}.py`,
+                  };
+                  console.log(code);
+                  download(fileNames[fileData.settings.language], code);
+                });
+              }
             }
-          }
-        })
-        .catch(error => {
-          console.error(error);
-        });
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      });
     });
   };
 
