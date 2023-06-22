@@ -2,8 +2,10 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import firebase from 'firebase/app';
 import Link from 'next/link';
-dayjs.extend(relativeTime);
+import defaultCode from '../../scripts/defaultCode';
+import download from '../../scripts/download';
 import { extractJavaFilename } from '../../scripts/judge';
+dayjs.extend(relativeTime);
 
 export type File = {
   id: string;
@@ -76,17 +78,17 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                   .database()
                   .ref(file.id)
                   .child(editorKey);
-                // console.log('REF');
-                // console.log(firepadRef);
                 const headless = new Headless(firepadRef);
-                headless.getText(code => {
+                headless.getText((code: string) => {
                   const fileNames = {
                     cpp: `${fileData.settings.workspaceName}.cpp`,
                     java: extractJavaFilename(code),
                     py: `${fileData.settings.workspaceName}.py`,
                   };
-                  console.log(code);
-                  download(fileNames[fileData.settings.language], code);
+                  if (code == defaultCode[language as keyof typeof defaultCode])
+                    return; // code is default code, don't download
+                  download(fileNames[language as keyof typeof fileNames], code);
+                  // keyof is to resolve https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
                 });
               }
             }
