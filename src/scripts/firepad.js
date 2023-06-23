@@ -3048,6 +3048,110 @@ firepad.Firepad = (function (global) {
   return Firepad;
 })(window);
 
+/**
+ * Instance of headless Firepad for use in NodeJS. Supports get/set on text/html.
+ */
+firepad.Headless = (function () {
+  var TextOperation = firepad.TextOperation;
+  var FirebaseAdapter = firepad.FirebaseAdapter;
+
+  function Headless(refOrPath) {
+    // Allow calling without new.
+    if (!(this instanceof Headless)) {
+      return new Headless(refOrPath);
+    }
+
+    var firebase, ref;
+    if (typeof refOrPath === 'string') {
+      if (window.firebase === undefined && typeof firebase !== 'object') {
+        console.log('REQUIRING');
+        firebase = require('firebase/app');
+        require('firebase/database');
+      } else {
+        firebase = window.firebase;
+      }
+
+      ref = firebase.database().refFromURL(refOrPath);
+    } else {
+      ref = refOrPath;
+    }
+
+    this.firebaseAdapter_ = new FirebaseAdapter(ref);
+    this.ready_ = false;
+    this.zombie_ = false;
+  }
+
+  Headless.prototype.getDocument = function (callback) {
+    var self = this;
+
+    if (self.ready_) {
+      return callback(self.firebaseAdapter_.getDocument());
+    }
+
+    self.firebaseAdapter_.on('ready', function () {
+      self.ready_ = true;
+      callback(self.firebaseAdapter_.getDocument());
+    });
+  };
+
+  Headless.prototype.getText = function (callback) {
+    if (this.zombie_) {
+      throw new Error(
+        "You can't use a firepad.Headless after calling dispose()!"
+      );
+    }
+
+    this.getDocument(function (doc) {
+      var text = doc.apply('');
+
+      // Strip out any special characters from Rich Text formatting
+      for (var key in firepad.sentinelConstants) {
+        text = text.replace(
+          new RegExp(firepad.sentinelConstants[key], 'g'),
+          ''
+        );
+      }
+      callback(text);
+    });
+  };
+
+  Headless.prototype.setText = function (text, callback) {
+    if (this.zombie_) {
+      throw new Error(
+        "You can't use a firepad.Headless after calling dispose()!"
+      );
+    }
+
+    var op = TextOperation().insert(text);
+    this.sendOperationWithRetry(op, callback);
+  };
+
+  Headless.prototype.sendOperationWithRetry = function (operation, callback) {
+    var self = this;
+
+    self.getDocument(function (doc) {
+      var op = operation.clone()['delete'](doc.targetLength);
+      self.firebaseAdapter_.sendOperation(op, function (err, committed) {
+        if (committed) {
+          if (typeof callback !== 'undefined') {
+            callback(null, committed);
+          }
+        } else {
+          self.sendOperationWithRetry(operation, callback);
+        }
+      });
+    });
+  };
+
+  Headless.prototype.dispose = function () {
+    this.zombie_ = true; // We've been disposed.  No longer valid to do anything.
+
+    this.firebaseAdapter_.dispose();
+  };
+
+  return Headless;
+})();
+
 // Export Text classes
 firepad.Firepad.TextOperation = firepad.TextOperation;
 
@@ -3055,3 +3159,4 @@ firepad.Firepad.TextOperation = firepad.TextOperation;
 firepad.Firepad.MonacoAdapter = firepad.MonacoAdapter;
 
 export default firepad.Firepad;
+export const Headless = firepad.Headless;
