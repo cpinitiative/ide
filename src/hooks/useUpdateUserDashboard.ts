@@ -49,6 +49,7 @@ export default function useUpdateUserDashboard() {
     } else {
       fileRef.set({
         title: settings.workspaceName || '',
+        language: settings.language,
         lastAccessTime: firebase.database.ServerValue.TIMESTAMP,
         creationTime: settings.creationTime ?? null,
         lastPermission: permission,

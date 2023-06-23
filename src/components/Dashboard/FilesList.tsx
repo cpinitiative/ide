@@ -10,6 +10,7 @@ export type File = {
   id: string;
   lastAccessTime: number;
   title: string;
+  language: string;
   creationTime: number | null;
   lastPermission: string | null;
   lastDefaultPermission: string | null;
@@ -62,7 +63,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
 
   return (
     <div className="flex flex-col">
-      <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
           <table className="min-w-full divide-y divide-gray-600">
             <thead>
@@ -108,7 +109,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
             <tbody className="divide-y divide-gray-700">
               {props.files.map(file => (
                 <tr key={file.id}>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6 md:pl-0">
+                  <td className="py-4 pl-4 pr-3 text-sm font-medium whitespace-nowrap sm:pl-6 md:pl-0">
                     {file.hidden ? (
                       <span className="text-gray-400">
                         {file.title || '(Unnamed File)'} (Hidden)
@@ -121,26 +122,26 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                       </Link>
                     )}
                   </td>
-                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                  <td className="px-3 py-4 text-sm text-gray-400 whitespace-nowrap">
                     {dayjs(file.lastAccessTime).fromNow()}
                   </td>
-                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                  <td className="px-3 py-4 text-sm text-gray-400 whitespace-nowrap">
                     {formatCreationTime(file.creationTime)}
                   </td>
-                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                  <td className="px-3 py-4 text-sm text-gray-400 whitespace-nowrap">
                     {file.owner
                       ? file.owner.id === firebaseUser.uid
                         ? 'Me'
                         : file.owner.name
                       : ''}
                   </td>
-                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                  <td className="px-3 py-4 text-sm text-gray-400 whitespace-nowrap">
                     {file.lastPermission &&
                     file.lastPermission in permissionLabels
                       ? permissionLabels[file.lastPermission]
                       : 'Unknown'}
                   </td>
-                  <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 md:pr-0">
+                  <td className="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6 md:pr-0">
                     <button
                       className="text-indigo-400 hover:text-indigo-100"
                       onClick={() => handleToggleHideFile(file)}
@@ -161,7 +162,7 @@ export default function FilesList(props: FilesListProps): JSX.Element {
     //     .reverse()
     //     .map(file => (
     //       <Link key={file.id} href={`/${file.id.substring(1)}`}>
-    //         <a className="bg-gray-800 hover:bg-gray-700 px-4 py-3 rounded-lg inline-block w-full max-w-sm m-2">
+    //         <a className="inline-block w-full max-w-sm px-4 py-3 m-2 bg-gray-800 rounded-lg hover:bg-gray-700">
     //           <div className="flex justify-between">
     //             <div className="text-gray-200">
     //               {file.title || 'Unnamed File'}
@@ -189,12 +190,12 @@ export default function FilesList(props: FilesListProps): JSX.Element {
     //             >
     //               {file.hidden ? (
     //                 <SaveIcon
-    //                   className="h-5 w-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
+    //                   className="w-5 h-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
     //                   aria-hidden="true"
     //                 />
     //               ) : (
     //                 <TrashIcon
-    //                   className="h-5 w-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
+    //                   className="w-5 h-5 text-gray-400 hover:text-gray-500 focus:text-gray-500 focus:outline-none"
     //                   aria-hidden="true"
     //                 />
     //               )}
