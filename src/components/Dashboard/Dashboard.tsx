@@ -29,7 +29,6 @@ export default function Dashboard() {
   const [showHidden, setShowHidden] = useState<boolean>(false);
   const router = useRouter();
   const connectionContext = useConnectionContext();
-
   // const makeNewClassroomWithName = async (name: string) => {
   //   if (!firebaseUser) return;
   //   const resp = await fetch(`/api/createNewClassroom`, {
@@ -66,8 +65,20 @@ export default function Dashboard() {
         const files: File[] = [];
         snap.forEach(child => {
           const data = child.val();
-          if (!showHidden && data.hidden) return;
           const key = child.key;
+          if (!('language' in child.val())) {
+            firebase
+              .database()
+              .ref('files/' + key)
+              .on('value', snapp => {
+                if (snapp.exists()) {
+                  ref
+                    .child(key + '/language')
+                    .set(snapp.val().settings.language);
+                }
+              });
+          }
+          if (!showHidden && data.hidden) return;
           if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
             files.push({
               id: key,
