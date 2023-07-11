@@ -62,6 +62,7 @@ export default function useUpdateUserDashboard() {
   }, [
     permission,
     settings.workspaceName,
+    settings.language,
     settings.creationTime,
     settings.defaultPermission,
     fileOwner?.id,
