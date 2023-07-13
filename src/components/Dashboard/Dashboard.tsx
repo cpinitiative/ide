@@ -66,18 +66,15 @@ export default function Dashboard() {
         snap.forEach(child => {
           const data = child.val();
           const key = child.key;
-          if (!('language' in child.val())) {
-            firebase
-              .database()
-              .ref('files/' + key)
-              .on('value', snapp => {
-                if (snapp.exists()) {
-                  ref
-                    .child(key + '/language')
-                    .set(snapp.val().settings.language);
-                }
-              });
-          }
+          firebase
+            .database()
+            .ref('files/' + key)
+            .on('value', snapp => {
+              if (snapp.exists()) {
+                ref.child(key + '/language').set(snapp.val().settings.language);
+              }
+            });
+
           if (!showHidden && data.hidden) return;
           if (key?.startsWith('-') && isFirebaseId(key.substring(1))) {
             files.push({
