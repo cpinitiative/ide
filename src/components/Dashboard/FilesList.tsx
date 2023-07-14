@@ -15,6 +15,7 @@ export type File = {
   lastDefaultPermission: string | null;
   hidden: boolean | null;
   version: number;
+  language: string;
   owner?: {
     name: string;
     id: string;
@@ -50,6 +51,13 @@ export default function FilesList(props: FilesListProps): JSX.Element {
     return dayjs(creationTime).format('MM/DD/YYYY'); // otherwise display date
   };
 
+  const formatLanguage = (language: string | null): string => {
+    if (language == 'py') return 'Python';
+    if (language == 'java') return 'Java';
+    if (language == 'cpp') return 'C++';
+    return 'Unknown';
+  };
+
   const handleToggleHideFile = (file: File) => {
     const ref = firebase
       .database()
@@ -69,31 +77,37 @@ export default function FilesList(props: FilesListProps): JSX.Element {
               <tr>
                 <th
                   scope="col"
-                  className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-100 sm:pl-6 md:pl-0"
+                  className="py-3.5 pl-4 pr-2 text-left text-sm font-semibold text-gray-100 sm:pl-6 md:pl-0"
                 >
                   Name
                 </th>
                 <th
                   scope="col"
-                  className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
+                  className="py-3.5 px-2 text-left text-sm font-semibold text-gray-100"
                 >
                   Last Accessed
                 </th>
                 <th
                   scope="col"
-                  className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
+                  className="py-3.5 px-2 text-left text-sm font-semibold text-gray-100"
                 >
                   Created
                 </th>
                 <th
                   scope="col"
-                  className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
+                  className="py-3.5 px-2 text-left text-sm font-semibold text-gray-100"
+                >
+                  Language
+                </th>
+                <th
+                  scope="col"
+                  className="py-3.5 px-2 text-left text-sm font-semibold text-gray-100"
                 >
                   Owner
                 </th>
                 <th
                   scope="col"
-                  className="py-3.5 px-3 text-left text-sm font-semibold text-gray-100"
+                  className="py-3.5 px-2 text-left text-sm font-semibold text-gray-100"
                 >
                   Permissions
                 </th>
@@ -126,6 +140,9 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                   </td>
                   <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
                     {formatCreationTime(file.creationTime)}
+                  </td>
+                  <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
+                    {formatLanguage(file.language)}
                   </td>
                   <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-400">
                     {file.owner
