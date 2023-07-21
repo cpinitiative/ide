@@ -4,11 +4,11 @@ export function encode(str: string | null): string {
   return btoa(unescape(encodeURIComponent(str || '')));
 }
 
-// ex. MdDtPWrb3oOcNKtIVEA
-// validate that queryId is a firebase key
-// todo improve: https://stackoverflow.com/questions/52850099/what-is-the-reg-expression-for-firestore-constraints-on-document-ids/52850529#52850529
 export function isFirebaseId(queryId: string): boolean {
-  return queryId.length === 19;
+  return (
+    /^(?!\.\.?$)(?!.*__.*__)([^/]{1,1500})$/.test(queryId) &&
+    queryId.length === 19
+  );
 }
 
 function cleanAndReplaceOutput(output: string): {
