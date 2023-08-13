@@ -66,7 +66,7 @@ export default function USACOResults({
       }
       answers.push(ans);
     }
-    equalUpToTrim = answers[0].trim() === answers[1].trim();
+    equalUpToTrim = answers[0].trim() === answers[1]?.trim();
     if (equalUpToTrim) {
       // display whitespace
       output = lines.join('\n');
