@@ -4,6 +4,7 @@ import colorFromUserId from '../../src/scripts/colorFromUserId';
 import { getAuth } from 'firebase-admin/auth';
 import firebaseApp from '../../src/firebaseAdmin';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
+import { SHOULD_USE_DEV_YJS_SERVER } from '../../src/dev_constants';
 
 type RequestData = {
   idToken: string;
@@ -87,10 +88,9 @@ export default async (
   const fileID: string = ref.key!;
 
   const copyYjsPromies = ['code', 'input', 'scribble'].map(key => {
-    const HOST_URL =
-      process.env.NODE_ENV === 'production'
-        ? 'https://yjs.usaco.guide'
-        : 'http://0.0.0.0:1234';
+    const HOST_URL = SHOULD_USE_DEV_YJS_SERVER
+      ? 'http://0.0.0.0:1234'
+      : 'https://yjs.usaco.guide';
     return fetch(`${HOST_URL}/copyFile`, {
       method: 'POST',
       headers: {

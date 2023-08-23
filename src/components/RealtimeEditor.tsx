@@ -12,6 +12,7 @@ import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndi
 import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
 import { useUserContext } from '../context/UserContext';
 import { useEditorContext } from '../context/EditorContext';
+import { SHOULD_USE_DEV_YJS_SERVER } from '../dev_constants';
 
 export interface RealtimeEditorProps extends EditorProps {
   yjsDocumentId: string;
@@ -19,10 +20,9 @@ export interface RealtimeEditorProps extends EditorProps {
   dataTestId?: string;
 }
 
-const WEBSOCKET_SERVER =
-  process.env.NODE_ENV === 'development' || process.env.IS_TEST_ENV
-    ? 'ws://localhost:1234'
-    : 'wss://yjs.usaco.guide:443';
+const WEBSOCKET_SERVER = SHOULD_USE_DEV_YJS_SERVER
+  ? 'ws://localhost:1234'
+  : 'wss://yjs.usaco.guide:443';
 
 const RealtimeEditor = ({
   onMount,

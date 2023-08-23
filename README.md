@@ -11,15 +11,13 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 ```
 yarn install
 FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" yarn dev
-# in a separate tab. make sure you are using emulators iff shouldUseEmulator is true!
+# in a separate tab. make sure you are using emulators iff SHOULD_USE_FIREBASE_EMULATOR is true!
 firebase emulators:start
 ```
 
 Note that FIREBASE_AUTH_EMULATOR_HOST must be set; otherwise you'll get a "Firebase ID token has no kid claim" error message when a nextjs function tries to decode a firebase auth token.
 
-Also, if you do not want to run the yjs server locally, change the yjs URLs in
-`RealtimeEditor.tsx` and `copyFile.tsx` to point to the production one
-(`yjs.usaco.guide`).
+Also, if you do not want to run the yjs server locally, or if you don't want to use firebase emulators, edit `src/dev_constants.ts`.
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
 
@@ -31,7 +29,7 @@ yarn playwright test
 
 ### Configuring Firebase
 
-You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`. There, you can also set `shouldUseEmulator` to `false` if you don't want to use the firebase emulator.
+You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`.
 
 ## Tech Stack
 

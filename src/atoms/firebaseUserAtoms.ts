@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import firebase from 'firebase/app';
-import { shouldUseEmulator } from '../../pages/_app';
 import { ConnectionContextType } from '../context/ConnectionContext';
+import { SHOULD_USE_FIREBASE_EMULATOR } from '../dev_constants';
 
 /**
  * This is set to a callback function when the modal asking the user
@@ -26,10 +26,10 @@ export const signInWithGoogleAtom = atom(
     const prevConnectionRefs = connectionContext.getConnectionRefs();
     connectionContext.clearConnectionRefs();
 
-    if (shouldUseEmulator) {
+    if (SHOULD_USE_FIREBASE_EMULATOR) {
       // Note: for some reason firebase emulator does not work with `linkWithPopup`
       // so we're just going to always sign up with popup instead.
-      // To test `linkWithPopup`, go to `src/components/WorkspaceInitializer.tsx`, find `shouldUseEmulator`,
+      // To test `linkWithPopup`, go to `src/dev_constants.ts`, find `shouldUseFirebaseEmulatorInDev`,
       // and set that to false.
       // a function returns a function because we want to set the atom to a callback function
       // but if you pass a function into set() then jotai will use the function *return* value
