@@ -26,17 +26,13 @@ const WEBSOCKET_SERVER = SHOULD_USE_DEV_YJS_SERVER
 
 const RealtimeEditor = ({
   onMount,
-  /**
-   * Warning: with the current implementation (EditorContext.doNotInitializeCodeRef),
-   * only one realtime editor can have defaultValue (the main code editor).
-   */
   defaultValue,
   yjsDocumentId,
   useEditorWithVim = false,
   dataTestId = '',
   ...props
 }: RealtimeEditorProps): JSX.Element => {
-  const { doNotInitializeCodeRef } = useEditorContext();
+  const { doNotInitializeTheseFileIdsRef } = useEditorContext();
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const { userData, firebaseUser } = useUserContext();
@@ -126,17 +122,18 @@ const RealtimeEditor = ({
     );
     provider.on('sync', (isSynced: boolean) => {
       // Handle file initialization
-      // We need to check for doNotInitializeCodeRef.current here
+      // We need to check for doNotInitializeTheseFileIdsRef.current here
       // to make sure we're the client that's supposed to initialize the document.
       // This is to prevent multiple clients from initializing the document when the language changes.
       // See EditorContext.tsx for more information
-      if (isSynced && defaultValue && !doNotInitializeCodeRef.current) {
+      if (isSynced && !doNotInitializeTheseFileIdsRef.current[yjsDocumentId]) {
         const isInitializedMap = ydocument.getMap('isInitialized');
         if (!isInitializedMap.get('isInitialized')) {
           isInitializedMap.set('isInitialized', true);
-          if (monacoText.length === 0) monacoText.insert(0, defaultValue ?? '');
+          if (monacoText.length === 0 && defaultValue)
+            monacoText.insert(0, defaultValue ?? '');
         }
-        doNotInitializeCodeRef.current = true;
+        doNotInitializeTheseFileIdsRef.current[yjsDocumentId] = true;
       }
       setIsSynced(isSynced);
       setLoading(false);
