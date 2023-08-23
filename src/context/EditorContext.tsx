@@ -51,19 +51,19 @@ export type EditorContextType = {
   fileData: FileData;
   updateFileData: (firebaseUpdateData: Partial<FileData>) => Promise<any>;
   /**
+   * Maps YJS File ID ==> true / false
+   * If file ID is not in the map, assume it's false
+   *
    * If true, this client should NOT initialize the code if it's empty.
    * This solves the bug that if multiple people are on the same document,
    * and the document changes languages, every client will try to initialize
    * the code (resuting in multiple templates being inserted).
    *
-   * Instead, after the file is loaded & synced, doNotInitializeCode is set
+   * Instead, after the file is loaded & synced, doNotInitializeTheseFileIds is set
    * to true. Then, if the language is changed, the client who triggered the
    * language change (and only that client) will have this set to false.
-   *
-   * Note that with our current implementation, only one defaultValue will work
-   * (ie. you can only have one RealtimeEdtior component with a defaultValue)
    */
-  doNotInitializeCodeRef: MutableRefObject<boolean>;
+  doNotInitializeTheseFileIdsRef: MutableRefObject<Record<string, boolean>>;
 };
 
 const EditorContext = createContext<EditorContextType | null>(null);
@@ -92,7 +92,7 @@ export function EditorProvider({
   const { userData } = useUserContext();
   const [fileData, setFileData] = useState<FileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const doNotInitializeCodeRef = useRef<boolean>(false);
+  const doNotInitializeTheseFileIdsRef = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     setLoading(true);
@@ -132,8 +132,8 @@ export function EditorProvider({
   );
 
   const editorContextValue = useMemo(() => {
-    return { fileData, updateFileData, doNotInitializeCodeRef };
-  }, [fileData, updateFileData, doNotInitializeCodeRef]);
+    return { fileData, updateFileData, doNotInitializeTheseFileIdsRef };
+  }, [fileData, updateFileData, doNotInitializeTheseFileIdsRef]);
 
   if (loading) {
     return <>{loadingUI}</>;

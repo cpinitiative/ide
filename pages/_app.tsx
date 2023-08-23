@@ -9,6 +9,7 @@ import { ConnectionProvider } from '../src/context/ConnectionContext';
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { UserProvider } from '../src/context/UserContext';
+import { SHOULD_USE_FIREBASE_EMULATOR } from '../src/dev_constants';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyC2C7XWrCKcmM0RDAVZZHDQSxOlo6g3JTU',
@@ -21,17 +22,12 @@ const firebaseConfig = {
   measurementId: 'G-9C903QL4KZ',
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export const shouldUseEmulator =
-  typeof window !== 'undefined' && location.hostname === 'localhost' && true;
-
 if (!firebase.apps?.length) {
-  if (shouldUseEmulator) {
+  if (SHOULD_USE_FIREBASE_EMULATOR) {
     firebase.initializeApp({
       ...firebaseConfig,
       authDomain: 'localhost:9099',
-      databaseURL: 'http://localhost:9000/?ns=cp-ide-default-rtdb',
+      databaseURL: 'http://localhost:9000/?ns=cp-ide-2-default-rtdb',
     });
     firebase.auth().useEmulator('http://localhost:9099');
     firebase.database().useEmulator('localhost', 9000);

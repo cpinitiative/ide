@@ -47,7 +47,7 @@ jobs:
           npm run dev &
 
       - name: Setup background services
-        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && yarn start &
+        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" yarn start &
 
       - name: Run Playwright tests
         run: firebase emulators:exec "yarn playwright test"
