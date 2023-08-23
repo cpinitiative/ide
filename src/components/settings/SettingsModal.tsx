@@ -57,7 +57,7 @@ export const SettingsModal = ({
   const {
     fileData,
     updateFileData: updateRealFileData,
-    doNotInitializeCodeRef,
+    doNotInitializeTheseFileIdsRef,
   } = useEditorContext();
   const realFileSettings = fileData.settings;
   const userPermission = useUserPermission();
@@ -154,7 +154,10 @@ export const SettingsModal = ({
       // the code (we only want the client who initiated the language change
       // to initialize the code)
       // For more info, see EditorContex.tsx
-      doNotInitializeCodeRef.current = false;
+      doNotInitializeTheseFileIdsRef.current[
+        // the key is the yjs document ID
+        fileData.id + '.' + settingsToSet.language
+      ] = false;
     }
     updateRealFileData({
       settings: { ...realFileSettings, ...settingsToSet },

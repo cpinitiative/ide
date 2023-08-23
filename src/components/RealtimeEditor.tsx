@@ -134,6 +134,23 @@ const RealtimeEditor = ({
             monacoText.insert(0, defaultValue ?? '');
         }
         doNotInitializeTheseFileIdsRef.current[yjsDocumentId] = true;
+
+        // special case: if yjsDocumentId ends in .cpp or .java or .py, don't initialize any
+        // of those file IDs to prevent the issue from multiple initializations when the language
+        // changes. (wow, this code is really messy and possibly overly complicated and should be refactored)
+        if (
+          yjsDocumentId.endsWith('cpp') ||
+          yjsDocumentId.endsWith('java') ||
+          yjsDocumentId.endsWith('py')
+        ) {
+          let prefix = yjsDocumentId.substring(
+            0,
+            yjsDocumentId.lastIndexOf('.')
+          );
+          doNotInitializeTheseFileIdsRef.current[prefix + '.cpp'] = true;
+          doNotInitializeTheseFileIdsRef.current[prefix + '.java'] = true;
+          doNotInitializeTheseFileIdsRef.current[prefix + '.py'] = true;
+        }
       }
       setIsSynced(isSynced);
       setLoading(false);
