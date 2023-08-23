@@ -10,9 +10,12 @@ This project uses the [Firebase Realtime Database](https://firebase.google.com/d
 
 ```
 yarn install
-yarn dev
-firebase emulators:start # in a separate tab. make sure you are using emulators iff shouldUseEmulator is true!
+FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" yarn dev
+# in a separate tab. make sure you are using emulators iff shouldUseEmulator is true!
+firebase emulators:start
 ```
+
+Note that FIREBASE_AUTH_EMULATOR_HOST must be set; otherwise you'll get a "Firebase ID token has no kid claim" error message when a nextjs function tries to decode a firebase auth token.
 
 Also, if you do not want to run the yjs server locally, change the yjs URLs in
 `RealtimeEditor.tsx` and `copyFile.tsx` to point to the production one

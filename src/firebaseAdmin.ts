@@ -30,8 +30,8 @@ if (getApps().length === 0) {
     });
   } else {
     initializeApp({
-      projectId: 'cp-ide',
-      databaseURL: 'http://127.0.0.1:9000?ns=cp-ide-default-rtdb',
+      projectId: 'cp-ide-2',
+      databaseURL: 'http://127.0.0.1:9000?ns=cp-ide-2-default-rtdb',
     });
   }
 }
