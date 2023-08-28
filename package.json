@@ -29,6 +29,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "firebase": "8",
     "firebase-admin": "^11.0.0",
+    "firepad": "^1.5.11",
     "husky": "^8.0.1",
     "jotai": "^1.7.2",
     "jsdom": "^19.0.0",

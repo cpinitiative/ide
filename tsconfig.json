@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
+    // "target": "ESNext",
+    // "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    // "allowJs": false,
+    // "skipLibCheck": true,
+    // "esModuleInterop": true,
+    // "allowSyntheticDefaultImports": true,
+    // "strict": true,
+    // "forceConsistentCasingInFileNames": true,
+    // "module": "ESNext",
+    // "moduleResolution": "Node",
+    // "resolveJsonModule": true,
+    // "isolatedModules": true,
+    // "noEmit": true,
+    // "jsx": "preserve",
+    // "incremental": true
+
+    "module": "commonjs",
+    "target": "es6",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
-    "incremental": true
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "include": ["./src", "./pages"],
+  "include": ["./src", "./pages", "./migrate-data.ts"],
   "exclude": ["node_modules"]
 }
