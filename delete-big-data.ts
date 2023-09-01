@@ -46,23 +46,23 @@ const processKey = (key, fileKey, file) => {
 
 let NEW_DATA = {};
 // read from new_data.json, parse the json object, and store it in NEW_DATA
-if (fs.existsSync('new_data.json')) {
-  NEW_DATA = JSON.parse(fs.readFileSync('new_data.json').toString());
-}
+// if (fs.existsSync('new_data.json')) {
+//   NEW_DATA = JSON.parse(fs.readFileSync('new_data.json').toString());
+// }
 const ORIG_DATA = {};
 const ORIG_DATA_BASE_SIZE = 0;
 
 async function run(lastOne) {
-  if (lastOne) {
-    if (!NEW_DATA.hasOwnProperty(lastOne)) {
-      throw new Error('???');
-    }
-    const keys = Object.keys(NEW_DATA);
-    keys.sort();
-    if (keys[Object.keys(NEW_DATA).length - 1] !== lastOne) {
-      throw new Error('??? not last. last is ' + keys[keys.length - 1]);
-    }
-  }
+  // if (lastOne) {
+  //   if (!NEW_DATA.hasOwnProperty(lastOne)) {
+  //     throw new Error('???');
+  //   }
+  //   const keys = Object.keys(NEW_DATA);
+  //   keys.sort();
+  //   if (keys[Object.keys(NEW_DATA).length - 1] !== lastOne) {
+  //     throw new Error('??? not last. last is ' + keys[keys.length - 1]);
+  //   }
+  // }
   const queued_new_data = {};
   const filesRef = db.ref('/');
   let query = filesRef.orderByKey();
@@ -76,6 +76,7 @@ async function run(lastOne) {
     const snapshot = await query.once('value');
     if (snapshot.exists()) {
       const files = snapshot.val();
+      console.log('ah');
       const promises = [];
       for (const fileKey of Object.keys(files)) {
         const doStuff = async () => {
@@ -114,21 +115,34 @@ async function run(lastOne) {
                 compressedData.hasOwnProperty(key) &&
                 JSON.stringify(compressedData[key]).length > 10000
               ) {
-                // console.log(
-                //   'Key',
-                //   key,
-                //   'has length',
-                //   compressedData[key].length,
-                //   'for file',
-                //   fileKey,
-                //   '; deleting'
-                // );
-                delete compressedData[key];
+                await db.ref(`/${fileKey}/${key}`).set(null);
+                // if (key !== 'state') {
+                //   const headless = new firepad.Headless(
+                //     db.ref(`/${fileKey}/${key}`)
+                //   );
+                //   await new Promise<void>((res, rej) => {
+                //     headless.getText(x => {
+                //       console.log(
+                //         'Key',
+                //         key,
+                //         'has length',
+                //         JSON.stringify(compressedData[key]).length,
+                //         x.length,
+                //         'for file',
+                //         fileKey,
+                //         '; deleting'
+                //       );
+                //       headless.dispose();
+                //       res();
+                //     });
+                //   });
+                // }
+                // delete compressedData[key];
               }
             }
           }
-          queued_new_data[fileKey] = compressedData;
-          ORIG_DATA[fileKey] = files[fileKey];
+          // queued_new_data[fileKey] = compressedData;
+          // ORIG_DATA[fileKey] = files[fileKey];
         };
         promises.push(doStuff());
         lastKey = fileKey;
@@ -142,29 +156,32 @@ async function run(lastOne) {
     console.error('Error fetching files:', error);
     return null;
   }
-  NEW_DATA = { ...NEW_DATA, ...queued_new_data };
-  fs.writeFileSync('new_data.json', JSON.stringify(NEW_DATA));
-  console.log('finished writing up to and including', lastKey);
+  // NEW_DATA = { ...NEW_DATA, ...queued_new_data };
+  // fs.writeFileSync('new_data.json', JSON.stringify(NEW_DATA));
+  // console.log('finished writing up to and including', lastKey);
   return lastKey;
 }
 
 (async () => {
+  let files = 0;
   let curKey = await run(null);
   while (curKey != null) {
-    const regSize = JSON.stringify(ORIG_DATA).length + 0;
-    const compSize = JSON.stringify(NEW_DATA).length;
-    console.log(
-      'Processed',
-      Object.keys(NEW_DATA).length,
-      ' files. Currently on key',
-      curKey,
-      '. Ratio is ',
-      compSize,
-      '/',
-      regSize,
-      '=',
-      compSize / regSize
-    );
+    // const regSize = JSON.stringify(ORIG_DATA).length + 0;
+    // const compSize = JSON.stringify(NEW_DATA).length;
+    // console.log(
+    //   'Processed',
+    //   Object.keys(NEW_DATA).length,
+    //   ' files. Currently on key',
+    //   curKey,
+    //   '. Ratio is ',
+    //   compSize,
+    //   '/',
+    //   regSize,
+    //   '=',
+    //   compSize / regSize
+    // );
+    files += 1000;
+    console.log('processed', files, 'files');
     curKey = await run(curKey);
   }
   console.log('DONE??', Object.keys(NEW_DATA).length);
