@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import * as fs from 'fs';
 // @ts-ignore
 import * as firepad from 'firepad';
 
@@ -32,65 +33,138 @@ const processKey = (key, fileKey, file) => {
       const headless = new firepad.Headless(ref);
       headless.getText(x => {
         gzipBase64Encode(x).then(y => {
-          file[`compressed-${key}`] = y;
+          file[`c${key}`] = y;
           res();
         });
       });
+      headless.dispose();
     } else {
       res();
     }
   });
 };
 
-async function fetchFirst50Files() {
+let NEW_DATA = {};
+// read from new_data.json, parse the json object, and store it in NEW_DATA
+if (fs.existsSync('new_data.json')) {
+  NEW_DATA = JSON.parse(fs.readFileSync('new_data.json').toString());
+}
+const ORIG_DATA = {};
+const ORIG_DATA_BASE_SIZE = 438758868;
+
+async function run(lastOne) {
+  if (lastOne) {
+    if (!NEW_DATA.hasOwnProperty(lastOne)) {
+      throw new Error('???');
+    }
+    const keys = Object.keys(NEW_DATA);
+    keys.sort();
+    if (keys[Object.keys(NEW_DATA).length - 1] !== lastOne) {
+      throw new Error('??? not last');
+    }
+  }
+  const queued_new_data = {};
   const filesRef = db.ref('/');
-  const query = filesRef.orderByKey().limitToFirst(200);
+  let query = filesRef.orderByKey();
+  if (lastOne) query = query.startAfter(lastOne);
+  query = query.limitToFirst(1000);
 
   let uncompressed = 0;
   let compressed = 0;
+  let lastKey = null;
   try {
     const snapshot = await query.once('value');
     if (snapshot.exists()) {
       const files = snapshot.val();
+      const promises = [];
       for (const fileKey of Object.keys(files)) {
-        const compressedData = { ...files[fileKey] };
-        const keys = [
-          'editor-cpp',
-          'editor-java',
-          'editor-py',
-          'scribble',
-          'input',
-        ];
-        await Promise.all(
-          keys.map(key => processKey(key, fileKey, compressedData))
-        );
-        for (let user of Object.keys(compressedData['users'])) {
-          for (let key of Object.keys(compressedData['users'][user])) {
-            if (key !== 'name' && key !== 'permission') {
-              delete compressedData['users'][user][key];
+        const doStuff = async () => {
+          const compressedData = { ...files[fileKey] };
+          if (fileKey !== 'files') {
+            const keys = [
+              'editor-cpp',
+              'editor-java',
+              'editor-py',
+              'scribble',
+              'input',
+            ];
+            await Promise.all(
+              keys.map(key => processKey(key, fileKey, compressedData))
+            );
+            if (compressedData['users']) {
+              // some older files didn't have users / settings
+              for (let user of Object.keys(compressedData['users'])) {
+                for (let key of Object.keys(compressedData['users'][user])) {
+                  if (key !== 'name' && key !== 'permission') {
+                    delete compressedData['users'][user][key];
+                  }
+                }
+              }
+            }
+            if (compressedData['state']) {
+              const compressedState = await gzipBase64Encode(
+                JSON.stringify(compressedData['state'])
+              );
+              delete compressedData['state'];
+              compressedData.cstate = compressedState;
+            }
+            const optionalKeys = ['cscribble', 'cinput', 'cstate'];
+            for (let key of optionalKeys) {
+              if (
+                compressedData.hasOwnProperty(key) &&
+                compressedData[key].length > 5000
+              ) {
+                // console.log(
+                //   'Key',
+                //   key,
+                //   'has length',
+                //   compressedData[key].length,
+                //   'for file',
+                //   fileKey,
+                //   '; deleting'
+                // );
+                delete compressedData[key];
+              }
             }
           }
-        }
-        const regSize = JSON.stringify(files[fileKey]).length;
-        const compSize = JSON.stringify(compressedData).length;
-        uncompressed += regSize;
-        compressed += compSize;
-        console.log(
-          compressed,
-          '/',
-          uncompressed,
-          '=',
-          compressed / uncompressed
-        );
+          queued_new_data[fileKey] = compressedData;
+          ORIG_DATA[fileKey] = files[fileKey];
+        };
+        promises.push(doStuff());
+        lastKey = fileKey;
       }
+      await Promise.all(promises);
     } else {
       console.log('No files found');
       return null;
     }
-    console.log(compressed, '/', uncompressed, '=', compressed / uncompressed);
   } catch (error) {
     console.error('Error fetching files:', error);
+    return null;
   }
+  NEW_DATA = { ...NEW_DATA, ...queued_new_data };
+  fs.writeFileSync('new_data.json', JSON.stringify(NEW_DATA));
+  return lastKey;
 }
 
-fetchFirst50Files();
+(async () => {
+  let curKey = await run('-MnShqj11-xPz_4hzkDW');
+  while (curKey != null) {
+    const regSize = JSON.stringify(ORIG_DATA).length + ORIG_DATA_BASE_SIZE;
+    const compSize = JSON.stringify(NEW_DATA).length;
+    console.log(
+      'Processed',
+      Object.keys(NEW_DATA).length,
+      ' files. Currently on key',
+      curKey,
+      '. Ratio is ',
+      compSize,
+      '/',
+      regSize,
+      '=',
+      compSize / regSize
+    );
+    curKey = await run(curKey);
+  }
+  console.log('DONE??', Object.keys(NEW_DATA).length);
+})();
