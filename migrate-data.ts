@@ -34,10 +34,10 @@ const processKey = (key, fileKey, file) => {
       headless.getText(x => {
         gzipBase64Encode(x).then(y => {
           file[`c${key}`] = y;
+          headless.dispose();
           res();
         });
       });
-      headless.dispose();
     } else {
       res();
     }
@@ -50,7 +50,7 @@ if (fs.existsSync('new_data.json')) {
   NEW_DATA = JSON.parse(fs.readFileSync('new_data.json').toString());
 }
 const ORIG_DATA = {};
-const ORIG_DATA_BASE_SIZE = 438758868;
+const ORIG_DATA_BASE_SIZE = 0;
 
 async function run(lastOne) {
   if (lastOne) {
@@ -60,7 +60,7 @@ async function run(lastOne) {
     const keys = Object.keys(NEW_DATA);
     keys.sort();
     if (keys[Object.keys(NEW_DATA).length - 1] !== lastOne) {
-      throw new Error('??? not last');
+      throw new Error('??? not last. last is ' + keys[keys.length - 1]);
     }
   }
   const queued_new_data = {};
@@ -144,13 +144,14 @@ async function run(lastOne) {
   }
   NEW_DATA = { ...NEW_DATA, ...queued_new_data };
   fs.writeFileSync('new_data.json', JSON.stringify(NEW_DATA));
+  console.log('finished writing up to and including', lastKey);
   return lastKey;
 }
 
 (async () => {
-  let curKey = await run('-MnShqj11-xPz_4hzkDW');
+  let curKey = await run('-MxjNyx3k4So4sVMQFBH');
   while (curKey != null) {
-    const regSize = JSON.stringify(ORIG_DATA).length + ORIG_DATA_BASE_SIZE;
+    const regSize = JSON.stringify(ORIG_DATA).length + 1430993002;
     const compSize = JSON.stringify(NEW_DATA).length;
     console.log(
       'Processed',
