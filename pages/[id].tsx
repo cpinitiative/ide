@@ -101,7 +101,7 @@ function EditorPage() {
       expectedOutput?: string,
       prefix?: string
     ) => {
-      if (!mainMonacoEditor || !inputEditor) {
+      if (!mainMonacoEditor) {
         // editor is still loading
         return;
       }
