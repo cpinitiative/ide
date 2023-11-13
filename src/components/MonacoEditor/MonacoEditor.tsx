@@ -24,6 +24,15 @@ monaco.languages.register({
   aliases: ['cpp'],
 });
 
+// Registers some basic keywords in Java, so that they get highlighted in IDE. Link to issue: https://github.com/cpinitiative/ide/issues/91
+monaco.languages.register({
+  id: 'java',
+  extensions: ['.java'],
+  aliases: ['Java', 'java'],
+  keywords: ['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'false', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'null', 'package', 'private', 'protected', 'public', 'return', 'short', 'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'true', 'try', 'void', 'volatile', 'while'],
+});
+
+
 MonacoServices.install(); // todo disposable here...
 
 const viewStates = new Map();
