@@ -1,13 +1,13 @@
 import { TabBar } from './TabBar';
 import React, { useState, useEffect } from 'react';
-import { LazyRealtimeEditor } from './LazyRealtimeEditor';
+import { LazyRealtimeEditor } from './RealtimeEditor/LazyRealtimeEditor';
 
 import JudgeResult from '../types/judge';
-import { EditorProps } from './MonacoEditor/monaco-editor-types';
-import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
+import { EditorProps } from './editor/MonacoEditor/monaco-editor-types';
 import useUserPermission from '../hooks/useUserPermission';
 import { useUserContext } from '../context/UserContext';
 import { useEditorContext } from '../context/EditorContext';
+import { CodeEditor } from './editor/CodeEditor';
 
 export interface OutputProps {
   result: JudgeResult | null;
@@ -98,7 +98,7 @@ export const Output = ({ result, onMount }: OutputProps): JSX.Element => {
             yjsDocumentId={`${fileData.id}.scribble`}
           />
         ) : (
-          <LazyMonacoEditor
+          <CodeEditor
             theme={lightMode ? 'light' : 'vs-dark'}
             language={'plaintext'}
             value={outputText}

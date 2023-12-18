@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { mainMonacoEditorAtom } from '../../atoms/workspace';
-import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
+import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import type * as monaco from 'monaco-editor';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';

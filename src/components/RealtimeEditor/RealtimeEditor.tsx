@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { loadingAtom } from '../atoms/workspace';
-import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
-import { EditorProps } from './MonacoEditor/monaco-editor-types';
+import { loadingAtom } from '../../atoms/workspace';
+import { EditorProps } from '../editor/MonacoEditor/monaco-editor-types';
 import type * as monaco from 'monaco-editor';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
-import '../styles/yjs.css';
-import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
-import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
-import { useUserContext } from '../context/UserContext';
-import { useEditorContext } from '../context/EditorContext';
-import { SHOULD_USE_DEV_YJS_SERVER } from '../dev_constants';
+import '../../styles/yjs.css';
+import EditorConnectionStatusIndicator from '../editor/EditorConnectionStatusIndicator';
+import colorFromUserId, {
+  bgColorFromUserId,
+} from '../../scripts/colorFromUserId';
+import { useUserContext } from '../../context/UserContext';
+import { useEditorContext } from '../../context/EditorContext';
+import { SHOULD_USE_DEV_YJS_SERVER } from '../../dev_constants';
+import { CodeEditor } from '../editor/CodeEditor';
 
 export interface RealtimeEditorProps extends EditorProps {
   yjsDocumentId: string;
@@ -185,7 +187,7 @@ const RealtimeEditor = ({
         connectionStatus={connectionStatus}
         isSynced={isSynced}
       />
-      <LazyMonacoEditor
+      <CodeEditor
         {...props}
         options={editorOptions}
         onMount={(e, m) => {

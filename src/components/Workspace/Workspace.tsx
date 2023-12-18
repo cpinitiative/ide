@@ -21,7 +21,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
 import { CodeInterface } from '../CodeInterface/CodeInterface';
 import JudgeInterface from '../JudgeInterface/JudgeInterface';
-import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
+import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
