@@ -4,6 +4,8 @@ import ReactCodeMirror from '@uiw/react-codemirror';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import { cpp } from '@codemirror/lang-cpp';
+import { java } from '@codemirror/lang-java';
+import { python } from '@codemirror/lang-python';
 import { EditorProps } from '../MonacoEditor/monaco-editor-types';
 import * as Y from 'yjs';
 
@@ -25,9 +27,23 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
   }, [props.yjsInfo]);
 
   const extensions = useMemo(() => {
-    if (!yCollabExtension) return [cpp()];
-    return [cpp(), yCollabExtension];
-  }, [yCollabExtension]);
+    let extensions = [];
+    if (yCollabExtension) {
+      extensions.push(yCollabExtension);
+    }
+    if (props.language && props.language !== 'plaintext') {
+      if (props.language === 'cpp') {
+        extensions.push(cpp());
+      } else if (props.language === 'java') {
+        extensions.push(java());
+      } else if (props.language === 'python') {
+        extensions.push(python());
+      } else {
+        console.error('Unknown language: ' + props.language);
+      }
+    }
+    return extensions;
+  }, [props.language, yCollabExtension]);
 
   return (
     <ReactCodeMirror
