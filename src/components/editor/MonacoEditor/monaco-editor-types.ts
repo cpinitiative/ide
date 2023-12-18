@@ -117,4 +117,12 @@ export interface EditorProps {
   vim?: boolean;
 
   lspEnabled?: boolean;
+
+  /**
+   * If provided, the code editor should create a yjs binding with the given information
+   */
+  yjsInfo: {
+    yjsText: any;
+    yjsAwareness: any;
+  } | null;
 }

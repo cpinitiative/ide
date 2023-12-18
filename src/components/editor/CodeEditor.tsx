@@ -2,10 +2,9 @@
 
 import { CodemirrorEditor } from './CodemirrorEditor/CodemirrorEditor';
 import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
+import { EditorProps } from './MonacoEditor/monaco-editor-types';
 
-export type CodeEditorProps = any;
-
-export const CodeEditor = (props: CodeEditorProps) => {
+export const CodeEditor = (props: EditorProps) => {
   // return <LazyMonacoEditor {...props} />;
   return <CodemirrorEditor {...props} />;
 };

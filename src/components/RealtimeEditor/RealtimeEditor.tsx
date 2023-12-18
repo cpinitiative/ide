@@ -35,11 +35,13 @@ const RealtimeEditor = ({
   ...props
 }: RealtimeEditorProps): JSX.Element => {
   const { doNotInitializeTheseFileIdsRef } = useEditorContext();
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const { userData, firebaseUser } = useUserContext();
   const [, setLoading] = useAtom(loadingAtom);
   const { editorMode: mode } = userData;
+  const [yjsInfo, setYjsInfo] = useState<{
+    yjsText: any;
+    yjsAwareness: any;
+  } | null>(null);
 
   const [connectionStatus, setConnectionStatus] = useState<
     'disconnected' | 'connecting' | 'connected'
@@ -47,7 +49,7 @@ const RealtimeEditor = ({
   const [isSynced, setIsSynced] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!editor || !firebaseUser) return;
+    if (!firebaseUser) return;
 
     const { path } = props;
     const affectsLoading =
@@ -69,12 +71,10 @@ const RealtimeEditor = ({
 
     // Bind Yjs to the editor model
     const monacoText = ydocument.getText('monaco');
-    const monacoBinding = new MonacoBinding(
-      monacoText,
-      editor.getModel()!,
-      new Set([editor]),
-      provider.awareness
-    );
+    setYjsInfo({
+      yjsText: monacoText,
+      yjsAwareness: provider.awareness,
+    });
 
     // add custom color for every selector
     provider.awareness.on(
@@ -169,7 +169,7 @@ const RealtimeEditor = ({
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yjsDocumentId, firebaseUser, editor, props.path]);
+  }, [yjsDocumentId, firebaseUser, props.path]);
 
   // make editor read only until yjs syncs with server
   const editorOptions = useMemo(() => {
@@ -190,10 +190,7 @@ const RealtimeEditor = ({
       <CodeEditor
         {...props}
         options={editorOptions}
-        onMount={(e, m) => {
-          setEditor(e);
-          if (onMount) onMount(e, m);
-        }}
+        yjsInfo={yjsInfo}
         vim={useEditorWithVim && mode === 'Vim'}
       />
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import 'monaco-editor/esm/vs/editor/editor.all.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
@@ -11,6 +11,7 @@ import { MonacoServices } from 'monaco-languageclient';
 import { getOrCreateModel, usePrevious, useUpdate } from './utils';
 import { EditorProps } from './monaco-editor-types';
 import createLSPConnection from './lsp';
+import { MonacoBinding } from 'y-monaco';
 
 buildWorkerDefinition(
   'monaco-workers',
@@ -43,9 +44,12 @@ export default function MonacoEditor({
   onBeforeDispose,
   vim = false,
   lspEnabled = false,
+  yjsInfo,
 }: EditorProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editor, setEditor] =
+    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
     const modelPath = `file:///home/thecodingwizard/${path ?? 'default'}`;
@@ -64,6 +68,7 @@ export default function MonacoEditor({
       },
       {}
     );
+    setEditor(editorRef.current);
 
     if (saveViewState) {
       editorRef.current.restoreViewState(viewStates.get(modelPath));
@@ -80,11 +85,27 @@ export default function MonacoEditor({
         editorRef.current.getModel()?.dispose();
         // this throws some model is already disposed error? so ig just don't?
         editorRef.current.dispose();
+        editorRef.current = null;
       } else {
         console.error("Shouldn't happen??");
       }
+      setEditor(null);
     };
   }, []);
+
+  useEffect(() => {
+    if (!yjsInfo || !editor) return;
+    const monacoBinding = new MonacoBinding(
+      yjsInfo.yjsText,
+      editor.getModel()!,
+      new Set([editor]),
+      yjsInfo.yjsAwareness
+    );
+    return () => {
+      // if editorRef.current is null, then the editor was probably already destroyed
+      if (editorRef.current) monacoBinding.destroy();
+    };
+  }, [editor, yjsInfo]);
 
   useEffect(() => {
     // TODO fix LSP connection
