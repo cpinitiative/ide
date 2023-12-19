@@ -35,7 +35,8 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 
 - Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge)
 - Realtime collaboration with [YJS](https://github.com/yjs/yjs)
-- Monaco Editor
+- Monaco Editor (desktop)
+- Codemirror 6 Editor (mobile)
 - [monaco-languageclient](https://github.com/TypeFox/monaco-languageclient) with `clangd-12` for LSP
 - React
 - Jotai

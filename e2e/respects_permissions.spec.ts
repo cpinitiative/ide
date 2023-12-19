@@ -5,6 +5,7 @@ import {
   createNew,
   switchLang,
   isMonaco,
+  setInputEditorValue,
 } from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
