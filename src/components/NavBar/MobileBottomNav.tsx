@@ -10,18 +10,21 @@ const MobileBottomNavButton = ({
   label,
   isActive,
   onClick,
+  dataTestId,
 }: {
   // oops idk what type this is
   IconComponent: any;
   label: string;
   isActive: boolean;
   onClick: () => void;
+  dataTestId?: string;
 }) => (
   <button
     className={`${
       isActive ? 'text-gray-200' : 'text-gray-400'
     } flex flex-col items-center focus:outline-none py-1 transition`}
     onClick={() => onClick()}
+    data-testid={dataTestId}
   >
     <IconComponent className="h-5 w-5" />
     <span className="text-sm">{label}</span>
@@ -41,6 +44,7 @@ export const MobileBottomNav = (props: MobileBottomNavProps): JSX.Element => {
         label="Code"
         isActive={props.activeTab === 'code'}
         onClick={() => props.onActiveTabChange('code')}
+        dataTestId="mobile-bottom-nav-code-button"
       />
       <MobileBottomNavButton
         IconComponent={CircleStackIcon}

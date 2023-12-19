@@ -1,13 +1,17 @@
-import { test, expect, Page } from '@playwright/test';
-import { host, setInputEditorValue, setMainEditorValue } from './helpers';
+import { test, expect } from '@playwright/test';
+import {
+  host,
+  setInputEditorValue,
+  setMainEditorValue,
+  waitForMonacoToLoad,
+} from './helpers';
 
 test.describe('Basic Functionality', () => {
   test('should copy files', async ({ page }) => {
     await page.goto(`${host}/n`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    // let monaco load
-    await page.waitForTimeout(500);
+    await waitForMonacoToLoad(page);
 
     await setMainEditorValue(page, 'code_value', 'cpp');
     await setInputEditorValue(page, 'input_value');

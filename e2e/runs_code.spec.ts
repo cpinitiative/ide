@@ -1,21 +1,28 @@
 import { test, expect, Page } from '@playwright/test';
-import { createNew, forEachLang, goToPage, host, testRunCode } from './helpers';
+import {
+  createNew,
+  forEachLang,
+  goToPage,
+  host,
+  testRunCode,
+  waitForMonacoToLoad,
+} from './helpers';
 
 test.describe('Basic Functionality', () => {
-  test('should run code', async ({ page }) => {
+  test('should run code', async ({ page, isMobile }) => {
     await createNew(page);
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
     // let monaco load
-    await page.waitForTimeout(500);
+    await waitForMonacoToLoad(page);
 
     await forEachLang(page, async () => {
-      await testRunCode(page);
+      await testRunCode(page, isMobile);
     });
   });
 
-  test('should sync code', async ({ page, browser }) => {
+  test('should sync code', async ({ page, browser, isMobile }) => {
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
 
@@ -25,8 +32,13 @@ test.describe('Basic Functionality', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
-    await page.waitForTimeout(500);
-    await page2.waitForTimeout(500);
+    await waitForMonacoToLoad(page);
+    await waitForMonacoToLoad(page2);
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+      await page2.click('text=Input/Output');
+    }
 
     await page.click('[data-test-id="input-editor"]');
     await page.keyboard.type(' 4 5 6');
@@ -37,7 +49,7 @@ test.describe('Basic Functionality', () => {
     await context2.close();
   });
 
-  test('should sync output', async ({ page, browser }) => {
+  test('should sync output', async ({ page, browser, isMobile }) => {
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
 
@@ -47,6 +59,8 @@ test.describe('Basic Functionality', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
+    await waitForMonacoToLoad(page);
+    await waitForMonacoToLoad(page2);
     await page.waitForTimeout(500);
     await page2.waitForTimeout(500);
 
@@ -55,6 +69,12 @@ test.describe('Basic Functionality', () => {
     await page2.waitForSelector('[data-test-id="run-code-loading"]');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+      await page2.click('text=Input/Output');
+    }
+
     expect(await page.$('text=Successful')).toBeTruthy();
     expect(await page2.$('text=Successful')).toBeTruthy();
     await page.locator('button:has-text("stdout")').click();

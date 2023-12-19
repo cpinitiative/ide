@@ -7,6 +7,7 @@ import {
   setMainEditorValue,
   switchLang,
   testRunCode,
+  waitForMonacoToLoad,
 } from './helpers';
 
 test.describe('USACO Judge Functionality', () => {
@@ -47,8 +48,7 @@ test.describe('USACO Judge Functionality', () => {
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
-    // wait for monaco to load
-    await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
+    await waitForMonacoToLoad(page);
 
     if (isMobile) {
       await page.click('text=Input/Output');
@@ -111,8 +111,7 @@ System.out.println(hIndex(papers));
     await page.goto(`${host}/usaco/1131`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    // wait for monaco to load
-    await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
+    await waitForMonacoToLoad(page);
 
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
@@ -136,8 +135,7 @@ System.out.println(hIndex(papers));
     await page.goto(`${host}/usaco/363`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    // wait for monaco to load
-    await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
+    await waitForMonacoToLoad(page);
 
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 

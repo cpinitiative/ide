@@ -6,13 +6,14 @@ import {
   switchLang,
   isMonaco,
   setInputEditorValue,
+  waitForMonacoToLoad,
 } from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
 // rather than just silently failing.
 
 test.describe('Respects Permissions', () => {
-  test('should support view only', async ({ page, browser }) => {
+  test('should support view only', async ({ page, browser, isMobile }) => {
     const context2 = await browser.newContext();
 
     const page2 = await context2.newPage();
@@ -28,8 +29,13 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('text="View Only"');
 
     // let monaco load
-    await page.waitForTimeout(500);
-    await page2.waitForTimeout(500);
+    await waitForMonacoToLoad(page);
+    await waitForMonacoToLoad(page2);
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+      await page2.click('text=Input/Output');
+    }
 
     // test input
     await page2.click('[data-test-id="input-editor"]');
@@ -41,9 +47,8 @@ test.describe('Respects Permissions', () => {
     await page.click('[data-test-id="input-editor"]');
     await page.waitForTimeout(200);
     await page.keyboard.type(' 4 5 6');
-    await page.waitForTimeout(200);
-    expect(await page.$('text="1 2 3 4 5 6"')).toBeTruthy();
-    await page2.waitForSelector('text="1 2 3 4 5 6"');
+    await expect(page.getByText('1 2 3 4 5 6')).toBeVisible();
+    await expect(page2.getByText('1 2 3 4 5 6')).toBeVisible();
 
     // test scribble
     await page2.click('text=scribble');
@@ -63,6 +68,11 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="testing scribble"')).toBeTruthy();
     await page2.waitForSelector('text="testing scribble"');
 
+    if (isMobile) {
+      await page.getByTestId('mobile-bottom-nav-code-button').click();
+      await page2.getByTestId('mobile-bottom-nav-code-button').click();
+    }
+
     // the class of the div containing the editor is different for monaco and codemirror
     const editorClass = (await isMonaco(page)) ? '.view-lines' : '.cm-content';
 
@@ -80,7 +90,7 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('text="// this is a comment"');
 
     // test run buttons -- only the first page should work
-    await testRunCode(page);
+    await testRunCode(page, isMobile);
     await expect(
       page2.getByRole('button', { name: 'Run Code' })
     ).toBeDisabled();
@@ -122,6 +132,7 @@ test.describe('Respects Permissions', () => {
   test('should work when default permission is changed', async ({
     page,
     browser,
+    isMobile,
   }) => {
     const context2 = await browser.newContext();
 
@@ -134,8 +145,16 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
+    await waitForMonacoToLoad(page);
+    await waitForMonacoToLoad(page2);
+    // unclear if these are needed -- maybe yjs needs time to initialize.
     await page.waitForTimeout(500);
     await page2.waitForTimeout(500);
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+      await page2.click('text=Input/Output');
+    }
 
     // test input: everything should still work right now
     await page2.click('[data-test-id="input-editor"]');

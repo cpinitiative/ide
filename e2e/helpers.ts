@@ -19,7 +19,13 @@ export async function goToPage(page1: Page, page2: Page) {
   // );
 }
 
-export const testRunCode = async (page: Page): Promise<void> => {
+export const testRunCode = async (
+  page: Page,
+  isMobile: boolean
+): Promise<void> => {
+  if (isMobile) {
+    await page.click('text=Input/Output');
+  }
   await page.locator('button:has-text("stdout")').click();
   await page.click('button:has-text("Run Code")');
   expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();
@@ -29,6 +35,9 @@ export const testRunCode = async (page: Page): Promise<void> => {
   await expect(
     page.getByText('The sum of these three numbers is 6')
   ).toBeVisible({ timeout: 1000 });
+  if (isMobile) {
+    await page.getByTestId('mobile-bottom-nav-code-button').click();
+  }
 };
 
 export const switchLang = async (
@@ -54,6 +63,11 @@ export const forEachLang = async (
 
   await switchLang(page, 'C++');
   await func();
+};
+
+export const waitForMonacoToLoad = async (page: Page): Promise<void> => {
+  // wait for monaco to load (monaco is a lazy component, so it may take some time for it to load)
+  await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
 };
 
 export const isMonaco = async (page: Page): Promise<boolean> => {
