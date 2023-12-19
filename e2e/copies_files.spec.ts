@@ -21,11 +21,12 @@ test.describe('Basic Functionality', () => {
     await page.goto(page.url() + '/copy');
     await page.waitForSelector('button:has-text("Run Code")');
 
-    expect(await page.$('text="code_value"')).toBeTruthy();
-
-    // wait for yjs server to sync. Run Code button is shown once the main
-    // editor is loaded, but the input editor might not have loaded yet.
+    // wait for yjs server to sync
+    // I think the reason this is necessary is it's possible for yjs
+    // to finish syncing, but the monaco / codemirror binding hasn't happened yet.
     await page.waitForTimeout(1500);
+
+    expect(await page.$('text="code_value"')).toBeTruthy();
     expect(await page.$('text="input_value"')).toBeTruthy();
   });
 });

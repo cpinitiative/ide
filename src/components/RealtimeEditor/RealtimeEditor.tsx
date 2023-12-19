@@ -27,7 +27,6 @@ const WEBSOCKET_SERVER = SHOULD_USE_DEV_YJS_SERVER
   : 'wss://yjs.usaco.guide:443';
 
 const RealtimeEditor = ({
-  onMount,
   defaultValue,
   yjsDocumentId,
   useEditorWithVim = false,
@@ -181,6 +180,7 @@ const RealtimeEditor = ({
   return (
     <div
       className="tw-forms-disable tw-forms-disable-all-descendants h-full relative"
+      // ugh this should really be data-testid
       data-test-id={dataTestId}
     >
       <EditorConnectionStatusIndicator
