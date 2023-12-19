@@ -10,9 +10,6 @@ test.describe('Basic Functionality', () => {
     // let monaco load
     await page.waitForTimeout(500);
 
-    await page.click('[data-test-id="input-editor"]');
-    await page.keyboard.type('1 2 3');
-
     await forEachLang(page, async () => {
       await testRunCode(page);
     });
@@ -32,9 +29,9 @@ test.describe('Basic Functionality', () => {
     await page2.waitForTimeout(500);
 
     await page.click('[data-test-id="input-editor"]');
-    await page.keyboard.type('1 2 3');
+    await page.keyboard.type(' 4 5 6');
 
-    await page2.waitForSelector('text="1 2 3"', { timeout: 2000 });
+    await page2.waitForSelector('text="1 2 3 4 5 6"', { timeout: 2000 });
 
     await page2.close();
     await context2.close();
@@ -52,9 +49,6 @@ test.describe('Basic Functionality', () => {
     // let monaco load
     await page.waitForTimeout(500);
     await page2.waitForTimeout(500);
-
-    await page.click('[data-test-id="input-editor"]');
-    await page.keyboard.type('1 2 3');
 
     await page.click('button:has-text("Run Code")');
     expect(await page.$('[data-test-id="run-code-loading"]')).toBeTruthy();

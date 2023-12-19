@@ -183,7 +183,7 @@ export default function Workspace({
                     window['TEST_inputCodemirrorEditor'] = view;
                     setCodemirrorInputEditor(view);
                   }}
-                  defaultValue=""
+                  defaultValue="1 2 3"
                   yjsDocumentId={`${fileData.id}.input`}
                 />
               )}

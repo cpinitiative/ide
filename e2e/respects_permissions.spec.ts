@@ -34,16 +34,16 @@ test.describe('Respects Permissions', () => {
     // test input
     await page2.click('[data-test-id="input-editor"]');
     await page2.waitForTimeout(200);
-    await page2.keyboard.type('1 2 3');
+    await page2.keyboard.type(' 4 5 6');
     await page2.waitForTimeout(200);
-    expect(await page2.$('text="1 2 3"')).toBeFalsy();
+    expect(await page2.$('text="1 2 3 4 5 6"')).toBeFalsy();
 
     await page.click('[data-test-id="input-editor"]');
     await page.waitForTimeout(200);
-    await page.keyboard.type('1 2 3');
+    await page.keyboard.type(' 4 5 6');
     await page.waitForTimeout(200);
-    expect(await page.$('text="1 2 3"')).toBeTruthy();
-    await page2.waitForSelector('text="1 2 3"');
+    expect(await page.$('text="1 2 3 4 5 6"')).toBeTruthy();
+    await page2.waitForSelector('text="1 2 3 4 5 6"');
 
     // test scribble
     await page2.click('text=scribble');
@@ -139,8 +139,8 @@ test.describe('Respects Permissions', () => {
 
     // test input: everything should still work right now
     await page2.click('[data-test-id="input-editor"]');
-    await page2.keyboard.type('1 2 3');
-    await page2.waitForSelector('text="1 2 3"');
+    await page2.keyboard.type(' 4');
+    await page2.waitForSelector('text="1 2 3 4"');
 
     // try view only
     await page.click('text=File');
@@ -151,8 +151,8 @@ test.describe('Respects Permissions', () => {
 
     // test input: we shouldn't be able to type anything on page 2
     await page2.click('[data-test-id="input-editor"]');
-    await page2.keyboard.type('4 5 6');
-    expect(await page2.$('text="4 5 6"')).toBeFalsy();
+    await page2.keyboard.type(' 0');
+    expect(await page2.$('text="1 2 3 4 5 6 0"')).toBeFalsy();
 
     // try private
     await page.click('text=File');
@@ -172,9 +172,9 @@ test.describe('Respects Permissions', () => {
 
     // test input: we should be able to type stuff now
     await page2.click('[data-test-id="input-editor"]');
-    await page2.keyboard.type('0 9 8');
+    await page2.keyboard.type(' 1');
     // 1 2 3 from above
-    await page2.waitForSelector('text="1 2 30 9 8"');
+    await page2.waitForSelector('text="1 2 3 4 1"');
 
     await page2.close();
     await context2.close();
