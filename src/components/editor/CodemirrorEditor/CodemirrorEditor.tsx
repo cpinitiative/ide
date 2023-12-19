@@ -1,6 +1,7 @@
 // A codemirror editor, used on mobile devices
 
 import ReactCodeMirror, { Extension } from '@uiw/react-codemirror';
+import { indentUnit } from '@codemirror/language';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import { cpp } from '@codemirror/lang-cpp';
@@ -44,6 +45,8 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
 
   const extensions = useMemo(() => {
     let extensions = [];
+    const tabSize = props.options?.tabSize || 4;
+    extensions.push(indentUnit.of(' '.repeat(tabSize)));
     if (yCollabExtension) {
       extensions.push(yCollabExtension);
     }
@@ -59,8 +62,9 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
       }
     }
     return extensions;
-  }, [props.language, yCollabExtension]);
+  }, [props.language, yCollabExtension, props.options?.tabSize]);
 
+  // todo: need to deal with props.options.tabSize
   return (
     <ReactCodeMirror
       // force entire component to re-mount (and re-initialize codemirror) when yjs document ID changes
