@@ -7,6 +7,7 @@ import { githubLight } from '@uiw/codemirror-theme-github';
 import { cpp } from '@codemirror/lang-cpp';
 import { java } from '@codemirror/lang-java';
 import { python } from '@codemirror/lang-python';
+import { vim } from '@replit/codemirror-vim';
 import { EditorProps } from '../MonacoEditor/monaco-editor-types';
 import * as Y from 'yjs';
 
@@ -50,6 +51,9 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
     if (yCollabExtension) {
       extensions.push(yCollabExtension);
     }
+    if (props.vim) {
+      extensions.push(vim());
+    }
     if (props.language && props.language !== 'plaintext') {
       if (props.language === 'cpp') {
         extensions.push(cpp());
@@ -62,7 +66,7 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
       }
     }
     return extensions;
-  }, [props.language, yCollabExtension, props.options?.tabSize]);
+  }, [props.language, yCollabExtension, props.options?.tabSize, props.vim]);
 
   // todo: need to deal with props.options.tabSize
   return (
