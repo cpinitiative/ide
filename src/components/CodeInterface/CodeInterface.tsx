@@ -45,8 +45,15 @@ export const CodeInterface = ({
   useEffect(() => {
     if (codemirrorEditor) {
       setMainCodemirrorEditor(codemirrorEditor);
+
+      // this is used by e2e/helpers.ts to set the value of the main codemirror editor
+      // @ts-ignore
+      window['TEST_mainCodemirrorEditor'] = codemirrorEditor;
+
       return () => {
         setMainCodemirrorEditor(null);
+        // @ts-ignore
+        window['TEST_mainCodemirrorEditor'] = null;
       };
     }
   }, [codemirrorEditor, setCodemirrorEditor]);

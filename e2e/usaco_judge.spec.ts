@@ -4,6 +4,7 @@ import {
   forEachLang,
   goToPage,
   host,
+  setMainEditorValue,
   switchLang,
   testRunCode,
 } from './helpers';
@@ -166,9 +167,7 @@ System.out.println(hIndex(papers));
       }
       return 0;
     }`;
-    await page.evaluate(
-      `this.monaco.editor.getModels().find(x => x.getLanguageId() === "cpp").setValue(\`${code}\`)`
-    );
+    await setMainEditorValue(page, code, 'cpp');
 
     await page.locator('button:has-text("Run Samples")').click();
 

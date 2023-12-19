@@ -1,5 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
-import { testRunCode, goToPage, createNew, switchLang } from './helpers';
+import {
+  testRunCode,
+  goToPage,
+  createNew,
+  switchLang,
+  isMonaco,
+} from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
 // rather than just silently failing.
@@ -56,13 +62,16 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="testing scribble"')).toBeTruthy();
     await page2.waitForSelector('text="testing scribble"');
 
+    // the class of the div containing the editor is different for monaco and codemirror
+    const editorClass = (await isMonaco(page)) ? '.view-lines' : '.cm-content';
+
     // test editor
-    await page2.click('.view-lines div:nth-child(10)');
+    await page2.click(`${editorClass} div:nth-child(10)`);
     await page.waitForTimeout(200);
     await page2.keyboard.type('// this is a comment');
     await page.waitForTimeout(200);
     expect(await page2.$('text="// this is a comment"')).toBeFalsy();
-    await page.click('.view-lines div:nth-child(10)');
+    await page.click(`${editorClass} div:nth-child(10)`);
     await page.waitForTimeout(200);
     await page.keyboard.type('// this is a comment');
     await page.waitForTimeout(200);
@@ -78,12 +87,12 @@ test.describe('Respects Permissions', () => {
     await switchLang(page, 'Java');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
-    await page2.click('.view-lines div:nth-child(2)');
+    await page2.click(`${editorClass} div:nth-child(2)`);
     await page.waitForTimeout(200);
     await page2.keyboard.type('// this is a comment');
     await page.waitForTimeout(200);
     expect(await page2.$('text="// this is a comment"')).toBeFalsy();
-    await page.click('.view-lines div:nth-child(2)');
+    await page.click(`${editorClass} div:nth-child(2)`);
     await page.waitForTimeout(200);
     await page.keyboard.type('// this is a comment');
     await page.waitForTimeout(200);
@@ -93,12 +102,12 @@ test.describe('Respects Permissions', () => {
     await switchLang(page, 'Python 3.8.1');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
-    await page2.click('.view-lines div:nth-child(5)');
+    await page2.click(`${editorClass} div:nth-child(5)`);
     await page.waitForTimeout(200);
     await page2.keyboard.type('# this is a comment');
     await page.waitForTimeout(200);
     expect(await page2.$('text="# this is a comment"')).toBeFalsy();
-    await page.click('.view-lines div:nth-child(5)');
+    await page.click(`${editorClass} div:nth-child(5)`);
     await page.waitForTimeout(200);
     await page.keyboard.type('# this is a comment');
     await page.waitForTimeout(200);

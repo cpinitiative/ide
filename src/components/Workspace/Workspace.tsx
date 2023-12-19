@@ -177,9 +177,12 @@ export default function Workspace({
                       e.layout();
                     }, 0);
                   }}
-                  onCodemirrorMount={(view, state) =>
-                    setCodemirrorInputEditor(view)
-                  }
+                  onCodemirrorMount={(view, state) => {
+                    // this is used by e2e/helpers.ts to set the value of the input codemirror editor
+                    // @ts-ignore
+                    window['TEST_inputCodemirrorEditor'] = view;
+                    setCodemirrorInputEditor(view);
+                  }}
                   defaultValue=""
                   yjsDocumentId={`${fileData.id}.input`}
                 />

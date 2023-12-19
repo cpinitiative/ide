@@ -55,3 +55,49 @@ export const forEachLang = async (
   await switchLang(page, 'C++');
   await func();
 };
+
+export const isMonaco = async (page: Page): Promise<boolean> => {
+  // note: this is a hacky way to detect whether we are using monaco.
+  // in particular, it's possible for this.monaco to be loaded,
+  // for us to resize the window to be small, and for us to use codemirror
+  // even though this.monaco is set
+  if (await page.evaluate(`this.monaco`)) {
+    return true;
+  }
+  return false;
+};
+
+export const setMainEditorValue = async (
+  page: Page,
+  value: string,
+  language: string // needed for monaco only
+): Promise<void> => {
+  if (await isMonaco(page)) {
+    await page.evaluate(
+      `this.monaco.editor.getModels().find(x => x.getLanguageId() === "${language}").setValue(\`${value}\`)`
+    );
+  } else {
+    await page.evaluate(`
+      this.TEST_mainCodemirrorEditor.dispatch({
+        changes: {from: 0, to: this.TEST_mainCodemirrorEditor.state.doc.length, insert: \`${value}\`}
+      });
+    `);
+  }
+};
+
+export const setInputEditorValue = async (
+  page: Page,
+  value: string
+): Promise<void> => {
+  if (await isMonaco(page)) {
+    await page.evaluate(
+      `this.monaco.editor.getModels().find(x => x.getLanguageId() === "plaintext").setValue(\`${value}\`)`
+    );
+  } else {
+    await page.evaluate(`
+      this.TEST_inputCodemirrorEditor.dispatch({
+        changes: {from: 0, to: this.TEST_inputCodemirrorEditor.state.doc.length, insert: \`${value}\`}
+      });
+    `);
+  }
+};
