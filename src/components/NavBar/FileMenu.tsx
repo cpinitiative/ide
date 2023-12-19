@@ -12,7 +12,11 @@ import classNames from 'classnames';
 import ReactDOM from 'react-dom';
 import { usePopper } from 'react-popper';
 
-import { mainMonacoEditorAtom } from '../../atoms/workspace';
+import {
+  mainCodemirrorEditorAtom,
+  mainEditorValueAtom,
+  mainMonacoEditorAtom,
+} from '../../atoms/workspace';
 import { useAtomValue } from 'jotai';
 import { useEditorContext } from '../../context/EditorContext';
 import defaultCode from '../../scripts/defaultCode';
@@ -22,7 +26,9 @@ import useUserPermission from '../../hooks/useUserPermission';
 
 export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
   const { fileData } = useEditorContext();
+  const getMainEditorValue = useAtomValue(mainEditorValueAtom);
   const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
+  const mainCodemirrorEditor = useAtomValue(mainCodemirrorEditorAtom);
   const permission = useUserPermission();
 
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
@@ -41,12 +47,12 @@ export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
 
   /* ======= BEGIN DROPDOWN ACTIONS ======= */
   const handleDownloadFile = () => {
-    if (!mainMonacoEditor) {
+    if (!getMainEditorValue) {
       alert("Editor hasn't loaded yet. Please wait.");
       return;
     }
 
-    const code = mainMonacoEditor.getValue();
+    const code = getMainEditorValue();
 
     const fileNames = {
       cpp: `${fileData.settings.workspaceName}.cpp`,
@@ -58,12 +64,26 @@ export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
   };
 
   const handleInsertFileTemplate = () => {
-    if (!mainMonacoEditor) {
+    if (!mainMonacoEditor && !mainCodemirrorEditor) {
       alert("Editor hasn't loaded yet, please wait");
       return;
     }
     if (confirm('Reset current file? Any changes you made will be lost.')) {
-      mainMonacoEditor.setValue(defaultCode[fileData.settings.language]);
+      if (mainMonacoEditor)
+        mainMonacoEditor.setValue(defaultCode[fileData.settings.language]);
+      else if (mainCodemirrorEditor) {
+        mainCodemirrorEditor.dispatch({
+          changes: {
+            from: 0,
+            to: mainCodemirrorEditor.state.doc.length,
+            insert: defaultCode[fileData.settings.language],
+          },
+        });
+      } else {
+        console.error(
+          "?? shouldn't happen, both monaco and codemirror editors are not defined"
+        );
+      }
     }
   };
 

@@ -9,6 +9,7 @@ import {
   layoutEditorsAtom,
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
+  inputCodemirrorEditorAtom,
 } from '../../atoms/workspace';
 import {
   mobileActiveTabAtom,
@@ -82,6 +83,7 @@ export default function Workspace({
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
+  const setCodemirrorInputEditor = useUpdateAtom(inputCodemirrorEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const [problem, setProblem] = useAtom(problemAtom);
 
@@ -175,6 +177,9 @@ export default function Workspace({
                       e.layout();
                     }, 0);
                   }}
+                  onCodemirrorMount={(view, state) =>
+                    setCodemirrorInputEditor(view)
+                  }
                   defaultValue=""
                   yjsDocumentId={`${fileData.id}.input`}
                 />

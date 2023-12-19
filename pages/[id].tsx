@@ -8,9 +8,11 @@ import { submitToJudge } from '../src/scripts/judge';
 import { useAtom, useAtomValue } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import {
+  inputEditorValueAtom,
   inputMonacoEditorAtom,
   layoutEditorsAtom,
   loadingAtom,
+  mainEditorValueAtom,
   mainMonacoEditorAtom,
 } from '../src/atoms/workspace';
 import {
@@ -46,8 +48,8 @@ function EditorPage() {
   const isDesktop = useMediaQuery('(min-width: 1024px)', true);
   const layoutEditors = useUpdateAtom(layoutEditorsAtom);
   const [mobileActiveTab, setMobileActiveTab] = useAtom(mobileActiveTabAtom);
-  const inputEditor = useAtomValue(inputMonacoEditorAtom);
-  const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
+  const getMainEditorValue = useAtomValue(mainEditorValueAtom);
+  const getInputEditorValue = useAtomValue(inputEditorValueAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
 
   useUserFileConnection();
@@ -101,7 +103,7 @@ function EditorPage() {
       expectedOutput?: string,
       prefix?: string
     ) => {
-      if (!mainMonacoEditor) {
+      if (!getMainEditorValue) {
         // editor is still loading
         return;
       }
@@ -109,7 +111,7 @@ function EditorPage() {
       setIsRunning(true);
       setResultAt(inputTabIndex, null);
 
-      const code = mainMonacoEditor.getValue();
+      const code = getMainEditorValue();
       fetchJudge(code, input)
         .then(async resp => {
           const data: JudgeResult = await resp.json();
@@ -138,7 +140,7 @@ function EditorPage() {
     };
 
     const runAllSamples = async () => {
-      if (!problem || !mainMonacoEditor) {
+      if (!problem || !getMainEditorValue) {
         // editor is still loading
         return;
       }
@@ -147,7 +149,7 @@ function EditorPage() {
       setIsRunning(true);
       setResultAt(1, null);
 
-      const code = mainMonacoEditor.getValue();
+      const code = getMainEditorValue();
       try {
         const promises = [];
         for (let index = 0; index < samples.length; ++index) {
@@ -219,7 +221,7 @@ function EditorPage() {
     };
 
     if (inputTab === 'input') {
-      if (inputEditor) runWithInput(inputEditor.getValue());
+      if (getInputEditorValue) runWithInput(getInputEditorValue());
     } else if (inputTab === 'judge') {
       runAllSamples();
     } else {

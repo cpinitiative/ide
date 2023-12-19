@@ -58,6 +58,7 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
       style={{ fontSize: '13px' }}
       readOnly={props.options?.readOnly ?? false}
       extensions={extensions}
+      onCreateEditor={props.onCodemirrorMount}
     />
   );
 };

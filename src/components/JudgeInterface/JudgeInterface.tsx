@@ -1,6 +1,9 @@
 import { useAtomValue } from 'jotai/utils';
 import React from 'react';
-import { mainMonacoEditorAtom } from '../../atoms/workspace';
+import {
+  mainEditorValueAtom,
+  mainMonacoEditorAtom,
+} from '../../atoms/workspace';
 import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
@@ -48,11 +51,11 @@ export default function JudgeInterface({
   setStatusData: React.Dispatch<React.SetStateAction<StatusData | null>>;
   handleRunCode: () => void;
 }): JSX.Element {
-  const mainMonacoEditor = useAtomValue(mainMonacoEditorAtom);
+  const getMainEditorValue = useAtomValue(mainEditorValueAtom);
   const lang = useEditorContext().fileData.settings.language;
 
   const handleSubmit = async () => {
-    if (!mainMonacoEditor || !lang) {
+    if (!getMainEditorValue || !lang) {
       alert('Error: Page still loading?');
       return;
     }
@@ -64,7 +67,7 @@ export default function JudgeInterface({
     const data = {
       problemID: problem.id,
       language: { cpp: 'c++17', java: 'java', py: 'python3' }[lang],
-      base64Code: encode(mainMonacoEditor.getValue()),
+      base64Code: encode(getMainEditorValue()),
     };
 
     const resp = await fetch(`${judgePrefix}/submit`, {
