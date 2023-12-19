@@ -1,6 +1,6 @@
 // A codemirror editor, used on mobile devices
 
-import ReactCodeMirror from '@uiw/react-codemirror';
+import ReactCodeMirror, { Extension } from '@uiw/react-codemirror';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { githubLight } from '@uiw/codemirror-theme-github';
 import { cpp } from '@codemirror/lang-cpp';
@@ -19,11 +19,27 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
     if (!props.yjsInfo) return;
 
     const undoManager = new Y.UndoManager(props.yjsInfo.yjsText);
-    setYCollabExtension(
-      yCollab(props.yjsInfo.yjsText, props.yjsInfo.yjsAwareness, {
+    const yCollabPlugins = yCollab(
+      props.yjsInfo.yjsText,
+      props.yjsInfo.yjsAwareness,
+      {
         undoManager,
-      })
-    );
+      }
+    ) as Extension[];
+    setYCollabExtension(yCollabPlugins);
+
+    return () => {
+      // some of the codemirror yjs plugins need to be destroyed
+      // so that it stops listening to yjs updates; otherwise
+      // we may end up with a bug where the codemirror editor
+      // has a bunch of duplicated text.
+      // normally this shouldn't ever happen, since this effect should only be run once,
+      // but I think react in development mode may run effects more than once
+      // and this effect isn't "pure" unless these plugins are destroyed.
+      yCollabPlugins.forEach(plugin => {
+        if ((plugin as any).destroy) (plugin as any).destroy();
+      });
+    };
   }, [props.yjsInfo]);
 
   const extensions = useMemo(() => {
