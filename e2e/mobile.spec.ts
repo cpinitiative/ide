@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { host, isDesktop } from './helpers';
+import { host, isMonaco } from './helpers';
 
 test.describe('Mobile Specific Checks', () => {
   test('should load monaco for desktop and codemirror for mobile', async ({
@@ -11,9 +11,9 @@ test.describe('Mobile Specific Checks', () => {
     await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
 
     if (isMobile) {
-      expect(await isDesktop(page)).toBeFalsy();
+      expect(await isMonaco(page)).toBeFalsy();
     } else {
-      expect(await isDesktop(page)).toBeTruthy();
+      expect(await isMonaco(page)).toBeTruthy();
     }
   });
 });

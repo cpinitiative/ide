@@ -4,7 +4,7 @@ import {
   goToPage,
   createNew,
   switchLang,
-  isDesktop,
+  isMonaco,
   setInputEditorValue,
 } from './helpers';
 
@@ -64,7 +64,7 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('text="testing scribble"');
 
     // the class of the div containing the editor is different for monaco and codemirror
-    const editorClass = (await isDesktop(page)) ? '.view-lines' : '.cm-content';
+    const editorClass = (await isMonaco(page)) ? '.view-lines' : '.cm-content';
 
     // test editor
     await page2.click(`${editorClass} div:nth-child(10)`);
