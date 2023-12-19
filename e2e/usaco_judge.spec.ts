@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 test.describe('USACO Judge Functionality', () => {
-  test('should fetch usaco info correctly', async ({ page }) => {
+  test('should fetch usaco info correctly', async ({ page, isMobile }) => {
     await page.goto(`${host}/usaco/1131`);
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
@@ -19,6 +19,10 @@ test.describe('USACO Judge Functionality', () => {
 
     expect(await page.$('text=2021 US Open Bronze')).toBeTruthy();
     expect(await page.$('text=Acowdemia I')).toBeTruthy();
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+    }
 
     await page.locator('text=Sample 1').click();
     expect(await page.$('text=4 0 1 100 2 3')).toBeTruthy();
@@ -37,7 +41,7 @@ test.describe('USACO Judge Functionality', () => {
     ).toBeTruthy();
   });
 
-  test('should be able to run samples', async ({ page }) => {
+  test('should be able to run samples', async ({ page, isMobile }) => {
     await page.goto(`${host}/usaco/1131`);
 
     await page.waitForSelector('button:has-text("Run Code")');
@@ -45,6 +49,10 @@ test.describe('USACO Judge Functionality', () => {
 
     // wait for monaco to load
     await expect(page.getByTestId('monacoLoadingMessage')).toHaveCount(0);
+
+    if (isMobile) {
+      await page.click('text=Input/Output');
+    }
 
     await page.locator('button:has-text("Run Samples")').click();
 
@@ -96,7 +104,10 @@ System.out.println(hIndex(papers));
     ).toContainText('Sample Verdicts: AA. Sample 2: Successful');
   });
 
-  test('should be able to submit to USACO server', async ({ page }) => {
+  test('should be able to submit to USACO server', async ({
+    page,
+    isMobile,
+  }) => {
     await page.goto(`${host}/usaco/1131`);
     await page.waitForSelector('button:has-text("Run Code")');
 
@@ -108,6 +119,9 @@ System.out.println(hIndex(papers));
     await page.waitForSelector('button:has-text("Run Code")');
 
     // Submit code
+    if (isMobile) {
+      await page.click('text=Input/Output');
+    }
     await page.locator('button:has-text("Submit")').click();
 
     await page
@@ -117,6 +131,7 @@ System.out.println(hIndex(papers));
 
   test('should be able to use file I/O for usaco problems', async ({
     page,
+    isMobile,
   }) => {
     await page.goto(`${host}/usaco/363`);
     await page.waitForSelector('button:has-text("Run Code")');
@@ -178,6 +193,9 @@ System.out.println(hIndex(papers));
     }`;
     await setMainEditorValue(page, code, 'cpp');
 
+    if (isMobile) {
+      await page.click('text=Input/Output');
+    }
     await page.locator('button:has-text("Run Samples")').click();
 
     await page
