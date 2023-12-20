@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 
 const LazyMonacoEditor = dynamic(() => import('./MonacoEditor'), {
-  loading: () => <div>Loading...</div>,
+  loading: () => <div data-testid="editorLoadingMessage">Loading...</div>,
   ssr: false,
 });
 

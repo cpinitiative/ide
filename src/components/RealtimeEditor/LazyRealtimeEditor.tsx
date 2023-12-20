@@ -7,7 +7,6 @@ const Editor = dynamic(() => import('./RealtimeEditor'), {
   ssr: false,
 });
 
-// `${fileId}.${firebaseRef.key}`;
 export const LazyRealtimeEditor = (props: RealtimeEditorProps): JSX.Element => {
   return <Editor {...props} />;
 };

@@ -9,6 +9,7 @@ import {
   layoutEditorsAtom,
   inputMonacoEditorAtom,
   outputMonacoEditorAtom,
+  inputCodemirrorEditorAtom,
 } from '../../atoms/workspace';
 import {
   mobileActiveTabAtom,
@@ -21,7 +22,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Chat } from '../Chat';
 import { CodeInterface } from '../CodeInterface/CodeInterface';
 import JudgeInterface from '../JudgeInterface/JudgeInterface';
-import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
+import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
@@ -82,6 +83,7 @@ export default function Workspace({
   const [inputTab, setInputTab] = useAtom(inputTabAtom);
   const showSidebar = useAtomValue(showSidebarAtom);
   const setInputEditor = useUpdateAtom(inputMonacoEditorAtom);
+  const setCodemirrorInputEditor = useUpdateAtom(inputCodemirrorEditorAtom);
   const setOutputEditor = useUpdateAtom(outputMonacoEditorAtom);
   const [problem, setProblem] = useAtom(problemAtom);
 
@@ -175,7 +177,13 @@ export default function Workspace({
                       e.layout();
                     }, 0);
                   }}
-                  defaultValue=""
+                  onCodemirrorMount={(view, state) => {
+                    // this is used by e2e/helpers.ts to set the value of the input codemirror editor
+                    // @ts-ignore
+                    window['TEST_inputCodemirrorEditor'] = view;
+                    setCodemirrorInputEditor(view);
+                  }}
+                  defaultValue="1 2 3"
                   yjsDocumentId={`${fileData.id}.input`}
                 />
               )}

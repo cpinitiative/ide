@@ -34,3 +34,6 @@ yarn-error.log*
 /test-results/
 /playwright-report/
 /playwright/.cache/
+# private folder where I store firebase admin key
+private
+.env

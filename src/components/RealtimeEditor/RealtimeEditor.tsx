@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { loadingAtom } from '../atoms/workspace';
-import LazyMonacoEditor from './MonacoEditor/LazyMonacoEditor';
-import { EditorProps } from './MonacoEditor/monaco-editor-types';
+import { loadingAtom } from '../../atoms/workspace';
+import { EditorProps } from '../editor/MonacoEditor/monaco-editor-types';
 import type * as monaco from 'monaco-editor';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
-import '../styles/yjs.css';
-import EditorConnectionStatusIndicator from './editor/EditorConnectionStatusIndicator';
-import colorFromUserId, { bgColorFromUserId } from '../scripts/colorFromUserId';
-import { useUserContext } from '../context/UserContext';
-import { useEditorContext } from '../context/EditorContext';
-import { SHOULD_USE_DEV_YJS_SERVER } from '../dev_constants';
+import '../../styles/yjs.css';
+import EditorConnectionStatusIndicator from '../editor/EditorConnectionStatusIndicator';
+import colorFromUserId, {
+  bgColorFromUserId,
+} from '../../scripts/colorFromUserId';
+import { useUserContext } from '../../context/UserContext';
+import { useEditorContext } from '../../context/EditorContext';
+import { SHOULD_USE_DEV_YJS_SERVER } from '../../dev_constants';
+import { CodeEditor } from '../editor/CodeEditor';
 
 export interface RealtimeEditorProps extends EditorProps {
   yjsDocumentId: string;
@@ -25,7 +27,6 @@ const WEBSOCKET_SERVER = SHOULD_USE_DEV_YJS_SERVER
   : 'wss://yjs.usaco.guide:443';
 
 const RealtimeEditor = ({
-  onMount,
   defaultValue,
   yjsDocumentId,
   useEditorWithVim = false,
@@ -33,11 +34,13 @@ const RealtimeEditor = ({
   ...props
 }: RealtimeEditorProps): JSX.Element => {
   const { doNotInitializeTheseFileIdsRef } = useEditorContext();
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const { userData, firebaseUser } = useUserContext();
   const [, setLoading] = useAtom(loadingAtom);
   const { editorMode: mode } = userData;
+  const [yjsInfo, setYjsInfo] = useState<{
+    yjsText: any;
+    yjsAwareness: any;
+  } | null>(null);
 
   const [connectionStatus, setConnectionStatus] = useState<
     'disconnected' | 'connecting' | 'connected'
@@ -45,7 +48,7 @@ const RealtimeEditor = ({
   const [isSynced, setIsSynced] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!editor || !firebaseUser) return;
+    if (!firebaseUser) return;
 
     const { path } = props;
     const affectsLoading =
@@ -67,12 +70,10 @@ const RealtimeEditor = ({
 
     // Bind Yjs to the editor model
     const monacoText = ydocument.getText('monaco');
-    const monacoBinding = new MonacoBinding(
-      monacoText,
-      editor.getModel()!,
-      new Set([editor]),
-      provider.awareness
-    );
+    setYjsInfo({
+      yjsText: monacoText,
+      yjsAwareness: provider.awareness,
+    });
 
     // add custom color for every selector
     provider.awareness.on(
@@ -167,7 +168,7 @@ const RealtimeEditor = ({
     };
     // defaultValue shouldn't change without the other values changing (and if it does, it's probably a bug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yjsDocumentId, firebaseUser, editor, props.path]);
+  }, [yjsDocumentId, firebaseUser, props.path]);
 
   // make editor read only until yjs syncs with server
   const editorOptions = useMemo(() => {
@@ -179,19 +180,17 @@ const RealtimeEditor = ({
   return (
     <div
       className="tw-forms-disable tw-forms-disable-all-descendants h-full relative"
+      // ugh this should really be data-testid
       data-test-id={dataTestId}
     >
       <EditorConnectionStatusIndicator
         connectionStatus={connectionStatus}
         isSynced={isSynced}
       />
-      <LazyMonacoEditor
+      <CodeEditor
         {...props}
         options={editorOptions}
-        onMount={(e, m) => {
-          setEditor(e);
-          if (onMount) onMount(e, m);
-        }}
+        yjsInfo={yjsInfo}
         vim={useEditorWithVim && mode === 'Vim'}
       />
     </div>

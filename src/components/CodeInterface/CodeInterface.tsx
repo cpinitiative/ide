@@ -2,12 +2,16 @@ import defaultCode from '../../scripts/defaultCode';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
-import { mainMonacoEditorAtom } from '../../atoms/workspace';
-import { LazyRealtimeEditor } from '../LazyRealtimeEditor';
+import {
+  mainCodemirrorEditorAtom,
+  mainMonacoEditorAtom,
+} from '../../atoms/workspace';
+import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import type * as monaco from 'monaco-editor';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import { useUserContext } from '../../context/UserContext';
+import { EditorView } from '@uiw/react-codemirror';
 
 export const CodeInterface = ({
   className,
@@ -20,8 +24,15 @@ export const CodeInterface = ({
   const readOnly = !(permission === 'OWNER' || permission === 'READ_WRITE');
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [codemirrorEditor, setCodemirrorEditor] = useState<EditorView | null>(
+    null
+  );
   const [, setMainMonacoEditor] = useAtom(mainMonacoEditorAtom);
+  const [, setMainCodemirrorEditor] = useAtom(mainCodemirrorEditorAtom);
 
+  // I think we need these useEffect()s here because otherwise when the component
+  // is unmounted, the mainMonacoEditorAtom/mainCodemirrorEditorAtom will still
+  // be set
   useEffect(() => {
     if (editor) {
       setMainMonacoEditor(editor);
@@ -30,6 +41,22 @@ export const CodeInterface = ({
       };
     }
   }, [editor, setMainMonacoEditor]);
+
+  useEffect(() => {
+    if (codemirrorEditor) {
+      setMainCodemirrorEditor(codemirrorEditor);
+
+      // this is used by e2e/helpers.ts to set the value of the main codemirror editor
+      // @ts-ignore
+      window['TEST_mainCodemirrorEditor'] = codemirrorEditor;
+
+      return () => {
+        setMainCodemirrorEditor(null);
+        // @ts-ignore
+        window['TEST_mainCodemirrorEditor'] = null;
+      };
+    }
+  }, [codemirrorEditor, setCodemirrorEditor]);
 
   const { tabSize, lightMode } = useUserContext().userData;
 
@@ -68,6 +95,7 @@ export const CodeInterface = ({
               e.focus();
             }, 0);
           }}
+          onCodemirrorMount={(view, state) => setCodemirrorEditor(view)}
           defaultValue={defaultCode[lang]}
           yjsDocumentId={`${fileData.id}.${lang}`}
           useEditorWithVim={true}
