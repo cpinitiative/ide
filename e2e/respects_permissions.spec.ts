@@ -6,7 +6,7 @@ import {
   switchLang,
   isMonaco,
   setInputEditorValue,
-  waitForMonacoToLoad,
+  waitForEditorToLoad,
 } from './helpers';
 
 // note: these tests are currently quite bad -- we need error handling for when permission is denied
@@ -29,8 +29,8 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('text="View Only"');
 
     // let monaco load
-    await waitForMonacoToLoad(page);
-    await waitForMonacoToLoad(page2);
+    await waitForEditorToLoad(page);
+    await waitForEditorToLoad(page2);
 
     if (isMobile) {
       await page.click('text=Input/Output');
@@ -147,8 +147,8 @@ test.describe('Respects Permissions', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
-    await waitForMonacoToLoad(page);
-    await waitForMonacoToLoad(page2);
+    await waitForEditorToLoad(page);
+    await waitForEditorToLoad(page2);
     // unclear if these are needed -- maybe yjs needs time to initialize.
     await page.waitForTimeout(500);
     await page2.waitForTimeout(500);

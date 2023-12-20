@@ -1,9 +1,9 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-const LazyMonacoEditor = dynamic(() => import('./MonacoEditor'), {
+const LazyCodemirrorEditor = dynamic(() => import('./CodemirrorEditor'), {
   loading: () => <div data-testid="editorLoadingMessage">Loading...</div>,
   ssr: false,
 });
 
-export default LazyMonacoEditor;
+export default LazyCodemirrorEditor;

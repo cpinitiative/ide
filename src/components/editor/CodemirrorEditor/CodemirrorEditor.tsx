@@ -15,7 +15,7 @@ import './codemirror-styles.css';
 import { useEffect, useMemo, useState } from 'react';
 import { yCollab } from 'y-codemirror.next';
 
-export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
+const CodemirrorEditor = (props: EditorProps): JSX.Element => {
   const [yCollabExtension, setYCollabExtension] = useState<any | null>(null);
   useEffect(() => {
     if (!props.yjsInfo) return;
@@ -86,3 +86,5 @@ export const CodemirrorEditor = (props: EditorProps): JSX.Element => {
     />
   );
 };
+
+export default CodemirrorEditor;

@@ -1,13 +1,9 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import {
-  createNew,
-  forEachLang,
-  goToPage,
   host,
   setMainEditorValue,
   switchLang,
-  testRunCode,
-  waitForMonacoToLoad,
+  waitForEditorToLoad,
 } from './helpers';
 
 test.describe('USACO Judge Functionality', () => {
@@ -48,7 +44,7 @@ test.describe('USACO Judge Functionality', () => {
     await page.waitForSelector('button:has-text("Run Code")');
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
-    await waitForMonacoToLoad(page);
+    await waitForEditorToLoad(page);
 
     if (isMobile) {
       await page.click('text=Input/Output');
@@ -111,7 +107,7 @@ System.out.println(hIndex(papers));
     await page.goto(`${host}/usaco/1131`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    await waitForMonacoToLoad(page);
+    await waitForEditorToLoad(page);
 
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
@@ -135,7 +131,7 @@ System.out.println(hIndex(papers));
     await page.goto(`${host}/usaco/363`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    await waitForMonacoToLoad(page);
+    await waitForEditorToLoad(page);
 
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 

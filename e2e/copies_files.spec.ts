@@ -3,7 +3,7 @@ import {
   host,
   setInputEditorValue,
   setMainEditorValue,
-  waitForMonacoToLoad,
+  waitForEditorToLoad,
 } from './helpers';
 
 test.describe('Basic Functionality', () => {
@@ -11,7 +11,7 @@ test.describe('Basic Functionality', () => {
     await page.goto(`${host}/n`);
     await page.waitForSelector('button:has-text("Run Code")');
 
-    await waitForMonacoToLoad(page);
+    await waitForEditorToLoad(page);
 
     await setMainEditorValue(page, 'code_value', 'cpp');
     await setInputEditorValue(page, 'input_value');

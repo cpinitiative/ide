@@ -5,7 +5,7 @@ import {
   goToPage,
   host,
   testRunCode,
-  waitForMonacoToLoad,
+  waitForEditorToLoad,
 } from './helpers';
 
 test.describe('Basic Functionality', () => {
@@ -15,7 +15,7 @@ test.describe('Basic Functionality', () => {
     expect(page.url()).toMatch(new RegExp(`${host}/[A-z0-9_-]{19}`));
 
     // let monaco load
-    await waitForMonacoToLoad(page);
+    await waitForEditorToLoad(page);
 
     await forEachLang(page, async () => {
       await testRunCode(page, isMobile);
@@ -32,8 +32,8 @@ test.describe('Basic Functionality', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
-    await waitForMonacoToLoad(page);
-    await waitForMonacoToLoad(page2);
+    await waitForEditorToLoad(page);
+    await waitForEditorToLoad(page2);
 
     if (isMobile) {
       await page.click('text=Input/Output');
@@ -59,8 +59,8 @@ test.describe('Basic Functionality', () => {
     await page2.waitForSelector('button:has-text("Run Code")');
 
     // let monaco load
-    await waitForMonacoToLoad(page);
-    await waitForMonacoToLoad(page2);
+    await waitForEditorToLoad(page);
+    await waitForEditorToLoad(page2);
     await page.waitForTimeout(500);
     await page2.waitForTimeout(500);
 
