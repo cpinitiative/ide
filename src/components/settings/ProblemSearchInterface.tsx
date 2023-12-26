@@ -36,9 +36,7 @@ const FileSearch = ({
           id={`problem-select`}
           className="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black text-sm placeholder-gray-400"
           value={currentRefinement}
-          placeholder={
-            'e.g. http://www.usaco.org/index.php?page=viewproblem2&cpid=1140'
-          }
+          placeholder={'e.g. Train Scheduling'}
           onChange={e => refine(e.target.value)}
           // disabled={!canChange}
           autoComplete="off"
@@ -60,27 +58,27 @@ const FileSearch = ({
       </div>
       {currentRefinement !== '' && (
         <div>
-          <div className="text-sm max-h-[20rem] overflow-y-auto border-t divide-y divide-gray-200 border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+          <div className="text-sm max-h-[20rem] overflow-y-auto border-t divide-y divide-gray-200 border-gray-200">
             {hits.map(hit => (
               <button
-                className="block hover:bg-blue-100 dark:hover:bg-gray-700 py-3 px-5 transition focus:outline-none w-full text-left"
+                className="block hover:bg-blue-100 py-3 px-5 transition focus:outline-none w-full text-left"
                 key={hit.id}
                 onClick={() => {
                   refine(''); // clear
                   onSelect(hit);
                 }}
               >
-                <h3 className="text-gray-600 dark:text-gray-200 font-medium">
+                <h3 className="text-gray-600 font-medium">
                   <Highlight hit={hit} attribute="title" /> (
                   <Highlight hit={hit} attribute="id" />)
                 </h3>
-                <p className="text-gray-700 dark:text-gray-400 text-sm">
+                <p className="text-gray-700 text-sm">
                   <Highlight hit={hit} attribute="source" />
                 </p>
               </button>
             ))}
           </div>
-          <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="px-5 py-3 border-t border-gray-200">
             <PoweredBy theme="dark" />
           </div>
         </div>
