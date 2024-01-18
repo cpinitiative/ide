@@ -13,6 +13,8 @@ import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
 import va from '@vercel/analytics';
 
+import { generateRandomFileName } from '../src/fileName';
+
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -105,6 +107,7 @@ export default function NewFilePage() {
             <label
               htmlFor="filename"
               className="block text-sm font-medium leading-6 text-gray-100"
+              placeholder={generateRandomFileName()}
             >
               File Name
             </label>
