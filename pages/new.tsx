@@ -12,7 +12,7 @@ import Link from 'next/link';
 import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
 import va from '@vercel/analytics';
-import { generateRandomFileName } from '../src/scripts/generateRandomFileName.tsx';
+import { generateRandomFileName } from '../src/scripts/generateRandomFileName.ts';
 
 
 function classNames(...classes: any[]) {
