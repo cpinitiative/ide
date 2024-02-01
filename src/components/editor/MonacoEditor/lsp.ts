@@ -27,13 +27,10 @@ const notify = (message: string) => {
 export default function createLSPConnection() {
   notify('Connecting to server...');
   const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
-  console.log(url);
   let webSocket: WebSocket | null = new WebSocket(url);
-  // setTimeout(webSocket.close.bind(webSocket), 10000);
   let languageClient: MonacoLanguageClient | null;
 
   webSocket.addEventListener('message', event => {
-    console.log('Got message from LSP server:', event);
     let message;
     try {
       message = JSON.parse(event.data);
