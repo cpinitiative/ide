@@ -29,7 +29,8 @@ export default function NewFilePage() {
   const { userData, firebaseUser } = useNullableUserContext();
   const router = useRouter();
   const [lang, setLang] = useState<Language>('cpp');
-  const [fileName, setFileName] = useState(() => generateRandomFileName());
+  const [fileName, setFileName] = useState('');
+  useEffect(() => setFileName(generateRandomFileName()), []);
   const [defaultPerimssion, setDefaultPermission] = useState<
     'READ_WRITE' | 'READ' | 'PRIVATE' | null
   >(null);
