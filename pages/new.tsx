@@ -12,8 +12,7 @@ import Link from 'next/link';
 import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
 import va from '@vercel/analytics';
-import { generateRandomFileName } from '../src/scripts/generateRandomFileName.ts';
-
+import { generateRandomFileName } from '../src/scripts/generateRandomFileName';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
