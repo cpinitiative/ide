@@ -28,6 +28,10 @@ export default function createLSPConnection() {
   notify('Connecting to server...');
   const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
   let webSocket: WebSocket | null = new WebSocket(url);
+  setInterval(() => {
+    if (!webSocket) return;
+    webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
+  }, 5000);
   let languageClient: MonacoLanguageClient | null;
 
   webSocket.addEventListener('message', event => {
@@ -38,24 +42,24 @@ export default function createLSPConnection() {
       console.error('Malformed message from LSP server:', event.data);
       return;
     }
-    if (webSocket) {
-      if (message.method === 'start') {
-        const socket = toSocket(webSocket);
-        const reader = new WebSocketMessageReader(socket);
-        const writer = new WebSocketMessageWriter(socket);
-        languageClient = createLanguageClient({
-          reader,
-          writer,
-        });
-        languageClient.start();
-      } else if (message.method === 'reject') {
-        notify('Servers full, try again later!');
-        dispose();
-      } else if (message.id === 0 && message.result.capabilities) {
-        // assume this is the first message from the server
-        // and that connection is successfully established
-        notify('Connected');
-      }
+    console.log(message);
+    if (!webSocket) return;
+    if (message.method === 'start') {
+      const socket = toSocket(webSocket);
+      const reader = new WebSocketMessageReader(socket);
+      const writer = new WebSocketMessageWriter(socket);
+      languageClient = createLanguageClient({
+        reader,
+        writer,
+      });
+      languageClient.start();
+    } else if (message.method === 'reject') {
+      notify('Servers full, try again later!');
+      dispose();
+    } else if (message.id === 0 && message.result.capabilities) {
+      // assume this is the first message from the server
+      // and that connection is successfully established
+      notify('Connected');
     }
   });
 
