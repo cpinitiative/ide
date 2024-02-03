@@ -28,7 +28,7 @@ export default function createLSPConnection() {
   notify('Connecting to server...');
   const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
   let webSocket: WebSocket | null = new WebSocket(url);
-  setInterval(() => {
+  const ping = setInterval(() => {
     if (!webSocket) return;
     webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
   }, 5000);
@@ -42,7 +42,6 @@ export default function createLSPConnection() {
       console.error('Malformed message from LSP server:', event.data);
       return;
     }
-    console.log(message);
     if (!webSocket) return;
     if (message.method === 'start') {
       const socket = toSocket(webSocket);
@@ -116,6 +115,7 @@ export default function createLSPConnection() {
     return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
   }
   function dispose() {
+    clearInterval(ping);
     if (!languageClient) {
       // possibly didn't connect to websocket before exiting
       if (webSocket && webSocket.readyState === webSocket.CONNECTING) {
