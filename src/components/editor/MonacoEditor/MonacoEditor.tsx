@@ -109,7 +109,7 @@ export default function MonacoEditor({
 
   useEffect(() => {
     // TODO fix LSP connection
-    if (lspEnabled && false) {
+    if (lspEnabled) {
       return createLSPConnection();
     }
   }, [lspEnabled]);

@@ -2,7 +2,6 @@ import {
   MonacoLanguageClient,
   CloseAction,
   ErrorAction,
-  MonacoServices,
   MessageTransports,
 } from 'monaco-languageclient';
 import {
@@ -27,29 +26,13 @@ const notify = (message: string) => {
 
 export default function createLSPConnection() {
   notify('Connecting to server...');
-
   const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
   let webSocket: WebSocket | null = new WebSocket(url);
-  let languageClient: MonacoLanguageClient | null;
-
-  webSocket.onopen = () => {
-    // if webSocket is null, that means we closed the connection before we got a response from the server
-    // though I don't think this is ever true?? whatever
+  const ping = setInterval(() => {
     if (!webSocket) return;
-
-    const socket = toSocket(webSocket);
-    const reader = new WebSocketMessageReader(socket);
-    const writer = new WebSocketMessageWriter(socket);
-    languageClient = createLanguageClient({
-      reader,
-      writer,
-    });
-    languageClient.start();
-    reader.onClose(() => {
-      languageClient?.stop();
-      languageClient = null;
-    });
-  };
+    webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
+  }, 5000);
+  let languageClient: MonacoLanguageClient | null;
 
   webSocket.addEventListener('message', event => {
     let message;
@@ -59,8 +42,20 @@ export default function createLSPConnection() {
       console.error('Malformed message from LSP server:', event.data);
       return;
     }
-
-    if (message.id === 0 && message.result.capabilities) {
+    if (!webSocket) return;
+    if (message.method === 'start') {
+      const socket = toSocket(webSocket);
+      const reader = new WebSocketMessageReader(socket);
+      const writer = new WebSocketMessageWriter(socket);
+      languageClient = createLanguageClient({
+        reader,
+        writer,
+      });
+      languageClient.start();
+    } else if (message.method === 'reject') {
+      notify('Servers full, try again later!');
+      dispose();
+    } else if (message.id === 0 && message.result.capabilities) {
       // assume this is the first message from the server
       // and that connection is successfully established
       notify('Connected');
@@ -119,10 +114,10 @@ export default function createLSPConnection() {
     const protocol = location.protocol === 'https:' ? 'wss' : 'wss';
     return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
   }
-
-  return () => {
+  function dispose() {
+    clearInterval(ping);
     if (!languageClient) {
-      // possibly didn't conenct to websocket before exiting
+      // possibly didn't connect to websocket before exiting
       if (webSocket && webSocket.readyState === webSocket.CONNECTING) {
         webSocket.close();
         webSocket = null;
@@ -131,5 +126,6 @@ export default function createLSPConnection() {
       languageClient.stop();
       languageClient = null;
     }
-  };
+  }
+  return dispose;
 }
