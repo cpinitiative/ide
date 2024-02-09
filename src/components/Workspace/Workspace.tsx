@@ -27,7 +27,6 @@ import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples, { Sample } from '../JudgeInterface/Samples';
-import { judgePrefix } from '../JudgeInterface/JudgeInterface';
 import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
@@ -63,10 +62,17 @@ export interface StatusData {
 export async function fetchProblemData(
   problemID: string
 ): Promise<ProblemData | null> {
-  const url = `${judgePrefix}/problem/${problemID}`;
-  const response = await fetch(url);
-  if (response.status !== 200) return null;
-  return await response.json();
+  const response = await fetch(
+    'https://raw.githubusercontent.com/cpinitiative/usaco-problems/main/problems.json'
+  );
+  const data = await response.json();
+  const problem = data[problemID];
+  const problemData = {
+    ...problem,
+    source: problem.source.sourceString,
+    title: problem.title.titleString,
+  };
+  return problemData;
 }
 
 export default function Workspace({
