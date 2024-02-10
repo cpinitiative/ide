@@ -26,12 +26,12 @@ import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
-import Samples, { Sample } from '../JudgeInterface/Samples';
+import Samples from '../JudgeInterface/Samples';
 import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import { useUserContext } from '../../context/UserContext';
-
+import { Sample } from '../JudgeInterface/Samples';
 export type ProblemData = {
   id: number;
   submittable: boolean;
@@ -57,22 +57,6 @@ export interface StatusData {
   statusCode: number;
   testCases?: TestCase[];
   output?: string;
-}
-
-export async function fetchProblemData(
-  problemID: string
-): Promise<ProblemData | null> {
-  const response = await fetch(
-    'https://raw.githubusercontent.com/cpinitiative/usaco-problems/main/problems.json'
-  );
-  const data = await response.json();
-  const problem = data[problemID];
-  const problemData = {
-    ...problem,
-    source: problem.source.sourceString,
-    title: problem.title.titleString,
-  };
-  return problemData;
 }
 
 export default function Workspace({
