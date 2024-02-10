@@ -61,7 +61,7 @@ export default function MonacoEditor({
         automaticLayout: true,
         theme: theme,
         lightbulb: {
-          enabled: true,
+          enabled: monaco.editor.ShowLightbulbIconMode.OnCode,
         },
         language: language,
         ...options,

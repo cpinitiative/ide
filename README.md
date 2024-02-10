@@ -281,4 +281,7 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 
 3. `npx patch-package monaco-editor`
 4. Commit the updated patch to Github
-5. Test that everything works: LSP, browser sync, cross-platform sync, etc
+5. `rm -r ./public/monaco-workers`
+6. `mkdir ./public/monaco-workers`
+7. `cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/monaco-workers`
+8. Test that everything works: LSP, browser sync, cross-platform sync, etc
