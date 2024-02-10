@@ -12,6 +12,7 @@ import Link from 'next/link';
 import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
 import va from '@vercel/analytics';
+import generateRandomFileName from '../src/scripts/generateRandomFileName';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -28,6 +29,7 @@ export default function NewFilePage() {
   const router = useRouter();
   const [lang, setLang] = useState<Language>('cpp');
   const [fileName, setFileName] = useState('');
+  useEffect(() => setFileName(generateRandomFileName()), []);
   const [defaultPerimssion, setDefaultPermission] = useState<
     'READ_WRITE' | 'READ' | 'PRIVATE' | null
   >(null);
