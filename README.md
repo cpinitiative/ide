@@ -6,26 +6,25 @@ This IDE is built and maintained by [Nathan Wang](https://github.com/thecodingwi
 
 ## Running Locally
 
-This project uses the [Firebase Realtime Database](https://firebase.google.com/docs/database). [This tutorial](https://firebase.google.com/codelabs/firestore-web) is helpful (even though Cloud Firestore is not what's being used here). You'll need to install the [firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) and [Yarn](https://classic.yarnpkg.com/en/docs/install).
+This project uses the [Firebase Realtime Database](https://firebase.google.com/docs/database). [This tutorial](https://firebase.google.com/codelabs/firestore-web) is helpful (even though Cloud Firestore is not what's being used here). You'll need to install the [firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) and Node.js 18.
 
 ```
-yarn install
-FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" yarn dev
-# in a separate tab. make sure you are using emulators iff SHOULD_USE_FIREBASE_EMULATOR is true!
-firebase emulators:start
+npm install
+npm run dev
 ```
 
-Note that FIREBASE_AUTH_EMULATOR_HOST must be set; otherwise you'll get a "Firebase ID token has no kid claim" error message when a nextjs function tries to decode a firebase auth token.
-
-Also, if you do not want to run the yjs server locally, or if you don't want to use firebase emulators, edit `src/dev_constants.ts`.
+`npm run dev` will start a Firebase emulator for you. By default, the dev server uses a local firebase emulator and the production YJS server. To change these settings, edit `src/dev_constants.ts`.
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
 
 ### Playwright Tests
 
 ```
-yarn playwright test
+npm run dev  # Start the dev server in a separate terminal
+npm run test
 ```
+
+We use Playwright for our e2e tests. The VSCode extension for Playwright can be useful for debugging tests.
 
 ### Configuring Firebase
 
@@ -253,10 +252,6 @@ cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/m
 ```
 
 This is used by MonacoEditor.tsx (Monaco uses web workers).
-
-### Playwright Debugging
-
-We use the [Playwright Test test runner](https://playwright.dev/docs/intro), not the Playwright library. If you use VSCode, the Playwright Test test runner extension for VSCode is really nice.
 
 ### Troubleshooting `firebase emulators:exec`
 
