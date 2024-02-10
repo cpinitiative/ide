@@ -64,6 +64,8 @@ export default function MonacoEditor({
           enabled: monaco.editor.ShowLightbulbIconMode.OnCode,
         },
         language: language,
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: 12,
         ...options,
       },
       {}
