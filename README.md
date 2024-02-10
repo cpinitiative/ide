@@ -26,6 +26,8 @@ npm run test
 
 We use Playwright for our e2e tests. The VSCode extension for Playwright can be useful for debugging tests.
 
+Note: If you are using the production YJS servers, the Copy Files test will fail because the `YJS_SECURITY_KEY` environment variable needs to be set. For local development, feel free to ignore the Copy Files CI test. Alternatively, you can run a local YJS server (see the `ide-yjs` repository) and use that instead.
+
 ### Configuring Firebase
 
 You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`.
@@ -216,7 +218,9 @@ ctrl+b d
 tmux attach -t 0
 ```
 
-### (Potential) Firepad / YJS Browser Incompatibility ([firepad#315](https://github.com/FirebaseExtended/firepad/issues/315))
+### Firepad / YJS Browser Incompatibility
+
+See https://github.com/FirebaseExtended/firepad/issues/315 and https://github.com/yjs/y-monaco/issues/6.
 
 Replace something similar to
 
@@ -239,8 +243,6 @@ return n && 'auto' !== n ? n : d.isLinux || d.isMacintosh ? '\n' : '\n';
 ```
 
 using `package-patch`.
-
-This was an issue for Firepad; I don't know if this is an issue for YJS, but we kept the change regardless.
 
 ### Monaco Workers
 
