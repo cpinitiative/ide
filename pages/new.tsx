@@ -191,10 +191,11 @@ export default function NewFilePage() {
           >
             {isSubmitting ? 'Creating...' : 'Create File'}
           </button>
-          <Link href="/">
-            <a className="rounded-md bg-white/5 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-white/10 focus-visible:outline-offset-gray-900 focus-visible:outline-2 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-gray-700">
-              Cancel
-            </a>
+          <Link
+            href="/"
+            className="rounded-md bg-white/5 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-white/10 focus-visible:outline-offset-gray-900 focus-visible:outline-2 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-gray-700"
+          >
+            Cancel
           </Link>
         </div>
       </form>

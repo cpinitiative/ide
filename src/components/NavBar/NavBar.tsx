@@ -41,10 +41,11 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
   return (
     <div className="flex items-center overflow-x-auto">
       <div className="flex items-center divide-x divide-gray-700">
-        <Link href="/">
-          <a className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none">
-            <HomeIcon className="h-5 w-5" />
-          </a>
+        <Link
+          href="/"
+          className="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium text-gray-200 hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+        >
+          <HomeIcon className="h-5 w-5" />
         </Link>
         {props.fileMenu}
         <button

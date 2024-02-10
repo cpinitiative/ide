@@ -104,10 +104,11 @@ export default function Dashboard() {
   return (
     <div>
       <div className="flex items-center space-x-4">
-        <Link href="/new">
-          <a className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500">
-            Create New File
-          </a>
+        <Link
+          href="/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-indigo-500"
+        >
+          Create New File
         </Link>
       </div>
 

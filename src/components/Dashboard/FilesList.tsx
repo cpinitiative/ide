@@ -128,10 +128,11 @@ export default function FilesList(props: FilesListProps): JSX.Element {
                         {file.title || '(Unnamed File)'} (Hidden)
                       </span>
                     ) : (
-                      <Link href={`/${file.id.substring(1)}`}>
-                        <a className="text-gray-100 hover:text-white">
-                          {file.title || '(Unnamed File)'}
-                        </a>
+                      <Link
+                        href={`/${file.id.substring(1)}`}
+                        className="text-gray-100 hover:text-white"
+                      >
+                        {file.title || '(Unnamed File)'}
                       </Link>
                     )}
                   </td>
