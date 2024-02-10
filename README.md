@@ -269,6 +269,8 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 
 ### Updating Monaco Editor
 
+Make sure Monaco is compatible with `monaco-languageclient`!! https://github.com/TypeFox/monaco-languageclient/blob/main/docs/versions-and-history.md#monaco-editor--codingamemonaco-vscode-api-compatibility-table
+
 1. `npm install monaco-editor@latest`
 2. Modify `node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js`:
 

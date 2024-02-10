@@ -61,11 +61,9 @@ export default function MonacoEditor({
         automaticLayout: true,
         theme: theme,
         lightbulb: {
-          enabled: monaco.editor.ShowLightbulbIconMode.OnCode,
+          enabled: true,
         },
         language: language,
-        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-        fontSize: 12,
         ...options,
       },
       {}
