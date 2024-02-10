@@ -26,13 +26,12 @@ import { LazyRealtimeEditor } from '../RealtimeEditor/LazyRealtimeEditor';
 import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
-import Samples, { Sample } from '../JudgeInterface/Samples';
-import { judgePrefix } from '../JudgeInterface/JudgeInterface';
+import Samples from '../JudgeInterface/Samples';
 import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import { useUserContext } from '../../context/UserContext';
-
+import { Sample } from '../JudgeInterface/Samples';
 export type ProblemData = {
   id: number;
   submittable: boolean;
@@ -58,15 +57,6 @@ export interface StatusData {
   statusCode: number;
   testCases?: TestCase[];
   output?: string;
-}
-
-export async function fetchProblemData(
-  problemID: string
-): Promise<ProblemData | null> {
-  const url = `${judgePrefix}/problem/${problemID}`;
-  const response = await fetch(url);
-  if (response.status !== 200) return null;
-  return await response.json();
 }
 
 export default function Workspace({
