@@ -1,8 +1,8 @@
 import { getDatabase, ServerValue } from 'firebase-admin/database';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { fetchProblemData } from '../../src/components/Workspace/Workspace';
 import firebaseApp from '../../src/firebaseAdmin';
 import colorFromUserId from '../../src/scripts/colorFromUserId';
+import { ProblemData } from '../../src/components/Workspace/Workspace';
 
 type RequestData = {
   usacoID: string;
@@ -18,7 +18,24 @@ type ResponseData =
   | {
       message: string; // error
     };
-
+export async function fetchProblemData(
+  problemID: string
+): Promise<ProblemData | null> {
+  const response = await fetch(
+    'https://raw.githubusercontent.com/cpinitiative/usaco-problems/main/problems.json'
+  );
+  const data = await response.json();
+  if (!data[problemID]) {
+    return null;
+  }
+  const problem = data[problemID];
+  const problemData = {
+    ...problem,
+    source: problem.source.sourceString,
+    title: problem.title.titleString,
+  };
+  return problemData;
+}
 export default async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>

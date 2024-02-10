@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env FIREBASE_AUTH_EMULATOR_HOST=\"127.0.0.1:9099\" concurrently -k \"firebase emulators:start\" \"next dev\"", 
     "build": "next build",
     "start": "next start",
+    "test": "playwright test",
     "prepare": "husky install",
     "lint": "eslint --ext js,jsx,ts,tsx --fix src/",
     "postinstall": "patch-package"
@@ -74,6 +75,8 @@
     "@types/react": "^18.0.14",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^4.7.4"
