@@ -8,7 +8,7 @@
     "start": "next start",
     "test": "playwright test",
     "prepare": "husky",
-    "lint": "eslint --ext js,jsx,ts,tsx --fix src/",
+    "lint": "next lint",
     "postinstall": "patch-package"
   },
   "dependencies": {

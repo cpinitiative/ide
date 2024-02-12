@@ -290,8 +290,8 @@ export default function FilePage() {
         </div>
         <p className="sm:text-lg mt-8 text-gray-200 max-w-prose mx-auto text-left">
           Note: The IDE was recently updated to use a new backend system. If
-          you're trying to access an old file you created with the old version
-          of the IDE, try this link:{' '}
+          you&apos;re trying to access an old file you created with the old
+          version of the IDE, try this link:{' '}
           <a href={oldLink} className="font-medium text-white underline">
             {oldLink}
           </a>

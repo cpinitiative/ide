@@ -115,13 +115,11 @@ export const SettingsModal = ({
     let settingsToSet: Partial<FileSettings> = fileSettings;
     {
       // update has no effect if you try to overwrite creation time
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { creationTime, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;
     }
     if (userPermission !== 'OWNER') {
       // update has no effect if you try to overwrite default permission
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { defaultPermission, ...toKeep } = settingsToSet;
       settingsToSet = toKeep;
     }
