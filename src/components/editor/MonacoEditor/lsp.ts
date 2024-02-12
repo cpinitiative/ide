@@ -55,7 +55,7 @@ export default function createLSPConnection() {
     } else if (message.method === 'reject') {
       notify('Servers full, try again later!');
       dispose();
-    } else if (message.id === 0 && message.result.capabilities) {
+    } else if (message.id === 0 && message.result?.capabilities) {
       // assume this is the first message from the server
       // and that connection is successfully established
       notify('Connected');
