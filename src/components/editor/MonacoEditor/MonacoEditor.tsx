@@ -64,6 +64,9 @@ export default function MonacoEditor({
           enabled: true,
         },
         language: language,
+        inlayHints: {
+          enabled: false,
+        },
         ...options,
       },
       {}
@@ -116,11 +119,8 @@ export default function MonacoEditor({
 
   useEffect(() => {
     if (vim) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let editorMode: any;
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const statusNode = document.querySelector('.status-node');
       editorMode = initVimMode(editorRef.current, statusNode);
 

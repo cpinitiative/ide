@@ -1,6 +1,5 @@
 import React from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const USACOTestCase = ({ data }: { data: any }) => {
   const containerClasses =
     data.title === 'Correct answer'
@@ -37,7 +36,6 @@ const USACOTestCase = ({ data }: { data: any }) => {
 export default function USACOResults({
   data,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
 }): JSX.Element | null {
   if (!data) return null;
@@ -96,7 +94,6 @@ export default function USACOResults({
       )}
       <div className="text-center">
         {data.testCases &&
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data.testCases.map((tc: any) => (
             <USACOTestCase data={tc} key={tc.trialNum} />
           ))}
