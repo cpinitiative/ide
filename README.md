@@ -266,3 +266,24 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 - Too large output
 - Classrooms
 - Copying files (#64, this broke already lol)
+
+### Updating Monaco Editor
+
+Make sure Monaco is compatible with `monaco-languageclient`!! https://github.com/TypeFox/monaco-languageclient/blob/main/docs/versions-and-history.md#monaco-editor--codingamemonaco-vscode-api-compatibility-table
+
+1. `npm install monaco-editor@latest`
+2. Modify `node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js`:
+
+   ```
+   -        return (isLinux || isMacintosh) ? '\n' : '\r\n';
+   +        return (isLinux || isMacintosh) ? '\n' : '\n';
+   ```
+
+   See `patches/monaco-editor+??.patch` for more details
+
+3. `npx patch-package monaco-editor`
+4. Commit the updated patch to Github
+5. `rm -r ./public/monaco-workers`
+6. `mkdir ./public/monaco-workers`
+7. `cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/monaco-workers`
+8. Test that everything works: LSP, browser sync, cross-platform sync, etc

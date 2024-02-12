@@ -9,27 +9,14 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache yarn
-        uses: actions/cache@v3
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
       - name: Install dependencies
         run: |
-          yarn install
+          npm ci
           npm install -g firebase-tools
           firebase setup:emulators:database
       - name: Install Playwright Browsers
@@ -47,12 +34,12 @@ jobs:
           npm run dev &
 
       - name: Setup background services
-        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" yarn start &
+        run: echo '{"rules":{".read":true,".write":true}}' > database.rules.json && FIREBASE_AUTH_EMULATOR_HOST="127.0.0.1:9099" npm start &
 
       - name: Run Playwright tests
-        run: firebase emulators:exec "yarn playwright test"
+        run: firebase emulators:exec "npm run test"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
