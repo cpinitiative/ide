@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai/utils';
 import { useRouter } from 'next/router';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import invariant from 'tiny-invariant';
 import { MessagePage } from '../src/components/MessagePage';
 import { LANGUAGES, useNullableUserContext } from '../src/context/UserContext';
@@ -28,15 +28,24 @@ export default function NewFilePage() {
   const { userData, firebaseUser } = useNullableUserContext();
   const router = useRouter();
   const [lang, setLang] = useState<Language>('cpp');
-  const [fileName, setFileName] = useState('');
-  useEffect(() => setFileName(generateRandomFileName()), []);
   const [defaultPerimssion, setDefaultPermission] = useState<
     'READ_WRITE' | 'READ' | 'PRIVATE' | null
   >(null);
   const [compilerOptions, setCompilerOptions] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Note: filename is not a controlled input because we want to set the default value
+  // and auto-select the input when the page loads.
+  const filenameInputRef = useRef<HTMLInputElement>(null);
+
   const isPageLoading = !router.isReady || !userData || !firebaseUser;
+
+  useEffect(() => {
+    if (!filenameInputRef.current) return;
+    filenameInputRef.current.value = generateRandomFileName();
+    filenameInputRef.current.focus();
+    filenameInputRef.current.select();
+  }, [filenameInputRef.current]);
 
   useEffect(() => {
     setCompilerOptions(DEFAULT_COMPILER_OPTIONS[lang]);
@@ -55,6 +64,7 @@ export default function NewFilePage() {
       alert('Page is still loading, please try again later');
       return;
     }
+    const fileName = filenameInputRef.current?.value;
     if (!fileName) {
       alert('Please enter a file name.');
       return;
@@ -115,10 +125,8 @@ export default function NewFilePage() {
                 type="text"
                 name="filename"
                 id="filename"
-                value={fileName}
-                onChange={e => setFileName(e.target.value)}
+                ref={filenameInputRef}
                 className="block w-full max-w-md rounded-md border-0 py-1.5 bg-gray-900 text-gray-100 shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-700 sm:text-sm sm:leading-6"
-                autoFocus
               />
             </div>
           </div>
