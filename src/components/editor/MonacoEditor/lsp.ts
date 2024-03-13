@@ -28,11 +28,18 @@ export default function createLSPConnection() {
   notify('Connecting to server...');
   const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
   let webSocket: WebSocket | null = new WebSocket(url);
-  const ping = setInterval(() => {
-    if (!webSocket) return;
-    webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
-  }, 5000);
+  let ping: ReturnType<typeof setInterval> | null = null;
   let languageClient: MonacoLanguageClient | null;
+
+  webSocket.addEventListener('open', () => {
+    ping = setInterval(() => {
+      if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
+        clearInterval(ping!);
+        return;
+      }
+      webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
+    }, 5000);
+  });
 
   webSocket.addEventListener('message', event => {
     let message;
@@ -115,7 +122,7 @@ export default function createLSPConnection() {
     return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
   }
   function dispose() {
-    clearInterval(ping);
+    if (ping) clearInterval(ping);
     if (!languageClient) {
       // possibly didn't connect to websocket before exiting
       if (webSocket && webSocket.readyState === webSocket.CONNECTING) {
