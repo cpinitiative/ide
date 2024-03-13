@@ -1,3 +1,4 @@
+// TODO: Rename to usaco_judge.spec.ts once USACO judge Cloudflare issues are fixed
 import { test, expect } from '@playwright/test';
 import {
   host,
