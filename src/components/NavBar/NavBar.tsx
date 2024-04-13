@@ -76,7 +76,7 @@ export const NavBar = (props: DesktopNavBarProps): JSX.Element => {
           rel="noreferrer"
           className="px-4 py-2 text-gray-400 hover:text-gray-200 text-sm font-medium flex-shrink-0"
         >
-          Star this on Github!
+          Star this on GitHub!
         </a>
         {props.showViewOnly && (
           <span className="px-4 py-2 text-gray-400 text-sm font-medium">
