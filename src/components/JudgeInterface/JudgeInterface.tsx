@@ -8,12 +8,11 @@ import USACOResults from './USACOResults';
 import { ProblemData, StatusData } from '../Workspace/Workspace';
 import SubmitButton from './SubmitButton';
 import { PlayCircleIcon } from '@heroicons/react/20/solid';
-import { useUserContext } from '../../context/UserContext';
 import { useEditorContext } from '../../context/EditorContext';
 
 export const judgePrefix =
-  process.env.NODE_ENV === 'development' && false // note: having this as localhost:5000 will break testing
-    ? 'http://localhost:5000'
+  process.env.NODE_ENV === 'development' && true // note: having this as localhost:5000 will break testing
+    ? 'http://localhost:8080'
     : 'https://vjudge.usaco.guide';
 
 function encode(str: string | null) {
@@ -100,9 +99,15 @@ export default function JudgeInterface({
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 pb-0">
           <p className="text-gray-400 text-sm mb-4">
-            Early access. Report issues to Github. Do not spam submit.
-            {/* Note: You will not be able to submit to a problem in an active contest. */}
-            {/* ^ is this necessary? */}
+            {/* Early access. Report issues to Github. Do not spam submit. */}
+            Note: USACO problem submission{' '}
+            <a
+              href="https://github.com/cpinitiative/ide/issues/138"
+              className="underline"
+            >
+              is broken
+            </a>
+            . Unfortunately, we don&apos;t know when this will be fixed.
           </p>
           <>
             <p className="text-gray-100 font-bold text-lg">
@@ -154,7 +159,7 @@ export default function JudgeInterface({
       </div>
       <SubmitButton
         isLoading={(statusData?.statusCode ?? 0) <= -8}
-        isDisabled={!problem.submittable}
+        isDisabled={!problem.submittable || true}
         onClick={() => handleSubmit()}
       />
     </div>
