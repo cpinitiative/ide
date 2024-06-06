@@ -99,7 +99,7 @@ export const CodeInterface = ({
           defaultValue={defaultCode[lang]}
           yjsDocumentId={`${fileData.id}.${lang}`}
           useEditorWithVim={true}
-          lspEnabled={lang === 'cpp'}
+          lspEnabled={true} // at some point, maybe make this a user setting?
           dataTestId="code-editor"
         />
       </div>

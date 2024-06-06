@@ -52,7 +52,7 @@ export default function MonacoEditor({
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
-    const modelPath = `file:///home/thecodingwizard/${path ?? 'default'}`;
+    const modelPath = `file:///root/${path ?? 'default'}`;
 
     editorRef.current = monaco.editor.create(
       ref.current!,
@@ -111,11 +111,11 @@ export default function MonacoEditor({
   }, [editor, yjsInfo]);
 
   useEffect(() => {
-    // TODO fix LSP connection
-    if (lspEnabled) {
-      return createLSPConnection();
+    if (lspEnabled && (language === 'cpp' || language === 'python')) {
+      // yikes, ugly how there's both python and py
+      return createLSPConnection(language);
     }
-  }, [lspEnabled]);
+  }, [lspEnabled, language]);
 
   useEffect(() => {
     if (vim) {

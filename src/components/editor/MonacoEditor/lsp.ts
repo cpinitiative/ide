@@ -13,7 +13,7 @@ import normalizeUrl from 'normalize-url';
 
 import toast from 'react-hot-toast';
 
-// note: all the toast notifications shoudl probably be moved up to MonacoEditor.tsx
+// note: all the toast notifications should probably be moved up to MonacoEditor.tsx
 const notify = (message: string) => {
   toast(message, {
     style: {
@@ -24,21 +24,30 @@ const notify = (message: string) => {
   });
 };
 
-export default function createLSPConnection() {
+export default function createLSPConnection(language: 'cpp' | 'python') {
+  if (language !== 'cpp' && language !== 'python') {
+    throw new Error('Unsupported LSP language: ' + language);
+  }
+
   notify('Connecting to server...');
-  const url = createUrl('lsp.usaco.guide', 3000, '/sampleServer');
+  const url = createUrl(
+    'thecodingwizard--lsp-server-main.modal.run',
+    443,
+    language === 'cpp' ? '/clangd' : '/pyright'
+  );
+
   let webSocket: WebSocket | null = new WebSocket(url);
-  let ping: ReturnType<typeof setInterval> | null = null;
   let languageClient: MonacoLanguageClient | null;
 
   webSocket.addEventListener('open', () => {
-    ping = setInterval(() => {
-      if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
-        clearInterval(ping!);
-        return;
-      }
-      webSocket.send(JSON.stringify({ jsonrpc: '2.0', method: 'ping' }));
-    }, 5000);
+    const socket = toSocket(webSocket!);
+    const reader = new WebSocketMessageReader(socket);
+    const writer = new WebSocketMessageWriter(socket);
+    languageClient = createLanguageClient({
+      reader,
+      writer,
+    });
+    languageClient.start();
   });
 
   webSocket.addEventListener('message', event => {
@@ -50,19 +59,7 @@ export default function createLSPConnection() {
       return;
     }
     if (!webSocket) return;
-    if (message.method === 'start') {
-      const socket = toSocket(webSocket);
-      const reader = new WebSocketMessageReader(socket);
-      const writer = new WebSocketMessageWriter(socket);
-      languageClient = createLanguageClient({
-        reader,
-        writer,
-      });
-      languageClient.start();
-    } else if (message.method === 'reject') {
-      notify('Servers full, try again later!');
-      dispose();
-    } else if (message.id === 0 && message.result?.capabilities) {
+    if (message.id === 0 && message.result?.capabilities) {
       // assume this is the first message from the server
       // and that connection is successfully established
       notify('Connected');
@@ -91,7 +88,7 @@ export default function createLSPConnection() {
       name: 'Sample Language Client',
       clientOptions: {
         // use a language id as a document selector
-        documentSelector: ['cpp'],
+        documentSelector: [language],
         // disable the default error handler
         errorHandler: {
           error: (error, message, count) => {
@@ -122,7 +119,6 @@ export default function createLSPConnection() {
     return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
   }
   function dispose() {
-    if (ping) clearInterval(ping);
     if (!languageClient) {
       // possibly didn't connect to websocket before exiting
       if (webSocket && webSocket.readyState === webSocket.CONNECTING) {
