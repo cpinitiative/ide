@@ -75,8 +75,10 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
 
     if (event.reason) {
       notify('Connection closed: ' + event.reason);
-    } else {
+    } else if (event.wasClean) {
       notify('Connection closed');
+    } else {
+      notify('Connection closed unexpectedly');
     }
 
     if (languageClient) {
