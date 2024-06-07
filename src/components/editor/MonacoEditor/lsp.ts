@@ -73,7 +73,11 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
       console.error('Connection died');
     }
 
-    notify('Connection closed');
+    if (event.reason) {
+      notify('Connection closed: ' + event.reason);
+    } else {
+      notify('Connection closed');
+    }
 
     if (languageClient) {
       languageClient.stop();
