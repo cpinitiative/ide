@@ -38,15 +38,15 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 - Realtime collaboration with [YJS](https://github.com/yjs/yjs)
 - Monaco Editor (desktop)
 - Codemirror 6 Editor (mobile)
-- [monaco-languageclient](https://github.com/TypeFox/monaco-languageclient) with `clangd-12` for LSP
-- React
-- Jotai
+- Code intellisense with [LSP servers running on Modal](https://github.com/cpinitiative/ide-lsp-modal)
 - Next.js
-- Typescript
 - Tailwind CSS
 - Firebase Realtime Database
 - Playwright for end-to-end testing
-- Deployed with [Vercel](https://vercel.com/?utm_source=cp-initiative&utm_campaign=oss)
+
+Infrastructure monitoring is generously provided by Datadog's OSS program.
+
+<img src="./public/dd_logo_v_rgb.svg" />
 
 ## Contact Info
 
