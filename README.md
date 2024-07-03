@@ -46,7 +46,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 
 Infrastructure monitoring is generously provided by Datadog's OSS program.
 
-<img src="./public/dd_logo_v_rgb.svg" />
+![Datadog Logo](./public/dd_logo_v_rgb.svg | width=250)
 
 ## Contact Info
 
