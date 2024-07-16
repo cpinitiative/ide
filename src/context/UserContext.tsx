@@ -21,7 +21,7 @@ export const LANGUAGES: { label: string; value: Language }[] = [
     value: 'java',
   },
   {
-    label: 'Python 3.8.1',
+    label: 'Python 3.12.3',
     value: 'py',
   },
 ];

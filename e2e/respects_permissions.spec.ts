@@ -112,7 +112,7 @@ test.describe('Respects Permissions', () => {
     expect(await page.$('text="// this is a comment"')).toBeTruthy();
     await page2.waitForSelector('text="// this is a comment"');
 
-    await switchLang(page, 'Python 3.8.1');
+    await switchLang(page, 'Python 3.12.3');
     await page.waitForSelector('button:has-text("Run Code")');
     await page2.waitForSelector('button:has-text("Run Code")');
     await page2.click(`${editorClass} div:nth-child(5)`);
