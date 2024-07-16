@@ -13,25 +13,22 @@ export const submitToJudge = (
   input: string,
   compilerOptions: string,
   fileIOName?: string
-): Promise<Response> => {
+): Promise<any> => {
   const data = {
-    sourceCode: code,
-    filename: {
-      cpp: 'main.cpp',
-      java: extractJavaFilename(code),
-      py: 'main.py',
-    }[language],
-    language,
-    input,
-    compilerOptions: compilerOptions,
-    ...(fileIOName
-      ? {
-          fileIOName,
-        }
-      : {}),
+    compile: {
+      source_code: code,
+      compiler_options: compilerOptions,
+      language:
+        language === 'java' ? 'java21' : language === 'py' ? 'py12' : 'cpp',
+    },
+    execute: {
+      timeout_ms: 5000,
+      stdin: input,
+    },
+    // todo: fileioname
   };
   return fetch(
-    `https://ggzk2rm2ad.execute-api.us-west-1.amazonaws.com/Prod/execute`,
+    `https://v3nuswv3poqzw6giv37wmrt6su0krxvt.lambda-url.us-east-1.on.aws/compile-and-execute`,
     {
       method: 'POST',
       headers: {
@@ -39,5 +36,34 @@ export const submitToJudge = (
       },
       body: JSON.stringify(data),
     }
-  );
+  ).then(async resp => {
+    if (!resp.ok) {
+      const msg = await resp.text();
+      throw new Error(msg);
+    }
+    const data = await resp.json();
+    if (data.compile?.exit_code !== 0) {
+      return {
+        status: 'compile_error',
+        stdout: data.compile.stdout,
+        message: data.compile.stderr,
+        compilationMessage: data.compile.stderr,
+        time: data.compile.wall_time,
+        memory: data.compile.memory_usage,
+      };
+    }
+    return {
+      status:
+        data.execute.exit_code === 0
+          ? 'success'
+          : data.execute.exit_code === 124
+          ? 'time_limit_exceeded'
+          : 'runtime_error',
+      stdout: data.execute.stdout,
+      stderr: data.execute.stderr,
+      compilationMessage: data.compile.stderr,
+      time: data.execute.wall_time,
+      memory: data.execute.memory_usage,
+    };
+  });
 };

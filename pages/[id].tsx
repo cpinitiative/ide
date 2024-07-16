@@ -79,7 +79,7 @@ function EditorPage() {
         isCodeRunning: isRunning,
       });
     };
-    const fetchJudge = (code: string, input: string): Promise<Response> => {
+    const fetchJudge = (code: string, input: string): Promise<any> => {
       return submitToJudge(
         fileData.settings.language,
         code,
@@ -114,19 +114,9 @@ function EditorPage() {
       const code = getMainEditorValue();
       fetchJudge(code, input)
         .then(async resp => {
-          const data: JudgeResult = await resp.json();
-          if (!resp.ok) {
-            if (data.debugData?.errorType === 'Function.ResponseSizeTooLarge') {
-              alert(
-                'Error: Your program printed too much data to stdout/stderr.'
-              );
-            } else {
-              alert('Error: ' + (resp.status + ' - ' + JSON.stringify(data)));
-            }
-          } else {
-            cleanJudgeResult(data, expectedOutput, prefix);
-            setResultAt(inputTabIndex, data);
-          }
+          const data: JudgeResult = resp;
+          cleanJudgeResult(data, expectedOutput, prefix);
+          setResultAt(inputTabIndex, data);
         })
         .catch(e => {
           alert(
@@ -162,15 +152,7 @@ function EditorPage() {
         for (let index = 0; index < samples.length; ++index) {
           const sample = samples[index];
           const resp = await promises[index];
-          const data: JudgeResult = await resp.json();
-          if (!resp.ok || data.status === 'internal_error') {
-            alert(
-              'Error: ' +
-                (data.message || resp.status + ' - ' + JSON.stringify(data))
-            );
-            console.error(data);
-            throw new Error('bad judge result');
-          }
+          const data: JudgeResult = await resp;
           let prefix = 'Sample';
           if (samples.length > 1) prefix += ` ${index + 1}`;
           prefix += ': ';
