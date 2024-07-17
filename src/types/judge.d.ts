@@ -8,12 +8,12 @@ export type JudgeResultStatuses =
 export default interface JudgeResult {
   statusDescription: string;
   status: JudgeResultStatuses;
-  stdout?: string;
-  stderr?: string;
-  message?: string;
-  compilationMessage?: string;
-  time?: string;
-  memory?: string;
-  debugData?: any;
-  fileOutput?: string;
+  stdout: string | null;
+  stderr: string | null;
+  message: string | null;
+  compilationMessage: string | null;
+  time: string | null;
+  memory: string | null;
+  debugData: any | null;
+  fileOutput: string | null;
 }
