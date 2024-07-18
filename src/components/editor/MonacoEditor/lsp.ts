@@ -25,37 +25,29 @@ const notify = (message: string) => {
   });
 };
 
-function createLSPConnection(language: 'cpp' | 'python') {
+function createLSPConnection(
+  language: 'cpp' | 'python',
+  compiler_options: string | null
+) {
   if (language !== 'cpp' && language !== 'python') {
     throw new Error('Unsupported LSP language: ' + language);
   }
 
   notify('Connecting to server...');
-  const url = createUrl(
-    'thecodingwizard--lsp-server-main-dev.modal.run',
-    443,
-    language === 'cpp' ? '/clangd' : '/pyright'
-  );
+  let url = `wss://thecodingwizard--lsp-server-main.modal.run:443/${
+    language === 'cpp' ? 'clangd' : 'pyright'
+  }`;
+  if (compiler_options) {
+    url += `?compiler_options=${encodeURIComponent(compiler_options)}`;
+  }
 
   let webSocket: WebSocket | null = new WebSocket(url);
   let languageClient: MonacoLanguageClient | null;
-
-  let compilerOptions: string | null = null;
-  const sendCompilerOptions = () => {
-    webSocket?.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'setCompilerOptions',
-        params: compilerOptions,
-      })
-    );
-  };
 
   webSocket.addEventListener('open', () => {
     const socket = toSocket(webSocket!);
     const reader = new WebSocketMessageReader(socket);
     const writer = new WebSocketMessageWriter(socket);
-    sendCompilerOptions();
     languageClient = createLanguageClient({
       reader,
       writer,
@@ -79,7 +71,15 @@ function createLSPConnection(language: 'cpp' | 'python') {
     }
   });
 
+  let weClosedWebsocketConnection = false;
   webSocket.addEventListener('close', event => {
+    if (languageClient) {
+      languageClient.stop();
+      languageClient = null;
+    }
+
+    if (weClosedWebsocketConnection) return;
+
     if (event.wasClean) {
       console.log('Connection closed cleanly');
     } else {
@@ -92,11 +92,6 @@ function createLSPConnection(language: 'cpp' | 'python') {
       notify('Connection closed');
     } else {
       notify('Connection closed unexpectedly');
-    }
-
-    if (languageClient) {
-      languageClient.stop();
-      languageClient = null;
     }
   });
 
@@ -133,10 +128,6 @@ function createLSPConnection(language: 'cpp' | 'python') {
     });
   }
 
-  function createUrl(hostname: string, port: number, path: string): string {
-    const protocol = location.protocol === 'https:' ? 'wss' : 'wss';
-    return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
-  }
   function dispose() {
     if (!languageClient) {
       // possibly didn't connect to websocket before exiting
@@ -148,40 +139,18 @@ function createLSPConnection(language: 'cpp' | 'python') {
       languageClient.stop();
       languageClient = null;
     }
+    weClosedWebsocketConnection = true;
   }
-  return {
-    dispose,
-    setCompilerOptions: (_compilerOptions: string | null) => {
-      compilerOptions = _compilerOptions;
-      if (webSocket && webSocket.readyState == WebSocket.OPEN) {
-        sendCompilerOptions();
-      }
-    },
-  };
+  return dispose;
 }
 
 export default function useLSP(
   language: string,
   lspOptions: { compilerOptions: string | null } | null
 ) {
-  const [setCompilerOptions, setSetCompilerOptions] = useState<
-    ((compilerOptions: string | null) => void) | null
-  >(null);
-
   useEffect(() => {
     if (lspOptions && (language === 'cpp' || language === 'python')) {
-      const { dispose, setCompilerOptions: _setCompilerOptions } =
-        createLSPConnection(language);
-      // yikes, ugly
-      setSetCompilerOptions(() => _setCompilerOptions);
-      return dispose;
+      return createLSPConnection(language, lspOptions.compilerOptions);
     }
-  }, [language, lspOptions === null]);
-
-  useEffect(() => {
-    if (lspOptions && setCompilerOptions) {
-      setCompilerOptions(lspOptions.compilerOptions);
-      // todo: need to recreate LSP when this changes -- clangd doesn't support watching...
-    }
-  }, [setCompilerOptions, lspOptions?.compilerOptions]);
+  }, [language, lspOptions?.compilerOptions]);
 }
