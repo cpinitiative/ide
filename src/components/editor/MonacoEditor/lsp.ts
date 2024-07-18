@@ -12,6 +12,7 @@ import {
 import normalizeUrl from 'normalize-url';
 
 import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 
 // note: all the toast notifications should probably be moved up to MonacoEditor.tsx
 const notify = (message: string) => {
@@ -24,14 +25,14 @@ const notify = (message: string) => {
   });
 };
 
-export default function createLSPConnection(language: 'cpp' | 'python') {
+function createLSPConnection(language: 'cpp' | 'python') {
   if (language !== 'cpp' && language !== 'python') {
     throw new Error('Unsupported LSP language: ' + language);
   }
 
   notify('Connecting to server...');
   const url = createUrl(
-    'thecodingwizard--lsp-server-main.modal.run',
+    'thecodingwizard--lsp-server-main-dev.modal.run',
     443,
     language === 'cpp' ? '/clangd' : '/pyright'
   );
@@ -39,10 +40,22 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
   let webSocket: WebSocket | null = new WebSocket(url);
   let languageClient: MonacoLanguageClient | null;
 
+  let compilerOptions: string | null = null;
+  const sendCompilerOptions = () => {
+    webSocket?.send(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'setCompilerOptions',
+        params: compilerOptions,
+      })
+    );
+  };
+
   webSocket.addEventListener('open', () => {
     const socket = toSocket(webSocket!);
     const reader = new WebSocketMessageReader(socket);
     const writer = new WebSocketMessageWriter(socket);
+    sendCompilerOptions();
     languageClient = createLanguageClient({
       reader,
       writer,
@@ -136,5 +149,39 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
       languageClient = null;
     }
   }
-  return dispose;
+  return {
+    dispose,
+    setCompilerOptions: (_compilerOptions: string | null) => {
+      compilerOptions = _compilerOptions;
+      if (webSocket && webSocket.readyState == WebSocket.OPEN) {
+        sendCompilerOptions();
+      }
+    },
+  };
+}
+
+export default function useLSP(
+  language: string,
+  lspOptions: { compilerOptions: string | null } | null
+) {
+  const [setCompilerOptions, setSetCompilerOptions] = useState<
+    ((compilerOptions: string | null) => void) | null
+  >(null);
+
+  useEffect(() => {
+    if (lspOptions && (language === 'cpp' || language === 'python')) {
+      const { dispose, setCompilerOptions: _setCompilerOptions } =
+        createLSPConnection(language);
+      // yikes, ugly
+      setSetCompilerOptions(() => _setCompilerOptions);
+      return dispose;
+    }
+  }, [language, lspOptions === null]);
+
+  useEffect(() => {
+    if (lspOptions && setCompilerOptions) {
+      setCompilerOptions(lspOptions.compilerOptions);
+      // todo: need to recreate LSP when this changes -- clangd doesn't support watching...
+    }
+  }, [setCompilerOptions, lspOptions?.compilerOptions]);
 }
