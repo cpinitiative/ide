@@ -21,7 +21,6 @@ import { useAtomValue } from 'jotai';
 import { useEditorContext } from '../../context/EditorContext';
 import defaultCode from '../../scripts/defaultCode';
 import download from '../../scripts/download';
-import { extractJavaFilename } from '../../scripts/judge';
 import useUserPermission from '../../hooks/useUserPermission';
 
 export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
@@ -54,9 +53,15 @@ export const FileMenu = (props: { onOpenSettings: Function }): JSX.Element => {
 
     const code = getMainEditorValue();
 
+    let javaFilename = 'Main.java';
+    const matches = Array.from(code.matchAll(/public\s+class\s+(\w+)/g));
+    if (matches.length > 0) {
+      javaFilename = matches[0][1] + '.java';
+    }
+
     const fileNames = {
       cpp: `${fileData.settings.workspaceName}.cpp`,
-      java: extractJavaFilename(code),
+      java: javaFilename,
       py: `${fileData.settings.workspaceName}.py`,
     };
 

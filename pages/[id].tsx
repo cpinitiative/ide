@@ -31,7 +31,6 @@ import useUserPermission from '../src/hooks/useUserPermission';
 import { SettingsModal } from '../src/components/settings/SettingsModal';
 import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
 import useJudgeResults from '../src/hooks/useJudgeResults';
-import { cleanJudgeResult } from '../src/editorUtils';
 import JudgeResult from '../src/types/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
@@ -79,7 +78,11 @@ function EditorPage() {
         isCodeRunning: isRunning,
       });
     };
-    const fetchJudge = (code: string, input: string): Promise<Response> => {
+    const fetchJudge = (
+      code: string,
+      input: string,
+      expectedOutput?: string
+    ): Promise<JudgeResult> => {
       return submitToJudge(
         fileData.settings.language,
         code,
@@ -87,7 +90,8 @@ function EditorPage() {
         fileData.settings.compilerOptions[fileData.settings.language],
         problem?.input?.endsWith('.in')
           ? problem.input.substring(0, problem.input.length - 3)
-          : undefined
+          : undefined,
+        expectedOutput
       );
     };
 
@@ -112,21 +116,13 @@ function EditorPage() {
       setResultAt(inputTabIndex, null);
 
       const code = getMainEditorValue();
-      fetchJudge(code, input)
+      fetchJudge(code, input, expectedOutput)
         .then(async resp => {
-          const data: JudgeResult = await resp.json();
-          if (!resp.ok) {
-            if (data.debugData?.errorType === 'Function.ResponseSizeTooLarge') {
-              alert(
-                'Error: Your program printed too much data to stdout/stderr.'
-              );
-            } else {
-              alert('Error: ' + (resp.status + ' - ' + JSON.stringify(data)));
-            }
-          } else {
-            cleanJudgeResult(data, expectedOutput, prefix);
-            setResultAt(inputTabIndex, data);
+          const data: JudgeResult = resp;
+          if (prefix && data.status !== 'compile_error') {
+            data.statusDescription = prefix + data.statusDescription;
           }
+          setResultAt(inputTabIndex, data);
         })
         .catch(e => {
           alert(
@@ -154,27 +150,19 @@ function EditorPage() {
         const promises = [];
         for (let index = 0; index < samples.length; ++index) {
           const sample = samples[index];
-          promises.push(fetchJudge(code, sample.input));
+          promises.push(fetchJudge(code, sample.input, sample.output));
         }
 
         const newJudgeResults = judgeResults;
         const results: JudgeResult[] = [];
         for (let index = 0; index < samples.length; ++index) {
-          const sample = samples[index];
-          const resp = await promises[index];
-          const data: JudgeResult = await resp.json();
-          if (!resp.ok || data.status === 'internal_error') {
-            alert(
-              'Error: ' +
-                (data.message || resp.status + ' - ' + JSON.stringify(data))
-            );
-            console.error(data);
-            throw new Error('bad judge result');
-          }
+          const data = await promises[index];
           let prefix = 'Sample';
           if (samples.length > 1) prefix += ` ${index + 1}`;
           prefix += ': ';
-          cleanJudgeResult(data, sample.output, prefix);
+          if (data.status !== 'compile_error') {
+            data.statusDescription = prefix + data.statusDescription;
+          }
           results.push(data);
           newJudgeResults[2 + index] = data;
         }

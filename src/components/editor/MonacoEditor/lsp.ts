@@ -12,6 +12,7 @@ import {
 import normalizeUrl from 'normalize-url';
 
 import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 
 // note: all the toast notifications should probably be moved up to MonacoEditor.tsx
 const notify = (message: string) => {
@@ -24,17 +25,21 @@ const notify = (message: string) => {
   });
 };
 
-export default function createLSPConnection(language: 'cpp' | 'python') {
+function createLSPConnection(
+  language: 'cpp' | 'python',
+  compiler_options: string | null
+) {
   if (language !== 'cpp' && language !== 'python') {
     throw new Error('Unsupported LSP language: ' + language);
   }
 
   notify('Connecting to server...');
-  const url = createUrl(
-    'thecodingwizard--lsp-server-main.modal.run',
-    443,
-    language === 'cpp' ? '/clangd' : '/pyright'
-  );
+  let url = `wss://thecodingwizard--lsp-server-main.modal.run:443/${
+    language === 'cpp' ? 'clangd' : 'pyright'
+  }`;
+  if (compiler_options) {
+    url += `?compiler_options=${encodeURIComponent(compiler_options)}`;
+  }
 
   let webSocket: WebSocket | null = new WebSocket(url);
   let languageClient: MonacoLanguageClient | null;
@@ -66,7 +71,15 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
     }
   });
 
+  let weClosedWebsocketConnection = false;
   webSocket.addEventListener('close', event => {
+    if (languageClient) {
+      languageClient.stop();
+      languageClient = null;
+    }
+
+    if (weClosedWebsocketConnection) return;
+
     if (event.wasClean) {
       console.log('Connection closed cleanly');
     } else {
@@ -79,11 +92,6 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
       notify('Connection closed');
     } else {
       notify('Connection closed unexpectedly');
-    }
-
-    if (languageClient) {
-      languageClient.stop();
-      languageClient = null;
     }
   });
 
@@ -120,10 +128,6 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
     });
   }
 
-  function createUrl(hostname: string, port: number, path: string): string {
-    const protocol = location.protocol === 'https:' ? 'wss' : 'wss';
-    return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
-  }
   function dispose() {
     if (!languageClient) {
       // possibly didn't connect to websocket before exiting
@@ -135,6 +139,18 @@ export default function createLSPConnection(language: 'cpp' | 'python') {
       languageClient.stop();
       languageClient = null;
     }
+    weClosedWebsocketConnection = true;
   }
   return dispose;
+}
+
+export default function useLSP(
+  language: string,
+  lspOptions: { compilerOptions: string | null } | null
+) {
+  useEffect(() => {
+    if (lspOptions && (language === 'cpp' || language === 'python')) {
+      return createLSPConnection(language, lspOptions.compilerOptions);
+    }
+  }, [language, lspOptions?.compilerOptions]);
 }

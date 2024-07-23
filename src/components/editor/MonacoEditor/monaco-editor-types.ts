@@ -123,7 +123,12 @@ export interface EditorProps {
 
   vim?: boolean;
 
-  lspEnabled?: boolean;
+  /**
+   * Set to undefined / null to disable LSP.
+   */
+  lspOptions?: {
+    compilerOptions: string | null;
+  } | null;
 
   /**
    * If provided, the code editor should create a yjs binding with the given information

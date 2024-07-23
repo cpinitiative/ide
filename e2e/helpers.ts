@@ -42,7 +42,7 @@ export const testRunCode = async (
 
 export const switchLang = async (
   page: Page,
-  lang: 'Java' | 'Python 3.8.1' | 'C++'
+  lang: 'Java' | 'Python 3.12.3' | 'C++'
 ) => {
   await page.getByRole('button', { name: 'File' }).click();
   await page.getByRole('menuitem', { name: 'Settings' }).click();
@@ -58,7 +58,7 @@ export const forEachLang = async (
   await switchLang(page, 'Java');
   await func();
 
-  await switchLang(page, 'Python 3.8.1');
+  await switchLang(page, 'Python 3.12.3');
   await func();
 
   await switchLang(page, 'C++');
