@@ -180,7 +180,7 @@ export const SettingsModal = ({
       <Dialog
         as="div"
         static
-        className="fixed z-10 inset-0 overflow-y-auto"
+        className="fixed z-10 inset-0 overflow-y-scroll no-scrollbar"
         open={isOpen}
         onClose={() => closeWithoutSaving()}
       >

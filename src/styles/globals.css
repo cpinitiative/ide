@@ -45,3 +45,11 @@ html {
   outline: none;
   --tw-ring-color: transparent !important;
 }
+
+/* This hides the scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
