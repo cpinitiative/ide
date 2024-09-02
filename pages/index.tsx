@@ -47,7 +47,6 @@ export default function DashboardPage(): JSX.Element {
             Looking to get better at USACO? Check out the{' '}
             <a
               href="https://usaco.guide/"
-              target="_blank"
               rel="noreferrer"
               className="underline hover:text-white"
             >
@@ -65,7 +64,15 @@ export default function DashboardPage(): JSX.Element {
               className="ml-[2px]"
             />
             <p className="mt-2 text-gray-400">
-              Infrastructure monitoring powered by Datadog.
+              Infrastructure monitoring powered by Datadog. View our{' '}
+              <a
+                href="https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e"
+                rel="noreferrer"
+                className="underline hover:text-white"
+              >
+                Datadog Public Dashboard
+              </a>
+              !
             </p>
           </div>
         </div>
