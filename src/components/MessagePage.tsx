@@ -1,15 +1,21 @@
 import React from 'react';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export const MessagePage = ({
   message,
   showHomeButton = true,
+  noIndex = false,
 }: {
   message: string;
   showHomeButton?: boolean;
+  noIndex?: boolean;
 }): JSX.Element => {
   return (
     <div className="p-8 sm:p-16 text-center">
+      <Head>
+        {noIndex && <meta name="robots" content="noindex,nofollow" />}
+      </Head>
       <div className="text-3xl sm:text-4xl text-white font-bold">{message}</div>
       {showHomeButton && (
         <Link

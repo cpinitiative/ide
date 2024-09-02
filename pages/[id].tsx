@@ -36,6 +36,7 @@ import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
 import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import Link from 'next/link';
+import Head from 'next/head';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -268,7 +269,9 @@ export default function FilePage() {
 
   const { userData } = useNullableUserContext();
 
-  const loadingUI = <MessagePage message="Loading..." showHomeButton={false} />;
+  const loadingUI = (
+    <MessagePage message="Loading..." showHomeButton={false} noIndex />
+  );
   const oldLink = `https://legacy.ide.usaco.guide/${queryId}`;
   const fileNotFoundUI = (
     <div className="p-8 sm:p-16">
@@ -293,13 +296,18 @@ export default function FilePage() {
       </div>
     </div>
   );
-  const permissionDeniedUI = <MessagePage message="This file is private." />;
+  const permissionDeniedUI = (
+    <MessagePage message="This file is private." noIndex />
+  );
 
   if (!queryId) return null;
   if (!userData) return loadingUI;
 
   return (
     <>
+      <Head>
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
       <EditorProvider
         fileId={firebaseFileID}
         loadingUI={loadingUI}

@@ -1,11 +1,10 @@
-import { useAtomValue } from 'jotai/utils';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef } from 'react';
-import invariant from 'tiny-invariant';
 import { MessagePage } from '../src/components/MessagePage';
 import { useNullableUserContext } from '../src/context/UserContext';
 import { DEFAULT_COMPILER_OPTIONS } from './new';
 import va from '@vercel/analytics';
+import Head from 'next/head';
 
 export default function NewFilePage() {
   const { userData, firebaseUser } = useNullableUserContext();
@@ -42,5 +41,11 @@ export default function NewFilePage() {
     }
   }, [userData, firebaseUser]);
 
-  return <MessagePage showHomeButton={false} message="Creating new file..." />;
+  return (
+    <MessagePage
+      showHomeButton={false}
+      message="Creating new file..."
+      noIndex
+    />
+  );
 }

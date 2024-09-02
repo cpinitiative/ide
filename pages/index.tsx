@@ -11,16 +11,20 @@ import {
   useUserContext,
 } from '../src/context/UserContext';
 import Image from 'next/image';
+import Head from 'next/head';
 
 export default function DashboardPage(): JSX.Element {
   const { userData } = useNullableUserContext();
 
-  useEffect(() => {
-    document.title = 'Real-Time Collaborative Online IDE';
-  }, []);
-
   return (
     <div className="min-h-full flex flex-col">
+      <Head>
+        <title>Real-Time Collaborative Online IDE</title>
+        <meta
+          name="description"
+          content="An online IDE designed for competitive programming, with code execution, intellisense, mobile support, realtime collaborative editing, and built-in USACO submissions."
+        />
+      </Head>
       <ConfirmOverrideModal />
       <div className="flex-1">
         <div className="p-4 sm:p-6 md:p-8 lg:p-12 max-w-6xl mx-auto">

@@ -45,8 +45,10 @@ export default function CopyFilePage(): JSX.Element {
   }, [router.isReady, firebaseUser]);
 
   if (error) {
-    return <MessagePage message={'Error: ' + error} />;
+    return <MessagePage message={'Error: ' + error} noIndex />;
   }
 
-  return <MessagePage message="Copying file..." showHomeButton={false} />;
+  return (
+    <MessagePage message="Copying file..." showHomeButton={false} noIndex />
+  );
 }

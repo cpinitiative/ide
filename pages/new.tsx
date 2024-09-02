@@ -13,6 +13,7 @@ import firebase from 'firebase/app';
 import { SharingPermissions } from '../src/components/SharingPermissions';
 import va from '@vercel/analytics';
 import generateRandomFileName from '../src/scripts/generateRandomFileName';
+import Head from 'next/head';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -107,6 +108,10 @@ export default function NewFilePage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-full flex flex-col max-w-6xl mx-auto">
+      <Head>
+        <title>Create New File · Real-Time Collaborative Online IDE</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
       <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
         <h1 className="text-white font-semibold md:text-xl xl:text-2xl">
           Create New File

@@ -54,8 +54,10 @@ export default function CreateUSACO(): JSX.Element {
   }, [router.isReady, firebaseUser, userData]);
 
   if (error) {
-    return <MessagePage message={'Error: ' + error} />;
+    return <MessagePage message={'Error: ' + error} noIndex />;
   }
 
-  return <MessagePage message="Loading File..." showHomeButton={false} />;
+  return (
+    <MessagePage message="Loading File..." showHomeButton={false} noIndex />
+  );
 }
