@@ -30,4 +30,4 @@ Metrics such as median and P95 invocation latencies are actually quite helpful. 
 
 ---
 
-Datadog has greatly helped us improve the USACO Guide IDE's uptime and better understand how users use it. Check out our [Public Datadog Dashboard](https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e) to view some of the key metrics we track!
+Datadog has helped us reduce downtime, understand how our users use our sit, and prioritize what features to implement next. Check out our [Public Datadog Dashboard](https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e) to view some of the key metrics we track!
