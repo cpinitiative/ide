@@ -70,7 +70,15 @@ export default function DashboardPage(): JSX.Element {
                 rel="noreferrer"
                 className="underline hover:text-white"
               >
-                Datadog Public Dashboard
+                Dashboard
+              </a>{' '}
+              or learn more about{' '}
+              <a
+                href="https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e"
+                rel="noreferrer"
+                className="underline hover:text-white"
+              >
+                how we use Datadog
               </a>
               !
             </p>
