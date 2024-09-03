@@ -74,7 +74,7 @@ export default function DashboardPage(): JSX.Element {
               </a>{' '}
               or learn more about{' '}
               <a
-                href="https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e"
+                href="https://github.com/cpinitiative/ide/blob/master/Datadog.md"
                 rel="noreferrer"
                 className="underline hover:text-white"
               >
