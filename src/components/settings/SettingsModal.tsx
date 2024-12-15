@@ -20,11 +20,11 @@ import JudgeSettings from './JudgeSettings';
 
 import SignInSettings from './SignInSettings';
 import JudgeResult from '../../types/judge';
-import useJudgeResults from '../../hooks/useJudgeResults';
 import { EditorMode, useUserContext } from '../../context/UserContext';
 import { FileSettings, useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import firebase from 'firebase/app';
+import useJudgeResults from '../../context/JudgeResultsContext';
 
 export interface SettingsDialogProps {
   isOpen: boolean;

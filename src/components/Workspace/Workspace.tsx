@@ -27,11 +27,12 @@ import { Output } from '../Output';
 import { TabBar } from '../TabBar';
 import { UserList } from '../UserList/UserList';
 import Samples from '../JudgeInterface/Samples';
-import useJudgeResults from '../../hooks/useJudgeResults';
 import { useEditorContext } from '../../context/EditorContext';
 import useUserPermission from '../../hooks/useUserPermission';
 import { useUserContext } from '../../context/UserContext';
 import { Sample } from '../JudgeInterface/Samples';
+import useJudgeResults from '../../context/JudgeResultsContext';
+
 export type ProblemData = {
   id: number;
   submittable: boolean;
