@@ -36,7 +36,9 @@ import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
 import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import Link from 'next/link';
 import Head from 'next/head';
-import useJudgeResults from '../src/context/JudgeResultsContext';
+import useJudgeResults, {
+  JudgeResultsProvider,
+} from '../src/context/JudgeResultsContext';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -310,7 +312,9 @@ export default function FilePage() {
         fileNotFoundUI={fileNotFoundUI}
         permissionDeniedUI={permissionDeniedUI}
       >
-        <EditorPage />
+        <JudgeResultsProvider>
+          <EditorPage />
+        </JudgeResultsProvider>
       </EditorProvider>
       <ConfirmOverrideModal />
     </>
