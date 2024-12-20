@@ -37,3 +37,6 @@ yarn-error.log*
 # private folder where I store firebase admin key
 private
 .env
+
+# ignore downloaded firebase data
+/db_analysis/*.json

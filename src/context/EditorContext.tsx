@@ -38,10 +38,6 @@ export type FileData = {
     };
   };
   settings: FileSettings;
-  isCodeRunning: boolean;
-  state: {
-    judge_resuts: any; // ???
-  };
   chat: {
     [key: string]: Omit<ChatMessage, 'key'>;
   };

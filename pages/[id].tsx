@@ -30,13 +30,15 @@ import { useNullableUserContext } from '../src/context/UserContext';
 import useUserPermission from '../src/hooks/useUserPermission';
 import { SettingsModal } from '../src/components/settings/SettingsModal';
 import { getSampleIndex } from '../src/components/JudgeInterface/Samples';
-import useJudgeResults from '../src/hooks/useJudgeResults';
 import JudgeResult from '../src/types/judge';
 import useUserFileConnection from '../src/hooks/useUserFileConnection';
 import useUpdateUserDashboard from '../src/hooks/useUpdateUserDashboard';
 import { ConfirmOverrideModal } from '../src/components/ConfirmOverrideModal';
 import Link from 'next/link';
 import Head from 'next/head';
+import useJudgeResults, {
+  JudgeResultsProvider,
+} from '../src/context/JudgeResultsContext';
 
 function EditorPage() {
   const { fileData, updateFileData } = useEditorContext();
@@ -51,6 +53,7 @@ function EditorPage() {
   const getMainEditorValue = useAtomValue(mainEditorValueAtom);
   const getInputEditorValue = useAtomValue(inputEditorValueAtom);
   const [judgeResults, setJudgeResults] = useJudgeResults();
+  const [isCodeRunning, setIsCodeRunning] = useState(false);
 
   useUserFileConnection();
   useUpdateUserDashboard();
@@ -74,11 +77,6 @@ function EditorPage() {
 
   const handleRunCode = () => {
     const problem = fileData.settings.problem;
-    const setIsRunning = (isRunning: boolean) => {
-      updateFileData({
-        isCodeRunning: isRunning,
-      });
-    };
     const fetchJudge = (
       code: string,
       input: string,
@@ -113,7 +111,7 @@ function EditorPage() {
         return;
       }
 
-      setIsRunning(true);
+      setIsCodeRunning(true);
       setResultAt(inputTabIndex, null);
 
       const code = getMainEditorValue();
@@ -133,7 +131,7 @@ function EditorPage() {
           );
           console.error(e);
         })
-        .finally(() => setIsRunning(false));
+        .finally(() => setIsCodeRunning(false));
     };
 
     const runAllSamples = async () => {
@@ -143,7 +141,7 @@ function EditorPage() {
       }
       const samples = problem.samples;
 
-      setIsRunning(true);
+      setIsCodeRunning(true);
       setResultAt(1, null);
 
       const code = getMainEditorValue();
@@ -206,7 +204,7 @@ function EditorPage() {
       } catch (e) {
         console.error(e);
       }
-      setIsRunning(false);
+      setIsCodeRunning(false);
     };
 
     if (inputTab === 'input') {
@@ -234,7 +232,7 @@ function EditorPage() {
             runButton={
               <RunButton
                 onClick={handleRunCode}
-                showLoading={fileData.isCodeRunning || loading}
+                showLoading={isCodeRunning || loading}
                 disabledForViewOnly={readOnly}
               />
             }
@@ -314,7 +312,9 @@ export default function FilePage() {
         fileNotFoundUI={fileNotFoundUI}
         permissionDeniedUI={permissionDeniedUI}
       >
-        <EditorPage />
+        <JudgeResultsProvider>
+          <EditorPage />
+        </JudgeResultsProvider>
       </EditorProvider>
       <ConfirmOverrideModal />
     </>
