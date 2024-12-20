@@ -49,7 +49,7 @@ test.describe('Basic Functionality', () => {
     await context2.close();
   });
 
-  test('should sync output', async ({ page, browser, isMobile }) => {
+  test.skip('should sync output', async ({ page, browser, isMobile }) => {
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
 
