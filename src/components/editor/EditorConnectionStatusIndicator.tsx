@@ -10,16 +10,19 @@ export default function EditorConnectionStatusIndicator({
   connectionStatus,
   isSynced,
 }: {
-  connectionStatus: 'disconnected' | 'connecting' | 'connected';
+  connectionStatus: 'disconnected' | 'connecting' | 'saving' | 'saved';
   isSynced: boolean;
 }) {
   let connectionText;
   let statusIndicatorClass;
 
   // for now, our editors are either connecting or connected.
-  if (connectionStatus === 'connected' && isSynced) {
-    connectionText = 'Connected';
+  if (connectionStatus === 'saved' && isSynced) {
+    connectionText = 'Saved';
     statusIndicatorClass = 'bg-green-500';
+  } else if (connectionStatus == 'saving') {
+    connectionText = 'Saving...';
+    statusIndicatorClass = 'bg-yellow-500';
   } else {
     connectionText = 'Connecting...';
     statusIndicatorClass = 'bg-yellow-500';

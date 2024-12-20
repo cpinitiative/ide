@@ -26,6 +26,38 @@ const WEBSOCKET_SERVER = SHOULD_USE_DEV_YJS_SERVER
   ? 'ws://localhost:1234'
   : 'wss://yjs.usaco.guide:443';
 
+const createWebsocketInterceptorClass = (
+  onMessageSyncHandler: () => void,
+  onSaveHandler: () => void
+) => {
+  return class WebsocketInterceptor extends WebSocket {
+    send(data: string | ArrayBuffer | Blob | ArrayBufferView) {
+      const messageSync = 0; // defined in y-websocket
+      if (
+        data instanceof Uint8Array &&
+        data.length > 0 &&
+        data[0] === messageSync
+      ) {
+        console.log(data);
+        onMessageSyncHandler();
+      }
+      super.send(data);
+    }
+
+    set onmessage(f: any) {
+      const messageSaved = 100; // defined in ide-yjs
+      super.onmessage = m => {
+        const decoder = new Uint8Array(m.data);
+        if (decoder.length > 0 && decoder[0] === messageSaved) {
+          onSaveHandler();
+        } else {
+          f(m);
+        }
+      };
+    }
+  };
+};
+
 const RealtimeEditor = ({
   defaultValue,
   yjsDocumentId,
@@ -43,7 +75,7 @@ const RealtimeEditor = ({
   } | null>(null);
 
   const [connectionStatus, setConnectionStatus] = useState<
-    'disconnected' | 'connecting' | 'connected'
+    'disconnected' | 'connecting' | 'saved' | 'saving'
   >('disconnected');
   const [isSynced, setIsSynced] = useState<boolean>(false);
 
@@ -58,10 +90,31 @@ const RealtimeEditor = ({
     const documentId = yjsDocumentId;
 
     const ydocument = new Y.Doc();
+
+    let lastUpdate = 0;
+    const CustomWebsocketInterceptor = createWebsocketInterceptorClass(
+      () => {
+        if (!provider._synced) {
+          return;
+        }
+
+        // As a sketchy hack, we'll assume every sync message sent
+        // corresponds to an edit the user made.
+        lastUpdate = Date.now();
+        setConnectionStatus('saving');
+      },
+      () => {
+        if (Date.now() - lastUpdate > 1000) {
+          setConnectionStatus('saved');
+        }
+      }
+    );
+
     const provider = new WebsocketProvider(
       WEBSOCKET_SERVER,
       documentId,
-      ydocument
+      ydocument,
+      { WebSocketPolyfill: CustomWebsocketInterceptor }
     );
 
     // Set the cursor color
@@ -118,7 +171,7 @@ const RealtimeEditor = ({
     provider.on(
       'status',
       ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
-        setConnectionStatus(status);
+        setConnectionStatus(status === 'connected' ? 'saved' : status);
       }
     );
     provider.on('sync', (isSynced: boolean) => {
