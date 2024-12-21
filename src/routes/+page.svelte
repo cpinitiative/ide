@@ -1,2 +1,71 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script>
+  import datadog_logo from '$lib/assets/datadog-logo.svg';
+</script>
+
+<svelte:head>
+  <title>Real-Time Collaborative Online IDE</title>
+  <meta
+    name="description"
+    content="An online IDE designed for competitive programming, with code execution, intellisense, mobile support, realtime collaborative editing, and built-in USACO submissions."
+  />
+</svelte:head>
+
+<div class="min-h-full flex flex-col">
+  <div class="flex-1">
+    <div class="p-4 sm:p-6 md:p-8 lg:p-12 max-w-6xl mx-auto">
+      <h1 class="text-gray-100 text-2xl md:text-4xl font-black">
+        Real-Time Collaborative Online IDE
+      </h1>
+
+      <div class="h-6"></div>
+
+      <!-- {#if !$userData}
+        <div class="text-gray-400 mt-6">Loading...</div>
+      {:else}
+        <Dashboard />
+      {/if} -->
+    </div>
+  </div>
+  <div class="border-t border-gray-700">
+    <div class="p-4 sm:p-6 md:p-8 lg:p-12 max-w-6xl mx-auto text-gray-400 space-y-8">
+      <div>
+        Looking to get better at USACO? Check out the
+        <a
+          href="https://usaco.guide/"
+          rel="noreferrer"
+          class="underline hover:text-white"
+        >
+          USACO Guide
+        </a>!<br />
+        Not for commercial use.
+      </div>
+      <div>
+        <img
+          alt="Datadog Logo"
+          src={datadog_logo}
+          width={150}
+          height={250}
+          class="ml-[2px]"
+        />
+        <p class="mt-2 text-gray-400">
+          Infrastructure monitoring powered by Datadog. View our
+          <a
+            href="https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e"
+            rel="noreferrer"
+            class="underline hover:text-white"
+          >
+            Dashboard
+          </a>
+          or learn more about
+          <a
+            href="https://github.com/cpinitiative/ide/blob/master/Datadog.md"
+            rel="noreferrer"
+            class="underline hover:text-white"
+          >
+            how we use Datadog
+          </a>!
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

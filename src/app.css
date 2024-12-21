@@ -1,3 +1,6 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss";
+
+body {
+  /* Matches the color of monaco-editor */
+  background-color: #1e1e1e;
+}
