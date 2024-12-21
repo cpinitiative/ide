@@ -66,12 +66,15 @@ export default function Dashboard() {
         snap.forEach(child => {
           const data = child.val();
           const key = child.key;
+
           firebase
             .database()
-            .ref('files/' + key)
-            .on('value', snapp => {
-              if (snapp.exists()) {
-                ref.child(key + '/language').set(snapp.val().settings.language);
+            .ref('files/' + key + '/settings/language')
+            .once('value', snap => {
+              if (snap.exists()) {
+                if (snap.val() != data.language) {
+                  ref.child(key + '/language').set(snap.val());
+                }
               }
             });
 
