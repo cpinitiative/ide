@@ -1,5 +1,6 @@
 <script>
 	import datadog_logo from '$lib/assets/datadog-logo.svg';
+	import Dashboard from './components/Dashboard.svelte';
 	import { authState } from '$lib/firebase/firebase.svelte';
 </script>
 
@@ -23,10 +24,7 @@
 			{#if authState.isLoading}
 				<div class="text-gray-400">Loading...</div>
 			{:else}
-				<!-- <Dashboard /> -->
-				<div class="text-gray-400">
-					Hello {authState.firebaseUser.displayName}!
-				</div>
+				<Dashboard />
 			{/if}
 		</div>
 	</div>
