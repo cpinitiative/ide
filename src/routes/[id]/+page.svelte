@@ -1,36 +1,45 @@
 <script lang="ts">
-	import MonacoEditor, { layoutEditors } from '$lib/components/MonacoEditor.svelte';
-	import { onMount } from 'svelte';
-	import Layout from './components/Layout.svelte';
+	import type { FileData } from '$lib/types';
+	import { onValue, ref } from 'firebase/database';
+  import IDE from './IDE.svelte';
+	import { authState, database } from '$lib/firebase/firebase.svelte';
 
-	let { data } = $props();
-	let fileId = data.fileId;
+	let props = $props();
+	let fileId = props.data.fileId;
 
-  // When the window resizes, we should resize the monaco editors
-	onMount(() => {
-		function handleResize() {
-			layoutEditors();
-		}
+  let isLoading = $state(true);
+  let fileData: FileData | null = $state(null);
 
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
+	$effect(() => {
+    isLoading = true;
+    fileData = null;
+
+    if (!authState.firebaseUser) {
+      // auth is loading
+      return;
+    }
+
+    const fileDataRef = ref(database, `files/${fileId}`);
+    const unsubscribe = onValue(fileDataRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        fileData = null;
+      } else {
+        fileData = {
+          id: snapshot.key,
+          ...snapshot.val()
+        };
+      }
+      isLoading = false;
+    });
+
+    return unsubscribe;
 	});
 </script>
 
-<Layout onResize={() => layoutEditors()}>
-	{#snippet navbar()}
-		Navbar: {fileId}
-	{/snippet}
-
-	{#snippet mainPane()}
-		<MonacoEditor />
-	{/snippet}
-
-	{#snippet inputPane()}
-		<MonacoEditor />
-	{/snippet}
-
-	{#snippet outputPane()}
-		<MonacoEditor />
-	{/snippet}
-</Layout>
+{#if isLoading}
+  <div>Loading...</div>
+{:else if !fileData}
+  <div>File not found.</div>
+{:else}
+  <IDE fileData={fileData} />
+{/if}

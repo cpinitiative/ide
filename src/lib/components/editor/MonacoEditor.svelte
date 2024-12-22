@@ -47,47 +47,80 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { EditorProps } from '../RealtimeEditor.svelte';
+	import { MonacoBinding } from 'y-monaco';
+	import { experimentalSetDeliveryMetricsExportedToBigQueryEnabled } from 'firebase/messaging/sw';
 
 	let editorElement: HTMLElement;
 
 	let {
 		theme = 'dark',
 		language = 'plaintext',
-		readOnly = false
-	}: {
-		theme?: 'dark' | 'light';
-		language?: 'cpp' | 'java' | 'py' | 'plaintext';
-		readOnly?: boolean;
-	} = $props();
+		readOnly = false,
+
+		yjsInfo
+	}: EditorProps = $props();
+
+	let editor: monaco.editor.IStandaloneCodeEditor | null = $state(null);
 
 	onMount(() => {
-		let editor = monaco.editor.create(editorElement, {
+		editor = monaco.editor.create(editorElement, {
 			automaticLayout: false,
 			minimap: { enabled: false },
-      bracketPairColorization: {
-        enabled: true
-      },
+			bracketPairColorization: {
+				enabled: true
+			},
 
-      // TODO: check if still needed
-      // this next option is to prevent annoying autocompletes
-      // ex. type return space and it adds two spaces + semicolon
-      // ex. type vecto< and it autocompletes weirdly
-      acceptSuggestionOnCommitCharacter: false,
+			// TODO: check if still needed
+			// this next option is to prevent annoying autocompletes
+			// ex. type return space and it adds two spaces + semicolon
+			// ex. type vecto< and it autocompletes weirdly
+			acceptSuggestionOnCommitCharacter: false,
 
-			theme: theme === 'dark' ? 'vs-dark' : 'light',
-			language: language === 'py' ? 'python' : language,
-			readOnly
+			language: language === 'py' ? 'python' : language
 		});
 
 		editors.push(editor);
 
 		return () => {
+			if (!editor) {
+				// shouldn't happen
+				return;
+			}
+
 			editor.dispose();
 
 			let index = editors.indexOf(editor);
 			if (index > -1) {
 				editors.splice(index, 1);
 			}
+		};
+	});
+
+	$effect(() => {
+		// Note: theme is global
+		monaco.editor.setTheme(theme === 'dark' ? 'vs-dark' : 'light');
+	});
+
+	$effect(() => {
+		if (!editor) return;
+		editor.updateOptions({
+			readOnly
+		});
+	});
+
+	$effect(() => {
+		if (!yjsInfo || !editor) return;
+
+		const monacoBinding = new MonacoBinding(
+			yjsInfo.text,
+			editor.getModel()!,
+			new Set([editor]),
+			yjsInfo.awareness
+		);
+
+		return () => {
+			monacoBinding.destroy();
 		};
 	});
 </script>
