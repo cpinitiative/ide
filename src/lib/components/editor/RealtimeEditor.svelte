@@ -57,12 +57,10 @@
 	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
 
 	let {
-		defaultValue,
 		documentId,
 		userId,
 		...props
 	}: {
-		defaultValue: string;
 		documentId: string;
 		/**
 		 * Firebase user ID
@@ -146,17 +144,6 @@
 
 		provider.on('status', ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
 			connectionStatus = status === 'connected' ? 'saved' : status;
-		});
-
-		provider.on('sync', (isSynced: boolean) => {
-			// Handle file initialization
-			if (isSynced) {
-				const isInitializedMap = ydocument.getMap('isInitialized');
-				if (!isInitializedMap.get('isInitialized')) {
-					isInitializedMap.set('isInitialized', true);
-					if (monacoText.length === 0 && defaultValue) monacoText.insert(0, defaultValue ?? '');
-				}
-			}
 		});
 
 		return () => {
