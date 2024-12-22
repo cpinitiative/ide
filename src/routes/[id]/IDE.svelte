@@ -35,9 +35,9 @@
 
 	{#snippet mainPane()}
 		<RealtimeEditor
-			defaultValue={'my default value'}
-			documentId={fileData.id}
+			documentId={`${fileData.id}.${fileData.settings.language}`}
 			userId={firebaseUser.uid}
+      language={fileData.settings.language}
 		/>
 	{/snippet}
 
