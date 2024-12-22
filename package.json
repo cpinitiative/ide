@@ -42,6 +42,10 @@
 		"dayjs": "^1.11.13",
 		"firebase": "^11.1.0",
 		"monaco-editor": "^0.52.2",
-		"split-grid": "^1.0.11"
+		"split-grid": "^1.0.11",
+		"y-monaco": "^0.1.6",
+		"y-protocols": "^1.0.6",
+		"y-websocket": "^2.1.0",
+		"yjs": "^13.6.21"
 	}
 }

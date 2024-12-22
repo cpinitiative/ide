@@ -1,5 +1,5 @@
 export const load = ({ params }) => {
 	return {
-		fileId: params.id
+		fileId: `-${params.id}`
 	};
 };

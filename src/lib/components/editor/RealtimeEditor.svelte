@@ -1,0 +1,173 @@
+<script lang="ts" module>
+	import * as Y from 'yjs';
+	import * as awarenessProtocol from 'y-protocols/awareness';
+
+	export type YjsInfo = {
+		text: Y.Text;
+		awareness: awarenessProtocol.Awareness;
+	};
+
+	/**
+	 * Props that both the Monaco editor and the Codemirror editor should accept.
+	 */
+	export type EditorProps = {
+		theme?: 'dark' | 'light';
+		language?: 'cpp' | 'java' | 'py' | 'plaintext';
+		readOnly?: boolean;
+
+		/**
+		 * If provided, connect this editor to YJS.
+		 */
+		yjsInfo?: YjsInfo;
+	};
+
+	const createWebsocketInterceptorClass = (
+		onMessageSyncHandler: () => void,
+		onSaveHandler: () => void
+	) => {
+		return class WebsocketInterceptor extends WebSocket {
+			send(data: string | ArrayBuffer | Blob | ArrayBufferView) {
+				const messageSync = 0; // defined in y-websocket
+				if (data instanceof Uint8Array && data.length > 0 && data[0] === messageSync) {
+					console.log(data);
+					onMessageSyncHandler();
+				}
+				super.send(data);
+			}
+
+			set onmessage(f: any) {
+				const messageSaved = 100; // defined in ide-yjs
+				super.onmessage = (m) => {
+					const decoder = new Uint8Array(m.data);
+					if (decoder.length > 0 && decoder[0] === messageSaved) {
+						onSaveHandler();
+					} else {
+						f(m);
+					}
+				};
+			}
+		};
+	};
+</script>
+
+<script lang="ts">
+	import MonacoEditor from '$lib/components/editor/MonacoEditor.svelte';
+	import { WebsocketProvider } from 'y-websocket';
+	import { PUBLIC_YJS_SERVER } from '$env/static/public';
+	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
+
+	let {
+		defaultValue,
+		documentId,
+		userId,
+		...props
+	}: {
+		defaultValue: string;
+		documentId: string;
+		/**
+		 * Firebase user ID
+		 */
+		userId: string;
+	} & Omit<EditorProps, 'yjsInfo'> = $props();
+
+	let yjsInfo: YjsInfo | undefined = $state(undefined);
+	let connectionStatus: 'disconnected' | 'connecting' | 'saved' | 'saving' = $state('disconnected');
+
+	$effect(() => {
+		const ydocument = new Y.Doc();
+
+		let lastUpdate = 0;
+		const CustomWebsocketInterceptor = createWebsocketInterceptorClass(
+			() => {
+				if (!provider._synced) {
+					return;
+				}
+
+				// As a sketchy hack, we'll assume every sync message sent
+				// corresponds to an edit the user made.
+				lastUpdate = Date.now();
+				connectionStatus = 'saving';
+			},
+			() => {
+				if (Date.now() - lastUpdate > 1000) {
+					connectionStatus = 'saved';
+				}
+			}
+		);
+
+		const provider = new WebsocketProvider(PUBLIC_YJS_SERVER, documentId, ydocument, {
+			WebSocketPolyfill: CustomWebsocketInterceptor
+		});
+
+		// Used to compute the cursor color
+		provider.awareness.setLocalStateField('firebaseUserID', userId);
+
+		// Bind Yjs to the editor model
+		const monacoText = ydocument.getText('monaco');
+		yjsInfo = {
+			text: monacoText,
+			awareness: provider.awareness
+		};
+
+		// add custom color for every selector
+		provider.awareness.on(
+			'change',
+			({
+				added,
+				updated,
+				removed
+			}: {
+				added: Array<number>;
+				updated: Array<number>;
+				removed: Array<number>;
+			}) => {
+				// We should be responsible and remove styles when someone leaves (ie. removed.length > 0)
+				// but I'm lazy...
+				if (added.length === 0) return;
+				type UserAwarenessData = Map<
+					number,
+					{
+						firebaseUserID?: string;
+						selection: any;
+					}
+				>;
+				let awarenessState = provider.awareness.getStates() as UserAwarenessData;
+				for (let addedUserID of added) {
+					let firebaseUserID =
+						awarenessState.get(addedUserID)?.firebaseUserID ?? '-NPeGgrWL0zpVHHZ2aECh';
+					const styleToAdd = `.yRemoteSelection-${addedUserID}, .yRemoteSelectionHead-${addedUserID} {
+	            --yjs-selection-color-bg: ${bgColorFromUserId(firebaseUserID)};
+	            --yjs-selection-color: ${colorFromUserId(firebaseUserID)};
+	          }`;
+					document.body.insertAdjacentHTML('beforeend', `<style>${styleToAdd}</style>`);
+				}
+			}
+		);
+
+		provider.on('status', ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
+			connectionStatus = status === 'connected' ? 'saved' : status;
+		});
+
+		provider.on('sync', (isSynced: boolean) => {
+			// Handle file initialization
+			if (isSynced) {
+				const isInitializedMap = ydocument.getMap('isInitialized');
+				if (!isInitializedMap.get('isInitialized')) {
+					isInitializedMap.set('isInitialized', true);
+					if (monacoText.length === 0 && defaultValue) monacoText.insert(0, defaultValue ?? '');
+				}
+			}
+		});
+
+		return () => {
+			connectionStatus = 'disconnected';
+			yjsInfo = undefined;
+			ydocument.destroy();
+			provider.destroy();
+		};
+	});
+
+	let isSynced = $derived(connectionStatus !== 'disconnected' && connectionStatus !== 'connecting');
+</script>
+
+<MonacoEditor {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}></MonacoEditor>
