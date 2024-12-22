@@ -2,13 +2,15 @@
 
 Contains the logic for rendering the editor layout.
 
+This should be a "dumb", self-contained component that only contains UI logic.
+
 -->
 
 <script lang="ts">
 	import Split from 'split-grid';
 
 	import { onMount } from 'svelte';
-	let { navbar, mainPane, inputPane, outputPane } = $props();
+	let { navbar, mainPane, inputPane, outputPane, onResize } = $props();
 
 	let verticalGutter: HTMLElement;
 	let horizontalGutter: HTMLElement;
@@ -26,7 +28,10 @@ Contains the logic for rendering the editor layout.
 					track: 1,
 					element: horizontalGutter
 				}
-			]
+			],
+      onDragEnd: () => {
+        onResize();
+      }
 		});
 
 		return () => split.destroy();
@@ -42,7 +47,8 @@ Contains the logic for rendering the editor layout.
 		</div>
 		<div class="min-h-0 flex-1 border-t border-black">
 			<div class="split-grid h-full">
-				<div class="row-span-full">
+        <!-- Without min-w-0, we won't be able to reize the pane to make monaco-editor smaller. -->
+				<div class="row-span-full min-w-0">
 					{@render mainPane()}
 				</div>
 				<div
