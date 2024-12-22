@@ -59,7 +59,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-black transition group-hover:bg-gray-600 group-active:bg-gray-600"
 					></div>
 				</div>
-				<div>
+				<div class="min-h-0 min-w-0">
 					{@render inputPane()}
 				</div>
 				<div class="group relative z-10 my-[-6px] cursor-[row-resize]" bind:this={horizontalGutter}>
@@ -89,7 +89,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 						{/if}
 					</div>
 				</div>
-				<div>{@render outputPane()}</div>
+				<div class="min-h-0 min-w-0">{@render outputPane()}</div>
 			</div>
 		</div>
 	</div>
