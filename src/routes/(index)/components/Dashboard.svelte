@@ -24,7 +24,7 @@
 			query(userFilesRef, orderByChild('lastAccessTime')),
 			(snapshot) => {
 				if (!snapshot.exists()) {
-					files = null;
+					files = [];
 				} else {
 					const newFiles: UserFile[] = [];
 
@@ -65,7 +65,7 @@
 		<div class="mt-6 text-gray-400">
 			Not signed in.{' '}
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none"
+				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none cursor-pointer"
 				onclick={signInWithGoogle}
 			>
 				Sign in now
@@ -75,7 +75,7 @@
 		<div class="mt-6 text-gray-400">
 			Signed in as {firebaseUser.displayName}.
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none"
+				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none cursor-pointer"
 				onclick={signOut}
 			>
 				Sign Out
@@ -106,8 +106,10 @@
   /> -->
 	<!-- <div class="h-6"></div> -->
 
-	{#if files}
+	{#if files && files.length > 0}
 		<FilesList {files} />
+	{:else if files}
+		<div class="text-gray-400">No files found. Create a new file above!</div>
 	{:else}
 		<div class="text-gray-400">Loading files...</div>
 	{/if}

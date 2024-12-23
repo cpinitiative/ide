@@ -27,7 +27,8 @@
 			</button>
 		{/each}
 	</div>
-	<div class="flex-1">
+	<!-- min-h-0 is needed to ensure monaco editor is sized properly -->
+	<div class="flex-1 min-h-0">
 		{@render children()}
 	</div>
 </div>
