@@ -16,6 +16,8 @@
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.3",
+		"@melt-ui/pp": "^0.3.2",
+		"@melt-ui/svelte": "^0.86.2",
 		"@playwright/test": "^1.45.3",
 		"@sveltejs/adapter-vercel": "^5.5.0",
 		"@sveltejs/kit": "^2.0.0",

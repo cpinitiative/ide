@@ -64,6 +64,7 @@
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state(null);
 
 	onMount(() => {
+		console.log('MonacoEditor onMount');
 		editor = monaco.editor.create(editorElement, {
 			automaticLayout: false,
 			minimap: { enabled: false },
@@ -94,6 +95,9 @@
 			if (index > -1) {
 				editors.splice(index, 1);
 			}
+
+			// Set editor to null to avoid calling monacoBinding.destroy().
+			editor = null;
 		};
 	});
 
@@ -120,7 +124,11 @@
 		);
 
 		return () => {
-			monacoBinding.destroy();
+			if (editor) {
+				monacoBinding.destroy();
+			}
+			// If editor is null, that means the editor has already been disposed.
+			// y-monaco will automatically call .destroy() when the editor is disposed.
 		};
 	});
 
