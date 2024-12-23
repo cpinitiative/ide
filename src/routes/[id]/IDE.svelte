@@ -9,6 +9,9 @@
 	import RunButton from '$lib/components/RunButton.svelte';
 	import { submitToJudge } from '$lib/judge/judge';
 	import TabbedPane from '$lib/components/TabbedPane.svelte';
+	import FileMenu from '$lib/components/FileMenu.svelte';
+	import { downloadFile } from './utils';
+	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
 
 	const { fileData }: { fileData: FileData } = $props();
 
@@ -17,6 +20,8 @@
 
 	let inputPaneTab = $state('input');
 	let outputPaneTab = $state('stdout');
+
+	let settingsDialog: SettingsDialog | undefined = $state(undefined);
 
 	let judgeState: {
 		isRunning: boolean;
@@ -82,6 +87,21 @@
 		}
 	};
 
+	const onDownloadFile = () => {
+		if (!mainEditor?.getValue()) {
+			alert("Editor hasn't loaded yet. Please wait.");
+			return;
+		}
+
+		const code = mainEditor.getValue();
+
+		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
+	};
+
+	const onOpenSettings = () => {
+		settingsDialog?.open();
+	};
+
 	let isViewOnly = $derived(fileData.settings.defaultPermission === 'READ');
 	let outputPaneValue = $derived.by(() => {
 		if (outputPaneTab === 'stdout') {
@@ -100,6 +120,9 @@
 <Layout onResize={() => layoutEditors()}>
 	{#snippet navbar()}
 		<IDENavbar>
+			{#snippet fileMenu()}
+				<FileMenu {onDownloadFile} {onOpenSettings} />
+			{/snippet}
 			{#snippet runButton()}
 				<RunButton
 					showLoadingIndicator={judgeState.isRunning}
@@ -159,3 +182,5 @@
 		</TabbedPane>
 	{/snippet}
 </Layout>
+
+<SettingsDialog bind:this={settingsDialog} />
