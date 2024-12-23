@@ -32,9 +32,10 @@ export interface FileSettings {
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	workspaceName: string | null;
 	creationTime: string | null; // firebase timetsamp?
+
 	// todo
 	// problem: ProblemData | null;
-	classroomID: string | null;
+
 	language: Language;
 }
 
@@ -54,3 +55,54 @@ export type FileData = {
 	};
 	settings: FileSettings;
 };
+
+/*
+ * Judge types are taken from
+ * https://github.com/cpinitiative/online-judge-rust
+ */
+
+export enum Verdict {
+	Accepted = 'accepted',
+	WrongAnswer = 'wrong_answer',
+	TimeLimitExceeded = 'time_limit_exceeded',
+	RuntimeError = 'runtime_error'
+}
+
+export interface ExecuteResponse {
+	stdout: string;
+
+	// Only if `file_io_name`.out exists.
+	file_output: string | null;
+
+	stderr: string;
+	wall_time: string; // time format is 0:00.00
+	memory_usage: string;
+
+	// The underlying raw wait status. Note that this is different from an exit status.
+	exit_code: number;
+	exit_signal: string | null;
+	verdict: Verdict;
+}
+
+export interface CommandOptions {
+	stdin: string;
+	timeout_ms: number;
+}
+
+export interface CommandOutput {
+	stdout: string;
+	stderr: string;
+	wall_time: string; // time format is 0:00.00
+	memory_usage: string;
+
+	// The underlying raw wait status. Note that this is different from an exit status.
+	exit_code: number;
+	exit_signal: string | null;
+}
+
+export interface JudgeResponse {
+	compile: CommandOutput;
+
+	// null if the program failed to compile
+	execute: ExecuteResponse | null;
+}

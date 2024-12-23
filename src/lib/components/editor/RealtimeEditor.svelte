@@ -14,6 +14,7 @@
 		theme?: 'dark' | 'light';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
 		readOnly?: boolean;
+		value?: string;
 
 		/**
 		 * If provided, connect this editor to YJS.
@@ -29,7 +30,6 @@
 			send(data: string | ArrayBuffer | Blob | ArrayBufferView) {
 				const messageSync = 0; // defined in y-websocket
 				if (data instanceof Uint8Array && data.length > 0 && data[0] === messageSync) {
-					console.log(data);
 					onMessageSyncHandler();
 				}
 				super.send(data);
@@ -51,7 +51,7 @@
 </script>
 
 <script lang="ts">
-	import MonacoEditor from '$lib/components/editor/MonacoEditor.svelte';
+	import MonacoEditor from './MonacoEditor.svelte';
 	import { WebsocketProvider } from 'y-websocket';
 	import { PUBLIC_YJS_SERVER } from '$env/static/public';
 	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
@@ -119,8 +119,7 @@
 				updated: Array<number>;
 				removed: Array<number>;
 			}) => {
-				// We should be responsible and remove styles when someone leaves (ie. removed.length > 0)
-				// but I'm lazy...
+				// TODO: remove styles when someone leaves (ie. removed.length > 0)
 				if (added.length === 0) return;
 				type UserAwarenessData = Map<
 					number,
@@ -154,7 +153,13 @@
 		};
 	});
 
+	let editor: MonacoEditor | undefined = $state(undefined);
+	export const getValue = () => {
+		return editor?.getValue();
+	};
+
 	let isSynced = $derived(connectionStatus !== 'disconnected' && connectionStatus !== 'connecting');
 </script>
 
-<MonacoEditor {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}></MonacoEditor>
+<MonacoEditor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
+></MonacoEditor>
