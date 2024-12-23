@@ -3,6 +3,7 @@ import { useWorkerFactory } from 'monaco-editor-wrapper/workerFactory';
 import type { WrapperConfig } from 'monaco-editor-wrapper';
 
 import getKeybindingsServiceOverride from '@codingame/monaco-vscode-keybindings-service-override';
+import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-bar-service-override';
 import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
@@ -26,8 +27,12 @@ export const getMonacoWrapperConfig = (
 	return {
 		$type: 'extended',
 		vscodeApiConfig: {
+			viewsConfig: {
+				viewServiceType: 'ViewsService'
+			},
 			serviceOverrides: {
-				...getKeybindingsServiceOverride()
+				...getKeybindingsServiceOverride(),
+				...getStatusBarServiceOverride()
 			},
 			userConfiguration: {
 				json: JSON.stringify({
