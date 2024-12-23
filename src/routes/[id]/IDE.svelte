@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import MonacoEditor, { layoutEditors } from '$lib/components/editor/MonacoEditor.svelte';
+	import MonacoEditor, { layoutEditors } from '$lib/components/editor/monaco/MonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
 	import type { FileData, JudgeResponse } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
@@ -8,7 +8,6 @@
 	import IDENavbar from '$lib/components/IDENavbar.svelte';
 	import RunButton from '$lib/components/RunButton.svelte';
 	import { submitToJudge } from '$lib/judge/judge';
-	import TabBar from '$lib/components/TabbedPane.svelte';
 	import TabbedPane from '$lib/components/TabbedPane.svelte';
 
 	const { fileData }: { fileData: FileData } = $props();
@@ -117,6 +116,7 @@
 			documentId={`${fileData.id}.${fileData.settings.language}`}
 			userId={firebaseUser.uid}
 			language={fileData.settings.language}
+			compilerOptions={fileData.settings.compilerOptions[fileData.settings.language]}
 			bind:this={mainEditor}
 		/>
 	{/snippet}

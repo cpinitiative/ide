@@ -13,6 +13,8 @@
 	export type EditorProps = {
 		theme?: 'dark' | 'light';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
+		// Optional compiler options for the LSP
+		compilerOptions?: string;
 		readOnly?: boolean;
 		value?: string;
 
@@ -51,7 +53,7 @@
 </script>
 
 <script lang="ts">
-	import MonacoEditor from './MonacoEditor.svelte';
+	import MonacoEditor from './monaco/MonacoEditor.svelte';
 	import { WebsocketProvider } from 'y-websocket';
 	import { PUBLIC_YJS_SERVER } from '$env/static/public';
 	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
@@ -143,7 +145,8 @@
 		);
 
 		provider.on('status', ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
-			connectionStatus = status === 'connected' ? 'saved' : status === 'disconnected' ? 'connecting' : status;
+			connectionStatus =
+				status === 'connected' ? 'saved' : status === 'disconnected' ? 'connecting' : status;
 		});
 
 		return () => {
