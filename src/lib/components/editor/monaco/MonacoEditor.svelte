@@ -1,4 +1,23 @@
 <script lang="ts" module>
+	/**
+	 * Note: the following error happens when the vim extension is enabled, but is harmless:
+	 *
+	 * Uncaught (in promise) Canceled: Canceled
+	 *  at Delayer.cancel (http://localhost:5173/node_modules/.vite/deps/chunk-3CMF7VWC.js?v=3695a236:10595:67)
+	 *  at _a91.restore (http://localhost:5173/node_modules/.vite/deps/chunk-EWQLM5G2.js?v=3695a236:69739:21)
+	 *  at _a92.restoreViewState (http://localhost:5173/node_modules/.vite/deps/chunk-EWQLM5G2.js?v=3695a236:70150:29)
+	 *  at TriggerWordHighlightAction.run (http://localhost:5173/node_modules/.vite/deps/chunk-EWQLM5G2.js?v=3695a236:70239:16)
+	 *  at TriggerWordHighlightAction.runEditorCommand (http://localhost:5173/node_modules/.vite/deps/chunk-MZCGY3Q3.js?v=3695a236:1128:17)
+	 *  at http://localhost:5173/node_modules/.vite/deps/chunk-MZCGY3Q3.js?v=3695a236:1090:114
+	 *  at http://localhost:5173/node_modules/.vite/deps/chunk-MZCGY3Q3.js?v=3695a236:1086:14
+	 *  at _InstantiationService.invokeFunction (http://localhost:5173/node_modules/.vite/deps/chunk-U5WQF2O2.js?v=3695a236:61297:14)
+	 *  at ConfiguredStandaloneEditor.invokeWithinContext (http://localhost:5173/node_modules/.vite/deps/chunk-H4KSBLRV.js?v=3695a236:30155:39)
+	 *  at _EditorCommand.runEditorCommand (http://localhost:5173/node_modules/.vite/deps/chunk-MZCGY3Q3.js?v=3695a236:1081:19)
+	 *
+	 * The promise that's cancelled is a debounced task. For some reason there is no `.catch()` handler
+	 * attached to the promise, so when the promise is cancelled, it logs an error.
+	 */
+
 	import * as monaco from 'monaco-editor';
 
 	const editors: monaco.editor.IStandaloneCodeEditor[] = [];
@@ -37,12 +56,17 @@
 
 	import { MonacoBinding } from 'y-monaco';
 	import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
+	import { Parts, attachPart } from '@codingame/monaco-vscode-views-service-override';
+
 	import '@codingame/monaco-vscode-cpp-default-extension';
 	import '@codingame/monaco-vscode-python-default-extension';
 	import '@codingame/monaco-vscode-java-default-extension';
+	import './vim-1.29.0.vsix';
+
 	import { getMonacoWrapperConfig } from './utils';
 
 	let editorElement: HTMLElement;
+	let statusbarElement: HTMLElement;
 
 	let {
 		language = 'plaintext',
@@ -110,6 +134,8 @@
 
 					editor = maybeNullEditor;
 					registerEditor(untrack(() => editor));
+
+					attachPart(Parts.STATUSBAR_PART, statusbarElement);
 				});
 
 			return () => {
@@ -200,4 +226,7 @@
 	};
 </script>
 
-<div bind:this={editorElement} class="h-full w-full"></div>
+<div class="flex h-full min-h-0 flex-col">
+	<div bind:this={editorElement} class="min-h-0 w-full flex-1"></div>
+	<div bind:this={statusbarElement} class="w-full"></div>
+</div>
