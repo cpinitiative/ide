@@ -56,7 +56,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					bind:this={verticalGutter}
 				>
 					<div
-						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-black transition group-hover:bg-gray-600 group-active:bg-gray-600"
+						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-black transition group-hover:bg-neutral-600 group-active:bg-neutral-600"
 					></div>
 				</div>
 				<div class="min-h-0 min-w-0">
@@ -64,10 +64,10 @@ This should be a "dumb", self-contained component that only contains UI logic.
 				</div>
 				<div class="group relative z-10 my-[-6px] cursor-[row-resize]" bind:this={horizontalGutter}>
 					<div
-						class={`pointer-events-none absolute w-full bg-black transition group-hover:bg-gray-600 group-focus:bg-gray-600 group-active:bg-gray-600 ${
+						class={`pointer-events-none absolute w-full bg-black transition group-hover:bg-neutral-600 group-focus:bg-neutral-600 group-active:bg-neutral-600 ${
 							isDesktop
 								? 'top-[6px] bottom-[6px]'
-								: 'inset-y-0 flex items-center justify-center bg-gray-800'
+								: 'inset-y-0 flex items-center justify-center bg-neutral-800'
 						}`}
 					>
 						{#if !isDesktop}

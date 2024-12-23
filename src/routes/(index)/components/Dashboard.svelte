@@ -65,7 +65,7 @@
 		<div class="mt-6 text-gray-400">
 			Not signed in.{' '}
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none cursor-pointer"
+				class="p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none cursor-pointer"
 				onclick={signInWithGoogle}
 			>
 				Sign in now
@@ -75,7 +75,7 @@
 		<div class="mt-6 text-gray-400">
 			Signed in as {firebaseUser.displayName}.
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-gray-700 focus:outline-none cursor-pointer"
+				class="p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none cursor-pointer"
 				onclick={signOut}
 			>
 				Sign Out

@@ -7,7 +7,7 @@
 	// export let onToggleSidebar: () => void;
 	// export let showSidebarButton: boolean = false;
 
-  const { runButton, showViewOnlyMessage = false } = $props();
+  const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
 
 	let copied = $state(false);
 
@@ -27,10 +27,10 @@
 </script>
 
 <div class="flex items-center overflow-x-auto">
-	<div class="flex items-center divide-x divide-gray-700">
+	<div class="flex items-center divide-x divide-neutral-700">
 		<a
 			href="/"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
 		>
 			<!-- Home Icon -->
 			<svg
@@ -46,10 +46,10 @@
 				/>
 			</svg>
 		</a>
-		<!-- <svelte:element this={fileMenu} /> -->
+		{@render fileMenu()}
 		<button
 			type="button"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-gray-800 focus:bg-gray-800 focus:outline-none"
+			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
 			onclick={handleShare}
 		>
 			<!-- Share Icon -->
@@ -68,7 +68,7 @@
 		</button>
 	</div>
   {@render runButton()}
-	<div class="flex items-center divide-x divide-gray-700">
+	<div class="flex items-center divide-x divide-neutral-700">
 		<a
 			href="https://github.com/cpinitiative/ide/issues"
 			target="_blank"

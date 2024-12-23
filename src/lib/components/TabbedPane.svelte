@@ -19,7 +19,7 @@
 			<button
 				class={(value === activeTab
 					? 'bg-[#1E1E1E] text-gray-200'
-					: 'text-gray-400 hover:bg-gray-800 hover:text-gray-300 active:bg-gray-800') +
+					: 'text-gray-400 hover:bg-neutral-800 hover:text-gray-300 active:bg-neutral-800') +
 					' inline-block px-4 text-sm font-medium transition focus:outline-none'}
 				onclick={() => (activeTab = value)}
 			>
