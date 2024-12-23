@@ -47,9 +47,8 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { EditorProps } from '../RealtimeEditor.svelte';
+	import type { EditorProps } from './RealtimeEditor.svelte';
 	import { MonacoBinding } from 'y-monaco';
-	import { experimentalSetDeliveryMetricsExportedToBigQueryEnabled } from 'firebase/messaging/sw';
 
 	let editorElement: HTMLElement;
 
@@ -57,6 +56,7 @@
 		theme = 'dark',
 		language = 'plaintext',
 		readOnly = false,
+		value,
 
 		yjsInfo
 	}: EditorProps = $props();
@@ -123,6 +123,15 @@
 			monacoBinding.destroy();
 		};
 	});
+
+	$effect(() => {
+		if (!editor || value === undefined) return;
+		editor.setValue(value);
+	});
+
+	export const getValue = () => {
+		return editor?.getValue();
+	};
 </script>
 
 <div bind:this={editorElement} class="h-full w-full"></div>
