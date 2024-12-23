@@ -55,6 +55,7 @@
 	import { WebsocketProvider } from 'y-websocket';
 	import { PUBLIC_YJS_SERVER } from '$env/static/public';
 	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
+	import ConnectionStatusIndicator from './ConnectionStatusIndicator.svelte';
 
 	let {
 		documentId,
@@ -69,7 +70,7 @@
 	} & Omit<EditorProps, 'yjsInfo'> = $props();
 
 	let yjsInfo: YjsInfo | undefined = $state(undefined);
-	let connectionStatus: 'disconnected' | 'connecting' | 'saved' | 'saving' = $state('disconnected');
+	let connectionStatus: 'connecting' | 'saved' | 'saving' = $state('connecting');
 
 	$effect(() => {
 		const ydocument = new Y.Doc();
@@ -142,11 +143,11 @@
 		);
 
 		provider.on('status', ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
-			connectionStatus = status === 'connected' ? 'saved' : status;
+			connectionStatus = status === 'connected' ? 'saved' : status === 'disconnected' ? 'connecting' : status;
 		});
 
 		return () => {
-			connectionStatus = 'disconnected';
+			connectionStatus = 'connecting';
 			yjsInfo = undefined;
 			ydocument.destroy();
 			provider.destroy();
@@ -158,8 +159,11 @@
 		return editor?.getValue();
 	};
 
-	let isSynced = $derived(connectionStatus !== 'disconnected' && connectionStatus !== 'connecting');
+	let isSynced = $derived(connectionStatus !== 'connecting');
 </script>
 
-<MonacoEditor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
-></MonacoEditor>
+<div class="tw-forms-disable tw-forms-disable-all-descendants relative h-full">
+	<ConnectionStatusIndicator {connectionStatus} />
+	<MonacoEditor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
+	></MonacoEditor>
+</div>
