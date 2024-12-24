@@ -150,8 +150,11 @@
 		);
 
 		provider.on('status', ({ status }: { status: 'disconnected' | 'connecting' | 'connected' }) => {
-			connectionStatus =
-				status === 'connected' ? 'saved' : status === 'disconnected' ? 'connecting' : status;
+			if (status === 'disconnected' || status === 'connecting') {
+				connectionStatus = 'connecting';
+			} else {
+				connectionStatus = 'saved';
+			}
 		});
 
 		return () => {

@@ -4,6 +4,12 @@ import firebaseApp from '../../firebaseAdmin';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
 import colorFromUserId from '$lib/components/editor/colorFromUserId';
 
+const DEFAULT_COMPILER_OPTIONS = {
+	cpp: '-std=c++23 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
+	java: '',
+	py: ''
+};
+
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
@@ -36,7 +42,10 @@ export const actions = {
 					creationTime: ServerValue.TIMESTAMP,
 					language: language,
 					problem: null,
-					compilerOptions: compilerOptions
+					compilerOptions: {
+						...DEFAULT_COMPILER_OPTIONS,
+						[language]: compilerOptions
+					}
 				}
 			});
 		const fileID: string = resp.key!;

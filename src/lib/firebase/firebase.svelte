@@ -1,8 +1,9 @@
 <script lang="ts" module>
 	import { initializeApp } from 'firebase/app';
 	import { getAnalytics } from 'firebase/analytics';
-	import { getDatabase } from 'firebase/database';
+	import { connectDatabaseEmulator, getDatabase } from 'firebase/database';
 	import {
+		connectAuthEmulator,
 		getAuth,
 		GoogleAuthProvider,
 		linkWithPopup,
@@ -16,7 +17,7 @@
 	import { onMount } from 'svelte';
 	import { PUBLIC_USE_FIREBASE_EMULATORS } from '$env/static/public';
 
-	const firebaseConfig = {
+	let firebaseConfig = {
 		apiKey: 'AIzaSyC2C7XWrCKcmM0RDAVZZHDQSxOlo6g3JTU',
 		authDomain: 'cp-ide-2.firebaseapp.com',
 		databaseURL: 'https://cp-ide-2-default-rtdb.firebaseio.com',
@@ -26,11 +27,23 @@
 		appId: '1:1010490112765:web:bd1ba8b522169c1eb45c94',
 		measurementId: 'G-9C903QL4KZ'
 	};
+	if (PUBLIC_USE_FIREBASE_EMULATORS) {
+		firebaseConfig = {
+			...firebaseConfig,
+			authDomain: 'localhost:9099',
+			databaseURL: 'http://localhost:9000/?ns=cp-ide-2-default-rtdb'
+		};
+	}
 
 	export const app = initializeApp(firebaseConfig);
 	export const auth = getAuth(app);
 	export const analytics = getAnalytics(app);
 	export const database = getDatabase(app);
+
+	if (PUBLIC_USE_FIREBASE_EMULATORS) {
+		connectAuthEmulator(auth, 'http://127.0.0.1:9099');
+		connectDatabaseEmulator(database, 'localhost', 9000);
+	}
 
 	export let authState:
 		| {
