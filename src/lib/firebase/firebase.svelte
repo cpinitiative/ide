@@ -27,7 +27,7 @@
 		appId: '1:1010490112765:web:bd1ba8b522169c1eb45c94',
 		measurementId: 'G-9C903QL4KZ'
 	};
-	if (PUBLIC_USE_FIREBASE_EMULATORS) {
+	if (PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
 		firebaseConfig = {
 			...firebaseConfig,
 			authDomain: 'localhost:9099',
@@ -40,7 +40,7 @@
 	export const analytics = getAnalytics(app);
 	export const database = getDatabase(app);
 
-	if (PUBLIC_USE_FIREBASE_EMULATORS) {
+	if (PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
 		connectAuthEmulator(auth, 'http://127.0.0.1:9099');
 		connectDatabaseEmulator(database, 'localhost', 9000);
 	}
