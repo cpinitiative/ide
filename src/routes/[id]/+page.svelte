@@ -36,6 +36,10 @@
 	});
 </script>
 
+<svelte:head>
+  <meta name="robots" content="noindex,nofollow" />
+</svelte:head>
+
 {#if isLoading}
   <div>Loading...</div>
 {:else if !fileData}

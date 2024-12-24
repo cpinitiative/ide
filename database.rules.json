@@ -1,0 +1,44 @@
+{
+  "rules": {
+    "users": {
+      "$secretid": {
+        ".read": "$secretid == auth.uid",
+        ".write": "auth.uid == $secretid"
+      }
+    },
+    "files": {
+      "$secretid": {
+        ".write": true,
+        ".read": true,
+        "users": {
+          ".read": "root.child('files').child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+          "$user": {
+            ".read": "$user === auth.uid",
+            ".write": "(auth.uid === $user && !root.child('files').child($secretid).child('settings').child('users').exists()) || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || (auth.uid === $user && data.child('permission').val() === newData.child('permission').val())"
+          }
+        },
+
+        "settings": {
+          ".read": true,
+          "$setting": {
+            ".write": "!root.child('files').child($secretid).child('settings').child('defaultPermission').exists() || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'"
+          },
+          "defaultPermission": {
+            ".write": "!root.child('files').child($secretid).child('settings').child('defaultPermission').exists() || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER'"
+          },
+          "creationTime": {
+            /* only write upon creation */
+            ".write": "!root.child('files').child($secretid).child('settings').child('creationTime').exists()"
+          }
+        },
+
+        "chat": {
+          ".read": "root.child('files').child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
+          ".write": "root.child('files').child($secretid).child('settings').child('defaultPermission').val() === 'READ_WRITE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE'"
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

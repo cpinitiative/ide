@@ -5,6 +5,14 @@
 	let { children } = $props();
 </script>
 
-<Firebase>
-	{@render children()}
-</Firebase>
+<svelte:boundary>
+	<Firebase>
+		{@render children()}
+	</Firebase>
+
+	{#snippet failed(error, reset)}
+		<div class="text-red-500">
+			An unexpected error occurred: {JSON.stringify(error)}
+		</div>
+	{/snippet}
+</svelte:boundary>

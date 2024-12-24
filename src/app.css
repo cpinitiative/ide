@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
 body {
   /* Matches the color of monaco-editor */
   background-color: #1e1e1e;

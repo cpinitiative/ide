@@ -28,6 +28,7 @@
 				let data = snapshot.val();
 				if (!data) data = 'normal';
 				if (data !== 'vim' && data !== 'normal') data = 'normal';
+
 				editorModeRadioGroup?.setValue(data);
 			}
 		);
