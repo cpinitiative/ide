@@ -7,7 +7,7 @@
 
 	let { form } = $props();
 
-	let lang: Language = $state('py');
+	let lang: Language = $state('cpp');
 	let compilerOptions: string = $state('');
 	let creating = $state(false);
 

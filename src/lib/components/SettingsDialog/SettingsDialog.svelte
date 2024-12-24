@@ -38,7 +38,7 @@
 		if (!authState.firebaseUser || !editorModeRadioGroup) return;
 		set(
 			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
-			editorModeRadioGroup.getValue().toLowerCase()
+			editorModeRadioGroup.getValue()
 		).then(() => {
 			meltUiOpen.set(false);
 		});
@@ -65,7 +65,7 @@
 			</p>
 
 			<div class="font-medium text-gray-800">Editor Mode</div>
-			<RadioGroup options={['Normal', 'Vim']} bind:this={editorModeRadioGroup} />
+			<RadioGroup options={{ normal: 'Normal', vim: 'Vim' }} bind:this={editorModeRadioGroup} />
 
 			<div class="mt-6 flex items-center space-x-4">
 				<button
