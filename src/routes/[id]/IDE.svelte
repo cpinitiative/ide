@@ -4,7 +4,7 @@
 	import Layout from '$lib/components/IDELayout.svelte';
 	import type { FileData, JudgeResponse } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
-	import { authState } from '$lib/firebase/firebase.svelte';
+	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import IDENavbar from '$lib/components/IDENavbar.svelte';
 	import RunButton from '$lib/components/RunButton.svelte';
 	import { submitToJudge } from '$lib/judge/judge';
@@ -12,6 +12,7 @@
 	import FileMenu from '$lib/components/FileMenu.svelte';
 	import { downloadFile } from './utils';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
+	import { onValue, ref } from 'firebase/database';
 
 	const { fileData }: { fileData: FileData } = $props();
 
@@ -48,6 +49,20 @@
 			);
 		}
 		return authState.firebaseUser;
+	});
+
+	let editorMode: 'normal' | 'vim' | undefined = $state(undefined);
+	$effect(() => {
+		if (!authState.firebaseUser) return;
+		return onValue(
+			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
+			(snapshot) => {
+				let data = snapshot.val();
+				if (!data) data = 'normal';
+				if (data !== 'vim' && data !== 'normal') data = 'normal';
+				editorMode = data;
+			}
+		);
 	});
 
 	const runCode = async () => {
@@ -140,6 +155,7 @@
 			userId={firebaseUser.uid}
 			language={fileData.settings.language}
 			compilerOptions={fileData.settings.compilerOptions[fileData.settings.language]}
+			{editorMode}
 			bind:this={mainEditor}
 		/>
 	{/snippet}
@@ -155,6 +171,7 @@
 				documentId={`${fileData.id}.input`}
 				userId={firebaseUser.uid}
 				language="plaintext"
+				{editorMode}
 				bind:this={inputEditor}
 			/>
 		</TabbedPane>
@@ -175,9 +192,10 @@
 					documentId={`${fileData.id}.scribble`}
 					userId={firebaseUser.uid}
 					language="plaintext"
+					{editorMode}
 				/>
 			{:else}
-				<MonacoEditor readOnly={true} value={outputPaneValue} />
+				<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
 			{/if}
 		</TabbedPane>
 	{/snippet}

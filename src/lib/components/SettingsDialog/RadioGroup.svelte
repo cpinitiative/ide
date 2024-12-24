@@ -1,3 +1,5 @@
+<!-- TODO: rewrite this component. figure out if we're using controlled or uncontrolled -->
+
 <script lang="ts">
 	import { createRadioGroup, melt } from '@melt-ui/svelte';
 
@@ -6,13 +8,22 @@
 		helpers: { isChecked },
 		states: { value }
 	} = createRadioGroup({
-		defaultValue: 'default'
+		// defaultValue: 'Normal'
 	});
 
 	const { options } = $props();
 
 	export const getValue = () => {
-		return value;
+		return value.get();
+	};
+
+	export const setValue = (newValue: string) => {
+		// TODO rewrite this :skull:
+		if (newValue === 'vim') {
+			value.set('Vim');
+		} else {
+			value.set('Normal');
+		}
 	};
 </script>
 
