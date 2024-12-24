@@ -16,5 +16,9 @@ export default defineConfig({
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			plugins: [importMetaUrlPlugin] as any
 		}
+	},
+
+	worker: {
+		format: 'es'
 	}
 });

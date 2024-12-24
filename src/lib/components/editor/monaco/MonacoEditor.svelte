@@ -48,6 +48,8 @@
 
 	let monacoWrapper: MonacoEditorLanguageClientWrapper | null = $state.raw(null);
 	let isMonacoWrapperInitialized = $state(false);
+
+	let isVimLoaded = false;
 </script>
 
 <script lang="ts">
@@ -61,9 +63,9 @@
 	import '@codingame/monaco-vscode-cpp-default-extension';
 	import '@codingame/monaco-vscode-python-default-extension';
 	import '@codingame/monaco-vscode-java-default-extension';
-	import './vim-1.29.0.vsix';
 
 	import { getMonacoWrapperConfig } from './utils';
+	import type { Language } from '$lib/types';
 
 	let editorElement: HTMLElement;
 	let statusbarElement: HTMLElement;
@@ -73,6 +75,7 @@
 		readOnly = false,
 		value,
 		compilerOptions,
+		editorMode,
 
 		yjsInfo
 	}: EditorProps = $props();
@@ -87,10 +90,13 @@
 		};
 	};
 
+	const isMainEditor = () => {
+		return language !== 'plaintext';
+	};
+
 	// Logic for initializing the main monaco editor
 	$effect(() => {
-		if (language === 'plaintext') {
-			// Not the main editor
+		if (!isMainEditor()) {
 			return;
 		}
 		if (!editorElement) {
@@ -118,6 +124,9 @@
 				.init(monacoWrapperConfig)
 				.then(() => {
 					isMonacoWrapperInitialized = true;
+
+					attachPart(Parts.STATUSBAR_PART, statusbarElement);
+
 					return monacoWrapper?.start(editorElement);
 				})
 				.then(() => {
@@ -133,9 +142,7 @@
 					}
 
 					editor = maybeNullEditor;
-					registerEditor(untrack(() => editor));
-
-					attachPart(Parts.STATUSBAR_PART, statusbarElement);
+					registerEditor(untrack(() => editor!));
 				});
 
 			return () => {
@@ -159,8 +166,8 @@
 
 	// Logic for initializing all the other editors
 	$effect(() => {
-		if (language !== 'plaintext') {
-			// This is the main editor, initialized above
+		if (isMainEditor()) {
+			// The main editor is initialized above
 			return;
 		}
 
@@ -195,6 +202,28 @@
 		editor.updateOptions({
 			readOnly
 		});
+	});
+
+	$effect(() => {
+		// For monaco, vim mode has the following restrictions:
+		// - We cannot unload the extension once it is loaded.
+		// - It is either enabled for all editors or disabled for all editors.
+
+		// Vim is a global setting, so only configure it for the main editor
+		if (!isMainEditor()) return;
+
+		// Still loading the editor mode from Firebase
+		if (editorMode === undefined) return;
+
+		if (editorMode === 'vim' && !isVimLoaded) {
+			isVimLoaded = true;
+			import('./vim-1.29.0.vsix').then(() => {
+				console.log('vim-1.29.0.vsix loaded');
+			});
+		} else if (editorMode !== 'vim' && isVimLoaded) {
+			// Vim cannot be disabled once it is loaded.
+			alert('Please reload the page to disable vim.');
+		}
 	});
 
 	$effect(() => {

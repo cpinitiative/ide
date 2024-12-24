@@ -18,6 +18,11 @@
 		readOnly?: boolean;
 		value?: string;
 
+		// If undefined, that means the editor mode is still being loaded from Firebase.
+		// Any editor mode is acceptable. This is relevant for the monaco editor,
+		// since it cannot unload the vim extension without reloading the page.
+		editorMode?: 'normal' | 'vim';
+
 		/**
 		 * If provided, connect this editor to YJS.
 		 */

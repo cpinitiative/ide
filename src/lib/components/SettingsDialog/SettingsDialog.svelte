@@ -1,7 +1,11 @@
+<!-- TODO: rewrite this component. It shouldn't have state if it is under the lib/ directory. -->
+
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { fade } from 'svelte/transition';
 	import RadioGroup from './RadioGroup.svelte';
+	import { onValue, ref, set, update } from 'firebase/database';
+	import { authState, database } from '$lib/firebase/firebase.svelte';
 
 	const {
 		elements: { trigger, overlay, content, title, description, close, portalled },
@@ -12,6 +16,31 @@
 
 	export const open = () => {
 		meltUiOpen.set(true);
+	};
+
+	let editorModeRadioGroup: RadioGroup | undefined = $state(undefined);
+
+	$effect(() => {
+		if (!authState.firebaseUser || !editorModeRadioGroup) return;
+		return onValue(
+			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
+			(snapshot) => {
+				let data = snapshot.val();
+				if (!data) data = 'normal';
+				if (data !== 'vim' && data !== 'normal') data = 'normal';
+				editorModeRadioGroup?.setValue(data);
+			}
+		);
+	});
+
+	const onSave = () => {
+		if (!authState.firebaseUser || !editorModeRadioGroup) return;
+		set(
+			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
+			editorModeRadioGroup.getValue().toLowerCase()
+		).then(() => {
+			meltUiOpen.set(false);
+		});
 	};
 </script>
 
@@ -35,7 +64,7 @@
 			</p>
 
 			<div class="font-medium text-gray-800">Editor Mode</div>
-			<RadioGroup options={['Normal', 'Vim']} />
+			<RadioGroup options={['Normal', 'Vim']} bind:this={editorModeRadioGroup} />
 
 			<div class="mt-6 flex items-center space-x-4">
 				<button
@@ -48,7 +77,7 @@
 				<button
 					type="button"
 					class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-					use:melt={$close}
+					onclick={onSave}
 				>
 					Save
 				</button>
