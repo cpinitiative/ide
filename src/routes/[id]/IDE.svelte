@@ -11,7 +11,7 @@
 	import FileMenu from '$lib/components/FileMenu.svelte';
 	import { downloadFile } from './utils';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
-	import { onValue, ref, remove, set } from 'firebase/database';
+	import { onValue, ref, remove, serverTimestamp, set } from 'firebase/database';
 	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 
@@ -56,25 +56,48 @@
 		);
 	});
 
-	// $effect(() => {
-	// 	const fileRef = ref(database, `users/${firebaseUser.uid}/files/${fileData.id}`);
 
-	//   if (fileData.settings.defaultPermission === 'PRIVATE') {
-	//     // remove from dashboard recently accessed files
-	//     remove(fileRef);
-	//   } else {
-	// 		set(fileRef, {
-	// 			title: fileData.settings.workspaceName || '',
-	// 			lastAccessTime: ServerValue.TIMESTAMP,
-	// 			creationTime: fileData.settings.creationTime ?? null,
-	// 			lastPermission: fileData.settings.defaultPermission,
-	// 			lastDefaultPermission: fileData.settings.defaultPermission,
-	// 			hidden: false,
-	// 			version: 2,
-	//       ...(fileOwner ? { owner: fileOwner } : {}),
-	//     });
-	//   }
-	// });
+	const firebaseUserId = $derived(firebaseUser.uid);
+	const fileId = $derived(fileData.id);
+	const fileRef = $derived(ref(database, `users/${firebaseUserId}/files/${fileId}`));
+	let defaultPermission = $derived(fileData.settings.defaultPermission);
+	let creationTime = $derived(fileData.settings.creationTime);
+	let workspaceName = $derived(fileData.settings.workspaceName);
+	let owner = $derived.by(() => {
+		for (let [userId, user] of Object.entries(fileData.users)) {
+			if (user.permission === 'OWNER') {
+				return {
+					name: user.name,
+					id: userId
+				};
+			}
+		}
+		return null;
+	});
+	let ownerName = $derived(owner?.name);
+	let ownerId = $derived(owner?.id);
+	// Add file to dashboard. We need to ensure that this function only depends on
+	// derived primitives; otherwise, this will run many times.
+	$effect(() => {
+		if (defaultPermission === 'PRIVATE') {
+			// remove from dashboard recently accessed files
+			remove(fileRef);
+		} else {
+			set(fileRef, {
+				title: workspaceName || '',
+				lastAccessTime: serverTimestamp(),
+				creationTime: creationTime ?? null,
+				hidden: false,
+				version: 2,
+				owner: ownerId
+					? {
+							name: ownerName,
+							id: ownerId
+						}
+					: null
+			});
+		}
+	});
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
