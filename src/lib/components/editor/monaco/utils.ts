@@ -7,9 +7,9 @@ import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-ba
 import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
-	language: Language | 'plaintext',
+	language: Language,
 	compilerOptions?: string,
-	editorOptions?: monaco.editor.IEditorOptions
+	editorOptions?: monaco.editor.IStandaloneEditorConstructionOptions
 ): WrapperConfig => {
 	let lspUrl = undefined;
 
@@ -72,7 +72,7 @@ export const getMonacoWrapperConfig = (
 			editorOptions,
 			codeResources: {
 				modified: {
-					uri: `/workspace/main.${language === 'plaintext' ? 'txt' : language}`,
+					uri: `/workspace/main.${language}`,
 					text: ''
 				}
 			}
@@ -105,4 +105,9 @@ export const getMonacoWrapperConfig = (
 				}
 			: undefined
 	};
+};
+
+export const baseEditorOptions = {
+	glyphMargin: false,
+	automaticLayout: true
 };

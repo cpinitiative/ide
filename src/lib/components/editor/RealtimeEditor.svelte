@@ -16,7 +16,6 @@
 		// Optional compiler options for the LSP
 		compilerOptions?: string;
 		readOnly?: boolean;
-		value?: string;
 
 		// If undefined, that means the editor mode is still being loaded from Firebase.
 		// Any editor mode is acceptable. This is relevant for the monaco editor,
@@ -58,15 +57,16 @@
 </script>
 
 <script lang="ts">
-	import MonacoEditor from './monaco/MonacoEditor.svelte';
 	import { WebsocketProvider } from 'y-websocket';
 	import { PUBLIC_YJS_SERVER } from '$env/static/public';
 	import colorFromUserId, { bgColorFromUserId } from './colorFromUserId';
 	import ConnectionStatusIndicator from './ConnectionStatusIndicator.svelte';
+	import type { Component } from 'svelte';
 
 	let {
 		documentId,
 		userId,
+		Editor,
 		...props
 	}: {
 		documentId: string;
@@ -74,6 +74,11 @@
 		 * Firebase user ID
 		 */
 		userId: string;
+
+		/**
+		 * The editor component to use
+		 */
+		Editor: Component;
 	} & Omit<EditorProps, 'yjsInfo'> = $props();
 
 	let yjsInfo: YjsInfo | undefined = $state(undefined);
@@ -165,7 +170,7 @@
 		};
 	});
 
-	let editor: MonacoEditor | undefined = $state(undefined);
+	let editor: any | undefined = $state(undefined);
 	export const getValue = () => {
 		return editor?.getValue();
 	};
@@ -175,6 +180,6 @@
 
 <div class="tw-forms-disable tw-forms-disable-all-descendants relative h-full">
 	<ConnectionStatusIndicator {connectionStatus} />
-	<MonacoEditor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
-	></MonacoEditor>
+	<Editor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
+	></Editor>
 </div>

@@ -5,10 +5,11 @@
 	let { children } = $props();
 </script>
 
-<svelte:boundary>
 	<Firebase>
 		{@render children()}
 	</Firebase>
+
+<!-- <svelte:boundary>
 
 	{#snippet failed(error, reset)}
 		<div class="text-red-300 p-4">
@@ -16,4 +17,4 @@
 			<p>Please <a href="https://github.com/cpinitiative/ide/issues" target="_blank" class="underline text-red-200">report this issue on Github</a>.</p>
 		</div>
 	{/snippet}
-</svelte:boundary>
+</svelte:boundary> -->

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MonacoEditor from '$lib/components/editor/monaco/MonacoEditor.svelte';
+	import MonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
 	import type { FileData, JudgeResponse } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
@@ -12,6 +12,8 @@
 	import { downloadFile } from './utils';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
 	import { onValue, ref, remove, set } from 'firebase/database';
+	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
+	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 
 	const { fileData }: { fileData: FileData } = $props();
 
@@ -174,6 +176,7 @@
 			{language}
 			{compilerOptions}
 			{editorMode}
+			Editor={MainMonacoEditor}
 			bind:this={mainEditor}
 		/>
 	{/snippet}
@@ -190,6 +193,7 @@
 				{userId}
 				language="plaintext"
 				{editorMode}
+				Editor={SecondaryMonacoEditor}
 				bind:this={inputEditor}
 			/>
 		</TabbedPane>
@@ -211,6 +215,7 @@
 					{userId}
 					language="plaintext"
 					{editorMode}
+					Editor={SecondaryMonacoEditor}
 				/>
 			{:else}
 				<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
