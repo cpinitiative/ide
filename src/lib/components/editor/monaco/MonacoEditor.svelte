@@ -61,7 +61,8 @@
 		return {
 			language,
 			readOnly,
-			glyphMargin: false
+			glyphMargin: false,
+			automaticLayout: true
 		};
 	};
 
