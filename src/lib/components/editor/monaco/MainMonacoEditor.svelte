@@ -232,6 +232,37 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		return disposeYjsMonacoBinding;
 	});
 
+	// Every 10 seconds, save the editor's value to localStorage.
+	// Temporary measure to protect against accidental loss of data.
+	$effect(() => {
+		if (!editor) return;
+
+		const interval = setInterval(() => {
+			const value = editor?.getValue();
+			if (!value) return;
+			
+			// Only save files < 15kb in size
+			if (value.length < 15000) {
+				let data = localStorage.getItem('editorHistory') ?? '[]';
+				let parsedData = JSON.parse(data);
+				if (parsedData.length > 0 && parsedData[parsedData.length - 1] === value) {
+					// Don't save duplicate values
+					return;
+				}
+				parsedData.push(value);
+
+				if (data.length > 4 * 1024 * 1024) { // save at most 4MB of data
+					// Remove oldest 1/3 of entries to stay under storage limit
+					parsedData = parsedData.slice(Math.floor(parsedData.length / 3));
+				}
+				
+				localStorage.setItem('editorHistory', JSON.stringify(parsedData));
+			}
+		}, 10000);
+
+		return () => clearInterval(interval);
+	});
+
 	export const getValue = () => {
 		return editor?.getValue();
 	};
