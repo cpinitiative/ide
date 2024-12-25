@@ -7,7 +7,7 @@ import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-ba
 import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
-	language: Language,
+	language: Language | 'plaintext',
 	compilerOptions?: string,
 	editorOptions?: monaco.editor.IEditorOptions
 ): WrapperConfig => {
@@ -72,7 +72,7 @@ export const getMonacoWrapperConfig = (
 			editorOptions,
 			codeResources: {
 				modified: {
-					uri: `/workspace/main.${language}`,
+					uri: `/workspace/main.${language === 'plaintext' ? 'txt' : language}`,
 					text: ''
 				}
 			}

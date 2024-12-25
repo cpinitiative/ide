@@ -1,8 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import firebaseApp from '../../firebaseAdmin';
+import firebaseApp from '$lib/server/firebaseAdmin';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
-import colorFromUserId from '$lib/components/editor/colorFromUserId';
 
 const DEFAULT_COMPILER_OPTIONS = {
 	cpp: '-std=c++23 -O2 -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wduplicated-cond -Wlogical-op',
@@ -32,7 +31,6 @@ export const actions = {
 				users: {
 					[userID]: {
 						name: username,
-						color: colorFromUserId(userID),
 						permission: 'OWNER'
 					}
 				},

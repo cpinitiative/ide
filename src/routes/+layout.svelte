@@ -11,8 +11,9 @@
 	</Firebase>
 
 	{#snippet failed(error, reset)}
-		<div class="text-red-500">
-			An unexpected error occurred: {JSON.stringify(error)}
+		<div class="text-red-300 p-4">
+			<p>An unexpected error occurred: {error}</p>
+			<p>Please <a href="https://github.com/cpinitiative/ide/issues" target="_blank" class="underline text-red-200">report this issue on Github</a>.</p>
 		</div>
 	{/snippet}
 </svelte:boundary>

@@ -20,32 +20,6 @@
 
 	import * as monaco from 'monaco-editor';
 
-	const editors: monaco.editor.IStandaloneCodeEditor[] = [];
-
-	/**
-	 * Resizes all editors.
-	 *
-	 * Call this function whenever the size of the monaco editors changes,
-	 * perhaps due to the window being resized or the user resizing the
-	 * editor pane.
-	 */
-	export function layoutEditors() {
-		editors.forEach((editor) => {
-			editor.layout();
-		});
-	}
-
-	const registerEditor = (editor: monaco.editor.IStandaloneCodeEditor) => {
-		editors.push(editor);
-	};
-
-	const unregisterEditor = (editor: monaco.editor.IStandaloneCodeEditor) => {
-		let index = editors.indexOf(editor);
-		if (index > -1) {
-			editors.splice(index, 1);
-		}
-	};
-
 	let monacoWrapper: MonacoEditorLanguageClientWrapper | null = $state.raw(null);
 	let isMonacoWrapperInitialized = $state(false);
 
@@ -53,7 +27,7 @@
 </script>
 
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import type { EditorProps } from '../RealtimeEditor.svelte';
 
 	import { MonacoBinding } from 'y-monaco';
@@ -81,8 +55,9 @@
 	}: EditorProps = $props();
 
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
+	let yjsMonacoBinding: MonacoBinding | null = null;
 
-	const computeEditorOptions = (language: Language) => {
+	const computeEditorOptions = (language: Language | 'plaintext') => {
 		return {
 			language,
 			readOnly,
@@ -99,16 +74,16 @@
 		if (!isMainEditor()) {
 			return;
 		}
-		if (!editorElement) {
-			// Editor element not mounted yet
-			return;
-		}
 
 		return untrack(() => {
 			if (monacoWrapper) {
 				console.error(
 					'Monaco wrapper already initialized. There should only be one main monaco editor.'
 				);
+				return;
+			}
+			if (!editorElement) {
+				console.error('Editor element not mounted yet');
 				return;
 			}
 
@@ -123,9 +98,12 @@
 			monacoWrapper
 				.init(monacoWrapperConfig)
 				.then(() => {
-					isMonacoWrapperInitialized = true;
+					if (!isAlive) {
+						// The editor has already been unmounted before the promise resolved.
+						return;
+					}
 
-					attachPart(Parts.STATUSBAR_PART, statusbarElement);
+					isMonacoWrapperInitialized = true;
 
 					return monacoWrapper?.start(editorElement);
 				})
@@ -135,6 +113,8 @@
 						return;
 					}
 
+					attachPart(Parts.STATUSBAR_PART, statusbarElement);
+
 					let maybeNullEditor = monacoWrapper?.getEditor();
 					if (!maybeNullEditor) {
 						console.error('Monaco editor should not be null');
@@ -142,7 +122,6 @@
 					}
 
 					editor = maybeNullEditor;
-					registerEditor(untrack(() => editor!));
 				});
 
 			return () => {
@@ -153,12 +132,11 @@
 					return;
 				}
 
+				yjsMonacoBinding?.destroy();
+				// this also disposes the editor
 				monacoWrapper?.dispose();
+				yjsMonacoBinding = null;
 				monacoWrapper = null;
-
-				unregisterEditor(editor);
-
-				// Set editor to null to avoid calling monacoBinding.destroy().
 				editor = null;
 			};
 		});
@@ -178,8 +156,6 @@
 
 		untrack(() => {
 			editor = monaco.editor.create(editorElement, computeEditorOptions(language));
-
-			editors.push(editor);
 		});
 
 		return () => {
@@ -188,11 +164,10 @@
 				return;
 			}
 
+			yjsMonacoBinding?.destroy();
 			editor.dispose();
 
-			unregisterEditor(editor);
-
-			// Set editor to null to avoid calling monacoBinding.destroy().
+			yjsMonacoBinding = null;
 			editor = null;
 		};
 	});
@@ -229,7 +204,7 @@
 	$effect(() => {
 		if (!yjsInfo || !editor) return;
 
-		const monacoBinding = new MonacoBinding(
+		yjsMonacoBinding = new MonacoBinding(
 			yjsInfo.text,
 			editor.getModel()!,
 			new Set([editor]),
@@ -237,11 +212,9 @@
 		);
 
 		return () => {
-			if (editor) {
-				monacoBinding.destroy();
-			}
-			// If editor is null, that means the editor has already been disposed.
-			// y-monaco will automatically call .destroy() when the editor is disposed.
+			// If yjsMonacoBinding is null, it has already been destroyed.
+			yjsMonacoBinding?.destroy();
+			yjsMonacoBinding = null;
 		};
 	});
 

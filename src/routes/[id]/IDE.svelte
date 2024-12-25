@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import MonacoEditor, { layoutEditors } from '$lib/components/editor/monaco/MonacoEditor.svelte';
+	import MonacoEditor from '$lib/components/editor/monaco/MonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
 	import type { FileData, JudgeResponse } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
@@ -12,7 +11,7 @@
 	import FileMenu from '$lib/components/FileMenu.svelte';
 	import { downloadFile } from './utils';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
-	import { onValue, ref } from 'firebase/database';
+	import { onValue, ref, remove, set } from 'firebase/database';
 
 	const { fileData }: { fileData: FileData } = $props();
 
@@ -30,16 +29,6 @@
 	} = $state({
 		isRunning: false,
 		result: null
-	});
-
-	// When the window resizes, we should resize the monaco editors
-	onMount(() => {
-		function handleResize() {
-			layoutEditors();
-		}
-
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
 	});
 
 	const firebaseUser = $derived.by(() => {
@@ -64,6 +53,26 @@
 			}
 		);
 	});
+
+	// $effect(() => {
+	// 	const fileRef = ref(database, `users/${firebaseUser.uid}/files/${fileData.id}`);
+
+	//   if (fileData.settings.defaultPermission === 'PRIVATE') {
+	//     // remove from dashboard recently accessed files
+	//     remove(fileRef);
+	//   } else {
+	// 		set(fileRef, {
+	// 			title: fileData.settings.workspaceName || '',
+	// 			lastAccessTime: ServerValue.TIMESTAMP,
+	// 			creationTime: fileData.settings.creationTime ?? null,
+	// 			lastPermission: fileData.settings.defaultPermission,
+	// 			lastDefaultPermission: fileData.settings.defaultPermission,
+	// 			hidden: false,
+	// 			version: 2,
+	//       ...(fileOwner ? { owner: fileOwner } : {}),
+	//     });
+	//   }
+	// });
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
@@ -130,9 +139,18 @@
 			return 'Error';
 		}
 	});
+
+	// All of these need to be derived to prevent unnecessary re-renders when
+	// fileData's reference changes but the values do not.
+	let mainDocumentId = $derived(`${fileData.id}.${fileData.settings.language}`);
+	let inputDocumentId = $derived(`${fileData.id}.input`);
+	let scribbleDocumentId = $derived(`${fileData.id}.scribble`);
+	let userId = $derived(firebaseUser.uid);
+	let language = $derived(fileData.settings.language);
+	let compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
 </script>
 
-<Layout onResize={() => layoutEditors()}>
+<Layout>
 	{#snippet navbar()}
 		<IDENavbar>
 			{#snippet fileMenu()}
@@ -151,10 +169,10 @@
 
 	{#snippet mainPane()}
 		<RealtimeEditor
-			documentId={`${fileData.id}.${fileData.settings.language}`}
-			userId={firebaseUser.uid}
-			language={fileData.settings.language}
-			compilerOptions={fileData.settings.compilerOptions[fileData.settings.language]}
+			documentId={mainDocumentId}
+			{userId}
+			{language}
+			{compilerOptions}
 			{editorMode}
 			bind:this={mainEditor}
 		/>
@@ -168,8 +186,8 @@
 			bind:activeTab={inputPaneTab}
 		>
 			<RealtimeEditor
-				documentId={`${fileData.id}.input`}
-				userId={firebaseUser.uid}
+				documentId={inputDocumentId}
+				{userId}
 				language="plaintext"
 				{editorMode}
 				bind:this={inputEditor}
@@ -189,8 +207,8 @@
 		>
 			{#if outputPaneTab === 'scribble'}
 				<RealtimeEditor
-					documentId={`${fileData.id}.scribble`}
-					userId={firebaseUser.uid}
+					documentId={scribbleDocumentId}
+					{userId}
 					language="plaintext"
 					{editorMode}
 				/>

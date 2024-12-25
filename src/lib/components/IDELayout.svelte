@@ -10,7 +10,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 	import Split from 'split-grid';
 
 	import { onMount } from 'svelte';
-	let { navbar, mainPane, inputPane, outputPane, onResize } = $props();
+	let { navbar, mainPane, inputPane, outputPane } = $props();
 
 	let verticalGutter: HTMLElement;
 	let horizontalGutter: HTMLElement;
@@ -29,9 +29,6 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					element: horizontalGutter
 				}
 			],
-      onDragEnd: () => {
-        onResize();
-      }
 		});
 
 		return () => split.destroy();

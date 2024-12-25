@@ -1,20 +1,20 @@
 /**
  * Represents a file shown on the Dashboard page.
  *
- * Stored in /users/{uid}/files in Firebase.
+ * Stored in /users/{uid}/files/{fileID} in Firebase.
  */
 export type UserFile = {
-	id: string;
+	id: string; // not stored in database; injected by client
 	lastAccessTime: number;
 	title: string;
 	creationTime?: number;
-	lastPermission?: string;
-	lastDefaultPermission?: string;
 	hidden?: boolean;
 	version: number;
 
 	// deprecated
 	// language: string;
+	// lastPermission?: string;
+	// lastDefaultPermission?: string;
 
 	owner?: {
 		name: string;
@@ -63,7 +63,6 @@ export type FileData = {
 	users: {
 		[userID: string]: {
 			name: string;
-			color: string; // hex format
 			permission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE' | null;
 		};
 	};
