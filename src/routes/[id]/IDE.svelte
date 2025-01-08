@@ -63,6 +63,7 @@
 	let defaultPermission = $derived(fileData.settings.defaultPermission);
 	let creationTime = $derived(fileData.settings.creationTime);
 	let workspaceName = $derived(fileData.settings.workspaceName);
+	let language = $derived(fileData.settings.language);
 	let owner = $derived.by(() => {
 		for (let [userId, user] of Object.entries(fileData.users)) {
 			if (user.permission === 'OWNER') {
@@ -89,6 +90,7 @@
 				creationTime: creationTime ?? null,
 				hidden: false,
 				version: 2,
+				language,
 				owner: ownerId
 					? {
 							name: ownerName,
@@ -171,7 +173,6 @@
 	let inputDocumentId = $derived(`${fileData.id}.input`);
 	let scribbleDocumentId = $derived(`${fileData.id}.scribble`);
 	let userId = $derived(firebaseUser.uid);
-	let language = $derived(fileData.settings.language);
 	let compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
 </script>
 

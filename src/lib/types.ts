@@ -10,9 +10,9 @@ export type UserFile = {
 	creationTime?: number;
 	hidden?: boolean;
 	version: number;
+	language: string;
 
 	// deprecated
-	// language: string;
 	// lastPermission?: string;
 	// lastDefaultPermission?: string;
 

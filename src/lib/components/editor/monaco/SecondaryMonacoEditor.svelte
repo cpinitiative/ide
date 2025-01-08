@@ -25,7 +25,7 @@
 
 		yjsInfo
 	}: {
-		language: Language | 'plaintext';
+		language?: Language | 'plaintext';
 		readOnly?: boolean;
 		value?: string;
 		yjsInfo?: YjsInfo;

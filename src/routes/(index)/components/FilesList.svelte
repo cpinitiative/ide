@@ -18,6 +18,13 @@
 		// TODO: Implement firebase functionality
 		// This needs to be implemented based on your firebase setup in Svelte
 	}
+
+	function formatLanguage(language: string | null): string {
+		if (language == 'py') return 'Python';
+		if (language == 'java') return 'Java';
+		if (language == 'cpp') return 'C++';
+		return 'Unknown';
+	}
 </script>
 
 <div class="flex flex-col">
@@ -67,8 +74,7 @@
 								{file.creationTime ? formatCreationTime(file.creationTime) : 'Unknown'}
 							</td>
 							<td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
-								<!-- {file.language ? formatLanguage(file.language) : "Unknown"} -->
-								Unknown
+								{file.language ? formatLanguage(file.language) : "Unknown"}
 							</td>
 							<td
 								class="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6 md:pr-0"
