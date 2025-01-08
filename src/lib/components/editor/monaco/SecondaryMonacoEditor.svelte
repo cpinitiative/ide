@@ -29,6 +29,9 @@
 		readOnly?: boolean;
 		value?: string;
 		yjsInfo?: YjsInfo;
+
+		// Ignored: Only the main editor can configure the global editor mode
+		editorMode?: 'normal' | 'vim';
 	} = $props();
 
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);

@@ -14,6 +14,7 @@
 	import { onValue, ref, remove, serverTimestamp, set } from 'firebase/database';
 	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
+	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
 
 	const { fileData }: { fileData: FileData } = $props();
 
@@ -55,7 +56,6 @@
 			}
 		);
 	});
-
 
 	const firebaseUserId = $derived(firebaseUser.uid);
 	const fileId = $derived(fileData.id);
@@ -242,7 +242,10 @@
 					Editor={SecondaryMonacoEditor}
 				/>
 			{:else}
-				<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
+				<div class="flex flex-col h-full min-h-0">
+					<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
+					<OutputStatusBar result={judgeState.result} />
+				</div>
 			{/if}
 		</TabbedPane>
 	{/snippet}
