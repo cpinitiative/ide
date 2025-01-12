@@ -14,7 +14,8 @@ const config = {
 		adapter: adapter()
 	},
 	compilerOptions: {
-		runes: true
+		// lucide-svelte doesn't support runes mode yet
+		// runes: true
 	}
 };
 
