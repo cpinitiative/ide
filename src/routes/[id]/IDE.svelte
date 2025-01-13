@@ -1,7 +1,7 @@
 <script lang="ts">
 	import MonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
-	import type { FileData, JudgeResponse, UserData } from '$lib/types';
+	import type { FileData, FileSettings, JudgeResponse, UserData } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
 	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import IDENavbar from '$lib/components/IDENavbar.svelte';
@@ -11,7 +11,7 @@
 	import FileMenu from '$lib/components/FileMenu.svelte';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
 	import { downloadFile } from './utils';
-	import { onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database';
+	import { ref, remove, serverTimestamp, set, update } from 'firebase/database';
 	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
@@ -135,11 +135,19 @@
 		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
 	};
 
-	const onUpdateUserSettings = (newUserData: UserData) => {
-		update(ref(database, `users/${firebaseUserId}/data`), newUserData);
+	const onUpdateUserSettings = (newUserData: UserData, newFileSettings: FileSettings) => {
+		update(ref(database, `users/${firebaseUserId}/data`), newUserData).catch((error) => {
+			alert('Error updating user data: ' + error);
+		});
+		// TODO: only if the user has permission to edit the file
+		update(ref(database, `files/${fileId}/settings`), newFileSettings)
+			.catch((error) => {
+				alert('Error updating file settings: ' + error);
+			});
 	};
 
-	let isViewOnly = $derived(fileData.settings.defaultPermission === 'READ');
+	// TODO: fix permissions
+	let isViewOnly = false;
 	let outputPaneValue = $derived.by(() => {
 		if (outputPaneTab === 'stdout') {
 			return judgeState.result?.execute?.stdout ?? '';
@@ -238,4 +246,9 @@
 	{/snippet}
 </Layout>
 
-<SettingsDialog bind:this={settingsDialog} {userData} onSave={onUpdateUserSettings} />
+<SettingsDialog
+	bind:this={settingsDialog}
+	{userData}
+	fileSettings={fileData.settings}
+	onSave={onUpdateUserSettings}
+/>

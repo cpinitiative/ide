@@ -3,12 +3,13 @@
 <script lang="ts">
 	import { createRadioGroup, melt } from '@melt-ui/svelte';
 
-	const {
+	let {
 		name,
 		options,
 		defaultValue,
 		orientation = 'vertical',
-		theme = 'light'
+		theme = 'light',
+		value = $bindable(defaultValue)
 	}: {
 		// name of hidden input
 		name: string;
@@ -16,18 +17,27 @@
 		// map of value: label
 		options: { [key: string]: string };
 
-		defaultValue: string | undefined;
+		defaultValue?: string;
 
 		orientation?: 'vertical' | 'horizontal';
 		theme?: 'dark' | 'light';
+		value?: string;
 	} = $props();
 
 	const {
 		elements: { root, item, hiddenInput },
 		helpers: { isChecked },
-		states: { value }
+		states: { value: meltValue }
 	} = createRadioGroup({
 		defaultValue
+	});
+
+	$effect(() => {
+		$meltValue = value;
+	});
+
+	$effect(() => {
+		value = $meltValue;
 	});
 </script>
 

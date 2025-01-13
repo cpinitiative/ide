@@ -9,7 +9,7 @@
 	import User from 'lucide-svelte/icons/user';
 	import Server from 'lucide-svelte/icons/server';
 	import X from 'lucide-svelte/icons/x';
-	import type { UserData } from '$lib/types';
+	import { LANGUAGES, type FileSettings, type Language, type UserData } from '$lib/types';
 
 	const {
 		elements: { trigger, overlay, content, title, description, close, portalled },
@@ -22,20 +22,35 @@
 		meltUiOpen.set(true);
 	};
 
-	const { userData, onSave }: {
+	const {
+		userData,
+		fileSettings,
+		onSave
+	}: {
 		userData: UserData;
-		onSave: (newUserData: UserData) => void;
+		fileSettings: FileSettings;
+		onSave: (newUserData: UserData, newFileSettings: FileSettings) => void;
 	} = $props();
 
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		const newUserData = Object.fromEntries(formData.entries()) as UserData;
-		onSave(newUserData);
+		const newUserData = {
+			editorMode: formData.get('editorMode') as 'normal' | 'vim'
+		};
+		let newFileSettings = {
+			...fileSettings,
+			workspaceName: formData.get('workspaceName') as string,
+			language: formData.get('language') as Language,
+			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
+		};
+		newFileSettings.compilerOptions[newFileSettings.language] = formData.get('compiler_options') as string;
+		onSave(newUserData, newFileSettings);
 		meltUiOpen.set(false);
 	};
 
 	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
+	let selectedLanguage: Language = $state(fileSettings.language);
 </script>
 
 {#if $meltUiOpen}
@@ -76,22 +91,85 @@
 				</div>
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
-					<p class="text-sm text-gray-500">
+					<p class="text-sm text-gray-500" class:hidden={activeTab === 'workspace'}>
 						Work In Progress: Much of the functionality is still being ported over to the new site.
 					</p>
 
-					{#if activeTab === 'workspace'}
-						<div>
-							<div class="font-medium text-gray-800 mb-2">Editor Mode</div>
-							<RadioGroup
-								name="editorMode"
-								defaultValue={userData.editorMode}
-								options={{ normal: 'Normal', vim: 'Vim' }}
-								orientation="horizontal"
-								theme="dark"
+					<div class:hidden={activeTab !== 'workspace'}>
+						<label for="workspaceName" class="block font-medium text-gray-700">
+							Workspace Name
+						</label>
+						<div class="mt-1">
+							<input
+								type="text"
+								name="workspaceName"
+								id="workspaceName"
+								class="mt-0 block w-full border-0 border-b-2 border-gray-200 px-0 pt-0 pb-1 text-sm text-black focus:border-black focus:ring-0"
+								defaultValue={fileSettings.workspaceName || ''}
 							/>
+							<!-- TODO: implement permissions -->
+							<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
 						</div>
-					{/if}
+					</div>
+					<div class:hidden={activeTab !== 'workspace'}>
+						<div class="mb-2 font-medium text-gray-800">Language</div>
+						<RadioGroup
+							name="language"
+							defaultValue={fileSettings.language}
+							options={LANGUAGES}
+							theme="dark"
+							bind:value={selectedLanguage}
+						/>
+						<!-- TODO: implement permissions -->
+						<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
+					</div>
+
+					<div class:hidden={activeTab !== 'workspace'}>
+						<label for="compilerOptions" class="block font-medium text-gray-700">
+							{LANGUAGES[selectedLanguage]} Compiler Options
+						</label>
+						<div class="mt-1">
+							{#key selectedLanguage}
+								<!-- Rerender when selectedLanguage changes to reset the value -->
+								<input
+									type="text"
+									name="compiler_options"
+									id="compiler_options"
+									class="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black font-mono text-sm text-black"
+									defaultValue={fileSettings.compilerOptions[selectedLanguage]}
+									placeholder="None"
+								/>
+							{/key}
+							<!-- TODO: implement permissions -->
+							<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
+						</div>
+					</div>
+
+					<div class:hidden={activeTab !== 'workspace'}>
+						<div class="mb-2 font-medium text-gray-800">Default Sharing Permissions</div>
+						<RadioGroup
+							name="defaultPermission"
+							defaultValue={fileSettings.defaultPermission}
+							options={{
+								READ_WRITE: 'Public Read & Write',
+								READ: 'Public View Only',
+								PRIVATE: 'Private'
+							}}
+							theme="dark"
+						/>
+						<!-- TODO: implement permissions -->
+						<!-- disabled={!(userPermission === 'OWNER')} -->
+					</div>
+
+					<div class:hidden={activeTab !== 'user'}>
+						<div class="mb-2 font-medium text-gray-800">Editor Mode</div>
+						<RadioGroup
+							name="editorMode"
+							defaultValue={userData.editorMode}
+							options={{ normal: 'Normal', vim: 'Vim' }}
+							theme="dark"
+						/>
+					</div>
 
 					<div class="mt-6 flex items-center space-x-4">
 						<button

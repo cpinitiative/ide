@@ -23,20 +23,11 @@ export type UserFile = {
 };
 
 export type Language = 'cpp' | 'java' | 'py';
-export const LANGUAGES: { label: string; value: Language }[] = [
-	{
-		label: 'C++',
-		value: 'cpp'
-	},
-	{
-		label: 'Java',
-		value: 'java'
-	},
-	{
-		label: 'Python 3.12.3',
-		value: 'py'
-	}
-];
+export const LANGUAGES = {
+	cpp: 'C++',
+	java: 'Java',
+	py: 'Python 3.12.3'
+} as const;
 
 /**
  * User data stored in /users/{uid}/data.

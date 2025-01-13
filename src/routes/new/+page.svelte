@@ -92,10 +92,10 @@
 			<div class="mb-6">
 				<span class="block text-sm leading-6 font-medium text-neutral-100">Language</span>
 				<div class="mt-2 flex space-x-3">
-					{#each LANGUAGES as option}
+					{#each Object.entries(LANGUAGES) as [option, label]}
 						<label
 							class={'cursor-pointer focus-visible:outline-none ' +
-								(lang === option.value
+								(lang === option
 									? 'bg-indigo-800 text-white hover:bg-indigo-700'
 									: 'bg-neutral-900 text-neutral-100 ring-1 ring-neutral-700 ring-inset hover:bg-neutral-800') +
 								' flex items-center justify-center rounded-md px-2 py-2 text-sm font-semibold ring-offset-neutral-900 sm:px-4'}
@@ -103,12 +103,12 @@
 							<input
 								type="radio"
 								name="language"
-								value={option.value}
+								value={option}
 								class="sr-only"
-								onclick={() => (lang = option.value)}
-								checked={lang === option.value}
+								onclick={() => (lang = option)}
+								checked={lang === option}
 							/>
-							{option.label}
+							{label}
 						</label>
 					{/each}
 				</div>
