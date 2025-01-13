@@ -9,6 +9,7 @@
 
 	let isLoading = $state(true);
 	let fileData: FileData | null = $state(null);
+	let userData: UserData | null = $state(null);
 
 	$effect(() => {
 		isLoading = true;
@@ -20,7 +21,7 @@
 		}
 
 		const fileDataRef = ref(database, `files/${fileId}`);
-		const unsubscribe = onValue(fileDataRef, (snapshot) => {
+		const unsubscribeFileData = onValue(fileDataRef, (snapshot) => {
 			if (!snapshot.exists()) {
 				fileData = null;
 			} else {
@@ -32,7 +33,22 @@
 			isLoading = false;
 		});
 
-		return unsubscribe;
+		const userDataRef = ref(database, `users/${authState.firebaseUser.uid}/data`);
+		const unsubscribeUserData = onValue(userDataRef, (snapshot) => {
+			userData = {
+				editorMode: 'normal'
+			};
+
+			const data = snapshot.val();
+			if (data.editorMode === 'vim' || data.editorMode === 'normal') {
+				userData.editorMode = data.editorMode;
+			}
+		});
+
+		return () => {
+			unsubscribeFileData();
+			unsubscribeUserData();
+		};
 	});
 </script>
 
@@ -48,6 +64,6 @@
 	<div>Loading...</div>
 {:else if !fileData}
 	<div>File not found.</div>
-{:else}
-	<IDE {fileData} />
+{:else if fileData && userData}
+	<IDE {fileData} {userData} />
 {/if}

@@ -3,14 +3,13 @@
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { fade } from 'svelte/transition';
-	import RadioGroup from './RadioGroup.svelte';
-	import { onValue, ref, set } from 'firebase/database';
-	import { authState, database } from '$lib/firebase/firebase.svelte';
+	import RadioGroup from '../RadioGroup.svelte';
 	import type { Icon as LucideIcon } from 'lucide-svelte';
 	import LaptopMinimal from 'lucide-svelte/icons/laptop-minimal';
 	import User from 'lucide-svelte/icons/user';
 	import Server from 'lucide-svelte/icons/server';
 	import X from 'lucide-svelte/icons/x';
+	import type { UserData } from '$lib/types';
 
 	const {
 		elements: { trigger, overlay, content, title, description, close, portalled },
@@ -23,33 +22,20 @@
 		meltUiOpen.set(true);
 	};
 
-	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
+	const { userData, onSave }: {
+		userData: UserData;
+		onSave: (newUserData: UserData) => void;
+	} = $props();
 
-	let editorModeRadioGroup: RadioGroup | undefined = $state(undefined);
-
-	$effect(() => {
-		if (!authState.firebaseUser || !editorModeRadioGroup) return;
-		return onValue(
-			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
-			(snapshot) => {
-				let data = snapshot.val();
-				if (!data) data = 'normal';
-				if (data !== 'vim' && data !== 'normal') data = 'normal';
-
-				editorModeRadioGroup?.setValue(data);
-			}
-		);
-	});
-
-	const onSave = () => {
-		if (!authState.firebaseUser || !editorModeRadioGroup) return;
-		set(
-			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
-			editorModeRadioGroup.getValue()
-		).then(() => {
-			meltUiOpen.set(false);
-		});
+	const onSubmit = (event: SubmitEvent) => {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		const newUserData = Object.fromEntries(formData.entries()) as UserData;
+		onSave(newUserData);
+		meltUiOpen.set(false);
 	};
+
+	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
 </script>
 
 {#if $meltUiOpen}
@@ -89,17 +75,20 @@
 					</nav>
 				</div>
 
-				<div class="space-y-6 p-4 sm:p-6">
+				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
 					<p class="text-sm text-gray-500">
 						Work In Progress: Much of the functionality is still being ported over to the new site.
 					</p>
 
 					{#if activeTab === 'workspace'}
 						<div>
-							<div class="font-medium text-gray-800">Editor Mode</div>
+							<div class="font-medium text-gray-800 mb-2">Editor Mode</div>
 							<RadioGroup
+								name="editorMode"
+								defaultValue={userData.editorMode}
 								options={{ normal: 'Normal', vim: 'Vim' }}
-								bind:this={editorModeRadioGroup}
+								orientation="horizontal"
+								theme="dark"
 							/>
 						</div>
 					{/if}
@@ -113,14 +102,13 @@
 							Cancel
 						</button>
 						<button
-							type="button"
+							type="submit"
 							class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-							onclick={onSave}
 						>
 							Save
 						</button>
 					</div>
-				</div>
+				</form>
 
 				<div class="absolute top-0 right-0 pt-4 pr-4">
 					<button

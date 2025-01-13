@@ -39,6 +39,13 @@ export const LANGUAGES: { label: string; value: Language }[] = [
 ];
 
 /**
+ * User data stored in /users/{uid}/data.
+ */
+export type UserData = {
+	editorMode: 'normal' | 'vim';
+};
+
+/**
  * Settings for a file that's being edited.
  */
 export interface FileSettings {

@@ -6,7 +6,9 @@
 	const {
 		name,
 		options,
-		defaultValue
+		defaultValue,
+		orientation = 'vertical',
+		theme = 'light'
 	}: {
 		// name of hidden input
 		name: string;
@@ -14,7 +16,10 @@
 		// map of value: label
 		options: { [key: string]: string };
 
-		defaultValue: string;
+		defaultValue: string | undefined;
+
+		orientation?: 'vertical' | 'horizontal';
+		theme?: 'dark' | 'light';
 	} = $props();
 
 	const {
@@ -26,12 +31,12 @@
 	});
 </script>
 
-<div use:melt={$root} class="space-y-2">
+<div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'space-x-4 flex'}>
 	{#each Object.entries(options) as [option, label]}
-		<div class="relative flex cursor-pointer items-center focus:outline-none">
+		<div class="relative flex items-center focus:outline-none">
 			<button
 				use:melt={$item(option)}
-				class={`mt-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+				class={`mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
 					$isChecked(option) ? 'border-transparent bg-indigo-600' : 'border-gray-300 bg-white'
 				}`}
 				id={option}
@@ -40,9 +45,11 @@
 				<span class="h-1.5 w-1.5 rounded-full bg-white"></span>
 			</button>
 			<label
-				class="ml-2 inline-block text-sm font-medium"
-				class:text-gray-200={$isChecked(option)}
-				class:text-gray-400={!$isChecked(option)}
+				class="pl-2 inline-block text-sm font-medium"
+				class:text-gray-200={theme === 'light' && $isChecked(option)}
+				class:text-gray-400={theme === 'light' && !$isChecked(option)}
+				class:text-gray-600={theme === 'dark' && !$isChecked(option)}
+				class:text-gray-800={theme === 'dark' && $isChecked(option)}
 				for={option}
 				id="{option}-label"
 			>

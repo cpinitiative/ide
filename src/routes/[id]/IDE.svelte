@@ -1,7 +1,7 @@
 <script lang="ts">
 	import MonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
-	import type { FileData, JudgeResponse } from '$lib/types';
+	import type { FileData, JudgeResponse, UserData } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
 	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import IDENavbar from '$lib/components/IDENavbar.svelte';
@@ -9,14 +9,14 @@
 	import { submitToJudge } from '$lib/judge/judge';
 	import TabbedPane from '$lib/components/TabbedPane.svelte';
 	import FileMenu from '$lib/components/FileMenu.svelte';
-	import { downloadFile } from './utils';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
-	import { onValue, ref, remove, serverTimestamp, set } from 'firebase/database';
+	import { downloadFile } from './utils';
+	import { onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database';
 	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
 
-	const { fileData }: { fileData: FileData } = $props();
+	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
 	let mainEditor: RealtimeEditor | undefined = $state(undefined);
 	let inputEditor: RealtimeEditor | undefined = $state(undefined);
@@ -41,20 +41,6 @@
 			);
 		}
 		return authState.firebaseUser;
-	});
-
-	let editorMode: 'normal' | 'vim' | undefined = $state(undefined);
-	$effect(() => {
-		if (!authState.firebaseUser) return;
-		return onValue(
-			ref(database, `users/${authState.firebaseUser.uid}/data/editorMode`),
-			(snapshot) => {
-				let data = snapshot.val();
-				if (!data) data = 'normal';
-				if (data !== 'vim' && data !== 'normal') data = 'normal';
-				editorMode = data;
-			}
-		);
 	});
 
 	const firebaseUserId = $derived(firebaseUser.uid);
@@ -149,8 +135,8 @@
 		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
 	};
 
-	const onOpenSettings = () => {
-		settingsDialog?.open();
+	const onUpdateUserSettings = (newUserData: UserData) => {
+		update(ref(database, `users/${firebaseUserId}/data`), newUserData);
 	};
 
 	let isViewOnly = $derived(fileData.settings.defaultPermission === 'READ');
@@ -169,6 +155,7 @@
 
 	// All of these need to be derived to prevent unnecessary re-renders when
 	// fileData's reference changes but the values do not.
+	let editorMode = $derived(userData.editorMode);
 	let mainDocumentId = $derived(`${fileData.id}.${fileData.settings.language}`);
 	let inputDocumentId = $derived(`${fileData.id}.input`);
 	let scribbleDocumentId = $derived(`${fileData.id}.scribble`);
@@ -180,7 +167,7 @@
 	{#snippet navbar()}
 		<IDENavbar>
 			{#snippet fileMenu()}
-				<FileMenu {onDownloadFile} {onOpenSettings} />
+				<FileMenu {onDownloadFile} onOpenSettings={() => settingsDialog?.open()} />
 			{/snippet}
 			{#snippet runButton()}
 				<RunButton
@@ -242,7 +229,7 @@
 					Editor={SecondaryMonacoEditor}
 				/>
 			{:else}
-				<div class="flex flex-col h-full min-h-0">
+				<div class="flex h-full min-h-0 flex-col">
 					<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
 					<OutputStatusBar result={judgeState.result} />
 				</div>
@@ -251,4 +238,4 @@
 	{/snippet}
 </Layout>
 
-<SettingsDialog bind:this={settingsDialog} />
+<SettingsDialog bind:this={settingsDialog} {userData} onSave={onUpdateUserSettings} />
