@@ -11,10 +11,11 @@
 	import FileMenu from '$lib/components/FileMenu.svelte';
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
 	import { downloadFile } from './utils';
-	import { ref, remove, serverTimestamp, set, update } from 'firebase/database';
+	import { ref, update } from 'firebase/database';
 	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
+	import { computePermission } from '$lib/utils';
 
 	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
@@ -45,47 +46,6 @@
 
 	const firebaseUserId = $derived(firebaseUser.uid);
 	const fileId = $derived(fileData.id);
-	const fileRef = $derived(ref(database, `users/${firebaseUserId}/files/${fileId}`));
-	let defaultPermission = $derived(fileData.settings.defaultPermission);
-	let creationTime = $derived(fileData.settings.creationTime);
-	let workspaceName = $derived(fileData.settings.workspaceName);
-	let language = $derived(fileData.settings.language);
-	let owner = $derived.by(() => {
-		for (let [userId, user] of Object.entries(fileData.users)) {
-			if (user.permission === 'OWNER') {
-				return {
-					name: user.name,
-					id: userId
-				};
-			}
-		}
-		return null;
-	});
-	let ownerName = $derived(owner?.name);
-	let ownerId = $derived(owner?.id);
-	// Add file to dashboard. We need to ensure that this function only depends on
-	// derived primitives; otherwise, this will run many times.
-	$effect(() => {
-		if (defaultPermission === 'PRIVATE') {
-			// remove from dashboard recently accessed files
-			remove(fileRef);
-		} else {
-			set(fileRef, {
-				title: workspaceName || '',
-				lastAccessTime: serverTimestamp(),
-				creationTime: creationTime ?? null,
-				hidden: false,
-				version: 2,
-				language,
-				owner: ownerId
-					? {
-							name: ownerName,
-							id: ownerId
-						}
-					: null
-			});
-		}
-	});
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
@@ -146,8 +106,8 @@
 			});
 	};
 
-	// TODO: fix permissions
-	let isViewOnly = false;
+	let userPermission = $derived(computePermission(fileData, firebaseUserId));
+	let isReadOnly = $derived(userPermission === 'READ');
 	let outputPaneValue = $derived.by(() => {
 		if (outputPaneTab === 'stdout') {
 			return judgeState.result?.execute?.stdout ?? '';
@@ -163,6 +123,7 @@
 
 	// All of these need to be derived to prevent unnecessary re-renders when
 	// fileData's reference changes but the values do not.
+	let language = $derived(fileData.settings.language);
 	let editorMode = $derived(userData.editorMode);
 	let mainDocumentId = $derived(`${fileData.id}.${fileData.settings.language}`);
 	let inputDocumentId = $derived(`${fileData.id}.input`);
@@ -181,8 +142,8 @@
 				<RunButton
 					showLoadingIndicator={judgeState.isRunning}
 					onclick={runCode}
-					disabled={isViewOnly || judgeState.isRunning}
-					title={isViewOnly ? "You can't run code in a view-only document." : undefined}
+					disabled={isReadOnly || judgeState.isRunning}
+					title={isReadOnly ? "You can't run code in a view-only document." : undefined}
 				/>
 			{/snippet}
 		</IDENavbar>
@@ -248,6 +209,7 @@
 
 <SettingsDialog
 	bind:this={settingsDialog}
+	{userPermission}
 	{userData}
 	fileSettings={fileData.settings}
 	onSave={onUpdateUserSettings}

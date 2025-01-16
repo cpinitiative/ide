@@ -23,10 +23,12 @@
 	};
 
 	const {
+		userPermission,
 		userData,
 		fileSettings,
 		onSave
 	}: {
+		userPermission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
 		userData: UserData;
 		fileSettings: FileSettings;
 		onSave: (newUserData: UserData, newFileSettings: FileSettings) => void;
@@ -42,9 +44,11 @@
 			...fileSettings,
 			workspaceName: formData.get('workspaceName') as string,
 			language: formData.get('language') as Language,
-			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
+			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE'
 		};
-		newFileSettings.compilerOptions[newFileSettings.language] = formData.get('compiler_options') as string;
+		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
+			'compiler_options'
+		) as string;
 		onSave(newUserData, newFileSettings);
 		meltUiOpen.set(false);
 	};
@@ -106,9 +110,8 @@
 								id="workspaceName"
 								class="mt-0 block w-full border-0 border-b-2 border-gray-200 px-0 pt-0 pb-1 text-sm text-black focus:border-black focus:ring-0"
 								defaultValue={fileSettings.workspaceName || ''}
+								readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 							/>
-							<!-- TODO: implement permissions -->
-							<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
 						</div>
 					</div>
 					<div class:hidden={activeTab !== 'workspace'}>
@@ -119,9 +122,8 @@
 							options={LANGUAGES}
 							theme="dark"
 							bind:value={selectedLanguage}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						/>
-						<!-- TODO: implement permissions -->
-						<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
 					</div>
 
 					<div class:hidden={activeTab !== 'workspace'}>
@@ -135,13 +137,12 @@
 									type="text"
 									name="compiler_options"
 									id="compiler_options"
-									class="mt-0 block w-full px-0 pt-0 pb-1 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black font-mono text-sm text-black"
+									class="mt-0 block w-full border-0 border-b-2 border-gray-200 px-0 pt-0 pb-1 font-mono text-sm text-black focus:border-black focus:ring-0"
 									defaultValue={fileSettings.compilerOptions[selectedLanguage]}
 									placeholder="None"
+									readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 								/>
 							{/key}
-							<!-- TODO: implement permissions -->
-							<!-- disabled={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')} -->
 						</div>
 					</div>
 
@@ -156,9 +157,8 @@
 								PRIVATE: 'Private'
 							}}
 							theme="dark"
+							readonly={userPermission !== 'OWNER'}
 						/>
-						<!-- TODO: implement permissions -->
-						<!-- disabled={!(userPermission === 'OWNER')} -->
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
@@ -179,12 +179,14 @@
 						>
 							Cancel
 						</button>
-						<button
-							type="submit"
-							class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-						>
-							Save
-						</button>
+						{#if userPermission === 'OWNER' || userPermission === 'READ_WRITE'}
+							<button
+								type="submit"
+								class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+							>
+								Save
+							</button>
+						{/if}
 					</div>
 				</form>
 

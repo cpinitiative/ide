@@ -9,7 +9,8 @@
 		defaultValue,
 		orientation = 'vertical',
 		theme = 'light',
-		value = $bindable(defaultValue)
+		value = $bindable(defaultValue),
+		readonly = false
 	}: {
 		// name of hidden input
 		name: string;
@@ -22,6 +23,7 @@
 		orientation?: 'vertical' | 'horizontal';
 		theme?: 'dark' | 'light';
 		value?: string;
+		readonly?: boolean;
 	} = $props();
 
 	const {
@@ -29,7 +31,13 @@
 		helpers: { isChecked },
 		states: { value: meltValue }
 	} = createRadioGroup({
-		defaultValue
+		defaultValue,
+		onValueChange: ({ curr, next }) => {
+			if (readonly) {
+				return curr;
+			}
+			return next;
+		}
 	});
 
 	$effect(() => {
