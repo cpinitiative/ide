@@ -44,14 +44,16 @@
 			};
 
 			const data = snapshot.val();
-			if (data.editorMode === 'vim' || data.editorMode === 'normal') {
-				userData.editorMode = data.editorMode;
-			}
-			if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
-				userData.tabSize = data.tabSize;
-			}
-			if (data.theme === 'light' || data.theme === 'dark') {
-				userData.theme = data.theme;
+			if (data) {
+				if (data.editorMode === 'vim' || data.editorMode === 'normal') {
+					userData.editorMode = data.editorMode;
+				}
+				if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
+					userData.tabSize = data.tabSize;
+				}
+				if (data.theme === 'light' || data.theme === 'dark') {
+					userData.theme = data.theme;
+				}
 			}
 		});
 

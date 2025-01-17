@@ -13,11 +13,15 @@ npm install
 npm run dev
 ```
 
-`npm run dev` will start a Firebase emulator for you. By default, the dev server uses a local firebase emulator and the production YJS server. To change these settings, edit `src/dev_constants.ts`.
+TODO: Update this outdated section
+
+`npm run dev` will start a Firebase emulator for you. By default, the dev server uses a local firebase emulator and the production YJS server. To change these settings, edit `.env`.
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
 
 ### Playwright Tests
+
+TODO: Update this outdated section
 
 ```
 npm run dev  # Start the dev server in a separate terminal
@@ -30,17 +34,17 @@ Note: If you are using the production YJS servers, the Copy Files test will fail
 
 ### Configuring Firebase
 
-You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `pages/_app.tsx`.
+You can update the Firebase configuration (if you want to use a custom firebase project, for example) by modifying `src/lib/firebase/firebase.svelte`.
 
 ## Tech Stack
 
-- Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge)
+- Code execution through a custom [Serverless Online Judge](https://github.com/cpinitiative/online-judge-rust)
 - Realtime collaboration with [YJS](https://github.com/yjs/yjs)
-- Monaco Editor (desktop)
+- Codingame's VSCode / Monaco Editor (desktop)
 - Codemirror 6 Editor (mobile)
 - Code intellisense with [LSP servers running on Modal](https://github.com/cpinitiative/ide-lsp-modal)
-- Next.js
-- Tailwind CSS
+- Svelte 5 and SvelteKit
+- Tailwind CSS 4
 - Firebase Realtime Database
 - Playwright for end-to-end testing
 
@@ -54,11 +58,11 @@ If you have any questions, please open an issue or reach out to us at usacoguide
 
 ## Misc Notes
 
-### Firepad / YJS Browser Incompatibility
+### VSCode + YJS EOL Browser Incompatibility
 
-See https://github.com/FirebaseExtended/firepad/issues/315 and https://github.com/yjs/y-monaco/issues/6.
+See https://github.com/yjs/y-monaco/issues/6 for steps to reproduce the issue.
 
-Replace something similar to
+To fix, replace something similar to
 
 ```javascript
 var n = this.configurationService.getValue('files.eol', {
@@ -78,18 +82,7 @@ var n = this.configurationService.getValue('files.eol', {
 return n && 'auto' !== n ? n : d.isLinux || d.isMacintosh ? '\n' : '\n';
 ```
 
-using `package-patch`.
-
-### Monaco Workers
-
-Run
-
-```
-mkdir ./public/monaco-workers
-cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/monaco-workers
-```
-
-This is used by MonacoEditor.tsx (Monaco uses web workers).
+using `package-patch`. You can use `grep -r "this.configurationService.getValue('files.eol'" node_modules/ -l` to find relevant files to patch.
 
 ### Troubleshooting `firebase emulators:exec`
 
@@ -102,24 +95,3 @@ If `firebase emulators:exec` fails for unknown reason, try running `firebase emu
 - Too large output
 - Classrooms
 - Copying files (#64, this broke already lol)
-
-### Updating Monaco Editor
-
-Make sure Monaco is compatible with `monaco-languageclient`!! https://github.com/TypeFox/monaco-languageclient/blob/main/docs/versions-and-history.md#monaco-editor--codingamemonaco-vscode-api-compatibility-table
-
-1. `npm install monaco-editor@latest`
-2. Modify `node_modules/monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js`:
-
-   ```
-   -        return (isLinux || isMacintosh) ? '\n' : '\r\n';
-   +        return (isLinux || isMacintosh) ? '\n' : '\n';
-   ```
-
-   See `patches/monaco-editor+??.patch` for more details
-
-3. `npx patch-package monaco-editor`
-4. Commit the updated patch to Github
-5. `rm -r ./public/monaco-workers`
-6. `mkdir ./public/monaco-workers`
-7. `cp -r ./node_modules/monaco-editor-workers/dist/workers/editorWorker* ./public/monaco-workers`
-8. Test that everything works: LSP, browser sync, cross-platform sync, etc

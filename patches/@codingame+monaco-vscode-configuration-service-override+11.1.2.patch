@@ -1,0 +1,13 @@
+diff --git a/node_modules/@codingame/monaco-vscode-configuration-service-override/vscode/src/vs/workbench/services/textresourceProperties/common/textResourcePropertiesService.js b/node_modules/@codingame/monaco-vscode-configuration-service-override/vscode/src/vs/workbench/services/textresourceProperties/common/textResourcePropertiesService.js
+index db9440a..331f3be 100644
+--- a/node_modules/@codingame/monaco-vscode-configuration-service-override/vscode/src/vs/workbench/services/textresourceProperties/common/textResourcePropertiesService.js
++++ b/node_modules/@codingame/monaco-vscode-configuration-service-override/vscode/src/vs/workbench/services/textresourceProperties/common/textResourcePropertiesService.js
+@@ -21,7 +21,7 @@ let TextResourcePropertiesService = class TextResourcePropertiesService {
+             return eol;
+         }
+         const os = this.getOS(resource);
+-        return os === 3  || os === 2  ? '\n' : '\r\n';
++        return os === 3  || os === 2  ? '\n' : '\n';
+     }
+     getOS(resource) {
+         let os = OS;

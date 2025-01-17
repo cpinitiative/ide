@@ -1,0 +1,13 @@
+diff --git a/node_modules/@codingame/monaco-vscode-api/vscode/src/vs/editor/standalone/browser/standaloneServices.js b/node_modules/@codingame/monaco-vscode-api/vscode/src/vs/editor/standalone/browser/standaloneServices.js
+index e344741..86c9167 100644
+--- a/node_modules/@codingame/monaco-vscode-api/vscode/src/vs/editor/standalone/browser/standaloneServices.js
++++ b/node_modules/@codingame/monaco-vscode-api/vscode/src/vs/editor/standalone/browser/standaloneServices.js
+@@ -642,7 +642,7 @@ let StandaloneResourcePropertiesService = class StandaloneResourcePropertiesServ
+         if (eol && typeof eol === 'string' && eol !== 'auto') {
+             return eol;
+         }
+-        return (isLinux || isMacintosh) ? '\n' : '\r\n';
++        return (isLinux || isMacintosh) ? '\n' : '\n';
+     }
+ };
+ StandaloneResourcePropertiesService = ( __decorate([
