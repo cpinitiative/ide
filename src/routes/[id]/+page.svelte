@@ -4,6 +4,7 @@
 	import IDE from './IDE.svelte';
 	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import { computePermission } from '$lib/utils';
+	import MessagePage from '$lib/components/MessagePage.svelte';
 
 	let props = $props();
 	let fileId = props.data.fileId;
@@ -93,10 +94,12 @@
 				hidden: false,
 				version: 2,
 				language: language,
-				owner: ownerName ? {
-					name: ownerName,
-					id: ownerId
-				} : undefined,
+				owner: ownerName
+					? {
+							name: ownerName,
+							id: ownerId
+						}
+					: undefined,
 
 				// deprecated: for compatibility with legacy IDE only
 				lastPermission: userPermission,
@@ -115,9 +118,11 @@
 </svelte:head>
 
 {#if isLoading}
-	<div>Loading...</div>
+	<MessagePage message="Loading..." />
 {:else if !fileData}
-	<div>File not found.</div>
+	<MessagePage message="File not found." showHomeButton={true} />
+{:else if userPermission === 'PRIVATE'}
+	<MessagePage message="You do not have permission to view this file." showHomeButton={true} />
 {:else if fileData && userData}
 	<IDE {fileData} {userData} />
 {/if}

@@ -134,7 +134,7 @@
 
 <Layout>
 	{#snippet navbar()}
-		<IDENavbar>
+		<IDENavbar showViewOnlyMessage={isReadOnly}>
 			{#snippet fileMenu()}
 				<FileMenu {onDownloadFile} onOpenSettings={() => settingsDialog?.open()} />
 			{/snippet}
@@ -158,6 +158,7 @@
 			{editorMode}
 			Editor={MainMonacoEditor}
 			bind:this={mainEditor}
+			readOnly={isReadOnly}
 		/>
 	{/snippet}
 
@@ -175,6 +176,7 @@
 				{editorMode}
 				Editor={SecondaryMonacoEditor}
 				bind:this={inputEditor}
+				readOnly={isReadOnly}
 			/>
 		</TabbedPane>
 	{/snippet}
@@ -196,6 +198,7 @@
 					language="plaintext"
 					{editorMode}
 					Editor={SecondaryMonacoEditor}
+					readOnly={isReadOnly}
 				/>
 			{:else}
 				<div class="flex h-full min-h-0 flex-col">
