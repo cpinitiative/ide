@@ -16,6 +16,7 @@
 	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
 	import { computePermission } from '$lib/utils';
+	import { updateProfile } from 'firebase/auth';
 
 	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
@@ -46,6 +47,8 @@
 
 	const firebaseUserId = $derived(firebaseUser.uid);
 	const fileId = $derived(fileData.id);
+	const userPermission = $derived(computePermission(fileData, firebaseUserId));
+	const isReadOnly = $derived(userPermission === 'READ');
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
@@ -95,19 +98,19 @@
 		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
 	};
 
-	const onUpdateUserSettings = (newUserData: UserData, newFileSettings: FileSettings) => {
+	const onUpdateUserSettings = (newUserData: UserData, newFileSettings: FileSettings, newUsername: string) => {
 		update(ref(database, `users/${firebaseUserId}/data`), newUserData).catch((error) => {
 			alert('Error updating user data: ' + error);
 		});
-		// TODO: only if the user has permission to edit the file
-		update(ref(database, `files/${fileId}/settings`), newFileSettings)
-			.catch((error) => {
-				alert('Error updating file settings: ' + error);
-			});
+		if (!isReadOnly) {
+			update(ref(database, `files/${fileId}/settings`), newFileSettings)
+				.catch((error) => {
+					alert('Error updating file settings: ' + error);
+				});
+		}
+		updateProfile(firebaseUser, { displayName: newUsername });
 	};
 
-	let userPermission = $derived(computePermission(fileData, firebaseUserId));
-	let isReadOnly = $derived(userPermission === 'READ');
 	let outputPaneValue = $derived.by(() => {
 		if (outputPaneTab === 'stdout') {
 			return judgeState.result?.execute?.stdout ?? '';
@@ -123,13 +126,15 @@
 
 	// All of these need to be derived to prevent unnecessary re-renders when
 	// fileData's reference changes but the values do not.
-	let language = $derived(fileData.settings.language);
-	let editorMode = $derived(userData.editorMode);
-	let mainDocumentId = $derived(`${fileData.id}.${fileData.settings.language}`);
-	let inputDocumentId = $derived(`${fileData.id}.input`);
-	let scribbleDocumentId = $derived(`${fileData.id}.scribble`);
-	let userId = $derived(firebaseUser.uid);
-	let compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
+	const language = $derived(fileData.settings.language);
+	const editorMode = $derived(userData.editorMode);
+	const mainDocumentId = $derived(`${fileData.id}.${fileData.settings.language}`);
+	const inputDocumentId = $derived(`${fileData.id}.input`);
+	const scribbleDocumentId = $derived(`${fileData.id}.scribble`);
+	const userId = $derived(firebaseUser.uid);
+	const compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
+	const theme = $derived(userData.theme);
+	const tabSize = $derived(userData.tabSize);
 </script>
 
 <Layout>
@@ -156,6 +161,8 @@
 			{language}
 			{compilerOptions}
 			{editorMode}
+			{theme}
+			{tabSize}
 			Editor={MainMonacoEditor}
 			bind:this={mainEditor}
 			readOnly={isReadOnly}
@@ -214,6 +221,7 @@
 	bind:this={settingsDialog}
 	{userPermission}
 	{userData}
+	{firebaseUser}
 	fileSettings={fileData.settings}
 	onSave={onUpdateUserSettings}
 />

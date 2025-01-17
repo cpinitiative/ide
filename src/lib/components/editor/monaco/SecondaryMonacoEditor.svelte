@@ -48,7 +48,7 @@
 			untrack(() => editorElement),
 			{
 				...baseEditorOptions,
-				language
+				language,
 			}
 		);
 

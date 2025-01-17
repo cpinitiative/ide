@@ -8,6 +8,7 @@ import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
 	language: Language,
+	theme: 'light' | 'dark',
 	compilerOptions?: string,
 	editorOptions?: monaco.editor.IStandaloneEditorConstructionOptions
 ): WrapperConfig => {
@@ -36,7 +37,7 @@ export const getMonacoWrapperConfig = (
 			},
 			userConfiguration: {
 				json: JSON.stringify({
-					'workbench.colorTheme': 'Default Dark Modern',
+					'workbench.colorTheme': theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
 					'editor.guides.bracketPairsHorizontal': 'active',
 					'editor.lightbulb.enabled': 'On',
 					'editor.wordBasedSuggestions': 'off',
@@ -109,5 +110,6 @@ export const getMonacoWrapperConfig = (
 
 export const baseEditorOptions = {
 	glyphMargin: false,
-	automaticLayout: true
+	automaticLayout: true,
+	detectIndentation: false
 };

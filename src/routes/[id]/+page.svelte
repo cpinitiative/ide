@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { FileData, UserData } from '$lib/types';
-	import { onValue, ref, remove, serverTimestamp, set } from 'firebase/database';
+	import { onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database';
 	import IDE from './IDE.svelte';
 	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import { computePermission } from '$lib/utils';
@@ -38,12 +38,20 @@
 		const userDataRef = ref(database, `users/${authState.firebaseUser.uid}/data`);
 		const unsubscribeUserData = onValue(userDataRef, (snapshot) => {
 			userData = {
-				editorMode: 'normal'
+				editorMode: 'normal',
+				tabSize: 4,
+				theme: 'dark'
 			};
 
 			const data = snapshot.val();
 			if (data.editorMode === 'vim' || data.editorMode === 'normal') {
 				userData.editorMode = data.editorMode;
+			}
+			if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
+				userData.tabSize = data.tabSize;
+			}
+			if (data.theme === 'light' || data.theme === 'dark') {
+				userData.theme = data.theme;
 			}
 		});
 
@@ -87,7 +95,7 @@
 		if (userPermission === 'PRIVATE') {
 			remove(fileRef);
 		} else {
-			set(fileRef, {
+			update(fileRef, {
 				title: workspaceName || '',
 				lastAccessTime: serverTimestamp(),
 				creationTime: creationTime,

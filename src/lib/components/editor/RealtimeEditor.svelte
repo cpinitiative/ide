@@ -13,6 +13,7 @@
 	export type EditorProps = {
 		theme?: 'dark' | 'light';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
+		tabSize?: number;
 		// Optional compiler options for the LSP
 		compilerOptions?: string;
 		readOnly?: boolean;

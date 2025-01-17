@@ -32,6 +32,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 
 <script lang="ts" module>
 	import * as monaco from 'monaco-editor';
+	import * as vscode from 'vscode';
 
 	// PRIVATE: do not access this outside this <script module> block!
 	// We must keep _monacoWrapper.isStarting() and _monacoWrapper.isStopping() in sync with mainMonacoState.
@@ -46,6 +47,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	const createMainMonacoWrapper = async (
 		language: Language,
 		compilerOptions: string,
+		theme: 'light' | 'dark',
 		readOnly: boolean,
 		editorElement: HTMLElement,
 		statusbarElement: HTMLElement
@@ -55,7 +57,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		}
 		_monacoWrapper = new MonacoEditorLanguageClientWrapper();
 
-		const monacoWrapperConfig = getMonacoWrapperConfig(language, compilerOptions, {
+		const monacoWrapperConfig = getMonacoWrapperConfig(language, theme, compilerOptions, {
 			...baseEditorOptions,
 			language,
 			readOnly
@@ -119,6 +121,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		readOnly = false,
 		compilerOptions,
 		editorMode,
+		tabSize,
+		theme = 'dark',
 
 		yjsInfo
 	}: EditorProps = $props();
@@ -157,6 +161,12 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			throw new Error('Main monaco editor language cannot be plaintext');
 		}
 
+		// Rerun when compilerOptions changes.
+		// Do not rerun when readOnly or theme change, since they are handled separately.
+		// Do not rerun when editorElement or statusbarElement changes, since they are dom elements.
+		// Dependencies are not tracked inside callbacks.
+		compilerOptions;
+
 		// Note: It's possible this will crash if this effect reruns many times
 		// in a row, faster than we can create / dispose the monaco wrapper.
 
@@ -172,9 +182,10 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			createMainMonacoWrapper(
 				language,
 				compilerOptions ?? '',
-				untrack(() => readOnly), // handled separately
-				untrack(() => editorElement), // ignore dom changes
-				untrack(() => statusbarElement) // ignore dom changes
+				theme,
+				readOnly,
+				editorElement,
+				statusbarElement
 			).then((_editor) => {
 				if (!isAlive) {
 					throw new Error('Monaco editor changed before it finished initializing');
@@ -191,6 +202,30 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		editor.updateOptions({
 			readOnly
 		});
+	});
+
+	$effect(() => {
+		if (!editor) return;
+
+		vscode.workspace
+			.getConfiguration()
+			.update(
+				'workbench.colorTheme',
+				theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
+				vscode.ConfigurationTarget.Global
+			);
+	});
+
+	$effect(() => {
+		if (!editor) return;
+
+		vscode.workspace
+			.getConfiguration()
+			.update(
+				'editor.tabSize',
+				tabSize,
+				vscode.ConfigurationTarget.Global
+			);
 	});
 
 	$effect(() => {
@@ -240,7 +275,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		const interval = setInterval(() => {
 			const value = editor?.getValue();
 			if (!value) return;
-			
+
 			// Only save files < 15kb in size
 			if (value.length < 15000) {
 				let data = localStorage.getItem('editorHistory') ?? '[]';
@@ -251,11 +286,12 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 				}
 				parsedData.push(value);
 
-				if (data.length > 4 * 1024 * 1024) { // save at most 4MB of data
+				if (data.length > 4 * 1024 * 1024) {
+					// save at most 4MB of data
 					// Remove oldest 1/3 of entries to stay under storage limit
 					parsedData = parsedData.slice(Math.floor(parsedData.length / 3));
 				}
-				
+
 				localStorage.setItem('editorHistory', JSON.stringify(parsedData));
 			}
 		}, 10000);

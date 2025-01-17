@@ -10,6 +10,8 @@
 	import Server from 'lucide-svelte/icons/server';
 	import X from 'lucide-svelte/icons/x';
 	import { LANGUAGES, type FileSettings, type Language, type UserData } from '$lib/types';
+	import type { User as FirebaseUser } from 'firebase/auth';
+	import TextField from './TextField.svelte';
 
 	const {
 		elements: { trigger, overlay, content, title, description, close, portalled },
@@ -18,27 +20,37 @@
 		forceVisible: true
 	});
 
-	export const open = () => {
-		meltUiOpen.set(true);
-	};
-
 	const {
+		firebaseUser,
 		userPermission,
 		userData,
 		fileSettings,
 		onSave
 	}: {
+		firebaseUser: FirebaseUser;
 		userPermission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
 		userData: UserData;
 		fileSettings: FileSettings;
-		onSave: (newUserData: UserData, newFileSettings: FileSettings) => void;
+		onSave: (newUserData: UserData, newFileSettings: FileSettings, newUsername: string) => void;
 	} = $props();
 
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
+		let tabSize: 2 | 4 | 8;
+		try {
+			tabSize = parseInt(formData.get('tabSize') as string) as 2 | 4 | 8;
+		} catch (e) {
+			alert('Invalid tab size value of ' + formData.get('tabSize'));
+			return;
+		}
 		const newUserData = {
-			editorMode: formData.get('editorMode') as 'normal' | 'vim'
+			editorMode: formData.get('editorMode') as 'normal' | 'vim',
+			tabSize,
+			theme: formData.get('theme') as 'light' | 'dark',
+
+			// deprecated: for compatibility with old IDE only
+			lightMode: formData.get('theme') === 'light'
 		};
 		let newFileSettings = {
 			...fileSettings,
@@ -49,12 +61,17 @@
 		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
 			'compiler_options'
 		) as string;
-		onSave(newUserData, newFileSettings);
+		onSave(newUserData, newFileSettings, formData.get('username') as string);
 		meltUiOpen.set(false);
 	};
 
 	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
 	let selectedLanguage: Language = $state(fileSettings.language);
+
+	export const open = () => {
+		meltUiOpen.set(true);
+		activeTab = 'workspace';
+	};
 </script>
 
 {#if $meltUiOpen}
@@ -95,24 +112,17 @@
 				</div>
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
-					<p class="text-sm text-gray-500" class:hidden={activeTab === 'workspace'}>
+					<p class="text-sm text-gray-500" class:hidden={activeTab !== 'judge'}>
 						Work In Progress: Much of the functionality is still being ported over to the new site.
 					</p>
 
 					<div class:hidden={activeTab !== 'workspace'}>
-						<label for="workspaceName" class="block font-medium text-gray-700">
-							Workspace Name
-						</label>
-						<div class="mt-1">
-							<input
-								type="text"
-								name="workspaceName"
-								id="workspaceName"
-								class="mt-0 block w-full border-0 border-b-2 border-gray-200 px-0 pt-0 pb-1 text-sm text-black focus:border-black focus:ring-0"
-								defaultValue={fileSettings.workspaceName || ''}
-								readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-							/>
-						</div>
+						<TextField
+							label="Workspace Name"
+							name="workspaceName"
+							defaultValue={fileSettings.workspaceName || ''}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+						/>
 					</div>
 					<div class:hidden={activeTab !== 'workspace'}>
 						<div class="mb-2 font-medium text-gray-800">Language</div>
@@ -127,23 +137,14 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'workspace'}>
-						<label for="compilerOptions" class="block font-medium text-gray-700">
-							{LANGUAGES[selectedLanguage]} Compiler Options
-						</label>
-						<div class="mt-1">
-							{#key selectedLanguage}
-								<!-- Rerender when selectedLanguage changes to reset the value -->
-								<input
-									type="text"
-									name="compiler_options"
-									id="compiler_options"
-									class="mt-0 block w-full border-0 border-b-2 border-gray-200 px-0 pt-0 pb-1 font-mono text-sm text-black focus:border-black focus:ring-0"
-									defaultValue={fileSettings.compilerOptions[selectedLanguage]}
-									placeholder="None"
-									readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-								/>
-							{/key}
-						</div>
+						<TextField
+							label={`${LANGUAGES[selectedLanguage]} Compiler Options`}
+							name="compiler_options"
+							defaultValue={fileSettings.compilerOptions[selectedLanguage]}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+							placeholder="None"
+							className="font-mono"
+						/>
 					</div>
 
 					<div class:hidden={activeTab !== 'workspace'}>
@@ -162,6 +163,14 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
+						<TextField
+							label="User Name"
+							name="username"
+							defaultValue={firebaseUser.displayName || ''}
+						/>
+					</div>
+
+					<div class:hidden={activeTab !== 'user'}>
 						<div class="mb-2 font-medium text-gray-800">Editor Mode</div>
 						<RadioGroup
 							name="editorMode"
@@ -171,6 +180,27 @@
 						/>
 					</div>
 
+					<div class:hidden={activeTab !== 'user'}>
+						<div class="mb-2 font-medium text-gray-800">Tab Size</div>
+						<RadioGroup
+							name="tabSize"
+							defaultValue={userData.tabSize.toString()}
+							options={{ 2: '2', 4: '4', 8: '8' }}
+							theme="dark"
+						/>
+					</div>
+
+					<div class:hidden={activeTab !== 'user'}>
+						<div class="mb-2 font-medium text-gray-800">Theme</div>
+						<RadioGroup
+							name="theme"
+							defaultValue={userData.theme}
+							options={{ light: 'Light', dark: 'Dark' }}
+							theme="dark"
+						/>
+					</div>
+
+
 					<div class="mt-6 flex items-center space-x-4">
 						<button
 							type="button"
@@ -179,14 +209,12 @@
 						>
 							Cancel
 						</button>
-						{#if userPermission === 'OWNER' || userPermission === 'READ_WRITE'}
-							<button
-								type="submit"
-								class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-							>
-								Save
-							</button>
-						{/if}
+						<button
+							type="submit"
+							class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+						>
+							Save
+						</button>
 					</div>
 				</form>
 
