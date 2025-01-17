@@ -1,8 +1,0 @@
-.next
-package.json
-yarn.lock
-public
-node_modules
-patches
-types/monaco.d.ts
-types/react-split-grid.d.ts
