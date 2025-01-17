@@ -52,6 +52,13 @@ Infrastructure monitoring is generously provided by Datadog's OSS program.
 
 <img src="./public/dd_logo_v_rgb.svg" width="200" />
 
+## Updating VSCode
+
+We use TypeFox's monaco-langaugeclient, which internally uses codingame's monaco-vscode packages. To update monaco-languageclient:
+
+1. Consult the [Changelog](https://github.com/TypeFox/monaco-languageclient/blob/main/packages/wrapper/CHANGELOG.md)
+2. Test that the language client still works, and that the EOL patch still works.
+
 ## Contact Info
 
 If you have any questions, please open an issue or reach out to us at usacoguide@gmail.com.

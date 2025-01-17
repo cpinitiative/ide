@@ -4,6 +4,7 @@ import type { WrapperConfig } from 'monaco-editor-wrapper';
 
 import getKeybindingsServiceOverride from '@codingame/monaco-vscode-keybindings-service-override';
 import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-bar-service-override';
+import getStorageServiceOverride from '@codingame/monaco-vscode-storage-service-override';
 import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
@@ -33,7 +34,8 @@ export const getMonacoWrapperConfig = (
 			},
 			serviceOverrides: {
 				...getKeybindingsServiceOverride(),
-				...getStatusBarServiceOverride()
+				...getStatusBarServiceOverride(),
+				...getStorageServiceOverride()
 			},
 			userConfiguration: {
 				json: JSON.stringify({
