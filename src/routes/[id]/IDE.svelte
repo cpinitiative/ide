@@ -16,6 +16,7 @@
 	import { computePermission } from '$lib/utils';
 	import { updateProfile } from 'firebase/auth';
 	import { type Component, onMount } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 
 	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
@@ -141,6 +142,8 @@
 		})();
 	});
 
+	const useMobileLayout = new MediaQuery('(max-width: 1023px)');
+
 	// All of these need to be derived to prevent unnecessary re-renders when
 	// fileData's reference changes but the values do not.
 	const language = $derived(fileData.settings.language);
@@ -154,7 +157,7 @@
 	const tabSize = $derived(userData.tabSize);
 </script>
 
-<Layout>
+<Layout layout={useMobileLayout.current ? 'mobile' : 'desktop'}>
 	{#snippet navbar()}
 		<IDENavbar showViewOnlyMessage={isReadOnly}>
 			{#snippet fileMenu()}
