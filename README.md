@@ -50,7 +50,7 @@ You can update the Firebase configuration (if you want to use a custom firebase 
 
 Infrastructure monitoring is generously provided by Datadog's OSS program.
 
-<img src="./public/dd_logo_v_rgb.svg" width="200" />
+<img src="./src/lib/assets/datadog-logo-rgb.svg" width="200" />
 
 ## Updating VSCode
 

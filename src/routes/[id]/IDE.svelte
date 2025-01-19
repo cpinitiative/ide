@@ -1,5 +1,4 @@
 <script lang="ts">
-	import MonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
 	import Layout from '$lib/components/IDELayout.svelte';
 	import type { FileData, FileSettings, JudgeResponse, UserData } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
@@ -12,11 +11,11 @@
 	import SettingsDialog from '$lib/components/SettingsDialog/SettingsDialog.svelte';
 	import { downloadFile } from './utils';
 	import { ref, update } from 'firebase/database';
-	import SecondaryMonacoEditor from '$lib/components/editor/monaco/SecondaryMonacoEditor.svelte';
-	import MainMonacoEditor from '$lib/components/editor/monaco/MainMonacoEditor.svelte';
 	import OutputStatusBar from '$lib/components/OutputStatusBar.svelte';
+	import EditorLoadingPlaceholder from '$lib/components/editor/EditorLoadingPlaceholder.svelte';
 	import { computePermission } from '$lib/utils';
 	import { updateProfile } from 'firebase/auth';
+	import { type Component, onMount } from 'svelte';
 
 	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
@@ -98,15 +97,18 @@
 		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
 	};
 
-	const onUpdateUserSettings = (newUserData: UserData, newFileSettings: FileSettings, newUsername: string) => {
+	const onUpdateUserSettings = (
+		newUserData: UserData,
+		newFileSettings: FileSettings,
+		newUsername: string
+	) => {
 		update(ref(database, `users/${firebaseUserId}/data`), newUserData).catch((error) => {
 			alert('Error updating user data: ' + error);
 		});
 		if (!isReadOnly) {
-			update(ref(database, `files/${fileId}/settings`), newFileSettings)
-				.catch((error) => {
-					alert('Error updating file settings: ' + error);
-				});
+			update(ref(database, `files/${fileId}/settings`), newFileSettings).catch((error) => {
+				alert('Error updating file settings: ' + error);
+			});
 		}
 		updateProfile(firebaseUser, { displayName: newUsername });
 	};
@@ -122,6 +124,21 @@
 			// Scribble editor is a realtime editor which doesn't read from this value.
 			return 'Error';
 		}
+	});
+
+	let PrimaryEditor = $state<Component>(EditorLoadingPlaceholder);
+	let SecondaryEditor = $state<Component>(EditorLoadingPlaceholder);
+
+	onMount(() => {
+		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+		(async () => {
+			PrimaryEditor = isMobile
+				? (await import('$lib/components/editor/codemirror/CodemirrorEditor.svelte')).default
+				: (await import('$lib/components/editor/monaco/MainMonacoEditor.svelte')).default;
+			SecondaryEditor = isMobile
+				? (await import('$lib/components/editor/codemirror/CodemirrorEditor.svelte')).default
+				: (await import('$lib/components/editor/monaco/SecondaryMonacoEditor.svelte')).default;
+		})();
 	});
 
 	// All of these need to be derived to prevent unnecessary re-renders when
@@ -163,7 +180,7 @@
 			{editorMode}
 			{theme}
 			{tabSize}
-			Editor={MainMonacoEditor}
+			Editor={PrimaryEditor}
 			bind:this={mainEditor}
 			readOnly={isReadOnly}
 		/>
@@ -181,7 +198,7 @@
 				{userId}
 				language="plaintext"
 				{editorMode}
-				Editor={SecondaryMonacoEditor}
+				Editor={SecondaryEditor}
 				bind:this={inputEditor}
 				readOnly={isReadOnly}
 			/>
@@ -204,12 +221,12 @@
 					{userId}
 					language="plaintext"
 					{editorMode}
-					Editor={SecondaryMonacoEditor}
+					Editor={SecondaryEditor}
 					readOnly={isReadOnly}
 				/>
 			{:else}
 				<div class="flex h-full min-h-0 flex-col">
-					<MonacoEditor readOnly={true} value={outputPaneValue} {editorMode} />
+					<SecondaryEditor readOnly={true} value={outputPaneValue} {editorMode} />
 					<OutputStatusBar result={judgeState.result} />
 				</div>
 			{/if}
