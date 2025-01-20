@@ -5,9 +5,9 @@
 	let { children } = $props();
 </script>
 
-	<Firebase>
-		{@render children()}
-	</Firebase>
+<Firebase>
+	{@render children()}
+</Firebase>
 
 <!-- <svelte:boundary>
 

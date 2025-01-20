@@ -45,16 +45,9 @@
 		connectDatabaseEmulator(database, 'localhost', 9000);
 	}
 
-	export let authState:
-		| {
-				isLoading: true;
-				firebaseUser: null;
-		  }
-		| {
-				isLoading: false;
-				firebaseUser: User;
-		  } = $state({
-		isLoading: true,
+	export let authState: {
+		firebaseUser: User | null;
+	} = $state({
 		firebaseUser: null
 	});
 
@@ -108,7 +101,6 @@
 	onMount(() => {
 		const unsubscribe = auth.onAuthStateChanged((user) => {
 			if (!user) {
-				authState.isLoading = true;
 				authState.firebaseUser = null;
 
 				signInAnonymously(auth).catch((error) => {
@@ -127,11 +119,9 @@
 							alert('Error updating profile: ' + errorCode + ' ' + errorMessage);
 						})
 						.then(() => {
-							authState.isLoading = false;
 							authState.firebaseUser = user;
 						});
 				} else {
-					authState.isLoading = false;
 					authState.firebaseUser = user;
 				}
 			}

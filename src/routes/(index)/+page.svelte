@@ -21,7 +21,7 @@
 
 			<div class="h-6"></div>
 
-			{#if authState.isLoading}
+			{#if !authState.firebaseUser}
 				<div class="text-gray-400">Loading...</div>
 			{:else}
 				<Dashboard />

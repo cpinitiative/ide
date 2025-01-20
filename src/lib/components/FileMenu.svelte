@@ -70,7 +70,7 @@
 		Download File
 	</button>
 
-	<a use:melt={$item} href={window.location.href + '/clone'} target="_blank" rel="noreferrer" class={menuItemClass}>
+	<a use:melt={$item} href={window.location.href + '/copy'} target="_blank" rel="noreferrer" class={menuItemClass}>
 		<!-- Document Duplicate Icon -->
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

@@ -1,12 +1,4 @@
-<!-- Navbar.svelte -->
 <script lang="ts">
-	// export let fileMenu: HTMLElement;
-	// export let runButton: HTMLElement;
-	// export let showViewOnly: boolean = false;
-	// export let isSidebarOpen: boolean = false;
-	// export let onToggleSidebar: () => void;
-	// export let showSidebarButton: boolean = false;
-
   const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
 
 	let copied = $state(false);

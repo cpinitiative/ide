@@ -25,7 +25,7 @@
 	let username = $state('');
 
 	$effect(() => {
-		if (authState.isLoading) return;
+		if (!authState.firebaseUser) return;
 
 		userID = authState.firebaseUser.uid;
 		username = authState.firebaseUser.displayName ?? 'Unnamed User';
