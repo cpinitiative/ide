@@ -10,7 +10,7 @@ const YJS_SERVER_API = PUBLIC_YJS_SERVER.replace('ws://', 'http://').replace('ws
 export async function POST({ request }) {
 	const { idToken, fileId } = await request.json();
 
-	if (!idToken || !fileId || !isFirebaseId('-' + fileId)) {
+	if (!idToken || !fileId || !isFirebaseId(fileId)) {
 		return json(
 			{
 				message: 'Bad data'
@@ -33,7 +33,7 @@ export async function POST({ request }) {
 	const uid = decodedToken.uid;
 	const displayName = decodedToken.name;
 
-	const fileDataResp = await getDatabase(firebaseApp).ref(`files/-${fileId}`).get();
+	const fileDataResp = await getDatabase(firebaseApp).ref(`files/${fileId}`).get();
 	const fileData = await fileDataResp.val();
 	if (!fileData) {
 		return json(
@@ -85,7 +85,7 @@ export async function POST({ request }) {
 			},
 			body: JSON.stringify({
 				securityKey: process.env.YJS_SECURITY_KEY,
-				sourceFile: `-${fileId}.${key}`,
+				sourceFile: `${fileId}.${key}`,
 				targetFile: `${newFileId}.${key}`
 			})
 		})
@@ -93,12 +93,12 @@ export async function POST({ request }) {
 			.then((resp) => {
 				// it's ok if source file doesn't exist -- maybe the file only had Java and not C++
 				if (resp !== 'OK' && resp !== "Source file doesn't exist") {
-					throw new Error('Failed to copy file ' + `-${fileId}.${key}` + ': ' + resp);
+					throw new Error('Failed to copy file ' + `${fileId}.${key}` + ': ' + resp);
 				}
 			});
 	});
 
 	await Promise.all([ref, ...copyYjsPromies]);
 
-	return json({ fileId: newFileId.substr(1) }, { status: 201 });
+	return json({ fileId: newFileId.substring(1) }, { status: 201 });
 }
