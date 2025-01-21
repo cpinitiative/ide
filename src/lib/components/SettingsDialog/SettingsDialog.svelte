@@ -1,5 +1,3 @@
-<!-- TODO: rewrite this component. It shouldn't have state if it is under the lib/ directory. -->
-
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { fade } from 'svelte/transition';

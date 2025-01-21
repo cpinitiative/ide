@@ -54,7 +54,7 @@
 	/**
 	 * Opens a popup to sign in with Google.
 	 */
-	export const signInWithGoogle = () => {
+	export const signInWithGoogle = (confirmDataOverride: () => Promise<boolean>) => {
 		if (!authState.firebaseUser) {
 			throw new Error(
 				'Firebase user is null. Make sure authState.isLoading() is false before calling signInWithGoogle().'
@@ -63,7 +63,7 @@
 
 		const provider = new GoogleAuthProvider();
 
-		if (PUBLIC_USE_FIREBASE_EMULATORS) {
+		if (PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
 			// Note: for some reason firebase emulator does not work with `linkWithPopup`
 			// so we're just going to always sign up with popup instead.
 			signInWithPopup(auth, provider);
@@ -77,7 +77,15 @@
 				.catch((error) => {
 					if (error.code === 'auth/credential-already-in-use') {
 						// User already has an account. Sign in to that account and override our data.
-						signInWithCredential(auth, error.credential);
+						confirmDataOverride().then((override) => {
+							if (override) {
+								const credential = GoogleAuthProvider.credentialFromError(error);
+								if (!credential) {
+									throw new Error('No credential found in error');
+								}
+								signInWithCredential(auth, credential);
+							}
+						});
 					} else {
 						throw error;
 					}

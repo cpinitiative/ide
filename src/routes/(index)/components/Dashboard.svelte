@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { ref, onValue, set, off, orderByChild, query } from 'firebase/database';
+	import { ref, onValue, orderByChild, query } from 'firebase/database';
 	import { authState, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
 	import { database } from '$lib/firebase/firebase.svelte';
 	import type { UserFile } from '$lib/types';
 	import { isFirebaseId } from '$lib/utils';
 	import FilesList from './FilesList.svelte';
+	import ConfirmOverrideAuthDialog from '$lib/components/ConfirmOverrideAuthDialog.svelte';
 
 	const firebaseUser = $derived.by(() => {
 		if (!authState.firebaseUser) {
@@ -49,6 +50,14 @@
 
 		return unsubscribe;
 	});
+
+	let confirmOverrideAuthDialog: ConfirmOverrideAuthDialog | undefined = $state(undefined);
+	const onSignIn = () => {
+		signInWithGoogle(async () => {
+			let override = await confirmOverrideAuthDialog?.open() ?? false;
+			return override;
+		});
+	};
 </script>
 
 <div>
@@ -66,7 +75,7 @@
 			Not signed in.{' '}
 			<button
 				class="p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none cursor-pointer"
-				onclick={signInWithGoogle}
+				onclick={onSignIn}
 			>
 				Sign in now
 			</button>
@@ -114,3 +123,5 @@
 		<div class="text-gray-400">Loading files...</div>
 	{/if}
 </div>
+
+<ConfirmOverrideAuthDialog bind:this={confirmOverrideAuthDialog} />
