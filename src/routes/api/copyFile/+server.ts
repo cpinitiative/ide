@@ -4,6 +4,7 @@ import { json } from '@sveltejs/kit';
 import { getAuth } from 'firebase-admin/auth';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { PUBLIC_YJS_SERVER } from '$env/static/public';
+import { YJS_SECURITY_KEY } from '$env/static/private';
 
 const YJS_SERVER_API = PUBLIC_YJS_SERVER.replace('ws://', 'http://').replace('wss://', 'https://');
 
@@ -84,7 +85,7 @@ export async function POST({ request }) {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				securityKey: process.env.YJS_SECURITY_KEY,
+				securityKey: YJS_SECURITY_KEY,
 				sourceFile: `${fileId}.${key}`,
 				targetFile: `${newFileId}.${key}`
 			})

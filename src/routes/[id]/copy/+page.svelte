@@ -35,7 +35,7 @@
 					cause: data
         });
 			} else {
-				goto(`/${data.fileID}`);
+				goto(`/${data.fileId}`);
 			}
 		} catch (e) {
 			console.error("Failed to copy file", e, e instanceof Error ? e.cause : null);
