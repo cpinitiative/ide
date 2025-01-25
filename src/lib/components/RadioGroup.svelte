@@ -13,7 +13,7 @@
 		readonly = false
 	}: {
 		// name of hidden input
-		name: string;
+		name?: string;
 
 		// map of value: label
 		options: { [key: string]: string };
@@ -75,5 +75,7 @@
 			</label>
 		</div>
 	{/each}
-	<input {name} use:melt={$hiddenInput} />
+	{#if name}
+		<input {name} use:melt={$hiddenInput} />
+	{/if}
 </div>

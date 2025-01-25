@@ -6,6 +6,7 @@
 	import { isFirebaseId } from '$lib/utils';
 	import FilesList from './FilesList.svelte';
 	import ConfirmOverrideAuthDialog from '$lib/components/ConfirmOverrideAuthDialog.svelte';
+	import RadioGroup from '$lib/components/RadioGroup.svelte';
 
 	const firebaseUser = $derived.by(() => {
 		if (!authState.firebaseUser) {
@@ -17,44 +18,45 @@
 	});
 
 	let files: UserFile[] | null = $state(null);
-  let showHidden = $state(false);
+	let showHidden = $state<'yes' | 'no'>('no');
 
 	$effect(() => {
 		const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
-		const unsubscribe = onValue(
-			query(userFilesRef, orderByChild('lastAccessTime')),
-			(snapshot) => {
-				if (!snapshot.exists()) {
-					files = [];
-				} else {
-					const newFiles: UserFile[] = [];
+		const unsubscribe = onValue(query(userFilesRef, orderByChild('lastAccessTime')), (snapshot) => {
+			if (!snapshot.exists()) {
+				files = [];
+			} else {
+				const newFiles: UserFile[] = [];
 
-					snapshot.forEach((childSnapshot) => {
-						const data = childSnapshot.val();
-						const key = childSnapshot.key;
-						if (key) {
-							if (!showHidden && data.hidden) return;
-							if (isFirebaseId(key)) {
-								newFiles.push({
-									id: key,
-									...data
-								});
-							}
+				snapshot.forEach((childSnapshot) => {
+					const data = childSnapshot.val();
+					const key = childSnapshot.key;
+					if (key) {
+						if (isFirebaseId(key)) {
+							newFiles.push({
+								id: key,
+								...data
+							});
 						}
-					});
+					}
+				});
 
-					files = newFiles.reverse();
-				}
-			},
-		);
+				files = newFiles.reverse();
+			}
+		});
 
 		return unsubscribe;
+	});
+
+	let filesToShow = $derived.by(() => {
+		if (showHidden === 'yes') return files;
+		return files?.filter((file) => !file.hidden);
 	});
 
 	let confirmOverrideAuthDialog: ConfirmOverrideAuthDialog | undefined = $state(undefined);
 	const onSignIn = () => {
 		signInWithGoogle(async () => {
-			let override = await confirmOverrideAuthDialog?.open() ?? false;
+			let override = (await confirmOverrideAuthDialog?.open()) ?? false;
 			return override;
 		});
 	};
@@ -74,7 +76,7 @@
 		<div class="mt-6 text-gray-400">
 			Not signed in.{' '}
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none cursor-pointer"
+				class="cursor-pointer p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none"
 				onclick={onSignIn}
 			>
 				Sign in now
@@ -84,7 +86,7 @@
 		<div class="mt-6 text-gray-400">
 			Signed in as {firebaseUser.displayName}.
 			<button
-				class="p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none cursor-pointer"
+				class="cursor-pointer p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none"
 				onclick={signOut}
 			>
 				Sign Out
@@ -95,29 +97,21 @@
 	<div class="h-12"></div>
 
 	<h2 class="text-2xl font-black text-gray-100 md:text-4xl">Your Workspaces</h2>
-
 	<div class="h-6"></div>
-	<!-- <RadioGroupContents
-    title="Show Hidden Files?"
-    value={showHidden}
-    onChange={(value) => showHidden = value}
-    options={[
-      {
-        label: 'Yes',
-        value: true,
-      },
-      {
-        label: 'No',
-        value: false,
-      },
-    ]}
-    lightMode
-  /> -->
-	<!-- <div class="h-6"></div> -->
 
-	{#if files && files.length > 0}
-		<FilesList {files} />
-	{:else if files}
+	<div class="mb-2 font-medium">Show Hidden Files?</div>
+	<RadioGroup
+		bind:value={showHidden}
+		options={{
+			yes: 'Yes',
+			no: 'No'
+		}}
+	/>
+	<div class="h-6"></div>
+
+	{#if filesToShow && filesToShow.length > 0}
+		<FilesList files={filesToShow} />
+	{:else if filesToShow && filesToShow.length === 0}
 		<div class="text-gray-400">No files found. Create a new file above!</div>
 	{:else}
 		<div class="text-gray-400">Loading files...</div>

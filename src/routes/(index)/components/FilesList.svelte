@@ -4,6 +4,8 @@
 	dayjs.extend(relativeTime);
 
 	import type { UserFile } from '$lib/types';
+	import { authState, database } from '$lib/firebase/firebase.svelte';
+	import { ref, update } from 'firebase/database';
 
 	const { files }: { files: UserFile[] } = $props();
 
@@ -15,8 +17,9 @@
 	}
 
 	async function handleToggleHideFile(file: UserFile) {
-		// TODO: Implement firebase functionality
-		// This needs to be implemented based on your firebase setup in Svelte
+		if (!authState.firebaseUser) return;
+    const fileRef = ref(database, `users/${authState.firebaseUser.uid}/files/${file.id}`);
+    await update(fileRef, { hidden: !file.hidden });
 	}
 
 	function formatLanguage(language: string | null): string {
