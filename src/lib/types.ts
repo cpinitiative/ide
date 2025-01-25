@@ -36,6 +36,8 @@ export type UserData = {
 	editorMode: 'normal' | 'vim';
 	tabSize: 2 | 4 | 8;
 	theme: 'light' | 'dark';
+	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
+	defaultLanguage: Language;
 };
 
 /**
@@ -118,4 +120,37 @@ export interface JudgeResponse {
 
 	// null if the program failed to compile
 	execute: ExecuteResponse | null;
+}
+
+/* USACO Problem Data */
+export type ProblemData = {
+	id: number;
+	submittable: boolean;
+	url: string;
+	source: string;
+	title: string;
+	input: string;
+	output: string;
+	samples: Sample[];
+};
+
+export interface Sample {
+	input: string;
+	output: string;
+}
+
+export interface TestCase {
+	title: string;
+	trialNum: string;
+	symbol: string;
+	memory: string;
+	time: string;
+}
+
+export interface StatusData {
+	statusText?: string;
+	message?: string;
+	statusCode: number;
+	testCases?: TestCase[];
+	output?: string;
 }

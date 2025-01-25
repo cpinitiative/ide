@@ -40,7 +40,9 @@
 			userData = {
 				editorMode: 'normal',
 				tabSize: 4,
-				theme: 'dark'
+				theme: 'dark',
+				defaultPermission: 'READ_WRITE',
+				defaultLanguage: 'cpp'
 			};
 
 			const data = snapshot.val();
@@ -53,6 +55,12 @@
 				}
 				if (data.theme === 'light' || data.theme === 'dark') {
 					userData.theme = data.theme;
+				}
+				if (data.defaultPermission === 'READ_WRITE' || data.defaultPermission === 'READ' || data.defaultPermission === 'PRIVATE') {
+					userData.defaultPermission = data.defaultPermission;
+				}
+				if (data.defaultLanguage === 'cpp' || data.defaultLanguage === 'java' || data.defaultLanguage === 'py') {
+					userData.defaultLanguage = data.defaultLanguage;
 				}
 			}
 		});

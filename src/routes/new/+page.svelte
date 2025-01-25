@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import RadioGroup from '$lib/components/RadioGroup.svelte';
-	import { authState } from '$lib/firebase/firebase.svelte';
+	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import { LANGUAGES, type Language } from '$lib/types';
+	import { get, ref, update } from 'firebase/database';
 	import generateRandomFileName from './generateRandomFileName';
 
 	let { form } = $props();
 
 	let lang: Language = $state('cpp');
 	let compilerOptions: string = $state('');
+	let defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE' = $state('READ_WRITE');
 	let creating = $state(false);
 
 	const DEFAULT_COMPILER_OPTIONS = {
@@ -29,6 +31,23 @@
 
 		userID = authState.firebaseUser.uid;
 		username = authState.firebaseUser.displayName ?? 'Unnamed User';
+		
+		const userDataRef = ref(database, `users/${authState.firebaseUser.uid}/data`);
+		let isAlive = true;
+		get(userDataRef).then((snapshot) => {
+			if (!isAlive) return;
+			const data = snapshot.val();
+			if (data) {
+				if (data.defaultPermission === 'READ_WRITE' || data.defaultPermission === 'READ' || data.defaultPermission === 'PRIVATE') {
+					defaultPermission = data.defaultPermission;
+				}
+				if (data.defaultLanguage === 'cpp' || data.defaultLanguage === 'java' || data.defaultLanguage === 'py') {
+					lang = data.defaultLanguage;
+				}
+			}
+		});
+
+		return () => isAlive = false;
 	});
 </script>
 
@@ -44,8 +63,13 @@
 		use:enhance={() => {
 			creating = true;
 
-			return async ({ update }) => {
-				await update();
+			return async ({ update: submitRequest }) => {
+				const userDataRef = ref(database, `users/${authState.firebaseUser!.uid}/data`);
+				await update(userDataRef, {
+					defaultPermission,
+					language: lang
+				});
+				await submitRequest();
 				creating = false;
 			};
 		}}
@@ -78,8 +102,8 @@
 			<div class="mb-6">
 				<div class="mb-2 font-medium text-white">Default Sharing Permissions</div>
 				<RadioGroup
-					name="defaultPermissions"
-					defaultValue="READ_WRITE"
+					name="defaultPermission"
+					bind:value={defaultPermission}
 					options={{
 						READ_WRITE: 'Public Read & Write',
 						READ: 'Public View Only',

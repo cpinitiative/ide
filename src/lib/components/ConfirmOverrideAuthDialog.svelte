@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { fade } from 'svelte/transition';
-	import X from 'lucide-svelte/icons/x';
 	import TriangleAlert from 'lucide-svelte/icons/triangle-alert';
 
 	const {

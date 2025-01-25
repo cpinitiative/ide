@@ -101,5 +101,5 @@ export async function POST({ request }) {
 
 	await Promise.all([ref, ...copyYjsPromies]);
 
-	return json({ fileId: newFileId.substring(1) }, { status: 201 });
+	return json({ fileId: newFileId }, { status: 201 });
 }
