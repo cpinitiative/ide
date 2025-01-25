@@ -48,11 +48,9 @@ export interface FileSettings {
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	workspaceName: string | null;
 	creationTime: string | null; // firebase timetsamp?
-
-	// todo
-	// problem: ProblemData | null;
-
 	language: Language;
+
+	problem: ProblemData | null;
 }
 
 /**

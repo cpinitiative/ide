@@ -68,6 +68,7 @@
 		documentId,
 		userId,
 		Editor,
+		class: className = '',
 		...props
 	}: {
 		documentId: string;
@@ -80,6 +81,8 @@
 		 * The editor component to use
 		 */
 		Editor: Component;
+
+		class?: string;
 	} & Omit<EditorProps, 'yjsInfo'> = $props();
 
 	let yjsInfo: YjsInfo | undefined = $state(undefined);
@@ -179,7 +182,7 @@
 	let isSynced = $derived(connectionStatus !== 'connecting');
 </script>
 
-<div class="tw-forms-disable tw-forms-disable-all-descendants relative h-full">
+<div class={`tw-forms-disable tw-forms-disable-all-descendants relative h-full ${className}`}>
 	<ConnectionStatusIndicator {connectionStatus} />
 	<Editor bind:this={editor} {yjsInfo} {...props} readOnly={isSynced ? props.readOnly : true}
 	></Editor>

@@ -17,13 +17,13 @@
 	import { updateProfile } from 'firebase/auth';
 	import { type Component, onMount } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-
+	import USACOJudgePane from './USACOJudgePane.svelte';
 	const { fileData, userData }: { fileData: FileData; userData: UserData } = $props();
 
 	let mainEditor: RealtimeEditor | undefined = $state(undefined);
 	let inputEditor: RealtimeEditor | undefined = $state(undefined);
 
-	let inputPaneTab = $state('input');
+	let inputPaneTab: 'input' | 'judge' = $state(fileData.settings.problem ? 'judge' : 'input');
 	let outputPaneTab = $state('stdout');
 
 	let settingsDialog: SettingsDialog | undefined = $state(undefined);
@@ -167,8 +167,8 @@
 				<RunButton
 					showLoadingIndicator={judgeState.isRunning}
 					onclick={runCode}
-					disabled={isReadOnly || judgeState.isRunning}
-					title={isReadOnly ? "You can't run code in a view-only document." : undefined}
+					disabled={isReadOnly || judgeState.isRunning || inputPaneTab === 'judge'}
+					title={isReadOnly ? "You can't run code in a view-only document." : inputPaneTab === 'judge' ? "Switch to the input tab to run code." : undefined}
 				/>
 			{/snippet}
 		</IDENavbar>
@@ -192,19 +192,24 @@
 	{#snippet inputPane()}
 		<TabbedPane
 			tabs={{
-				input: 'Input'
+				input: 'Input',
+				...(fileData.settings.problem ? { judge: 'USACO Judge' } : {})
 			}}
 			bind:activeTab={inputPaneTab}
 		>
-			<RealtimeEditor
-				documentId={inputDocumentId}
-				{userId}
-				language="plaintext"
-				{editorMode}
-				Editor={SecondaryEditor}
-				bind:this={inputEditor}
-				readOnly={isReadOnly}
-			/>
+			{#if inputPaneTab === 'input'}
+				<RealtimeEditor
+					documentId={inputDocumentId}
+					{userId}
+					language="plaintext"
+					{editorMode}
+					Editor={SecondaryEditor}
+					bind:this={inputEditor}
+					readOnly={isReadOnly}
+				/>
+			{:else}
+				<USACOJudgePane problem={fileData.settings.problem} />
+			{/if}
 		</TabbedPane>
 	{/snippet}
 
