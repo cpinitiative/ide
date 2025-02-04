@@ -16,13 +16,15 @@ This should be a "dumb", self-contained component that only contains UI logic.
 		mainPane,
 		inputPane,
 		outputPane,
-		layout
+		layout,
+		theme
 	}: {
 		navbar: any;
 		mainPane: any;
 		inputPane: any;
 		outputPane: any;
 		layout: 'mobile' | 'desktop';
+		theme: string;
 	} = $props();
 
 	let verticalGutter: HTMLElement;
@@ -50,9 +52,9 @@ This should be a "dumb", self-contained component that only contains UI logic.
 	let mobileActiveTab = $state<'main' | 'inputOutput'>('main');
 </script>
 
-<div class="h-full">
+<div class="h-full" data-theme={theme}>
 	<div class="flex h-full flex-col">
-		<div class="flex-shrink-0 bg-[#1E1E1E]">
+		<div class="flex-shrink-0 bg-white dark:bg-[#1E1E1E]">
 			{@render navbar()}
 		</div>
 		<div class="min-h-0 flex-1 border-t border-black">
