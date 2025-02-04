@@ -1,5 +1,5 @@
 <script lang="ts">
-  const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
+	const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
 
 	let copied = $state(false);
 
@@ -41,7 +41,7 @@
 		{@render fileMenu()}
 		<button
 			type="button"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
+			class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
 			onclick={handleShare}
 		>
 			<!-- Share Icon -->
@@ -59,7 +59,7 @@
 			{#if copied}URL Copied!{:else}Share{/if}
 		</button>
 	</div>
-  {@render runButton()}
+	{@render runButton()}
 	<div class="flex items-center divide-x divide-neutral-700">
 		<a
 			href="https://github.com/cpinitiative/ide/issues"

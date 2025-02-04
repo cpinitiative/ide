@@ -6,7 +6,7 @@
 
 <button
 	type="button"
-	class="relative inline-flex w-32 flex-shrink-0 items-center bg-indigo-900 px-4 py-2 text-sm font-medium text-white shadow-sm focus:bg-indigo-800 focus:outline-none enabled:hover:bg-indigo-800 disabled:cursor-not-allowed disabled:bg-indigo-900/50 disabled:text-indigo-300/50"
+	class="relative inline-flex w-32 flex-shrink-0 items-center bg-indigo-900 px-4 py-2 text-sm font-medium text-white shadow-sm focus:bg-indigo-800 focus:outline-none enabled:hover:bg-indigo-800 cursor-pointer disabled:cursor-not-allowed disabled:bg-indigo-900/50 disabled:text-indigo-300/50"
   {...props}
 >
 	{#if showLoadingIndicator}
