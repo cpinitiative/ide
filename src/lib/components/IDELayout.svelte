@@ -73,7 +73,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:hidden={layout === 'mobile'}
 				>
 					<div
-						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-black transition group-hover:bg-neutral-600 group-active:bg-neutral-600"
+						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-neutral-200 transition group-hover:bg-neutral-300 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600"
 					></div>
 				</div>
 				<div
@@ -91,7 +91,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:col-span-full={layout === 'mobile'}
 				>
 					<div
-						class={`pointer-events-none absolute w-full bg-black transition group-hover:bg-neutral-600 group-focus:bg-neutral-600 group-active:bg-neutral-600 ${
+						class={`pointer-events-none absolute w-full bg-neutral-200 transition group-hover:bg-neutral-300 group-focus:bg-neutral-600 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600 ${
 							layout === 'desktop'
 								? 'top-[6px] bottom-[6px]'
 								: 'inset-y-0 flex items-center justify-center bg-neutral-800'
