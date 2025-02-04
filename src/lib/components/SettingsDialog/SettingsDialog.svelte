@@ -85,14 +85,12 @@
 				transition:fade={{ duration: 150 }}
 			></div>
 			<div
-				class="inline-block w-full transform overflow-hidden bg-white text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg dark:bg-[#1E1E1E]"
+				class="inline-block w-full transform overflow-hidden bg-white text-left text-gray-800 shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg dark:bg-[#1E1E1E] dark:text-gray-200"
 				use:melt={$content}
 				transition:fade={{ duration: 150 }}
 			>
 				<div class="px-4 pt-4 pb-2 sm:px-6">
-					<h2 use:melt={$title} class="text-center text-lg leading-6 font-medium text-gray-900">
-						Settings
-					</h2>
+					<h2 use:melt={$title} class="text-center text-lg leading-6 font-medium">Settings</h2>
 				</div>
 
 				<div class="border-b border-gray-200">
@@ -127,12 +125,12 @@
 						/>
 					</div>
 					<div class:hidden={activeTab !== 'workspace'}>
-						<div class="mb-2 font-medium text-gray-800">Language</div>
+						<div class="mb-2 font-medium">Language</div>
 						<RadioGroup
 							name="language"
 							defaultValue={fileSettings.language}
 							options={LANGUAGES}
-							theme="dark"
+							theme={userData.theme}
 							bind:value={selectedLanguage}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						/>
@@ -150,7 +148,7 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'workspace'}>
-						<div class="mb-2 font-medium text-gray-800">Default Sharing Permissions</div>
+						<div class="mb-2 font-medium">Default Sharing Permissions</div>
 						<RadioGroup
 							name="defaultPermission"
 							defaultValue={fileSettings.defaultPermission}
@@ -159,7 +157,7 @@
 								READ: 'Public View Only',
 								PRIVATE: 'Private'
 							}}
-							theme="dark"
+							theme={userData.theme}
 							readonly={userPermission !== 'OWNER'}
 						/>
 					</div>
@@ -173,32 +171,32 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
-						<div class="mb-2 font-medium text-gray-800">Editor Mode</div>
+						<div class="mb-2 font-medium">Editor Mode</div>
 						<RadioGroup
 							name="editorMode"
 							defaultValue={userData.editorMode}
 							options={{ normal: 'Normal', vim: 'Vim' }}
-							theme="dark"
+							theme={userData.theme}
 						/>
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
-						<div class="mb-2 font-medium text-gray-800">Tab Size</div>
+						<div class="mb-2 font-medium">Tab Size</div>
 						<RadioGroup
 							name="tabSize"
 							defaultValue={userData.tabSize.toString()}
 							options={{ 2: '2', 4: '4', 8: '8' }}
-							theme="dark"
+							theme={userData.theme}
 						/>
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
-						<div class="mb-2 font-medium text-gray-800">Theme</div>
+						<div class="mb-2 font-medium">Theme</div>
 						<RadioGroup
 							name="theme"
 							defaultValue={userData.theme}
 							options={{ light: 'Light', dark: 'Dark' }}
-							theme="dark"
+							theme={userData.theme}
 						/>
 					</div>
 
@@ -222,7 +220,7 @@
 				<div class="absolute top-0 right-0 pt-4 pr-4">
 					<button
 						type="button"
-						class="cursor-pointer rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+						class="cursor-pointer rounded-md bg-transparent text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 						use:melt={$close}
 					>
 						<span class="sr-only">Close</span>

@@ -64,10 +64,10 @@
 			</button>
 			<label
 				class="inline-block cursor-pointer pl-2 text-sm font-medium"
-				class:text-gray-200={theme === 'light' && $isChecked(option)}
-				class:text-gray-400={theme === 'light' && !$isChecked(option)}
-				class:text-gray-600={theme === 'dark' && !$isChecked(option)}
-				class:text-gray-800={theme === 'dark' && $isChecked(option)}
+				class:text-gray-800={theme === 'light' && $isChecked(option)}
+				class:text-gray-600={theme === 'light' && !$isChecked(option)}
+				class:text-gray-200={theme === 'dark' && !$isChecked(option)}
+				class:text-gray-100={theme === 'dark' && $isChecked(option)}
 				for={option}
 				id="{option}-label"
 			>
