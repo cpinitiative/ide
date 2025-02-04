@@ -49,7 +49,7 @@
 	});
 </script>
 
-<div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'space-x-4 flex'}>
+<div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'flex space-x-4'}>
 	{#each Object.entries(options) as [option, label]}
 		<div class="relative flex items-center focus:outline-none">
 			<button
@@ -63,7 +63,7 @@
 				<span class="h-1.5 w-1.5 rounded-full bg-white"></span>
 			</button>
 			<label
-				class="pl-2 inline-block text-sm font-medium"
+				class="inline-block cursor-pointer pl-2 text-sm font-medium"
 				class:text-gray-200={theme === 'light' && $isChecked(option)}
 				class:text-gray-400={theme === 'light' && !$isChecked(option)}
 				class:text-gray-600={theme === 'dark' && !$isChecked(option)}

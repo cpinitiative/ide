@@ -73,7 +73,11 @@
 </script>
 
 {#if $meltUiOpen}
-	<div use:melt={$portalled} class="no-scrollbar fixed inset-0 z-10 overflow-y-scroll">
+	<div
+		use:melt={$portalled}
+		class="no-scrollbar fixed inset-0 z-10 overflow-y-scroll"
+		data-theme={userData.theme}
+	>
 		<div class="flex min-h-full items-end justify-center pt-4 pb-20 text-center sm:block sm:p-0">
 			<div
 				use:melt={$overlay}
@@ -81,7 +85,7 @@
 				transition:fade={{ duration: 150 }}
 			></div>
 			<div
-				class="inline-block w-full transform overflow-hidden bg-white text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg"
+				class="inline-block w-full transform overflow-hidden bg-white text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg dark:bg-[#1E1E1E]"
 				use:melt={$content}
 				transition:fade={{ duration: 150 }}
 			>
@@ -198,7 +202,6 @@
 						/>
 					</div>
 
-
 					<div class="mt-6 flex items-center space-x-4">
 						<button
 							type="button"
@@ -219,7 +222,7 @@
 				<div class="absolute top-0 right-0 pt-4 pr-4">
 					<button
 						type="button"
-						class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+						class="cursor-pointer rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 						use:melt={$close}
 					>
 						<span class="sr-only">Close</span>
@@ -242,7 +245,7 @@
 		class={(selected
 			? 'border-indigo-500 text-indigo-600'
 			: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700') +
-			' group flex w-1/2 items-center justify-center border-b-2 px-1 py-3 text-sm font-medium focus:outline-none'}
+			' group flex w-1/2 cursor-pointer items-center justify-center border-b-2 px-1 py-3 text-sm font-medium focus:outline-none'}
 		onclick={onClick}
 	>
 		<Icon
