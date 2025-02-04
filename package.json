@@ -13,7 +13,8 @@
 		"lint": "prettier --check . && eslint .",
 		"test:e2e": "playwright test",
 		"test": "npm run test:e2e",
-		"postinstall": "patch-package"
+		"postinstall": "patch-package",
+		"emulators:stop": "lsof -t -i:8080 -i:9000 -i:9099 -i:9199 -i:9090 | xargs kill -9"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.3",

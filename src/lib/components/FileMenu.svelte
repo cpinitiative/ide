@@ -10,14 +10,7 @@
 		}
 	});
 
-	const { onDownloadFile, onOpenSettings } = $props();
-
-	const buttons = [
-		[Plus, 'New File', '/new', null],
-		[Download, 'Download File', null, onDownloadFile],
-		[Files, 'Clone File', `${window.location.href}/copy`, null],
-		[Cog, 'Settings', null, onOpenSettings]
-	];
+	const { onDownloadFile, onOpenSettings, theme } = $props();
 </script>
 
 <button
@@ -43,17 +36,18 @@
 <!-- menu options -->
 <div
 	class="ring-opacity-5 w-56 bg-neutral-200 py-1 shadow-lg focus:outline-none dark:bg-neutral-800"
+	data-theme={theme}
 	use:melt={$menu}
 >
-	{#each buttons as [Icon, text, href, onclick] (text)}
+	{#each [[Plus, 'New File', '/new', null], [Download, 'Download File', null, onDownloadFile], [Files, 'Clone File', `${window.location.href}/copy`, null], [Cog, 'Settings', null, onOpenSettings]] as [Icon, text, href, onclick] (text)}
 		<a
 			use:melt={$item}
 			{href}
 			{onclick}
 			target="_blank"
 			class="group flex w-full cursor-pointer items-center px-4 py-2
-		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-300
-		data-[highlighted]:text-gray-900 dark:bg-neutral-800 dark:text-gray-200 dark:data-[highlighted]:bg-neutral-700 dark:data-[highlighted]:text-gray-100"
+		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-300 data-[highlighted]:text-gray-900
+		dark:bg-neutral-800 dark:text-gray-200 dark:data-[highlighted]:bg-neutral-700 dark:data-[highlighted]:text-gray-100"
 		>
 			<Icon
 				class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"

@@ -161,7 +161,11 @@
 	{#snippet navbar()}
 		<IDENavbar showViewOnlyMessage={isReadOnly}>
 			{#snippet fileMenu()}
-				<FileMenu {onDownloadFile} onOpenSettings={() => settingsDialog?.open()} />
+				<FileMenu
+					{onDownloadFile}
+					onOpenSettings={() => settingsDialog?.open()}
+					theme={userData.theme}
+				/>
 			{/snippet}
 			{#snippet runButton()}
 				<RunButton
