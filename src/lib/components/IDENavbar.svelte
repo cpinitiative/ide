@@ -22,7 +22,7 @@
 	<div class="flex items-center divide-x divide-neutral-700">
 		<a
 			href="/"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
+			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-200 focus:bg-neutral-200 focus:outline-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 		>
 			<!-- Home Icon -->
 			<svg

@@ -47,6 +47,7 @@
 	$effect(() => {
 		value = $meltValue;
 	});
+	console.log('theme: ', theme);
 </script>
 
 <div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'flex space-x-4'}>

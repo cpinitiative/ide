@@ -14,19 +14,20 @@
 		} else if (verdict === Verdict.RuntimeError) {
 			return 'Runtime Error';
 		} else {
-      return verdict;
-    }
+			return verdict;
+		}
 	}
 </script>
 
 <!-- Font family is copied from vscode to match the status bar font. -->
 <div
-	class="pr-4 text-right text-xs text-gray-200 py-1"
+	class="bg-white py-1 pr-4 text-right text-xs text-gray-800 dark:bg-[#1e1e1e] dark:text-gray-200"
 	data-test-id="code-execution-output-status"
-  style="font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,system-ui,Ubuntu,Droid Sans,sans-serif"
+	style="font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,system-ui,Ubuntu,Droid Sans,sans-serif"
 >
 	{#if result?.execute}
-		{formatVerdict(result.execute.verdict)}, {result.execute.wall_time}s, {result.execute.memory_usage}KB
+		{formatVerdict(result.execute.verdict)}, {result.execute.wall_time}s, {result.execute
+			.memory_usage}KB
 	{:else if result?.compile}
 		Compile Error
 	{:else}

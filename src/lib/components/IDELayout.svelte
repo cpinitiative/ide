@@ -91,7 +91,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:col-span-full={layout === 'mobile'}
 				>
 					<div
-						class={`pointer-events-none absolute w-full bg-neutral-200 transition group-hover:bg-neutral-300 group-focus:bg-neutral-600 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600 ${
+						class={`gutter pointer-events-none absolute w-full ${
 							layout === 'desktop'
 								? 'top-[6px] bottom-[6px]'
 								: 'inset-y-0 flex items-center justify-center bg-neutral-800'
@@ -129,13 +129,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 		<!-- Mobile bottom bar -->
 		{#if layout === 'mobile'}
-			<div class="grid grid-cols-2 bg-[#1E1E1E]">
+			<div class="grid grid-cols-2 bg-white dark:bg-[#1E1E1E]">
 				{#each ['main', 'inputOutput'] as const as tab}
 					<button
 						class="flex flex-col items-center py-1 transition focus:outline-none {mobileActiveTab ===
 						tab
-							? 'text-gray-200'
-							: 'text-gray-400'}"
+							? 'text-gray-800 dark:text-gray-200'
+							: 'text-gray-500 dark:text-gray-400'}"
 						onclick={() => (mobileActiveTab = tab)}
 						data-testid="mobile-bottom-nav-{tab}-button"
 					>
@@ -154,9 +154,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 </div>
 
 <style>
+	@reference "../../app.css";
 	.split-grid {
 		display: grid;
 		grid-template-columns: 1fr 3px 1fr;
 		grid-template-rows: 1fr 3px 1fr;
+	}
+	.gutter {
+		@apply bg-neutral-200 transition group-hover:bg-neutral-300 group-focus:bg-neutral-600 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600;
 	}
 </style>
