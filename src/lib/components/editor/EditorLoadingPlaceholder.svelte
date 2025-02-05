@@ -1,4 +1,3 @@
-<div class="h-full w-full flex items-center justify-center">
+<div class="flex h-full w-full items-center justify-center bg-white dark:bg-black">
 	<span class="text-gray-400">Loading editor...</span>
 </div>
-
