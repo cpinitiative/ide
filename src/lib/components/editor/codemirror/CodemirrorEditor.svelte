@@ -78,7 +78,7 @@
 		}
 
 		editorView = new EditorView({
-			doc: value ?? '',
+			doc: yjsInfo?.text.toString() ?? value ?? '',
 			extensions,
 			parent: editorElement
 		});

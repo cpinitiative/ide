@@ -242,7 +242,7 @@
 				/>
 			{:else}
 				<div class="flex h-full min-h-0 flex-col">
-					<SecondaryEditor readOnly={true} value={outputPaneValue} {editorMode} />
+					<SecondaryEditor readOnly={true} language="plaintext" value={outputPaneValue} {editorMode} />
 					<OutputStatusBar result={judgeState.result} />
 				</div>
 			{/if}
