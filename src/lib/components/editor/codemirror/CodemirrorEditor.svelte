@@ -27,6 +27,8 @@
 		yjsInfo
 	}: EditorProps & { value?: string } = $props();
 
+	let editorView: EditorView | undefined = $state(undefined);
+
 	$effect(() => {
 		let extensions = [basicSetup, keymap.of([indentWithTab])];
 		if (editorMode === 'vim') {
@@ -75,7 +77,7 @@
 			extensions.push(EditorState.readOnly.of(true));
 		}
 
-		let editorView = new EditorView({
+		editorView = new EditorView({
 			doc: value ?? '',
 			extensions,
 			parent: editorElement
@@ -92,6 +94,10 @@
 			editorView.destroy();
 		};
 	});
+
+	export const getValue = () => {
+		return editorView?.state.doc.toString();
+	};
 </script>
 
 <div
