@@ -16,13 +16,15 @@ This should be a "dumb", self-contained component that only contains UI logic.
 		mainPane,
 		inputPane,
 		outputPane,
-		layout
+		layout,
+		theme
 	}: {
 		navbar: any;
 		mainPane: any;
 		inputPane: any;
 		outputPane: any;
 		layout: 'mobile' | 'desktop';
+		theme: string;
 	} = $props();
 
 	let verticalGutter: HTMLElement;
@@ -50,12 +52,12 @@ This should be a "dumb", self-contained component that only contains UI logic.
 	let mobileActiveTab = $state<'main' | 'inputOutput'>('main');
 </script>
 
-<div class="h-full">
+<div class="h-full overflow-x-hidden" data-theme={theme}>
 	<div class="flex h-full flex-col">
-		<div class="flex-shrink-0 bg-[#1E1E1E]">
+		<div class="flex-shrink-0 bg-white dark:bg-[#1E1E1E]">
 			{@render navbar()}
 		</div>
-		<div class="min-h-0 flex-1 border-t border-black">
+		<div class="min-h-0 flex-1 border-t border-neutral-100 dark:border-black">
 			<div class="split-grid h-full">
 				<!-- Without min-w-0, we won't be able to reize the pane to make monaco-editor smaller. -->
 				<div
@@ -71,7 +73,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:hidden={layout === 'mobile'}
 				>
 					<div
-						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-black transition group-hover:bg-neutral-600 group-active:bg-neutral-600"
+						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-neutral-200 transition group-hover:bg-neutral-300 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600"
 					></div>
 				</div>
 				<div
@@ -89,7 +91,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:col-span-full={layout === 'mobile'}
 				>
 					<div
-						class={`pointer-events-none absolute w-full bg-black transition group-hover:bg-neutral-600 group-focus:bg-neutral-600 group-active:bg-neutral-600 ${
+						class={`gutter pointer-events-none absolute w-full ${
 							layout === 'desktop'
 								? 'top-[6px] bottom-[6px]'
 								: 'inset-y-0 flex items-center justify-center bg-neutral-800'
@@ -127,13 +129,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 		<!-- Mobile bottom bar -->
 		{#if layout === 'mobile'}
-			<div class="grid grid-cols-2 bg-[#1E1E1E]">
+			<div class="grid grid-cols-2 bg-white dark:bg-[#1E1E1E]">
 				{#each ['main', 'inputOutput'] as const as tab}
 					<button
 						class="flex flex-col items-center py-1 transition focus:outline-none {mobileActiveTab ===
 						tab
-							? 'text-gray-200'
-							: 'text-gray-400'}"
+							? 'text-gray-800 dark:text-gray-200'
+							: 'text-gray-500 dark:text-gray-400'}"
 						onclick={() => (mobileActiveTab = tab)}
 						data-testid="mobile-bottom-nav-{tab}-button"
 					>
@@ -152,9 +154,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 </div>
 
 <style>
+	@reference "../../app.css";
 	.split-grid {
 		display: grid;
 		grid-template-columns: 1fr 3px 1fr;
 		grid-template-rows: 1fr 3px 1fr;
+	}
+	.gutter {
+		@apply bg-neutral-200 transition group-hover:bg-neutral-300 group-focus:bg-neutral-600 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600;
 	}
 </style>

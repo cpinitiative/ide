@@ -123,10 +123,10 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		editorMode,
 		tabSize,
 		theme = 'dark',
-
 		yjsInfo
 	}: EditorProps = $props();
 
+	console.log('theme: ', theme);
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
 	let yjsMonacoBinding: MonacoBinding | null = null;
 
@@ -221,11 +221,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 
 		vscode.workspace
 			.getConfiguration()
-			.update(
-				'editor.tabSize',
-				tabSize,
-				vscode.ConfigurationTarget.Global
-			);
+			.update('editor.tabSize', tabSize, vscode.ConfigurationTarget.Global);
 	});
 
 	$effect(() => {
@@ -304,7 +300,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	};
 </script>
 
-<div class="flex h-full min-h-0 flex-col">
+<div class="flex h-full min-h-0 flex-col bg-white dark:bg-black">
 	<div bind:this={editorElement} class="min-h-0 w-full flex-1"></div>
 	<div bind:this={statusbarElement} class="w-full"></div>
 </div>

@@ -7,7 +7,7 @@
 </script>
 
 <div
-	class="absolute top-[0.25rem] right-[1.25rem] z-10 flex items-center rounded-md bg-black px-2 py-1.5 opacity-80 transition hover:opacity-0"
+	class="absolute top-[0.25rem] right-[1.25rem] z-10 flex items-center rounded-md bg-neutral-100 px-2 py-1.5 text-black opacity-80 transition hover:opacity-0 dark:bg-black dark:text-white"
 >
 	<span
 		class="mr-1 inline-block h-1.5 w-1.5 rounded-full"

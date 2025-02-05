@@ -26,3 +26,5 @@ vite.config.ts.timestamp-*
 database-debug.log
 firebase-debug.log
 ui-debug.log
+
+.DS_Store

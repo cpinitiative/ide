@@ -1,33 +1,38 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
 body {
-  /* Matches the color of monaco-editor */
-  background-color: #1e1e1e;
+	/* Matches the color of monaco-editor */
+	background-color: #1e1e1e;
 
-  @apply text-gray-100;
+	@apply text-gray-100;
 }
 
 /* Styles for remote cursors for monaco */
 .yRemoteSelection {
-  /* background-color: rgb(250, 129, 0, 0.5); */
-  background-color: var(--yjs-selection-color-bg, rgb(250, 129, 0, 0.5));
+	/* background-color: rgb(250, 129, 0, 0.5); */
+	background-color: var(--yjs-selection-color-bg, rgb(250, 129, 0, 0.5));
 }
 .yRemoteSelectionHead {
-  position: absolute;
-  border-left: var(--yjs-selection-color, orange) solid 2px;
-  border-top: var(--yjs-selection-color, orange) solid 2px;
-  border-bottom: var(--yjs-selection-color, orange) solid 2px;
-  height: 100%;
-  box-sizing: border-box;
+	position: absolute;
+	border-left: var(--yjs-selection-color, orange) solid 2px;
+	border-top: var(--yjs-selection-color, orange) solid 2px;
+	border-bottom: var(--yjs-selection-color, orange) solid 2px;
+	height: 100%;
+	box-sizing: border-box;
 }
 .yRemoteSelectionHead::after {
-  position: absolute;
-  content: ' ';
-  border: 3px solid var(--yjs-selection-color, orange);
-  border-radius: 4px;
-  left: -4px;
-  top: -5px;
+	position: absolute;
+	content: ' ';
+	border: 3px solid var(--yjs-selection-color, orange);
+	border-radius: 4px;
+	left: -4px;
+	top: -5px;
+}
+
+button {
+	@apply cursor-pointer;
 }

@@ -13,7 +13,8 @@
 		"lint": "prettier --check . && eslint .",
 		"test:e2e": "playwright test",
 		"test": "npm run test:e2e",
-		"postinstall": "patch-package"
+		"postinstall": "patch-package",
+		"emulators:stop": "lsof -t -i:8080 -i:9000 -i:9099 -i:9199 -i:9090 | xargs kill -9"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.3",
@@ -61,7 +62,7 @@
 		"@replit/codemirror-vim": "^6.2.1",
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
-		"@tailwindcss/vite": "^4.0.0-beta.8",
+		"@tailwindcss/vite": "^4.0.3",
 		"@uiw/codemirror-theme-github": "^4.23.7",
 		"@uiw/codemirror-theme-vscode": "^4.23.7",
 		"codemirror": "^6.0.1",

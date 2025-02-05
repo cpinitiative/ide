@@ -157,18 +157,26 @@
 	const tabSize = $derived(userData.tabSize);
 </script>
 
-<Layout layout={useMobileLayout.current ? 'mobile' : 'desktop'}>
+<Layout layout={useMobileLayout.current ? 'mobile' : 'desktop'} theme={userData.theme}>
 	{#snippet navbar()}
 		<IDENavbar showViewOnlyMessage={isReadOnly}>
 			{#snippet fileMenu()}
-				<FileMenu {onDownloadFile} onOpenSettings={() => settingsDialog?.open()} />
+				<FileMenu
+					{onDownloadFile}
+					onOpenSettings={() => settingsDialog?.open()}
+					theme={userData.theme}
+				/>
 			{/snippet}
 			{#snippet runButton()}
 				<RunButton
 					showLoadingIndicator={judgeState.isRunning}
 					onclick={runCode}
 					disabled={isReadOnly || judgeState.isRunning || inputPaneTab === 'judge'}
-					title={isReadOnly ? "You can't run code in a view-only document." : inputPaneTab === 'judge' ? "Switch to the input tab to run code." : undefined}
+					title={isReadOnly
+						? "You can't run code in a view-only document."
+						: inputPaneTab === 'judge'
+							? 'Switch to the input tab to run code.'
+							: undefined}
 				/>
 			{/snippet}
 		</IDENavbar>

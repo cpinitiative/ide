@@ -48,7 +48,7 @@
 			untrack(() => editorElement),
 			{
 				...baseEditorOptions,
-				language,
+				language
 			}
 		);
 
@@ -93,4 +93,4 @@
 	};
 </script>
 
-<div bind:this={editorElement} class="h-full min-h-0 w-full"></div>
+<div bind:this={editorElement} class="h-full min-h-0 w-full bg-white dark:bg-black"></div>

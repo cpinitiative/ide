@@ -18,11 +18,11 @@
 	}
 </script>
 
-<div class="flex items-center overflow-x-auto">
-	<div class="flex items-center divide-x divide-neutral-700">
+<div class="flex items-center overflow-x-auto text-gray-800 dark:text-gray-200">
+	<div class="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700">
 		<a
 			href="/"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
+			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-200 focus:bg-neutral-200 focus:outline-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 		>
 			<!-- Home Icon -->
 			<svg
@@ -41,7 +41,7 @@
 		{@render fileMenu()}
 		<button
 			type="button"
-			class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-neutral-800 focus:bg-neutral-800 focus:outline-none"
+			class="focus: relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-300 focus:outline-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 			onclick={handleShare}
 		>
 			<!-- Share Icon -->
@@ -60,11 +60,11 @@
 		</button>
 	</div>
 	{@render runButton()}
-	<div class="flex items-center divide-x divide-neutral-700">
+	<div class="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700">
 		<a
 			href="https://github.com/cpinitiative/ide/issues"
 			target="_blank"
-			class="flex-shrink-0 px-4 py-2 text-sm font-medium text-gray-400 hover:text-gray-200"
+			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 			rel="noreferrer"
 		>
 			Report an Issue
@@ -73,12 +73,12 @@
 			href="https://github.com/cpinitiative/ide"
 			target="_blank"
 			rel="noreferrer"
-			class="flex-shrink-0 px-4 py-2 text-sm font-medium text-gray-400 hover:text-gray-200"
+			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 		>
 			Star this on GitHub!
 		</a>
 		{#if showViewOnlyMessage}
-			<span class="px-4 py-2 text-sm font-medium text-gray-400"> View Only </span>
+			<span class="px-4 py-2 text-sm font-medium"> View Only </span>
 		{/if}
 	</div>
 </div>
