@@ -15,7 +15,7 @@
 
 <button
 	use:melt={$trigger}
-	class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-neutral-200 focus:bg-neutral-200 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+	class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 >
 	File
 	<!-- Chevron Down Icon -->
@@ -35,7 +35,7 @@
 </button>
 <!-- menu options -->
 <div
-	class="ring-opacity-5 w-56 bg-neutral-200 py-1 shadow-lg focus:outline-none dark:bg-neutral-800"
+	class="ring-opacity-5 w-56 bg-white py-1 shadow-lg focus:outline-none dark:bg-neutral-800"
 	data-theme={theme}
 	use:melt={$menu}
 >
@@ -46,7 +46,7 @@
 			{onclick}
 			target="_blank"
 			class="group flex w-full cursor-pointer items-center px-4 py-2
-		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-300 data-[highlighted]:text-gray-900
+		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-100 data-[highlighted]:text-gray-900
 		dark:bg-neutral-800 dark:text-gray-200 dark:data-[highlighted]:bg-neutral-700 dark:data-[highlighted]:text-gray-100"
 		>
 			<Icon

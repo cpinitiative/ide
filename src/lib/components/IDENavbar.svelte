@@ -19,7 +19,7 @@
 </script>
 
 <div class="flex items-center overflow-x-auto text-gray-800 dark:text-gray-200">
-	<div class="flex items-center divide-x divide-neutral-700">
+	<div class="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700">
 		<a
 			href="/"
 			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-200 focus:bg-neutral-200 focus:outline-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
@@ -60,7 +60,7 @@
 		</button>
 	</div>
 	{@render runButton()}
-	<div class="flex items-center divide-x divide-neutral-700">
+	<div class="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700">
 		<a
 			href="https://github.com/cpinitiative/ide/issues"
 			target="_blank"

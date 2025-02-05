@@ -52,12 +52,12 @@ This should be a "dumb", self-contained component that only contains UI logic.
 	let mobileActiveTab = $state<'main' | 'inputOutput'>('main');
 </script>
 
-<div class="h-full" data-theme={theme}>
+<div class="h-full overflow-x-hidden" data-theme={theme}>
 	<div class="flex h-full flex-col">
 		<div class="flex-shrink-0 bg-white dark:bg-[#1E1E1E]">
 			{@render navbar()}
 		</div>
-		<div class="min-h-0 flex-1 border-t border-black">
+		<div class="min-h-0 flex-1 border-t border-neutral-100 dark:border-black">
 			<div class="split-grid h-full">
 				<!-- Without min-w-0, we won't be able to reize the pane to make monaco-editor smaller. -->
 				<div
