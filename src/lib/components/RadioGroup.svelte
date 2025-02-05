@@ -8,7 +8,7 @@
 		options,
 		defaultValue,
 		orientation = 'vertical',
-		theme = 'light',
+		theme = 'dark',
 		value = $bindable(defaultValue),
 		readonly = false
 	}: {
@@ -47,7 +47,6 @@
 	$effect(() => {
 		value = $meltValue;
 	});
-	console.log('theme: ', theme);
 </script>
 
 <div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'flex space-x-4'}>
