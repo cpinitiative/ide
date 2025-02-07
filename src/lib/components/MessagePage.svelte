@@ -2,7 +2,7 @@
 	const { message, showHomeButton = false } = $props();
 </script>
 
-<div class="bg-white p-8 text-center sm:p-16 dark:bg-black">
+<div class="h-full bg-white p-8 text-center sm:p-16 dark:bg-black" data-theme={localStorage.theme}>
 	<div class="text-3xl font-bold text-black sm:text-4xl dark:text-white">{message}</div>
 	{#if showHomeButton}
 		<a
