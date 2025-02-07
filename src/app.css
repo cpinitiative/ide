@@ -6,9 +6,8 @@
 
 body {
 	/* Matches the color of monaco-editor */
-	background-color: #1e1e1e;
 
-	@apply text-gray-100;
+	@apply bg-white text-gray-100 dark:bg-[#1e1e1e];
 }
 
 /* Styles for remote cursors for monaco */
