@@ -83,10 +83,10 @@
 			</button>
 		</div>
 	{:else}
-		<div class="mt-6 text-gray-400">
+		<div class="mt-6 text-gray-700 dark:text-gray-400">
 			Signed in as {firebaseUser.displayName}.
 			<button
-				class="cursor-pointer p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none"
+				class="cursor-pointer p-1 leading-none text-gray-900 underline transition hover:bg-neutral-200 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-700"
 				onclick={signOut}
 			>
 				Sign Out
@@ -96,25 +96,26 @@
 
 	<div class="h-12"></div>
 
-	<h2 class="text-2xl font-black text-gray-100 md:text-4xl">Your Workspaces</h2>
+	<h2 class="text-2xl font-black text-black md:text-4xl dark:text-gray-100">Your Workspaces</h2>
 	<div class="h-6"></div>
 
-	<div class="mb-2 font-medium">Show Hidden Files?</div>
+	<div class="mb-2 font-medium text-black dark:text-gray-100">Show Hidden Files?</div>
 	<RadioGroup
 		bind:value={showHidden}
 		options={{
 			yes: 'Yes',
 			no: 'No'
 		}}
+		theme={localStorage.theme ?? 'dark'}
 	/>
 	<div class="h-6"></div>
 
 	{#if filesToShow && filesToShow.length > 0}
 		<FilesList files={filesToShow} />
 	{:else if filesToShow && filesToShow.length === 0}
-		<div class="text-gray-400">No files found. Create a new file above!</div>
+		<div class="text-gray-800 dark:text-gray-400">No files found. Create a new file above!</div>
 	{:else}
-		<div class="text-gray-400">Loading files...</div>
+		<div class="text-gray-800 dark:text-gray-400">Loading files...</div>
 	{/if}
 </div>
 
