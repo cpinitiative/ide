@@ -93,4 +93,4 @@
 	};
 </script>
 
-<div bind:this={editorElement} class="h-full min-h-0 w-full bg-white dark:bg-black"></div>
+<div bind:this={editorElement} class="h-full min-h-0 w-full bg-white dark:bg-monaco-editor-bg"></div>

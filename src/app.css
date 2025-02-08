@@ -4,9 +4,13 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
+@theme {
+	--color-monaco-editor-bg: #1e1e1e; 
+}
+
 body {
 	/* Matches the color of monaco-editor */
-	background-color: #1e1e1e;
+	background-color: var(--color-monaco-editor-bg);
 
 	@apply text-gray-100;
 }

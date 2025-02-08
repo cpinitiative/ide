@@ -300,7 +300,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	};
 </script>
 
-<div class="flex h-full min-h-0 flex-col bg-white dark:bg-black">
+<div class="flex h-full min-h-0 flex-col bg-white dark:bg-monaco-editor-bg">
 	<div bind:this={editorElement} class="min-h-0 w-full flex-1"></div>
 	<div bind:this={statusbarElement} class="w-full"></div>
 </div>
