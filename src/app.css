@@ -6,7 +6,6 @@
 
 body {
 	/* Matches the color of monaco-editor */
-
 	@apply bg-white text-gray-100 dark:bg-black;
 }
 

@@ -70,6 +70,10 @@
 		meltUiOpen.set(true);
 		activeTab = 'workspace';
 	};
+
+	$effect(() => {
+		document.body.setAttribute('data-theme', userData.theme ?? 'dark');
+	});
 </script>
 
 {#if $meltUiOpen}
