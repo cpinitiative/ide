@@ -66,6 +66,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		await _monacoWrapper.init(monacoWrapperConfig);
 		mainMonacoState.isMonacoInitialized = true;
 
+		// @ts-ignore TS1209: It seems to work...
 		attachPart(Parts.STATUSBAR_PART, statusbarElement);
 
 		await _monacoWrapper.start(editorElement);
@@ -104,6 +105,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 
 	import { MonacoBinding } from 'y-monaco';
 	import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
+	// @ts-ignore TS1209
 	import { Parts, attachPart } from '@codingame/monaco-vscode-views-service-override';
 
 	import '@codingame/monaco-vscode-cpp-default-extension';
@@ -237,6 +239,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 
 		if (editorMode === 'vim' && !isVimLoaded) {
 			isVimLoaded = true;
+			// @ts-ignore: Don't need types for this
 			import('./vim-1.29.0.vsix').then(() => {
 				console.log('vim-1.29.0.vsix loaded');
 			});

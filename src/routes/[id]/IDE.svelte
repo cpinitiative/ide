@@ -99,7 +99,7 @@
 	};
 
 	const onUpdateUserSettings = (
-		newUserData: UserData,
+		newUserData: Partial<UserData>,
 		newFileSettings: FileSettings,
 		newUsername: string
 	) => {

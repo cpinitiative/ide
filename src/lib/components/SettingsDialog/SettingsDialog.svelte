@@ -29,7 +29,7 @@
 		userPermission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
 		userData: UserData;
 		fileSettings: FileSettings;
-		onSave: (newUserData: UserData, newFileSettings: FileSettings, newUsername: string) => void;
+		onSave: (newUserData: Partial<UserData>, newFileSettings: FileSettings, newUsername: string) => void;
 	} = $props();
 
 	const onSubmit = (event: SubmitEvent) => {

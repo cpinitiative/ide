@@ -91,7 +91,7 @@
 			yCollabPlugins.forEach((plugin) => {
 				if ((plugin as any).destroy) (plugin as any).destroy();
 			});
-			editorView.destroy();
+			editorView?.destroy();
 		};
 	});
 

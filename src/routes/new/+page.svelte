@@ -129,7 +129,7 @@
 								name="language"
 								value={option}
 								class="sr-only"
-								onclick={() => (lang = option)}
+								onclick={() => (lang = option as keyof typeof LANGUAGES)}
 								checked={lang === option}
 							/>
 							{label}
