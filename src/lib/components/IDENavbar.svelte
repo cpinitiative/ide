@@ -78,7 +78,7 @@
 			Star this on GitHub!
 		</a>
 		{#if showViewOnlyMessage}
-			<span class="px-4 py-2 text-sm font-medium"> View Only </span>
+			<span class="px-4 py-2 text-sm font-medium whitespace-nowrap">View Only</span>
 		{/if}
 	</div>
 </div>
