@@ -12,10 +12,13 @@
 	/>
 </svelte:head>
 
-<div class="flex min-h-full flex-col">
+<div
+	class="flex min-h-full flex-col bg-white dark:bg-black"
+	data-theme={localStorage.theme ?? 'dark'}
+>
 	<div class="flex-1">
 		<div class="mx-auto max-w-6xl p-4 sm:p-6 md:p-8 lg:p-12">
-			<h1 class="text-2xl font-black text-gray-100 md:text-4xl">
+			<h1 class="text-2xl font-black text-black md:text-4xl dark:text-gray-100">
 				Real-Time Collaborative Online IDE
 			</h1>
 

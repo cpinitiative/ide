@@ -55,11 +55,20 @@
 				}
 				if (data.theme === 'light' || data.theme === 'dark') {
 					userData.theme = data.theme;
+					localStorage.theme = data.theme;
 				}
-				if (data.defaultPermission === 'READ_WRITE' || data.defaultPermission === 'READ' || data.defaultPermission === 'PRIVATE') {
+				if (
+					data.defaultPermission === 'READ_WRITE' ||
+					data.defaultPermission === 'READ' ||
+					data.defaultPermission === 'PRIVATE'
+				) {
 					userData.defaultPermission = data.defaultPermission;
 				}
-				if (data.defaultLanguage === 'cpp' || data.defaultLanguage === 'java' || data.defaultLanguage === 'py') {
+				if (
+					data.defaultLanguage === 'cpp' ||
+					data.defaultLanguage === 'java' ||
+					data.defaultLanguage === 'py'
+				) {
 					userData.defaultLanguage = data.defaultLanguage;
 				}
 			}
