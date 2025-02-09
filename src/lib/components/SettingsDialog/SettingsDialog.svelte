@@ -29,7 +29,11 @@
 		userPermission: 'OWNER' | 'READ' | 'READ_WRITE' | 'PRIVATE';
 		userData: UserData;
 		fileSettings: FileSettings;
-		onSave: (newUserData: Partial<UserData>, newFileSettings: FileSettings, newUsername: string) => void;
+		onSave: (
+			newUserData: Partial<UserData>,
+			newFileSettings: FileSettings,
+			newUsername: string
+		) => void;
 	} = $props();
 
 	const onSubmit = (event: SubmitEvent) => {
@@ -186,6 +190,16 @@
 							name="tabSize"
 							defaultValue={userData.tabSize.toString()}
 							options={{ 2: '2', 4: '4', 8: '8' }}
+							theme={userData.theme}
+						/>
+					</div>
+
+					<div class:hidden={activeTab !== 'user'}>
+						<div class="mb-2 font-medium">Inlay Hints</div>
+						<RadioGroup
+							name="theme"
+							defaultValue={userData.inlayHints}
+							options={{ on: 'On', off: 'Off' }}
 							theme={userData.theme}
 						/>
 					</div>

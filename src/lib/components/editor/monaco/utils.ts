@@ -113,5 +113,6 @@ export const getMonacoWrapperConfig = (
 export const baseEditorOptions = {
 	glyphMargin: false,
 	automaticLayout: true,
-	detectIndentation: false
+	detectIndentation: false,
+	inlayHints: { enabled: 'off' }
 };
