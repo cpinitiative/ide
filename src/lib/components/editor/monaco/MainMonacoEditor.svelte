@@ -51,7 +51,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		readOnly: boolean,
 		editorElement: HTMLElement,
 		statusbarElement: HTMLElement,
-		inlayHints: boolean
+		inlayHints: 'on' | 'off'
 	) => {
 		if (_monacoWrapper) {
 			throw new Error('Monaco wrapper already initialized.');
@@ -62,7 +62,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			...baseEditorOptions,
 			language,
 			readOnly,
-			inlayHints: { enabled: inlayHints ? 'on' : 'off' }
+			inlayHints: { enabled: inlayHints }
 		});
 
 		await _monacoWrapper.init(monacoWrapperConfig);
@@ -191,7 +191,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 				readOnly,
 				editorElement,
 				statusbarElement,
-				inlayHints ?? false
+				inlayHints ?? 'off'
 			).then((_editor) => {
 				if (!isAlive) {
 					throw new Error('Monaco editor changed before it finished initializing');

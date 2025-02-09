@@ -13,7 +13,7 @@
 	export type EditorProps = {
 		theme?: 'dark' | 'light';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
-		inlayHints?: boolean;
+		inlayHints?: 'on' | 'off';
 		tabSize?: number;
 		// Optional compiler options for the LSP
 		compilerOptions?: string;
