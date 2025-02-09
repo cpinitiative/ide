@@ -38,6 +38,7 @@ export type UserData = {
 	theme: 'light' | 'dark';
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	defaultLanguage: Language;
+	inlayHints: boolean;
 };
 
 /**

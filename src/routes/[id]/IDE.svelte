@@ -155,6 +155,7 @@
 	const compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
 	const theme = $derived(userData.theme);
 	const tabSize = $derived(userData.tabSize);
+	const inlayHints = $derived(userData.inlayHints);
 </script>
 
 <Layout layout={useMobileLayout.current ? 'mobile' : 'desktop'} theme={userData.theme}>
@@ -191,6 +192,7 @@
 			{editorMode}
 			{theme}
 			{tabSize}
+			{inlayHints}
 			Editor={PrimaryEditor}
 			bind:this={mainEditor}
 			readOnly={isReadOnly}
@@ -242,7 +244,12 @@
 				/>
 			{:else}
 				<div class="flex h-full min-h-0 flex-col">
-					<SecondaryEditor readOnly={true} language="plaintext" value={outputPaneValue} {editorMode} />
+					<SecondaryEditor
+						readOnly={true}
+						language="plaintext"
+						value={outputPaneValue}
+						{editorMode}
+					/>
 					<OutputStatusBar result={judgeState.result} />
 				</div>
 			{/if}
