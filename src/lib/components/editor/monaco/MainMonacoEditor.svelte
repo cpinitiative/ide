@@ -171,7 +171,6 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		// Do not rerun when editorElement or statusbarElement changes, since they are dom elements.
 		// Dependencies are not tracked inside callbacks.
 		compilerOptions;
-		inlayHints; // TODO: get rid of this and use $effect to update the workspace state (currently broken)
 
 		// Note: It's possible this will crash if this effect reruns many times
 		// in a row, faster than we can create / dispose the monaco wrapper.
@@ -220,7 +219,10 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 				'workbench.colorTheme',
 				theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
 				vscode.ConfigurationTarget.Global
-			);
+			)
+			.then(() => {
+				console.log(theme, vscode.workspace.getConfiguration().get('workbench.colorTheme'));
+			});
 	});
 
 	$effect(() => {
@@ -234,10 +236,9 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	// this doesn't work for some reason---the effect is run but doesn't change editor state
 	$effect(() => {
 		if (!editor) return;
-		console.log(inlayHints);
-		vscode.workspace
-			.getConfiguration()
-			.update('editor.inlayHints.enabled', inlayHints, vscode.ConfigurationTarget.Global);
+		editor.updateOptions({
+			inlayHints: { enabled: inlayHints }
+		});
 	});
 
 	$effect(() => {
