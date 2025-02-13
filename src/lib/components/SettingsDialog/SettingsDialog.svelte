@@ -50,6 +50,7 @@
 			editorMode: formData.get('editorMode') as 'normal' | 'vim',
 			tabSize,
 			theme: formData.get('theme') as 'light' | 'dark',
+			inlayHints: formData.get('inlayHints') as 'on' | 'off',
 
 			// deprecated: for compatibility with old IDE only
 			lightMode: formData.get('theme') === 'light'
@@ -197,7 +198,7 @@
 					<div class:hidden={activeTab !== 'user'}>
 						<div class="mb-2 font-medium">Inlay Hints</div>
 						<RadioGroup
-							name="theme"
+							name="inlayHints"
 							defaultValue={userData.inlayHints}
 							options={{ on: 'On', off: 'Off' }}
 							theme={userData.theme}
