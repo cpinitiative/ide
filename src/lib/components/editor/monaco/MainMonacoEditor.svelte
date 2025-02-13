@@ -131,7 +131,6 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		inlayHints
 	}: EditorProps = $props();
 
-	console.log('theme: ', theme);
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
 	let yjsMonacoBinding: MonacoBinding | null = null;
 
@@ -219,10 +218,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 				'workbench.colorTheme',
 				theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
 				vscode.ConfigurationTarget.Global
-			)
-			.then(() => {
-				console.log(theme, vscode.workspace.getConfiguration().get('workbench.colorTheme'));
-			});
+			);
 	});
 
 	$effect(() => {
