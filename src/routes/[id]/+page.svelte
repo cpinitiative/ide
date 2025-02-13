@@ -42,7 +42,8 @@
 				tabSize: 4,
 				theme: 'dark',
 				defaultPermission: 'READ_WRITE',
-				defaultLanguage: 'cpp'
+				defaultLanguage: 'cpp',
+				inlayHints: 'off'
 			};
 
 			const data = snapshot.val();
@@ -56,10 +57,21 @@
 				if (data.theme === 'light' || data.theme === 'dark') {
 					userData.theme = data.theme;
 				}
-				if (data.defaultPermission === 'READ_WRITE' || data.defaultPermission === 'READ' || data.defaultPermission === 'PRIVATE') {
+				if (data.inlayHints === 'on' || data.inlayHints === 'off') {
+					userData.inlayHints = data.inlayHints;
+				}
+				if (
+					data.defaultPermission === 'READ_WRITE' ||
+					data.defaultPermission === 'READ' ||
+					data.defaultPermission === 'PRIVATE'
+				) {
 					userData.defaultPermission = data.defaultPermission;
 				}
-				if (data.defaultLanguage === 'cpp' || data.defaultLanguage === 'java' || data.defaultLanguage === 'py') {
+				if (
+					data.defaultLanguage === 'cpp' ||
+					data.defaultLanguage === 'java' ||
+					data.defaultLanguage === 'py'
+				) {
 					userData.defaultLanguage = data.defaultLanguage;
 				}
 			}

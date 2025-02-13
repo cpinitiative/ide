@@ -50,7 +50,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		theme: 'light' | 'dark',
 		readOnly: boolean,
 		editorElement: HTMLElement,
-		statusbarElement: HTMLElement
+		statusbarElement: HTMLElement,
+		inlayHints: 'on' | 'off'
 	) => {
 		if (_monacoWrapper) {
 			throw new Error('Monaco wrapper already initialized.');
@@ -60,13 +61,14 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		const monacoWrapperConfig = getMonacoWrapperConfig(language, theme, compilerOptions, {
 			...baseEditorOptions,
 			language,
-			readOnly
+			readOnly,
+			inlayHints: { enabled: inlayHints }
 		});
 
 		await _monacoWrapper.init(monacoWrapperConfig);
 		mainMonacoState.isMonacoInitialized = true;
 
-		// @ts-ignore TS1209: It seems to work...
+		// @ts-expect-error TS1209: It seems to work...
 		attachPart(Parts.STATUSBAR_PART, statusbarElement);
 
 		await _monacoWrapper.start(editorElement);
@@ -100,12 +102,12 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 </script>
 
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { EditorProps } from '../RealtimeEditor.svelte';
 
 	import { MonacoBinding } from 'y-monaco';
 	import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
-	// @ts-ignore TS1209
+	// @ts-expect-error TS1209
 	import { Parts, attachPart } from '@codingame/monaco-vscode-views-service-override';
 
 	import '@codingame/monaco-vscode-cpp-default-extension';
@@ -125,10 +127,10 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		editorMode,
 		tabSize,
 		theme = 'dark',
-		yjsInfo
+		yjsInfo,
+		inlayHints
 	}: EditorProps = $props();
 
-	console.log('theme: ', theme);
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
 	let yjsMonacoBinding: MonacoBinding | null = null;
 
@@ -187,7 +189,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 				theme,
 				readOnly,
 				editorElement,
-				statusbarElement
+				statusbarElement,
+				inlayHints ?? 'off'
 			).then((_editor) => {
 				if (!isAlive) {
 					throw new Error('Monaco editor changed before it finished initializing');
@@ -226,6 +229,14 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			.update('editor.tabSize', tabSize, vscode.ConfigurationTarget.Global);
 	});
 
+	// this doesn't work for some reason---the effect is run but doesn't change editor state
+	$effect(() => {
+		if (!editor) return;
+		editor.updateOptions({
+			inlayHints: { enabled: inlayHints }
+		});
+	});
+
 	$effect(() => {
 		// For monaco, vim mode has the following restrictions:
 		// - We cannot unload the extension once it is loaded.
@@ -239,7 +250,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 
 		if (editorMode === 'vim' && !isVimLoaded) {
 			isVimLoaded = true;
-			// @ts-ignore: Don't need types for this
+			// @ts-expect-error: don't need types for this
 			import('./vim-1.29.0.vsix').then(() => {
 				console.log('vim-1.29.0.vsix loaded');
 			});
@@ -303,7 +314,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	};
 </script>
 
-<div class="flex h-full min-h-0 flex-col bg-white dark:bg-monaco-editor-bg">
+<div class="dark:bg-monaco-editor-bg flex h-full min-h-0 flex-col bg-white">
 	<div bind:this={editorElement} class="min-h-0 w-full flex-1"></div>
 	<div bind:this={statusbarElement} class="w-full"></div>
 </div>

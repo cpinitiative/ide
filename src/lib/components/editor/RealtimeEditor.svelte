@@ -13,6 +13,7 @@
 	export type EditorProps = {
 		theme?: 'dark' | 'light';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
+		inlayHints?: 'on' | 'off';
 		tabSize?: number;
 		// Optional compiler options for the LSP
 		compilerOptions?: string;
@@ -127,15 +128,7 @@
 		// add custom color for every selector
 		provider.awareness.on(
 			'change',
-			({
-				added,
-				updated,
-				removed
-			}: {
-				added: Array<number>;
-				updated: Array<number>;
-				removed: Array<number>;
-			}) => {
+			({ added }: { added: Array<number>; updated: Array<number>; removed: Array<number> }) => {
 				// TODO: remove styles when someone leaves (ie. removed.length > 0)
 				if (added.length === 0) return;
 				type UserAwarenessData = Map<
