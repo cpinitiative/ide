@@ -109,7 +109,7 @@
 	const defaultData = {
 		editorMode: 'normal',
 		tabSize: 4,
-		theme: 'dark',
+		theme: localStorage.theme ?? 'dark',
 		defaultPermission: 'READ_WRITE',
 		defaultLanguage: 'cpp',
 		inlayHints: 'off'
@@ -164,7 +164,8 @@
 							userData.tabSize = data.tabSize;
 						}
 						if (data.theme === 'light' || data.theme === 'dark') {
-							userData.theme = data.theme;
+							// write theme to localStorage to prevent flicker
+							localStorage.theme = userData.theme = data.theme;
 						}
 						if (data.inlayHints === 'on' || data.inlayHints === 'off') {
 							userData.inlayHints = data.inlayHints;
@@ -201,4 +202,6 @@
 	const { children } = $props();
 </script>
 
-{@render children()}
+<div class="h-full" data-theme={userData.theme}>
+	{@render children()}
+</div>
