@@ -229,7 +229,6 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			.update('editor.tabSize', tabSize, vscode.ConfigurationTarget.Global);
 	});
 
-	// this doesn't work for some reason---the effect is run but doesn't change editor state
 	$effect(() => {
 		if (!editor) return;
 		editor.updateOptions({
