@@ -198,10 +198,10 @@
 			unsubscribeAuth();
 		};
 	});
-
+	$effect(() => {
+		document.body.setAttribute('data-theme', userData.theme);
+	});
 	const { children } = $props();
 </script>
 
-<div class="h-full" data-theme={userData.theme}>
-	{@render children()}
-</div>
+{@render children()}
