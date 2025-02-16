@@ -61,9 +61,15 @@
 					(&quot;Run Samples&quot; supports both file I/O and stdin/stdout)
 				{/if}
 			</p>
-			<p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
+			<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 				The Online Judge is in early beta. Not all problems are supported. Timing and correctness
-				information may not be perfectly accurate. Report issues <a href="https://github.com/cpinitiative/online-judge-modal/issues" class="underline" target="_blank" rel="noreferrer">here</a>.
+				information may not be perfectly accurate. TLE is currently incorrectly reported as RTE.
+				Report issues <a
+					href="https://github.com/cpinitiative/online-judge-modal/issues"
+					class="underline"
+					target="_blank"
+					rel="noreferrer">here</a
+				>.
 			</p>
 			<!-- {#if problem.samples.length > 0}
 				<button
@@ -107,12 +113,19 @@
 	{@const containerClasses =
 		data?.verdict === 'accepted'
 			? 'bg-green-700/50 border-green-700'
-			: 'bg-red-700/50 border-red-700'}
+			: data?.verdict === 'time_limit_exceeded'
+				? 'bg-yellow-700/50 border-yellow-700'
+				: data
+					? 'bg-red-700/50 border-red-700'
+					: 'bg-gray-700/50 border-gray-700'}
 	{@const textColor = data?.verdict === 'accepted' ? 'text-green-100' : 'text-red-100'}
 	<div class={`m-1 inline-block h-[60px] w-[70px] border ${containerClasses} relative`}>
-		<div class={`text-center text-[2.5rem] font-bold ${textColor} leading-6`}>
+		<div
+			class={`flex items-center justify-center text-[2rem] font-bold ${textColor} font-[Arial] leading-6`}
+		>
 			{#if data?.verdict === 'accepted'}
-				*
+				<!-- TODO: figure out a better way to style this -->
+				<span class="text-[2.5rem] leading-11">*</span>
 			{:else if data?.verdict === 'wrong_answer'}
 				x
 			{:else if data?.verdict === 'time_limit_exceeded'}

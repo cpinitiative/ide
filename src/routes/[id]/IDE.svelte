@@ -134,9 +134,9 @@
 			}
 		} else if (judgeState.executeResult) {
 			if (outputPaneTab === 'stdout') {
-				return judgeState.executeResult.test_cases[0].stdout ?? '';
+				return judgeState.executeResult.test_cases[0]?.stdout ?? '';
 			} else if (outputPaneTab === 'stderr') {
-				return judgeState.executeResult.test_cases[0].stderr ?? '';
+				return judgeState.executeResult.test_cases[0]?.stderr ?? '';
 			} else {
 				return 'Error';
 			}
