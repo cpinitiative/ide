@@ -1,8 +1,11 @@
 <script lang="ts">
-	import type { JudgeResponse } from '$lib/types';
-	import { Verdict } from '$lib/types';
+	import { isExecuteResponse, Verdict } from '$lib/types';
+	import type { ExecuteResponse, USACOJudgeSubmissionResult } from '$lib/types';
+	import type { JudgeState } from '../../routes/[id]/IDE.svelte';
 
-	const { result }: { result?: JudgeResponse | null } = $props();
+	const {
+		judgeState
+	}: { judgeState: JudgeState | null } = $props();
 
 	function formatVerdict(verdict: Verdict) {
 		if (verdict === Verdict.Accepted) {
@@ -25,10 +28,14 @@
 	data-test-id="code-execution-output-status"
 	style="font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,system-ui,Ubuntu,Droid Sans,sans-serif"
 >
-	{#if result?.execute}
-		{formatVerdict(result.execute.verdict)}, {result.execute.wall_time}s, {result.execute
+	{#if judgeState?.executeResult}
+		{#if isExecuteResponse(judgeState.executeResult)}
+			{formatVerdict(judgeState.executeResult.verdict)}, {judgeState.executeResult.wall_time}s, {judgeState.executeResult
 			.memory_usage}KB
-	{:else if result?.compile}
+		{:else if judgeState.executeResult.verdict}
+			{formatVerdict(judgeState.executeResult.verdict)}
+		{/if}
+	{:else if judgeState?.compileResult?.exit_code && judgeState.compileResult.exit_code > 0}
 		Compile Error
 	{:else}
 		&nbsp;

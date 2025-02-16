@@ -72,6 +72,7 @@
 		"lucide-svelte": "^0.471.0",
 		"monaco-editor-wrapper": "^6.1.0",
 		"split-grid": "^1.0.11",
+		"sse.js": "^2.5.0",
 		"y-codemirror.next": "^0.3.5",
 		"y-monaco": "^0.1.6",
 		"y-protocols": "^1.0.6",

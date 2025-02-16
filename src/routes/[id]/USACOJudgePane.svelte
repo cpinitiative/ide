@@ -1,44 +1,86 @@
 <script lang="ts">
-	import type { ProblemData } from '$lib/types';
+	import { isExecuteResponse, Verdict, type FileData, type JudgeTestCaseResponse } from '$lib/types';
+	import USACOJudgeInterface from '$lib/components/USACOJudgeInterface.svelte';
+	import { SSE } from 'sse.js';
+	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
+	import type { JudgeState } from './IDE.svelte';
 
-	let props = $props();
-	let problem = props.problem;
+	let {
+		fileData,
+		mainEditor,
+		// TODO: rethink whether it's a good idea to bind the entire judge state here.
+		judgeState = $bindable()
+	}: { fileData: FileData; mainEditor?: RealtimeEditor; judgeState: JudgeState } = $props();
 
-	// https://github.com/cpinitiative/usaco-guide/blob/30f7eca4b8eee693694a801498aaf1bfd9cbb5d0/src/components/markdown/ProblemsList/ProblemsListItem.tsx#L92
-	function getUSACOContestURL(contest: string): string {
-		const parts = contest.split(' ');
-		parts[0] = parts[0].substring(2);
-		if (parts[1] === 'US') parts[1] = 'open';
-		else parts[1] = parts[1].toLowerCase().substring(0, 3);
-		return `http://www.usaco.org/index.php?page=${parts[1]}${parts[0]}results`;
+	let problem = $derived(fileData.settings.problem!);
+	let errorMessage = $state<string | null>(null);
+
+	function onSubmit() {
+		if (!mainEditor) {
+			console.warn('No main editor found');
+			return;
+		}
+
+		errorMessage = null;
+		judgeState.isRunning = true;
+		judgeState.compileResult = null;
+		judgeState.executeResult = null;
+		let source = new SSE('https://thecodingwizard--usaco-judge-fastapi-app.modal.run/judge', {
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			payload: JSON.stringify({
+				problem_id: problem.id,
+				source_code: mainEditor.getValue(),
+				compiler_options: fileData.settings.compilerOptions[fileData.settings.language],
+				language: fileData.settings.language
+			})
+		});
+		source.onreadystatechange = (state) => {
+			if (state.readyState === source.CLOSED) {
+				judgeState.isRunning = false;
+			}
+		};
+		source.onerror = (e: any) => {
+			console.error(e);
+			errorMessage = `Status code ${e.responseCode ?? 'unknown'}: ${e.data}`;
+		};
+		source.addEventListener('compile', (e: any) => {
+			const data = JSON.parse(e.data);
+			// TODO: figure out how to auto-select compile output tab
+			judgeState.compileResult = data;
+		});
+		source.addEventListener('execute', (e: any) => {
+			const data = JSON.parse(e.data) as JudgeTestCaseResponse;
+
+			if (!judgeState.executeResult || isExecuteResponse(judgeState.executeResult)) {
+				judgeState.executeResult = {
+					test_cases: [],
+					verdict: undefined
+				};
+			}
+
+			while (judgeState.executeResult.test_cases.length < data.total_test_cases) {
+				judgeState.executeResult.test_cases.push(null);
+			}
+			judgeState.executeResult.test_cases[data.test_case] = data;
+		});
 	}
 
-	$inspect(problem);
+	function onRunSamples() {
+		console.log('run samples');
+	}
 </script>
 
-<div class="relative flex h-full flex-col">
-	<div class="flex-1 overflow-y-auto">
-		<div class="p-4 pb-0">
-			<p class="mb-4 text-sm text-gray-400">
-				Note: USACO problem submission{' '}
-				<a href="https://github.com/cpinitiative/ide/issues/138" class="underline"> is broken </a>
-				. Unfortunately, we don&apos;t know when this will be fixed.
-			</p>
-			<p class="text-lg font-bold text-gray-100">
-				<a
-					href={getUSACOContestURL(problem.source || '')}
-					class="text-indigo-300"
-					target="_blank"
-					rel="noreferrer"
-				>
-					{problem.source}
-				</a>
-			</p>
-			<p class="text-lg font-bold text-gray-100">
-				<a href={problem.url} class="text-indigo-300" target="_blank" rel="noreferrer">
-					{problem.title}
-				</a>
-			</p>
-		</div>
-	</div>
-</div>
+<!-- isLoading={(statusData?.statusCode ?? 0) <= -8}
+		isDisabled={!problem.submittable || true} -->
+
+<USACOJudgeInterface
+	{problem}
+	results={judgeState.executeResult && !isExecuteResponse(judgeState.executeResult) ? judgeState.executeResult.test_cases : undefined}
+	isLoading={judgeState.isRunning}
+	isDisabled={false}
+	{onSubmit}
+	{onRunSamples}
+	{errorMessage}
+/>

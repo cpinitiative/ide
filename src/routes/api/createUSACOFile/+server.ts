@@ -37,6 +37,7 @@ export async function POST({ request }) {
 	try {
 		decodedToken = await getAuth(firebaseApp).verifyIdToken(idToken);
 	} catch (e) {
+		console.error(e);
 		return json(
 			{
 				message: 'Error decoding ID Token'
