@@ -98,6 +98,24 @@ export interface ExecuteResponse {
 	verdict: Verdict;
 }
 
+export interface JudgeTestCaseResponse extends ExecuteResponse {
+	test_case: number;
+	total_test_cases: number;
+}
+
+export interface USACOJudgeSubmissionResult {
+	test_cases: (JudgeTestCaseResponse | null)[];
+	// undefined if pending
+	verdict?: Verdict;
+}
+
+// Yikes, there must be a better way to do this
+export function isExecuteResponse(
+	result: ExecuteResponse | USACOJudgeSubmissionResult
+): result is ExecuteResponse {
+	return 'wall_time' in result;
+}
+
 export interface CommandOptions {
 	stdin: string;
 	timeout_ms: number;

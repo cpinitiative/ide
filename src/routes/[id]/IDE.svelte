@@ -1,6 +1,14 @@
+<script module>
+	import { isExecuteResponse, type CommandOutput, type ExecuteResponse, type FileData, type FileSettings, type USACOJudgeSubmissionResult, type UserData } from '$lib/types';
+
+	export type JudgeState = {
+		isRunning: boolean;
+		compileResult: CommandOutput | null;
+		executeResult: ExecuteResponse | USACOJudgeSubmissionResult | null;
+	};
+</script>
 <script lang="ts">
 	import Layout from '$lib/components/IDELayout.svelte';
-	import type { FileData, FileSettings, JudgeResponse, UserData } from '$lib/types';
 	import RealtimeEditor from '$lib/components/editor/RealtimeEditor.svelte';
 	import { authState, database } from '$lib/firebase/firebase.svelte';
 	import IDENavbar from '$lib/components/IDENavbar.svelte';
@@ -28,12 +36,10 @@
 
 	let settingsDialog: SettingsDialog | undefined = $state(undefined);
 
-	let judgeState: {
-		isRunning: boolean;
-		result: JudgeResponse | null;
-	} = $state({
+	let judgeState: JudgeState = $state({
 		isRunning: false,
-		result: null
+		compileResult: null,
+		executeResult: null
 	});
 
 	const firebaseUser = $derived.by(() => {
@@ -72,7 +78,8 @@
 		);
 
 		judgeState.isRunning = false;
-		judgeState.result = resp;
+		judgeState.compileResult = resp.compile;
+		judgeState.executeResult = resp.execute;
 
 		// Auto-select the next tab
 		if (resp.compile.exit_code !== 0) {
@@ -115,15 +122,26 @@
 	};
 
 	let outputPaneValue = $derived.by(() => {
-		if (outputPaneTab === 'stdout') {
-			return judgeState.result?.execute?.stdout ?? '';
-		} else if (outputPaneTab === 'stderr') {
-			return judgeState.result?.execute?.stderr ?? '';
-		} else if (outputPaneTab === 'compile_output') {
-			return judgeState.result?.compile?.stderr ?? '';
+		if (outputPaneTab === 'compile_output') {
+			return judgeState.compileResult?.stderr ?? '';
+		} else if (judgeState.executeResult && isExecuteResponse(judgeState.executeResult)) {
+			if (outputPaneTab === 'stdout') {
+				return judgeState.executeResult.stdout ?? '';
+			} else if (outputPaneTab === 'stderr') {
+				return judgeState.executeResult.stderr ?? '';
+			} else {
+				return 'Error';
+			}
+		} else if (judgeState.executeResult) {
+			if (outputPaneTab === 'stdout') {
+				return judgeState.executeResult.test_cases[0]?.stdout ?? '';
+			} else if (outputPaneTab === 'stderr') {
+				return judgeState.executeResult.test_cases[0]?.stderr ?? '';
+			} else {
+				return 'Error';
+			}
 		} else {
-			// Scribble editor is a realtime editor which doesn't read from this value.
-			return 'Error';
+			return '';
 		}
 	});
 
@@ -217,8 +235,8 @@
 					bind:this={inputEditor}
 					readOnly={isReadOnly}
 				/>
-			{:else}
-				<USACOJudgePane problem={fileData.settings.problem} />
+			{:else if inputPaneTab === 'judge'}
+				<USACOJudgePane {fileData} {mainEditor} bind:judgeState={judgeState} />
 			{/if}
 		</TabbedPane>
 	{/snippet}
@@ -250,7 +268,7 @@
 						value={outputPaneValue}
 						{editorMode}
 					/>
-					<OutputStatusBar result={judgeState.result} />
+					<OutputStatusBar {judgeState} />
 				</div>
 			{/if}
 		</TabbedPane>
