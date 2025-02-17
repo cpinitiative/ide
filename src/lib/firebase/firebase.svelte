@@ -122,8 +122,11 @@
 	// svelte-ignore state_referenced_locally
 	setContext(USER_DATA_KEY, userData);
 	onMount(() => {
-		// Existing auth listener
+		let unsubscribeUserData: () => void = () => {};
 		const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+			// clean up existing any listener
+			unsubscribeUserData();
+			unsubscribeUserData = () => {};
 			if (!user) {
 				authState.firebaseUser = null;
 				userData = defaultData;
@@ -152,7 +155,7 @@
 
 				// Set up user data listener when authenticated
 				const userDataRef = ref(database, `users/${user.uid}/data`);
-				const unsubscribeUserData = onValue(userDataRef, (snapshot) => {
+				unsubscribeUserData = onValue(userDataRef, (snapshot) => {
 					const data = snapshot.val();
 
 					if (data) {
@@ -185,14 +188,11 @@
 						}
 					}
 				});
-
-				return () => {
-					unsubscribeUserData();
-				};
 			}
 		});
 
 		return () => {
+			unsubscribeUserData();
 			unsubscribeAuth();
 		};
 	});
