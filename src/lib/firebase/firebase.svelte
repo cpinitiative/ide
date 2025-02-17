@@ -123,7 +123,6 @@
 	setContext(USER_DATA_KEY, userData);
 	onMount(() => {
 		// Existing auth listener
-		console.log('running mount');
 		const unsubscribeAuth = auth.onAuthStateChanged((user) => {
 			if (!user) {
 				authState.firebaseUser = null;
