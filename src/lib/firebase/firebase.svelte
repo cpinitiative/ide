@@ -184,7 +184,6 @@
 							userData.defaultLanguage = data.defaultLanguage;
 						}
 					}
-					console.log(userData);
 				});
 
 				return () => {
