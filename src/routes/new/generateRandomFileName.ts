@@ -68,7 +68,6 @@ const nouns = [
 	'shower',
 	'window',
 	'umbrella',
-	'fork',
 	'plant',
 	'towel'
 ];
