@@ -13,7 +13,6 @@
 	let isLoading = $state(true);
 	let fileData: FileData | null = $state(null);
 	const userData: UserData = getContext(USER_DATA_KEY);
-	console.log(userData);
 
 	$effect(() => {
 		isLoading = true;
