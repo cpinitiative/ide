@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ref, onValue, orderByChild, query } from 'firebase/database';
-	import { authState, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
+	import { authState, getUserData, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
 	import { database } from '$lib/firebase/firebase.svelte';
 	import type { UserFile } from '$lib/types';
 	import { isFirebaseId } from '$lib/utils';
@@ -19,7 +19,7 @@
 
 	let files: UserFile[] | null = $state(null);
 	let showHidden = $state<'yes' | 'no'>('no');
-
+	const userData = getUserData();
 	$effect(() => {
 		const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
 		const unsubscribe = onValue(query(userFilesRef, orderByChild('lastAccessTime')), (snapshot) => {
@@ -73,10 +73,10 @@
 	</div>
 
 	{#if firebaseUser.isAnonymous}
-		<div class="mt-6 text-gray-400">
+		<div class="mt-6 text-gray-600 dark:text-gray-400">
 			Not signed in.{' '}
 			<button
-				class="cursor-pointer p-1 leading-none text-gray-200 underline transition hover:bg-neutral-700 focus:outline-none"
+				class="cursor-pointer p-1 leading-none text-gray-900 underline transition hover:bg-neutral-100 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-700"
 				onclick={onSignIn}
 			>
 				Sign in now
@@ -106,7 +106,7 @@
 			yes: 'Yes',
 			no: 'No'
 		}}
-		theme={localStorage.theme ?? 'dark'}
+		theme={userData.theme}
 	/>
 	<div class="h-6"></div>
 

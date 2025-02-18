@@ -1,18 +1,17 @@
 <script lang="ts">
 	import type { FileData, UserData } from '$lib/types';
-	import { onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database';
+	import { onValue, ref, remove, serverTimestamp, update } from 'firebase/database';
 	import IDE from './IDE.svelte';
-	import { authState, database, USER_DATA_KEY } from '$lib/firebase/firebase.svelte';
+	import { authState, database, getUserData } from '$lib/firebase/firebase.svelte';
 	import { computePermission } from '$lib/utils';
 	import MessagePage from '$lib/components/MessagePage.svelte';
-	import { getContext } from 'svelte';
 
 	let props = $props();
 	let fileId = props.data.fileId;
 
 	let isLoading = $state(true);
 	let fileData: FileData | null = $state(null);
-	const userData: UserData = getContext(USER_DATA_KEY);
+	const userData: UserData = getUserData();
 
 	$effect(() => {
 		isLoading = true;

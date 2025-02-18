@@ -14,7 +14,7 @@
 		type User
 	} from 'firebase/auth';
 	import animals from './animals';
-	import { onMount } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import { PUBLIC_USE_FIREBASE_EMULATORS } from '$env/static/public';
 	import { type UserData } from '$lib/types';
 	let firebaseConfig = {
@@ -100,7 +100,8 @@
 		return auth.signOut();
 	};
 
-	export const USER_DATA_KEY = Symbol('userData');
+	const USER_DATA_KEY = Symbol('userData');
+	export const getUserData: () => UserData = () => getContext(USER_DATA_KEY);
 </script>
 
 <script lang="ts">
@@ -119,7 +120,6 @@
 	 * Listen for auth state changes, updating the `authState` store and signing in
 	 * anonymously as needed.
 	 */
-	// svelte-ignore state_referenced_locally
 	setContext(USER_DATA_KEY, userData);
 	onMount(() => {
 		let unsubscribeUserData: () => void = () => {};
@@ -129,7 +129,9 @@
 			unsubscribeUserData = () => {};
 			if (!user) {
 				authState.firebaseUser = null;
-				userData = defaultData;
+				// a deep copy here is necessary so reference isn't changed
+				// @ts-expect-error both userData and defaultData are the same time
+				for (const key in defaultData) userData[key] = defaultData[key];
 
 				signInAnonymously(auth).catch((error) => {
 					const errorCode = error.code;
