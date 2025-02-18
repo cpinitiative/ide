@@ -14,9 +14,9 @@
 		type User
 	} from 'firebase/auth';
 	import animals from './animals';
-	import { onMount } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import { PUBLIC_USE_FIREBASE_EMULATORS } from '$env/static/public';
-
+	import { type UserData } from '$lib/types';
 	let firebaseConfig = {
 		apiKey: 'AIzaSyC2C7XWrCKcmM0RDAVZZHDQSxOlo6g3JTU',
 		authDomain: 'cp-ide-2.firebaseapp.com',
@@ -99,17 +99,39 @@
 	export const signOut = () => {
 		return auth.signOut();
 	};
+
+	const USER_DATA_KEY = Symbol('userData');
+	export const getUserData: () => UserData = () => getContext(USER_DATA_KEY);
 </script>
 
 <script lang="ts">
+	import { setContext } from 'svelte';
+	import { onValue, ref } from 'firebase/database';
+	const defaultData = {
+		editorMode: 'normal',
+		tabSize: 4,
+		theme: localStorage.theme ?? 'dark',
+		defaultPermission: 'READ_WRITE',
+		defaultLanguage: 'cpp',
+		inlayHints: 'off'
+	} as UserData;
+	let userData: UserData = $state(defaultData);
 	/*
 	 * Listen for auth state changes, updating the `authState` store and signing in
 	 * anonymously as needed.
 	 */
+	setContext(USER_DATA_KEY, userData);
 	onMount(() => {
-		const unsubscribe = auth.onAuthStateChanged((user) => {
+		let unsubscribeUserData: () => void = () => {};
+		const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+			// clean up existing any listener
+			unsubscribeUserData();
+			unsubscribeUserData = () => {};
 			if (!user) {
 				authState.firebaseUser = null;
+				// a deep copy here is necessary so reference isn't changed
+				// @ts-expect-error both userData and defaultData are the same time
+				for (const key in defaultData) userData[key] = defaultData[key];
 
 				signInAnonymously(auth).catch((error) => {
 					const errorCode = error.code;
@@ -132,12 +154,53 @@
 				} else {
 					authState.firebaseUser = user;
 				}
+
+				// Set up user data listener when authenticated
+				const userDataRef = ref(database, `users/${user.uid}/data`);
+				unsubscribeUserData = onValue(userDataRef, (snapshot) => {
+					const data = snapshot.val();
+
+					if (data) {
+						if (data.editorMode === 'vim' || data.editorMode === 'normal') {
+							userData.editorMode = data.editorMode;
+						}
+						if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
+							userData.tabSize = data.tabSize;
+						}
+						if (data.theme === 'light' || data.theme === 'dark') {
+							// write theme to localStorage to prevent flicker
+							localStorage.theme = userData.theme = data.theme;
+						}
+						if (data.inlayHints === 'on' || data.inlayHints === 'off') {
+							userData.inlayHints = data.inlayHints;
+						}
+						if (
+							data.defaultPermission === 'READ_WRITE' ||
+							data.defaultPermission === 'READ' ||
+							data.defaultPermission === 'PRIVATE'
+						) {
+							userData.defaultPermission = data.defaultPermission;
+						}
+						if (
+							data.defaultLanguage === 'cpp' ||
+							data.defaultLanguage === 'java' ||
+							data.defaultLanguage === 'py'
+						) {
+							userData.defaultLanguage = data.defaultLanguage;
+						}
+					}
+				});
 			}
 		});
 
-		return unsubscribe;
+		return () => {
+			unsubscribeUserData();
+			unsubscribeAuth();
+		};
 	});
-
+	$effect(() => {
+		document.body.setAttribute('data-theme', userData.theme);
+	});
 	const { children } = $props();
 </script>
 

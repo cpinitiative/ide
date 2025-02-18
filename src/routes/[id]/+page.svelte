@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { FileData, UserData } from '$lib/types';
-	import { onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database';
+	import { onValue, ref, remove, serverTimestamp, update } from 'firebase/database';
 	import IDE from './IDE.svelte';
-	import { authState, database } from '$lib/firebase/firebase.svelte';
+	import { authState, database, getUserData } from '$lib/firebase/firebase.svelte';
 	import { computePermission } from '$lib/utils';
 	import MessagePage from '$lib/components/MessagePage.svelte';
 
@@ -11,7 +11,7 @@
 
 	let isLoading = $state(true);
 	let fileData: FileData | null = $state(null);
-	let userData: UserData | null = $state(null);
+	const userData: UserData = getUserData();
 
 	$effect(() => {
 		isLoading = true;
@@ -35,51 +35,8 @@
 			isLoading = false;
 		});
 
-		const userDataRef = ref(database, `users/${authState.firebaseUser.uid}/data`);
-		const unsubscribeUserData = onValue(userDataRef, (snapshot) => {
-			userData = {
-				editorMode: 'normal',
-				tabSize: 4,
-				theme: 'dark',
-				defaultPermission: 'READ_WRITE',
-				defaultLanguage: 'cpp',
-				inlayHints: 'off'
-			};
-
-			const data = snapshot.val();
-			if (data) {
-				if (data.editorMode === 'vim' || data.editorMode === 'normal') {
-					userData.editorMode = data.editorMode;
-				}
-				if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
-					userData.tabSize = data.tabSize;
-				}
-				if (data.theme === 'light' || data.theme === 'dark') {
-					userData.theme = data.theme;
-				}
-				if (data.inlayHints === 'on' || data.inlayHints === 'off') {
-					userData.inlayHints = data.inlayHints;
-				}
-				if (
-					data.defaultPermission === 'READ_WRITE' ||
-					data.defaultPermission === 'READ' ||
-					data.defaultPermission === 'PRIVATE'
-				) {
-					userData.defaultPermission = data.defaultPermission;
-				}
-				if (
-					data.defaultLanguage === 'cpp' ||
-					data.defaultLanguage === 'java' ||
-					data.defaultLanguage === 'py'
-				) {
-					userData.defaultLanguage = data.defaultLanguage;
-				}
-			}
-		});
-
 		return () => {
 			unsubscribeFileData();
-			unsubscribeUserData();
 		};
 	});
 

@@ -18,8 +18,8 @@
 
 	async function handleToggleHideFile(file: UserFile) {
 		if (!authState.firebaseUser) return;
-    const fileRef = ref(database, `users/${authState.firebaseUser.uid}/files/${file.id}`);
-    await update(fileRef, { hidden: !file.hidden });
+		const fileRef = ref(database, `users/${authState.firebaseUser.uid}/files/${file.id}`);
+		await update(fileRef, { hidden: !file.hidden });
 	}
 
 	function formatLanguage(language: string | null): string {
@@ -33,24 +33,21 @@
 <div class="flex flex-col">
 	<div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
 		<div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-			<table class="min-w-full divide-y divide-gray-600">
+			<table class="min-w-full divide-y divide-gray-600 text-gray-500 dark:text-gray-400">
 				<thead>
 					<tr>
-						<th
-							scope="col"
-							class="py-3.5 pr-2 pl-4 text-left text-sm font-semibold text-gray-100 sm:pl-6 md:pl-0"
-						>
-							Name
-						</th>
-						<th scope="col" class="px-2 py-3.5 text-left text-sm font-semibold text-gray-100">
-							Last Accessed
-						</th>
-						<th scope="col" class="px-2 py-3.5 text-left text-sm font-semibold text-gray-100">
-							Created
-						</th>
-						<th scope="col" class="px-2 py-3.5 text-left text-sm font-semibold text-gray-100">
-							Language
-						</th>
+						{#each ['Name', 'Last Accessed', 'Created', 'Language'] as col, i (col)}
+							<th
+								scope="col"
+								class={[
+									i == 0 && 'pr-2 pl-4 sm:pl-6 md:pl-0',
+									i > 0 && 'px-2',
+									'py-3.5 text-left text-sm font-semibold text-black dark:text-gray-100'
+								]}
+							>
+								{col}
+							</th>
+						{/each}
 						<th scope="col" class="relative py-3.5 pr-4 pl-2 sm:pr-6 md:pr-0">
 							<span class="sr-only">Actions</span>
 						</th>
@@ -65,19 +62,22 @@
 										{file.title || '(Unnamed File)'} (Hidden)
 									</span>
 								{:else}
-									<a href={`/${file.id.substring(1)}`} class="text-gray-100 hover:text-white">
+									<a
+										href={`/${file.id.substring(1)}`}
+										class="text-gray-900 hover:text-black dark:text-gray-100 dark:hover:text-white"
+									>
 										{file.title || '(Unnamed File)'}
 									</a>
 								{/if}
 							</td>
-							<td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+							<td class="px-3 py-4 text-sm whitespace-nowrap">
 								{formatCreationTime(file.lastAccessTime)}
 							</td>
-							<td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
+							<td class="px-3 py-4 text-sm whitespace-nowrap">
 								{file.creationTime ? formatCreationTime(file.creationTime) : 'Unknown'}
 							</td>
-							<td class="px-3 py-4 text-sm whitespace-nowrap text-gray-400">
-								{file.language ? formatLanguage(file.language) : "Unknown"}
+							<td class="px-3 py-4 text-sm whitespace-nowrap">
+								{file.language ? formatLanguage(file.language) : 'Unknown'}
 							</td>
 							<td
 								class="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6 md:pr-0"
