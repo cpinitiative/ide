@@ -130,7 +130,7 @@
 			if (!user) {
 				authState.firebaseUser = null;
 				// a deep copy here is necessary so reference isn't changed
-				// @ts-expect-error both userData and defaultData are the same time
+				// @ts-expect-error both userData and defaultData are the same type, so this is fine
 				for (const key in defaultData) userData[key] = defaultData[key];
 
 				signInAnonymously(auth).catch((error) => {
