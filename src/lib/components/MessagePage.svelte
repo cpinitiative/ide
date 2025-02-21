@@ -1,15 +1,15 @@
 <script lang="ts">
-  const { message, showHomeButton = false } = $props();
+	const { message, showHomeButton = false } = $props();
 </script>
 
-<div class="p-8 sm:p-16 text-center">
-  <div class="text-3xl sm:text-4xl text-white font-bold">{message}</div>
-  {#if showHomeButton}
-    <a
-      href="/"
-      class="mt-6 sm:mt-10 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-[#1E1E1E]"
-    >
-      Go Home
-    </a>
-  {/if}
+<div class="bg-white p-8 text-center sm:p-16 dark:bg-[#1e1e1e]">
+	<div class="text-3xl font-bold text-black sm:text-4xl dark:text-white">{message}</div>
+	{#if showHomeButton}
+		<a
+			href="/"
+			class="mt-6 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:outline-none sm:mt-10"
+		>
+			Go Home
+		</a>
+	{/if}
 </div>

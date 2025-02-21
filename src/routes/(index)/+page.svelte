@@ -12,10 +12,10 @@
 	/>
 </svelte:head>
 
-<div class="flex min-h-full flex-col">
+<div class="flex min-h-full flex-col bg-white dark:bg-[var(--color-monaco-editor-bg)]">
 	<div class="flex-1">
 		<div class="mx-auto max-w-6xl p-4 sm:p-6 md:p-8 lg:p-12">
-			<h1 class="text-2xl font-black text-gray-100 md:text-4xl">
+			<h1 class="text-2xl font-black text-black md:text-4xl dark:text-gray-100">
 				Real-Time Collaborative Online IDE
 			</h1>
 
@@ -29,7 +29,9 @@
 		</div>
 	</div>
 	<div class="border-t border-gray-700">
-		<div class="mx-auto max-w-6xl space-y-8 p-4 text-gray-400 sm:p-6 md:p-8 lg:p-12">
+		<div
+			class="mx-auto max-w-6xl space-y-8 p-4 text-gray-600 sm:p-6 md:p-8 lg:p-12 dark:text-gray-400"
+		>
 			<div>
 				Looking to get better at USACO? Check out the
 				<a href="https://usaco.guide/" rel="noreferrer" class="underline hover:text-white">
