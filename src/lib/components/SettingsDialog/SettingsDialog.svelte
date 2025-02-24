@@ -59,7 +59,8 @@
 			...fileSettings,
 			workspaceName: formData.get('workspaceName') as string,
 			language: formData.get('language') as Language,
-			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE'
+			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
+			fileName: useFile === 'file-io' ? fileName : ''
 		};
 		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
 			'compiler_options'
@@ -70,6 +71,8 @@
 
 	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
 	let selectedLanguage: Language = $state(fileSettings.language);
+	let useFile: 'stdin-stdout' | 'file-io' = $state(fileSettings.fileName ? 'file-io' : 'stdin-stdout');
+	let fileName: string | null = $state(fileSettings.fileName || fileSettings.workspaceName);
 
 	export const open = () => {
 		meltUiOpen.set(true);
@@ -117,9 +120,23 @@
 				</div>
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
-					<p class="text-sm text-gray-500" class:hidden={activeTab !== 'judge'}>
-						Work In Progress: Much of the functionality is still being ported over to the new site.
-					</p>
+					<RadioGroup
+						name="useFile"
+						options={{ 'stdin-stdout': 'Standard Input/Output', 'file-io': 'File Input/Output' }}
+						theme={userData.theme}
+						bind:value={useFile}
+						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+					/>
+
+					{#if useFile === 'file-io'}
+						<TextField
+							label="File Name"
+							name="fileName"
+							defaultValue={fileName}
+							bind:value={fileName}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+						/>
+					{/if}
 
 					<div class:hidden={activeTab !== 'workspace'}>
 						<TextField

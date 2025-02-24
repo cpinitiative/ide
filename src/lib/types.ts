@@ -48,6 +48,7 @@ export interface FileSettings {
 	compilerOptions: { [key in Language]: string };
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	workspaceName: string | null;
+	fileName: string | null;
 	creationTime: string | null; // firebase timetsamp?
 	language: Language;
 
