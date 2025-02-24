@@ -60,7 +60,7 @@
 			workspaceName: formData.get('workspaceName') as string,
 			language: formData.get('language') as Language,
 			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
-			fileName: useFile === 'file-io' ? fileName : ''
+			fileIOName: ioMethod === 'fileio' ? fileName : null
 		};
 		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
 			'compiler_options'
@@ -71,8 +71,8 @@
 
 	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
 	let selectedLanguage: Language = $state(fileSettings.language);
-	let useFile: 'stdin-stdout' | 'file-io' = $state(fileSettings.fileName ? 'file-io' : 'stdin-stdout');
-	let fileName: string | null = $state(fileSettings.fileName || fileSettings.workspaceName);
+	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
+	let fileName: string | null = $state(fileSettings.fileIOName || fileSettings.workspaceName || '');
 
 	export const open = () => {
 		meltUiOpen.set(true);
@@ -121,18 +121,18 @@
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
 					<RadioGroup
-						name="useFile"
-						options={{ 'stdin-stdout': 'Standard Input/Output', 'file-io': 'File Input/Output' }}
+						name="ioMethod"
+						options={{ 'stdio': 'Standard Input/Output', 'fileio': 'File Input/Output' }}
 						theme={userData.theme}
-						bind:value={useFile}
+						defaultValue={ioMethod}
+						bind:value={ioMethod}
 						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 					/>
 
-					{#if useFile === 'file-io'}
+					{#if ioMethod === 'fileio'}
 						<TextField
 							label="File Name"
 							name="fileName"
-							defaultValue={fileName}
 							bind:value={fileName}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						/>

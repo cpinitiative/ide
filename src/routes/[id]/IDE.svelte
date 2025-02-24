@@ -73,7 +73,7 @@
 			code,
 			input,
 			fileData.settings.compilerOptions[fileData.settings.language],
-			fileData.settings.fileName
+			fileData.settings.fileIOName
 		);
 
 		judgeState.isRunning = false;
@@ -125,7 +125,7 @@
 			return judgeState.compileResult?.stderr ?? '';
 		} else if (judgeState.executeResult && isExecuteResponse(judgeState.executeResult)) {
 			if (outputPaneTab === 'stdout') {
-				if(judgeState.executeResult.file_output) {
+				if (judgeState.executeResult.file_output) {
 					return judgeState.executeResult.file_output;
 				}
 				return judgeState.executeResult.stdout ?? '';

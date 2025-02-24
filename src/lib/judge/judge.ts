@@ -6,7 +6,7 @@ export const submitToJudge = async (
 	code: string,
 	input: string,
 	compilerOptions: string,
-	fileIOName?: string
+	fileIOName: string | null
 ): Promise<JudgeResponse> => {
 	const payload = {
 		compile: {
@@ -17,9 +17,10 @@ export const submitToJudge = async (
 		execute: {
 			timeout_ms: 5000,
 			stdin: input,
-			file_io_name: fileIOName
+			file_io_name: fileIOName || ''
 		}
 	};
+	console.log(fileIOName);
 	const resp = await fetch(PUBLIC_JUDGE_URL, {
 		method: 'POST',
 		headers: {
