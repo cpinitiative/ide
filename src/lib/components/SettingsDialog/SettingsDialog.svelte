@@ -39,6 +39,7 @@
 	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
 	let selectedLanguage: Language = $state(fileSettings.language);
 	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
+	let fileName: string = $state(fileSettings.fileIOName || fileSettings.workspaceName || '');
 
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
@@ -64,7 +65,7 @@
 			workspaceName: formData.get('workspaceName') as string,
 			language: formData.get('language') as Language,
 			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
-			fileIOName: ioMethod === 'fileio' ? formData.get('fileName') as string : null
+			fileIOName: ioMethod === 'fileio' ? fileName : null
 		};
 		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
 			'compiler_options'
@@ -217,7 +218,7 @@
 						<div class="mb-2 font-medium">File I/O</div>
 						<RadioGroup
 							name="ioMethod"
-							options={{ 'fileio': 'Enabled', 'stdio': 'Disabled' }}
+							options={{ fileio: 'Enabled', stdio: 'Disabled' }}
 							theme={userData.theme}
 							defaultValue={ioMethod}
 							bind:value={ioMethod}
@@ -230,9 +231,14 @@
 							<TextField
 								label="File Name"
 								name="fileName"
-								defaultValue={fileSettings.fileIOName || fileSettings.workspaceName || ''}
+								bind:value={fileName}
 								readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 							/>
+							<p class="text-sm text-gray-500 pt-2">
+								You can optionally read/write from {fileName}.in and
+								{fileName}.out instead of standard input/output. You must use an alphanumeric
+								file name (dashes are not allowed).
+							</p>
 						{/if}
 					</div>
 
