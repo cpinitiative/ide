@@ -1,5 +1,5 @@
 <script module>
-	import { isExecuteResponse, type CommandOutput, type ExecuteResponse, type FileData, type FileSettings, type USACOJudgeSubmissionResult, type UserData } from '$lib/types';
+	import { isExecuteResponse, type CommandOutput, type ExecuteResponse, type FileData, type FileSettings, type JudgeResponse, type USACOJudgeSubmissionResult, type UserData } from '$lib/types';
 
 	export type JudgeState = {
 		isRunning: boolean;
@@ -66,15 +66,25 @@
 		}
 
 		judgeState.isRunning = true;
-		judgeState.result = null;
+		judgeState.compileResult = null;
+		judgeState.executeResult = null;
 
-		const resp = await submitToJudge(
-			fileData.settings.language,
-			code,
-			input,
-			fileData.settings.compilerOptions[fileData.settings.language],
-			fileData.settings.fileIOName
-		);
+		let resp: JudgeResponse;
+		try {
+			resp = await submitToJudge(
+				fileData.settings.language,
+				code,
+				input,
+				fileData.settings.compilerOptions[fileData.settings.language],
+				fileData.settings.fileIOName
+			);
+		} catch (e) {
+			judgeState.isRunning = false;
+			judgeState.compileResult = null;
+			judgeState.executeResult = null;
+			alert('Error running code: ' + e);
+			return;
+		}
 
 		judgeState.isRunning = false;
 		judgeState.compileResult = resp.compile;
