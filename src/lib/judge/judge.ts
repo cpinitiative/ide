@@ -20,7 +20,6 @@ export const submitToJudge = async (
 			file_io_name: fileIOName || ''
 		}
 	};
-	console.log(fileIOName);
 	const resp = await fetch(PUBLIC_JUDGE_URL, {
 		method: 'POST',
 		headers: {

@@ -36,6 +36,10 @@
 		) => void;
 	} = $props();
 
+	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
+	let selectedLanguage: Language = $state(fileSettings.language);
+	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
+
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
@@ -60,7 +64,7 @@
 			workspaceName: formData.get('workspaceName') as string,
 			language: formData.get('language') as Language,
 			defaultPermission: formData.get('defaultPermission') as 'READ_WRITE' | 'READ' | 'PRIVATE',
-			fileIOName: ioMethod === 'fileio' ? fileName : null
+			fileIOName: ioMethod === 'fileio' ? formData.get('fileName') as string : null
 		};
 		newFileSettings.compilerOptions[newFileSettings.language] = formData.get(
 			'compiler_options'
@@ -68,11 +72,6 @@
 		onSave(newUserData, newFileSettings, formData.get('username') as string);
 		meltUiOpen.set(false);
 	};
-
-	let activeTab: 'workspace' | 'user' | 'judge' = $state('workspace');
-	let selectedLanguage: Language = $state(fileSettings.language);
-	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
-	let fileName: string | null = $state(fileSettings.fileIOName || fileSettings.workspaceName || '');
 
 	export const open = () => {
 		meltUiOpen.set(true);
@@ -120,29 +119,11 @@
 				</div>
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
-					<RadioGroup
-						name="ioMethod"
-						options={{ 'stdio': 'Standard Input/Output', 'fileio': 'File Input/Output' }}
-						theme={userData.theme}
-						defaultValue={ioMethod}
-						bind:value={ioMethod}
-						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-					/>
-
-					{#if ioMethod === 'fileio'}
-						<TextField
-							label="File Name"
-							name="fileName"
-							bind:value={fileName}
-							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-						/>
-					{/if}
-
 					<div class:hidden={activeTab !== 'workspace'}>
 						<TextField
 							label="Workspace Name"
 							name="workspaceName"
-							defaultValue={fileSettings.workspaceName || ''}
+							defaultValue={fileSettings.workspaceName}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						/>
 					</div>
@@ -230,6 +211,29 @@
 							options={{ light: 'Light', dark: 'Dark' }}
 							theme={userData.theme}
 						/>
+					</div>
+
+					<div class:hidden={activeTab !== 'judge'}>
+						<div class="mb-2 font-medium">File I/O</div>
+						<RadioGroup
+							name="ioMethod"
+							options={{ 'fileio': 'Enabled', 'stdio': 'Disabled' }}
+							theme={userData.theme}
+							defaultValue={ioMethod}
+							bind:value={ioMethod}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+						/>
+					</div>
+
+					<div class:hidden={activeTab !== 'judge'}>
+						{#if ioMethod === 'fileio'}
+							<TextField
+								label="File Name"
+								name="fileName"
+								defaultValue={fileSettings.fileIOName || fileSettings.workspaceName || ''}
+								readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+							/>
+						{/if}
 					</div>
 
 					<div class="mt-6 flex items-center space-x-4">
