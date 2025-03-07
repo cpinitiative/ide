@@ -72,9 +72,8 @@
 			fileData.settings.language,
 			code,
 			input,
-			fileData.settings.compilerOptions[fileData.settings.language]
-			// todo
-			// fileData.settings.fileIOName
+			fileData.settings.compilerOptions[fileData.settings.language],
+			fileData.settings.fileIOName
 		);
 
 		judgeState.isRunning = false;
@@ -126,6 +125,9 @@
 			return judgeState.compileResult?.stderr ?? '';
 		} else if (judgeState.executeResult && isExecuteResponse(judgeState.executeResult)) {
 			if (outputPaneTab === 'stdout') {
+				if (judgeState.executeResult.file_output) {
+					return judgeState.executeResult.file_output;
+				}
 				return judgeState.executeResult.stdout ?? '';
 			} else if (outputPaneTab === 'stderr') {
 				return judgeState.executeResult.stderr ?? '';
