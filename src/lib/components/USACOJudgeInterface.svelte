@@ -63,8 +63,8 @@
 			</p>
 			<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 				The Online Judge is in early beta. Not all problems are supported. Timing and correctness
-				information may not be perfectly accurate. TLE is currently incorrectly reported as RTE.
-				Report issues <a
+				information may not be perfectly accurate. Large inputs / outputs may incorrectly result in
+				WA. Report issues <a
 					href="https://github.com/cpinitiative/online-judge-modal/issues"
 					class="underline"
 					target="_blank"
