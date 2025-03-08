@@ -31,5 +31,12 @@ export const submitToJudge = async (
 		const msg = await resp.text();
 		throw new Error(msg);
 	}
-	return (await resp.json()) as JudgeResponse;
+	const result = (await resp.json()) as JudgeResponse;
+	if (result.execute?.full_output_url) {
+		const url = result.execute.full_output_url;
+		const fullOutputResp = await fetch(url);
+		result.execute = await fullOutputResp.json();
+		result.execute!.full_output_url = url;
+	}
+	return result;
 };
