@@ -16,11 +16,25 @@ export const submitToJudge = async (
 		},
 		execute: {
 			timeout_ms: 5000,
-			stdin: input,
+			stdin: input as string | null,
+			stdin_id: null,
 			file_io_name: fileIOName || ''
 		}
 	};
-	const resp = await fetch(PUBLIC_JUDGE_URL, {
+	if (JSON.stringify(payload).length > 5_500_000) {
+		// AWS lambda has a 6MB request limit
+		const resp = await fetch(`${PUBLIC_JUDGE_URL}/large-input`, {
+			method: 'POST'
+		});
+		const { presigned_url, input_id } = await resp.json();
+		await fetch(presigned_url, {
+			method: 'PUT',
+			body: input
+		});
+		payload.execute.stdin = null;
+		payload.execute.stdin_id = input_id;
+	}
+	const resp = await fetch(`${PUBLIC_JUDGE_URL}/compile-and-execute`, {
 		method: 'POST',
 		headers: {
 			'content-type': 'application/json'
