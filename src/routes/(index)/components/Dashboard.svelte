@@ -18,7 +18,6 @@
 	});
 
 	let files: UserFile[] | null = $state(null);
-	let showHidden = $state<'yes' | 'no'>('no');
 	const userData = getUserData();
 	$effect(() => {
 		const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
@@ -49,7 +48,7 @@
 	});
 
 	let filesToShow = $derived.by(() => {
-		if (showHidden === 'yes') return files;
+		if (userData.showHiddenFiles == 'yes') return files;
 		return files?.filter((file) => !file.hidden);
 	});
 
@@ -101,7 +100,7 @@
 
 	<div class="mb-2 font-medium text-black dark:text-gray-100">Show Hidden Files?</div>
 	<RadioGroup
-		bind:value={showHidden}
+		bind:value={userData.showHiddenFiles}
 		options={{
 			yes: 'Yes',
 			no: 'No'
