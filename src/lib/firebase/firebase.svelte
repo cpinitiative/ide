@@ -113,7 +113,8 @@
 		theme: localStorage.theme ?? 'dark',
 		defaultPermission: 'READ_WRITE',
 		defaultLanguage: 'cpp',
-		inlayHints: 'off'
+		inlayHints: 'off',
+		showHiddenFiles: 'yes'
 	} as UserData;
 	let userData: UserData = $state(defaultData);
 	/*
@@ -187,6 +188,12 @@
 							data.defaultLanguage === 'py'
 						) {
 							userData.defaultLanguage = data.defaultLanguage;
+						}
+						if(
+							data.showHiddenFiles === 'yes' ||
+							data.showHiddenFiles === 'no'
+						) {
+							userData.showHiddenFiles = data.showHiddenFiles;
 						}
 					}
 				});

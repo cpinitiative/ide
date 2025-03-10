@@ -39,6 +39,7 @@ export type UserData = {
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	defaultLanguage: Language;
 	inlayHints: 'on' | 'off';
+	showHiddenFiles: 'yes' | 'no';
 };
 
 /**
