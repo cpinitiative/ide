@@ -98,6 +98,9 @@ export interface ExecuteResponse {
 	exit_code: number;
 	exit_signal: string | null;
 	verdict: Verdict;
+
+	// If the output is too large, a presigned S3 URL containing the full output is returned.
+	full_output_url: string | null;
 }
 
 export interface JudgeTestCaseResponse extends ExecuteResponse {

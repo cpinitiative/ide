@@ -33,7 +33,8 @@
 				problem_id: problem.id,
 				source_code: mainEditor.getValue(),
 				compiler_options: fileData.settings.compilerOptions[fileData.settings.language],
-				language: fileData.settings.language
+				// TODO: de-duplicate this with `judge.ts`.
+				language: fileData.settings.language === 'java' ? 'java21' : fileData.settings.language === 'py' ? 'py12' : 'cpp'
 			})
 		});
 		source.onreadystatechange = (state) => {
@@ -43,7 +44,11 @@
 		};
 		source.onerror = (e: any) => {
 			console.error(e);
-			errorMessage = `Status code ${e.responseCode ?? 'unknown'}: ${e.data}`;
+			if (e.responseCode) {
+				errorMessage = `Status code ${e.responseCode}: ${e.data}`;
+			} else {
+				errorMessage = `Internal error: ${e.data}`;
+			}
 		};
 		source.addEventListener('compile', (e: any) => {
 			const data = JSON.parse(e.data);
