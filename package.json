@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "cross-env FIREBASE_AUTH_EMULATOR_HOST=\"127.0.0.1:9099\" concurrently -k \"firebase emulators:start\" \"vite dev\"",
+		"dev": "cross-env PUBLIC_USE_FIREBASE_EMULATORS=true FIREBASE_AUTH_EMULATOR_HOST=\"127.0.0.1:9099\" concurrently -k \"firebase emulators:start\" \"vite dev\"",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
