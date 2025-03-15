@@ -114,7 +114,7 @@
 		defaultPermission: 'READ_WRITE',
 		defaultLanguage: 'cpp',
 		inlayHints: 'off',
-		showHiddenFiles: 'yes'
+		showHiddenFiles: 'no'
 	} as UserData;
 	let userData: UserData = $state(defaultData);
 	/*
@@ -189,7 +189,7 @@
 						) {
 							userData.defaultLanguage = data.defaultLanguage;
 						}
-						if(
+						if (
 							data.showHiddenFiles === 'yes' ||
 							data.showHiddenFiles === 'no'
 						) {
