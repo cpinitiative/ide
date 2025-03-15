@@ -13,9 +13,11 @@ npm install
 npm run dev
 ```
 
-TODO: Update this outdated section
+`npm run dev` will start a Firebase emulator for you. By default, the dev server uses a local firebase emulator and the production YJS server.
 
-`npm run dev` will start a Firebase emulator for you. By default, the dev server uses a local firebase emulator and the production YJS server. To change these settings, edit `.env`.
+If you want to use the production Firebase server, run `npx vite dev` instead. Note that creating new files will not work.
+
+If you want to use the local YJS server, modify the `.env` file.
 
 Note: If you get a firebase emulators timeout error on Mac, see [firebase/firebase-tools#2379 (comment)](https://github.com/firebase/firebase-tools/issues/2379#issuecomment-951884721) and Issue #67 in this repo.
 
