@@ -62,13 +62,10 @@
 	const onUpdateShowHiddenFiles = (newValue: string) => {
 		if (userData.showHiddenFiles === newValue) return;
 		if (firebaseUser && firebaseUser.uid) {
-			userData.showHiddenFiles = newValue as 'yes' | 'no';
-			console.log(userData);
-			update(ref(database, `users/${firebaseUser.uid}/data`), userData)
+			update(ref(database, `users/${firebaseUser.uid}/data/showHiddenFiles`), newValue as 'yes' | 'no')
 				.catch((error) => {
 					alert('Error updating Show Hidden Files preference: ' + error);
 				});
-			console.log("passed")
 		}
 	};
 </script>
