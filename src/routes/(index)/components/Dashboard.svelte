@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ref, onValue, orderByChild, query } from 'firebase/database';
+	import { ref, onValue, orderByChild, query, update } from 'firebase/database';
 	import { authState, getUserData, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
 	import { database } from '$lib/firebase/firebase.svelte';
 	import type { UserFile } from '$lib/types';
@@ -18,7 +18,6 @@
 	});
 
 	let files: UserFile[] | null = $state(null);
-	let showHidden = $state<'yes' | 'no'>('no');
 	const userData = getUserData();
 	$effect(() => {
 		const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
@@ -49,7 +48,7 @@
 	});
 
 	let filesToShow = $derived.by(() => {
-		if (showHidden === 'yes') return files;
+		if (userData.showHiddenFiles == 'yes') return files;
 		return files?.filter((file) => !file.hidden);
 	});
 
@@ -59,6 +58,15 @@
 			let override = (await confirmOverrideAuthDialog?.open()) ?? false;
 			return override;
 		});
+	};
+	const onUpdateShowHiddenFiles = (newValue: string) => {
+		if (userData.showHiddenFiles === newValue) return;
+		if (firebaseUser && firebaseUser.uid) {
+			update(ref(database, `users/${firebaseUser.uid}/data/showHiddenFiles`), newValue as 'yes' | 'no')
+				.catch((error) => {
+					alert('Error updating Show Hidden Files preference: ' + error);
+				});
+		}
 	};
 </script>
 
@@ -101,12 +109,13 @@
 
 	<div class="mb-2 font-medium text-black dark:text-gray-100">Show Hidden Files?</div>
 	<RadioGroup
-		bind:value={showHidden}
+		value={userData.showHiddenFiles}
 		options={{
 			yes: 'Yes',
 			no: 'No'
 		}}
 		theme={userData.theme}
+		onchange={(e) => (onUpdateShowHiddenFiles(e))}
 	/>
 	<div class="h-6"></div>
 
