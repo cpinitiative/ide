@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ref, onValue, orderByChild, query, update } from 'firebase/database';
+	import { ref, onValue, orderByChild, query, set } from 'firebase/database';
 	import { authState, getUserData, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
 	import { database } from '$lib/firebase/firebase.svelte';
 	import type { UserFile } from '$lib/types';
@@ -62,7 +62,7 @@
 	const onUpdateShowHiddenFiles = (newValue: string) => {
 		if (userData.showHiddenFiles === newValue) return;
 		if (firebaseUser && firebaseUser.uid) {
-			update(ref(database, `users/${firebaseUser.uid}/data/showHiddenFiles`), newValue as 'yes' | 'no')
+			set(ref(database, `users/${firebaseUser.uid}/data/showHiddenFiles`), newValue as 'yes' | 'no')
 				.catch((error) => {
 					alert('Error updating Show Hidden Files preference: ' + error);
 				});
