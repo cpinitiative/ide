@@ -58,7 +58,7 @@
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
-		const input = inputEditor?.getValue();
+		const input = inputEditor?.getValue().trimEnd();
 
 		if (code === undefined || input === undefined) {
 			console.warn('Code or input is undefined when trying to run code, cancelling', code, input);
