@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
-	import { Plus, Download, Files, Cog } from 'lucide-svelte';
+	import { Plus, Download, Files, Cog, Trash } from 'lucide-svelte';
 	const {
 		elements: { menu, item, trigger }
 	} = createDropdownMenu({
@@ -10,7 +10,7 @@
 		}
 	});
 
-	const { onDownloadFile, onOpenSettings, theme } = $props();
+	const { onDownloadFile, onOpenSettings, theme, onRemoveFile } = $props();
 </script>
 
 <button
@@ -39,11 +39,11 @@
 	data-theme={theme}
 	use:melt={$menu}
 >
-	{#each [[Plus, 'New File', '/new', null], [Download, 'Download File', null, onDownloadFile], [Files, 'Clone File', `${window.location.href}/copy`, null], [Cog, 'Settings', null, onOpenSettings]] as [Icon, text, href, onclick] (text)}
+	{#each [[Plus, 'New File', '/new', null], [Download, 'Download File', null, onDownloadFile], [Files, 'Clone File', `${window.location.href}/copy`, null], [Trash, 'Remove File', null, onRemoveFile], [Cog, 'Settings', null, onOpenSettings]] as [Icon, text, href, onclick] (text)}
 		<a
 			use:melt={$item}
 			{href}
-			{onclick}
+			{onclick} 
 			target="_blank"
 			class="group flex w-full cursor-pointer items-center px-4 py-2
 		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-100 data-[highlighted]:text-gray-900

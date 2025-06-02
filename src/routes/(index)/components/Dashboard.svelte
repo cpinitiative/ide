@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ref, onValue, orderByChild, query, set } from 'firebase/database';
+	import { ref, onValue, orderByChild, query, set, onChildRemoved } from 'firebase/database';
 	import { authState, getUserData, signInWithGoogle, signOut } from '$lib/firebase/firebase.svelte';
 	import { database } from '$lib/firebase/firebase.svelte';
 	import type { UserFile } from '$lib/types';
@@ -7,6 +7,7 @@
 	import FilesList from './FilesList.svelte';
 	import ConfirmOverrideAuthDialog from '$lib/components/ConfirmOverrideAuthDialog.svelte';
 	import RadioGroup from '$lib/components/RadioGroup.svelte';
+	import { snapshot } from 'yjs';
 
 	const firebaseUser = $derived.by(() => {
 		if (!authState.firebaseUser) {
@@ -21,7 +22,7 @@
 	const userData = getUserData();
 	$effect(() => {
 		const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
-		const unsubscribe = onValue(query(userFilesRef, orderByChild('lastAccessTime')), (snapshot) => {
+		const unsubscribeValue = onValue(query(userFilesRef, orderByChild('lastAccessTime')), (snapshot) => {
 			if (!snapshot.exists()) {
 				files = [];
 			} else {
@@ -44,7 +45,17 @@
 			}
 		});
 
-		return unsubscribe;
+		const unsubscribeChildRemoved = onChildRemoved(userFilesRef, (snapshot) => {
+			const removedFileId = snapshot.key; 
+			if (removedFileId) {
+				files = files?.filter(file => file.id !== removedFileId) ?? [];
+			}
+		});
+
+		return () => {
+			unsubscribeValue();
+			unsubscribeChildRemoved(); 
+		};
 	});
 
 	let filesToShow = $derived.by(() => {

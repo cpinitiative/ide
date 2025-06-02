@@ -4,10 +4,10 @@
 	dayjs.extend(relativeTime);
 
 	import type { UserFile } from '$lib/types';
-	import { authState, database } from '$lib/firebase/firebase.svelte';
-	import { ref, update } from 'firebase/database';
+	import { auth, authState, database } from '$lib/firebase/firebase.svelte';
+	import { onChildRemoved, ref, update } from 'firebase/database';
 
-	const { files }: { files: UserFile[] } = $props();
+	let { files }: { files: UserFile[] } = $props();
 
 	function formatCreationTime(creationTime: number): string {
 		if (+dayjs() - +dayjs(creationTime) <= 1000 * 60 * 60 * 24 * 2) {
@@ -28,6 +28,17 @@
 		if (language == 'cpp') return 'C++';
 		return 'Unknown';
 	}
+
+	import { onMount } from 'svelte';
+	onMount(() => {
+		if (!authState.firebaseUser) return;
+		const fileRef = ref(database, `users/${authState.firebaseUser.uid}/files`);
+		onChildRemoved(fileRef, (snapshot) => {
+			const removedFileId = snapshot.key; 
+			files = files.filter(file => file.id !== removedFileId);
+		});
+	})
+
 </script>
 
 <div class="flex flex-col">
@@ -60,6 +71,10 @@
 								{#if file.hidden}
 									<span class="text-gray-400">
 										{file.title || '(Unnamed File)'} (Hidden)
+									</span>
+								{:else if !file.title}
+									<span class="text-gray-400">
+										(File Removed)
 									</span>
 								{:else}
 									<a
