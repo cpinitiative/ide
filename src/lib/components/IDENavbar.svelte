@@ -3,18 +3,35 @@
 
 	let copied = $state(false);
 
-	function handleShare() {
-		navigator.clipboard.writeText(window.location.href).then(
-			() => {
+	async function handleShare() {
+		try {
+			// Try to shorten the URL first
+			const shortUrl = await shortenUrl(window.location.href);
+			await navigator.clipboard.writeText(shortUrl);
+			copied = true;
+			setTimeout(() => {
+				copied = false;
+			}, 3000);
+		} catch (error) {
+			// Fallback to original URL if shortening fails
+			try {
+				await navigator.clipboard.writeText(window.location.href);
 				copied = true;
 				setTimeout(() => {
 					copied = false;
 				}, 3000);
-			},
-			() => {
+			} catch (clipboardError) {
 				alert("Couldn't copy link to clipboard. Share the current URL manually.");
 			}
-		);
+		}
+	}
+
+	async function shortenUrl(url: string): Promise<string> {
+		const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+		if (!response.ok) {
+			throw new Error('Failed to shorten URL');
+		}
+		return await response.text();
 	}
 </script>
 
@@ -56,7 +73,7 @@
 					d="M13 4.5a2.5 2.5 0 1 1 .702 1.737L6.97 9.604a2.518 2.518 0 0 1 0 .792l6.733 3.367a2.5 2.5 0 1 1-.671 1.341l-6.733-3.367a2.5 2.5 0 1 1 0-3.475l6.733-3.366A2.52 2.52 0 0 1 13 4.5Z"
 				/>
 			</svg>
-			{#if copied}URL Copied!{:else}Share{/if}
+			{#if copied}Copied!{:else}Share{/if}
 		</button>
 	</div>
 	{@render runButton()}
@@ -67,7 +84,7 @@
 			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 			rel="noreferrer"
 		>
-			Report an Issue
+			Report Issue
 		</a>
 		<a
 			href="https://github.com/cpinitiative/ide"
@@ -75,7 +92,7 @@
 			rel="noreferrer"
 			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 		>
-			Star this on GitHub!
+			GitHub
 		</a>
 		{#if showViewOnlyMessage}
 			<span class="px-4 py-2 text-sm font-medium whitespace-nowrap">View Only</span>
