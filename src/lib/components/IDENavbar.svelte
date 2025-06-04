@@ -73,7 +73,7 @@
 					d="M13 4.5a2.5 2.5 0 1 1 .702 1.737L6.97 9.604a2.518 2.518 0 0 1 0 .792l6.733 3.367a2.5 2.5 0 1 1-.671 1.341l-6.733-3.367a2.5 2.5 0 1 1 0-3.475l6.733-3.366A2.52 2.52 0 0 1 13 4.5Z"
 				/>
 			</svg>
-			{#if copied}Copied!{:else}Share{/if}
+			{#if copied}URL Copied!{:else}Share{/if}
 		</button>
 	</div>
 	{@render runButton()}
@@ -84,7 +84,7 @@
 			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 			rel="noreferrer"
 		>
-			Report Issue
+			Report an Issue
 		</a>
 		<a
 			href="https://github.com/cpinitiative/ide"
@@ -92,7 +92,7 @@
 			rel="noreferrer"
 			class="flex-shrink-0 px-4 py-2 text-sm font-medium hover:text-gray-900 dark:hover:text-gray-100"
 		>
-			GitHub
+			Star this on GitHub!
 		</a>
 		{#if showViewOnlyMessage}
 			<span class="px-4 py-2 text-sm font-medium whitespace-nowrap">View Only</span>
