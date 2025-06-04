@@ -1,3 +1,3 @@
 // place files you want to import through the `$lib` alias in this folder.
-export * from './stores/folders';
-export * from './stores/fileFolderMap';
+import { folders } from '$lib/stores/folders';
+import { fileFolderMap } from '$lib/stores/fileFolderMap';
