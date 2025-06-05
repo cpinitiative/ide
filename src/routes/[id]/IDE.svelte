@@ -31,6 +31,28 @@
 	let mainEditor: RealtimeEditor | undefined = $state(undefined);
 	let inputEditor: RealtimeEditor | undefined = $state(undefined);
 
+	const onRemoveFile = async () => {
+		try {
+			const response = await fetch('/api/removeFile', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ idToken: await firebaseUser.getIdToken(), fileId: fileData.id }) // Include idToken and fileId
+			});
+
+			const result = await response.json();
+			if (response.ok && result.message === 'File removed successfully') {
+				//alert(result.message);
+				window.location.href = '/'; // Redirect to home
+			} else {
+				//alert(`Failed to remove file: ${result.message || 'Unknown error'}`);
+			}
+		} catch (error) {
+			//alert(`Error removing file: ${error}`);
+		}
+	};
+
+
+
 	let inputPaneTab: 'input' | 'judge' = $state(fileData.settings.problem ? 'judge' : 'input');
 	let outputPaneTab = $state('stdout');
 
@@ -196,6 +218,7 @@
 					{onDownloadFile}
 					onOpenSettings={() => settingsDialog?.open()}
 					theme={userData.theme}
+					{onRemoveFile}
 				/>
 			{/snippet}
 			{#snippet runButton()}

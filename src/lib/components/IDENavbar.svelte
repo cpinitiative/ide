@@ -16,6 +16,24 @@
 			}
 		);
 	}
+	function onRemoveFile() {
+
+	fetch('/api/removeFile', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ path: filePath })
+	})
+	.then(res => res.json())
+	.then(result => {
+		if (result.success) {
+			//alert('File removed successfully');
+			// Optionally refresh UI
+		} else {
+			//alert(`Remove failed: ${result.error}`);
+		}
+	});
+	}
+
 </script>
 
 <div class="flex items-center overflow-x-auto text-gray-800 dark:text-gray-200">
@@ -38,7 +56,7 @@
 				/>
 			</svg>
 		</a>
-		{@render fileMenu()}
+		{@render fileMenu({onRemoveFile})}
 		<button
 			type="button"
 			class="focus: relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-neutral-300 focus:outline-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
