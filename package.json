@@ -67,7 +67,7 @@
 		"@uiw/codemirror-theme-vscode": "^4.23.7",
 		"codemirror": "^6.0.1",
 		"dayjs": "^1.11.13",
-		"firebase": "^11.9.0",
+		"firebase": "^11.1.0",
 		"firebase-admin": "^13.0.2",
 		"lucide-svelte": "^0.471.0",
 		"monaco-editor-wrapper": "^6.1.0",

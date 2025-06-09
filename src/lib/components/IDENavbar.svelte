@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { shortenUrl } from '$lib/urlShortener';
 
 	const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
 
@@ -26,6 +25,14 @@
 				alert("Couldn't copy link to clipboard. Share the current URL manually.");
 			}
 		}
+	}
+
+	async function shortenUrl(url: string): Promise<string> {
+		const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+		if (!response.ok) {
+			throw new Error('Failed to shorten URL');
+		}
+		return await response.text();
 	}
 </script>
 
