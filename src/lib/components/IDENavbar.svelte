@@ -1,20 +1,38 @@
 <script lang="ts">
+
 	const { fileMenu, runButton, showViewOnlyMessage = false } = $props();
 
 	let copied = $state(false);
 
-	function handleShare() {
-		navigator.clipboard.writeText(window.location.href).then(
-			() => {
+	async function handleShare() {
+		try {
+			// Try to shorten the URL first
+			const shortUrl = await shortenUrl(window.location.href);
+			await navigator.clipboard.writeText(shortUrl);
+			copied = true;
+			setTimeout(() => {
+				copied = false;
+			}, 3000);
+		} catch (error) {
+			// Fallback to original URL if shortening fails
+			try {
+				await navigator.clipboard.writeText(window.location.href);
 				copied = true;
 				setTimeout(() => {
 					copied = false;
 				}, 3000);
-			},
-			() => {
+			} catch (clipboardError) {
 				alert("Couldn't copy link to clipboard. Share the current URL manually.");
 			}
-		);
+		}
+	}
+
+	async function shortenUrl(url: string): Promise<string> {
+		const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+		if (!response.ok) {
+			throw new Error('Failed to shorten URL');
+		}
+		return await response.text();
 	}
 </script>
 
