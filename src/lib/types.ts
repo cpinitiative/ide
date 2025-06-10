@@ -1,10 +1,5 @@
-/**
- * Represents a file shown on the Dashboard page.
- *
- * Stored in /users/{uid}/files/{fileID} in Firebase.
- */
-export type UserFile = {
-	type: string;
+
+interface BaseUserFile {
 	id: string; // not stored in database; injected by client
 	lastAccessTime: number;
 	title: string;
@@ -13,15 +8,57 @@ export type UserFile = {
 	version: number;
 	language: string;
 
-	// deprecated
-	// lastPermission?: string;
-	// lastDefaultPermission?: string;
-
 	owner?: {
 		name: string;
 		id: string;
-	}; // added in v2
-};
+	}; 
+}
+
+/**
+ * Different types of user files as a discriminated union
+ */
+export type UserFile = 
+	| (BaseUserFile & {
+		type: 'file';
+		content?: string;
+		size?: number;
+		mimeType?: string;
+		extension?: string;
+		isExecutable?: boolean;
+	})
+	| (BaseUserFile & {
+		type: 'folder';
+		children?: string[]; // Array of child file/folder IDs
+		isExpanded?: boolean;
+		childCount?: number;
+	});
+
+// Type guards for working with the discriminated union
+export function isFile(item: UserFile): item is UserFile & { type: 'file' } {
+	return item.type === 'file';
+}
+
+export function isFolder(item: UserFile): item is UserFile & { type: 'folder' } {
+	return item.type === 'folder';
+}
+
+// Example usage with type narrowing
+export function handleUserFile(item: UserFile) {
+	switch (item.type) {
+		case 'file':
+			// TypeScript knows this is a file
+			console.log(`Processing file: ${item.title}`);
+			break;
+		case 'folder':
+			// TypeScript knows this is a folder
+			console.log(`Processing folder: ${item.title}`);
+			break;
+		default:
+			// TypeScript will catch if we miss any cases
+			const _exhaustive: never = item;
+			throw new Error(`Unhandled item type: ${_exhaustive}`);
+	}
+}
 
 export type Language = 'cpp' | 'java' | 'py';
 export const LANGUAGES = {
