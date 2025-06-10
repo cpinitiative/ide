@@ -4,6 +4,7 @@
  * Stored in /users/{uid}/files/{fileID} in Firebase.
  */
 export type UserFile = {
+	type: string;
 	id: string; // not stored in database; injected by client
 	lastAccessTime: number;
 	title: string;
