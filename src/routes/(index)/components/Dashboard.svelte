@@ -45,6 +45,13 @@
 
    const userData = getUserData();
 
+   const formatLanguage = (language: string) => {
+       if (language?.toLowerCase() === 'cpp') {
+           return 'C++';
+       }
+       return language;
+   };
+
    $effect(() => {
        const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
        const unsubscribe = onValue(query(userFilesRef, orderByChild('lastAccessTime')), (snapshot) => {
@@ -111,7 +118,7 @@
            const button = event.currentTarget as HTMLElement;
            const rect = button.getBoundingClientRect();
            actionMenuPosition = {
-               x: rect.left,
+               x: rect.right - 180,
                y: rect.bottom + 4
            };
            actionMenu = { item, show: true };
@@ -384,11 +391,10 @@
                </div>
            {:else}
                <div class="flex items-center space-x-3 bg-gray-800 rounded-lg px-3 sm:px-4 py-2 w-full sm:w-auto">
-                   <img
-                       src="/default-avatar.png"
-                       alt="Profile"
-                       class="w-6 h-6 rounded-full"
-                   />
+                   <!-- Default avatar circle with first letter looks better idk-->
+                   <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-medium">
+                       {firebaseUser.displayName ? firebaseUser.displayName.charAt(0).toUpperCase() : 'U'}
+                   </div>
                    <span class="text-gray-300 flex-1 sm:flex-none text-sm sm:text-base truncate">{firebaseUser.displayName}</span>
                    <button
                        onclick={signOut}
@@ -408,9 +414,9 @@
 
        <div class="bg-[#2a2a2a] rounded-lg border border-gray-700 overflow-hidden">
            <div class="hidden sm:grid sm:grid-cols-12 gap-4 px-4 py-3 bg-[#323232] border-b border-gray-600 text-sm font-medium text-gray-300">
-               <div class="col-span-1"></div>
                <div class="col-span-8">Name</div>
                <div class="col-span-3">Date Modified</div>
+               <div class="col-span-1"></div>
            </div>
            <div class="sm:hidden bg-[#323232] border-b border-gray-600 px-4 py-3">
                <div class="text-sm font-medium text-gray-300">Files</div>
@@ -422,6 +428,7 @@
            >
                {#if filesToShow && filesToShow.length > 0}
                    {#each filesToShow as item (item.id)}
+                       <!-- svelte-ignore a11y_click_events_have_key_events -->
                        <div
                            class="sm:grid sm:grid-cols-12 gap-4 px-4 py-3 border-b border-gray-700 transition-colors cursor-pointer group relative {selectedFile === item.id ? 'bg-gray-700/50' : 'hover:bg-[#363636]'}"
                            draggable="true"
@@ -429,9 +436,9 @@
                            ondragover={item.type === 'folder' ? handleDragOver : undefined}
                            ondrop={item.type === 'folder' ? (e) => handleDrop(e, item) : undefined}
                            oncontextmenu={(e) => handleContextMenu(e, item)}
-                           onclick={(e) => handleFileClick(item, e)}
-                           ondblclick={() => {
-                               if (item.type === 'folder' && !showRecentlyDeleted) {
+                           onclick={(e) => {
+                               e.preventDefault();
+                              if (item.type === 'folder' && !showRecentlyDeleted) {
                                    openFolder(item);
                                } else if (item.type === 'file') {
                                    window.location.href = `/${item.id.substring(1)}`;
@@ -439,23 +446,17 @@
                            }}
                            ontouchstart={(e) => handleTouchStart(e, item)}
                            ontouchmove={handleTouchMove}
-                           ontouchend={(e) => handleTouchEnd(e, item)}
+                           ontouchend={(e) => {
+                               e.preventDefault();
+                              if (item.type === 'folder' && !showRecentlyDeleted) {
+                                   openFolder(item);
+                               } else if (item.type === 'file') {
+                                   window.location.href = `/${item.id.substring(1)}`;
+                               }
+                           }}
                        >
-                           <div class="hidden sm:block sm:col-span-1">
-                               <button
-                                   onclick={(e) => {
-                                       e.stopPropagation();
-                                       toggleActionMenu(item, e);
-                                   }}
-                                   class="inline-flex items-center p-1.5 rounded-md hover:bg-gray-600 text-gray-400 hover:text-white transition-colors"
-                               >
-                                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                   </svg>
-                               </button>
-                           </div>
                            <div class="hidden sm:block sm:col-span-8">
-                               <div class="flex items-center space-x-3">
+                               <div class="flex items-center space-x-3 h-full">
                                    {#if item.type === 'folder'}
                                        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
@@ -466,6 +467,7 @@
                                        </svg>
                                    {/if}
                                    {#if renameInput && renameInput.id === item.id}
+                                       <!-- svelte-ignore a11y_autofocus -->
                                        <input
                                            bind:value={renameInput.value}
                                            onkeydown={(e) => {
@@ -481,27 +483,31 @@
                                    {/if}
                                </div>
                            </div>
-                           <div class="hidden sm:block sm:col-span-3 text-gray-400 text-sm">
-                               {formatDate(item.lastAccessTime || item.created || Date.now())}
-                               {#if item.type === 'file' && item.language}
-                                   <span class="text-blue-400"> • {item.language}</span>
-                               {/if}
+                           <div class="hidden sm:flex sm:col-span-3 text-gray-400 text-sm items-center">
+                               <div>
+                                   {formatDate(item.lastAccessTime || item.created || Date.now())}
+                                   {#if item.type === 'file' && item.language}
+                                       <span class="text-blue-400"> • {item.language === 'cpp' ? 'C++' : item.language}</span>
+                                   {/if}
+                               </div>
+                           </div>
+                           <div class="hidden sm:flex sm:col-span-1 items-center justify-end">
+                               <!-- svelte-ignore a11y_consider_explicit_label -->
+                               <button
+                                   onclick={(e) => {
+                                       e.stopPropagation();
+                                       toggleActionMenu(item, e);
+                                   }}
+                                   class="inline-flex items-center p-1.5 rounded-md hover:bg-gray-600 text-gray-400 hover:text-white transition-colors"
+                               >
+                                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                   </svg>
+                               </button>
                            </div>
                            <div class="sm:hidden {selectedFile === item.id ? 'border-l-4 border-indigo-500' : ''}">
                                <div class="flex items-center">
-                                   <button
-                                       onclick={(e) => {
-                                           e.stopPropagation();
-                                           toggleActionMenu(item, e);
-                                       }}
-                                       ontouchend={(e) => e.stopPropagation()}
-                                       class="flex-shrink-0 p-2 rounded-md hover:bg-gray-600 transition-colors"
-                                   >
-                                       <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                       </svg>
-                                   </button>
-                                   <div class="flex items-center space-x-3 flex-1 min-w-0 ml-2">
+                                   <div class="flex items-center space-x-3 flex-1 min-w-0">
                                        {#if item.type === 'folder'}
                                            <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
@@ -513,6 +519,7 @@
                                        {/if}
                                        <div class="flex-1 min-w-0">
                                            {#if renameInput && renameInput.id === item.id}
+                                               <!-- svelte-ignore a11y_autofocus -->
                                                <input
                                                    bind:value={renameInput.value}
                                                    onkeydown={(e) => {
@@ -528,12 +535,25 @@
                                                <div class="text-gray-400 text-xs">
                                                    {formatDate(item.lastAccessTime || item.created || Date.now())}
                                                    {#if item.type === 'file' && item.language}
-                                                       <span class="text-blue-400"> • {item.language}</span>
+                                                       <span class="text-blue-400"> • {item.language === 'cpp' ? 'C++' : item.language}</span>
                                                    {/if}
                                                </div>
                                            {/if}
                                        </div>
                                    </div>
+                                   <!-- svelte-ignore a11y_consider_explicit_label -->
+                                   <button
+                                       onclick={(e) => {
+                                           e.stopPropagation();
+                                           toggleActionMenu(item, e);
+                                       }}
+                                       ontouchend={(e) => e.stopPropagation()}
+                                       class="flex-shrink-0 p-2 rounded-md hover:bg-gray-600 transition-colors"
+                                   >
+                                       <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                       </svg>
+                                   </button>
                                </div>
                            </div>
                        </div>
@@ -600,6 +620,8 @@
    {/if}
 
    {#if actionMenu?.show && actionMenuPosition}
+       <!-- svelte-ignore a11y_click_events_have_key_events -->
+       <!-- svelte-ignore a11y_no_static_element_interactions -->
        <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" onclick={closeMenus}></div>
        <div
            class="fixed bg-[#2a2a2a] border border-gray-600 rounded-lg shadow-xl py-1.5 z-50 min-w-[180px] divide-y divide-gray-600/50"
