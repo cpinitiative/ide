@@ -33,9 +33,6 @@
    let files: FileItem[] | null = $state(null);
    let currentFolder: string | null = $state(null);
    let showRecentlyDeleted = $state(false);
-   let contextMenu = $state<{ x: number; y: number; item?: FileItem; show: boolean }>({
-       x: 0, y: 0, show: false
-   });
    let actionMenu = $state<{ item: FileItem; show: boolean } | null>(null);
    let draggedItem: FileItem | null = $state(null);
    let renameInput = $state<{ id: string; value: string } | null>(null);
@@ -45,11 +42,47 @@
 
    const userData = getUserData();
 
-   const formatLanguage = (language: string) => {
-       if (language?.toLowerCase() === 'cpp') {
-           return 'C++';
+   const getFileIcon = (item: FileItem) => {
+       if (item.type === 'folder') {
+           return { type: 'folder', color: 'text-blue-400' };
        }
-       return language;
+       
+       const lang = item.language?.toLowerCase();
+       switch (lang) {
+           case 'python':
+           case 'py':
+               return { type: 'python', color: 'text-yellow-400' };
+           case 'cpp':
+           case 'c++':
+               return { type: 'cpp', color: 'text-blue-300' };
+           case 'java':
+               return { type: 'java', color: 'text-red-400' };
+           default:
+               return { type: 'file', color: 'text-gray-400' };
+       }
+   };
+
+   const renderFileIcon = (item: FileItem) => {
+       const iconInfo = getFileIcon(item);
+       
+       if (iconInfo.type === 'folder') {
+           return `<svg class="w-5 h-5 ${iconInfo.color}" fill="currentColor" viewBox="0 0 24 24">
+               <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+           </svg>`;
+       }
+
+       switch (iconInfo.type) {
+           case 'python':
+               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">Py</div>`;
+           case 'cpp':
+               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">C++</div>`;
+           case 'java':
+               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">J</div>`;
+           default:
+               return `<svg class="w-5 h-5 ${iconInfo.color}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+               </svg>`;
+       }
    };
 
    $effect(() => {
@@ -99,17 +132,6 @@
        });
    };
 
-   const handleContextMenu = (e: MouseEvent, item?: FileItem) => {
-       e.preventDefault();
-       contextMenu = {
-           x: e.clientX,
-           y: e.clientY,
-           item,
-           show: true
-       };
-       actionMenu = null;
-   };
-
    const toggleActionMenu = (item: FileItem, event: MouseEvent) => {
        if (actionMenu?.item.id === item.id) {
            actionMenu = null;
@@ -123,11 +145,9 @@
            };
            actionMenu = { item, show: true };
        }
-       contextMenu = { ...contextMenu, show: false };
    };
 
    const closeMenus = () => {
-       contextMenu = { ...contextMenu, show: false };
        actionMenu = null;
    };
 
@@ -193,15 +213,6 @@
        }
    };
 
-   const handleFileClick = (item: FileItem, event: MouseEvent) => {
-       event.preventDefault();
-       if (selectedFile === item.id) {
-           selectedFile = null;
-       } else {
-           selectedFile = item.id;
-       }
-   };
-
    const handleTouchEnd = (e: TouchEvent, item: FileItem) => {
        const touchEndTime = Date.now();
        const touchDuration = touchEndTime - touchStartTime;
@@ -213,11 +224,14 @@
                clearTimeout(tapTimeout);
                tapTimeout = null;
            }
-           handleContextMenu({
-               preventDefault: () => {},
-               clientX: touchStartPos.x,
-               clientY: touchStartPos.y
-           } as MouseEvent, item);
+           // Long press - show action menu instead of context menu
+           const button = e.currentTarget as HTMLElement;
+           const rect = button.getBoundingClientRect();
+           actionMenuPosition = {
+               x: rect.right - 180,
+               y: rect.bottom + 4
+           };
+           actionMenu = { item, show: true };
        } else {
            if (timeSinceLastTap < 300 && tapTimeout) {
                clearTimeout(tapTimeout);
@@ -307,6 +321,11 @@
        document.addEventListener('click', handleClick);
        return () => document.removeEventListener('click', handleClick);
    });
+   
+function handleContextMenuList(e: MouseEvent) {
+    e.preventDefault();
+    closeMenus();
+}
 </script>
 
 <div class="min-h-screen bg-[#1e1e1e] text-white">
@@ -324,7 +343,7 @@
                </a>
                <button
                    onclick={createFolder}
-                   class="inline-flex items-center rounded-md bg-green-600 px-3 sm:px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-[#1e1e1e] focus:outline-none transition-colors"
+                   class="inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-gray-600 transition-colors"
                >
                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -344,7 +363,7 @@
                {/if}
                <button
                    onclick={toggleRecentlyDeleted}
-                   class="inline-flex items-center rounded-md {showRecentlyDeleted ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-red-600 hover:bg-red-700'} px-3 py-2 text-sm font-medium text-white transition-colors"
+                   class="inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-gray-600 transition-colors"
                >
                    <svg
                        class="w-4 h-4 mr-2"
@@ -421,21 +440,17 @@
            <div class="sm:hidden bg-[#323232] border-b border-gray-600 px-4 py-3">
                <div class="text-sm font-medium text-gray-300">Files</div>
            </div>
-           <!-- svelte-ignore a11y_no_static_element_interactions -->
-           <div
-               class="min-h-[400px] max-h-[70vh] overflow-y-auto"
-               oncontextmenu={(e) => handleContextMenu(e)}
-           >
+           <div class="min-h-[400px]">
                {#if filesToShow && filesToShow.length > 0}
                    {#each filesToShow as item (item.id)}
                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                       <!-- svelte-ignore a11y_no_static_element_interactions -->
                        <div
                            class="sm:grid sm:grid-cols-12 gap-4 px-4 py-3 border-b border-gray-700 transition-colors cursor-pointer group relative {selectedFile === item.id ? 'bg-gray-700/50' : 'hover:bg-[#363636]'}"
                            draggable="true"
                            ondragstart={(e) => handleDragStart(e, item)}
                            ondragover={item.type === 'folder' ? handleDragOver : undefined}
                            ondrop={item.type === 'folder' ? (e) => handleDrop(e, item) : undefined}
-                           oncontextmenu={(e) => handleContextMenu(e, item)}
                            onclick={(e) => {
                                e.preventDefault();
                               if (item.type === 'folder' && !showRecentlyDeleted) {
@@ -460,6 +475,18 @@
                                    {#if item.type === 'folder'}
                                        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                       </svg>
+                                   {:else if item.language === 'python' || item.language === 'py'}
+                                       <svg class="w-5 h-5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                                           <path d="M14.31.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.83l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.23l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.26-.02.21-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V3.23l.03-.21.07-.28.12-.32.18-.35.26-.36.36-.35.46-.35.59-.32.73-.28.88-.22 1.05-.14 1.23-.05z"/>
+                                       </svg>
+                                   {:else if item.language === 'cpp' || item.language === 'c++'}
+                                       <svg class="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
+                                           <path d="M22.394 6c-.167-.29-.398-.543-.652-.69L12.926.22c-.509-.294-1.34-.294-1.848 0L2.26 5.31c-.508.293-.923 1.013-.923 1.6v10.18c0 .294.104.62.271.91.167.29.398.543.652.69l8.816 5.09c.508.293 1.34.293 1.848 0l8.816-5.09c.254-.147.485-.4.652-.69.167-.29.27-.616.27-.91V6.91c.003-.294-.1-.62-.268-.91zM12 19.109c-3.92 0-7.109-3.189-7.109-7.109S8.08 4.891 12 4.891a7.133 7.133 0 016.156 3.552l-3.076 1.781A3.567 3.567 0 0012 8.445c-1.96 0-3.554 1.595-3.554 3.555S10.04 15.555 12 15.555a3.57 3.57 0 003.08-1.778l3.077 1.78A7.135 7.135 0 0112 19.109zm7.109-6.714h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79v.79zm2.962 0h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79v.79z"/>
+                                       </svg>
+                                   {:else if item.language === 'java'}
+                                       <svg class="w-5 h-5 text-orange-400" viewBox="0 0 24 24" fill="currentColor">
+                                           <path d="M8.851 18.56s-.917.534.653.714c1.902.218 2.874.187 4.969-.211 0 0 .552.346 1.321.646-4.699 2.013-10.633-.118-6.943-1.149M8.276 15.933s-1.028.761.542.924c2.032.209 3.636.227 6.413-.308 0 0 .384.389.987.602-5.679 1.661-12.007.13-7.942-1.218M13.116 11.475c1.158 1.333-.304 2.533-.304 2.533s2.939-1.518 1.589-3.418c-1.261-1.772-2.228-2.652 3.007-5.688 0-.001-8.216 2.051-4.292 6.573M19.33 20.504s.679.559-.747.991c-2.712.822-11.288 1.069-13.669.033-.856-.373.75-.89 1.254-.998.527-.114.828-.093.828-.093-.953-.671-6.156 1.317-2.643 1.887 9.58 1.553 17.462-.7 14.977-1.82M9.292 13.21s-4.362 1.036-1.544 1.412c1.189.159 3.561.123 5.77-.062 1.806-.152 3.618-.477 3.618-.477s-.637.272-1.098.587c-4.429 1.165-12.986.623-10.522-.568 2.082-1.006 3.776-.892 3.776-.892M17.116 17.584c4.503-2.34 2.421-4.589.968-4.285-.355.074-.515.138-.515.138s.132-.207.385-.297c2.875-1.011 5.086 2.981-.928 4.562 0-.001.07-.062.09-.118M14.401 0s2.494 2.494-2.365 6.33c-3.896 3.077-.888 4.832-.001 6.836-2.274-2.053-3.943-3.858-2.824-5.539 1.644-2.469 6.197-3.665 5.19-7.627M9.734 23.924c4.322.277 10.959-.153 11.116-2.198 0 0-.302.775-3.572 1.391-3.688.694-8.239.613-10.937.168 0-.001.553.457 3.393.639"/>
                                        </svg>
                                    {:else}
                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,9 +513,6 @@
                            <div class="hidden sm:flex sm:col-span-3 text-gray-400 text-sm items-center">
                                <div>
                                    {formatDate(item.lastAccessTime || item.created || Date.now())}
-                                   {#if item.type === 'file' && item.language}
-                                       <span class="text-blue-400"> • {item.language === 'cpp' ? 'C++' : item.language}</span>
-                                   {/if}
                                </div>
                            </div>
                            <div class="hidden sm:flex sm:col-span-1 items-center justify-end">
@@ -512,6 +536,18 @@
                                            <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
                                            </svg>
+                                       {:else if item.language === 'python' || item.language === 'py'}
+                                           <svg class="w-5 h-5 text-yellow-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                               <path d="M14.31.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.83l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.23l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.26-.02.21-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V3.23l.03-.21.07-.28.12-.32.18-.35.26-.36.36-.35.46-.35.59-.32.73-.28.88-.22 1.05-.14 1.23-.05z"/>
+                                           </svg>
+                                       {:else if item.language === 'cpp' || item.language === 'c++'}
+                                           <svg class="w-5 h-5 text-blue-300 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                               <path d="M22.394 6c-.167-.29-.398-.543-.652-.69L12.926.22c-.509-.294-1.34-.294-1.848 0L2.26 5.31c-.508.293-.923 1.013-.923 1.6v10.18c0 .294.104.62.271.91.167.29.398.543.652.69l8.816 5.09c.508.293 1.34.293 1.848 0l8.816-5.09c.254-.147.485-.4.652-.69.167-.29.27-.616.27-.91V6.91c.003-.294-.1-.62-.268-.91zM12 19.109c-3.92 0-7.109-3.189-7.109-7.109S8.08 4.891 12 4.891a7.133 7.133 0 016.156 3.552l-3.076 1.781A3.567 3.567 0 0012 8.445c-1.96 0-3.554 1.595-3.554 3.555S10.04 15.555 12 15.555a3.57 3.57 0 003.08-1.778l3.077 1.78A7.135 7.135 0 0112 19.109zm7.109-6.714h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79v.79zm2.962 0h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79v.79z"/>
+                                           </svg>
+                                       {:else if item.language === 'java'}
+                                           <svg class="w-5 h-5 text-orange-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                               <path d="M8.851 18.56s-.917.534.653.714c1.902.218 2.874.187 4.969-.211 0 0 .552.346 1.321.646-4.699 2.013-10.633-.118-6.943-1.149M8.276 15.933s-1.028.761.542.924c2.032.209 3.636.227 6.413-.308 0 0 .384.389.987.602-5.679 1.661-12.007.13-7.942-1.218M13.116 11.475c1.158 1.333-.304 2.533-.304 2.533s2.939-1.518 1.589-3.418c-1.261-1.772-2.228-2.652 3.007-5.688 0-.001-8.216 2.051-4.292 6.573M19.33 20.504s.679.559-.747.991c-2.712.822-11.288 1.069-13.669.033-.856-.373.75-.89 1.254-.998.527-.114.828-.093.828-.093-.953-.671-6.156 1.317-2.643 1.887 9.58 1.553 17.462-.7 14.977-1.82M9.292 13.21s-4.362 1.036-1.544 1.412c1.189.159 3.561.123 5.77-.062 1.806-.152 3.618-.477 3.618-.477s-.637.272-1.098.587c-4.429 1.165-12.986.623-10.522-.568 2.082-1.006 3.776-.892 3.776-.892M17.116 17.584c4.503-2.34 2.421-4.589.968-4.285-.355.074-.515.138-.515.138s.132-.207.385-.297c2.875-1.011 5.086 2.981-.928 4.562 0-.001.07-.062.09-.118M14.401 0s2.494 2.494-2.365 6.33c-3.896 3.077-.888 4.832-.001 6.836-2.274-2.053-3.943-3.858-2.824-5.539 1.644-2.469 6.197-3.665 5.19-7.627M9.734 23.924c4.322.277 10.959-.153 11.116-2.198 0 0-.302.775-3.572 1.391-3.688.694-8.239.613-10.937.168 0-.001.553.457 3.393.639"/>
+                                           </svg>
                                        {:else}
                                            <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -534,9 +570,6 @@
                                                <div class="text-white truncate">{item.name}</div>
                                                <div class="text-gray-400 text-xs">
                                                    {formatDate(item.lastAccessTime || item.created || Date.now())}
-                                                   {#if item.type === 'file' && item.language}
-                                                       <span class="text-blue-400"> • {item.language === 'cpp' ? 'C++' : item.language}</span>
-                                                   {/if}
                                                </div>
                                            {/if}
                                        </div>
@@ -580,29 +613,29 @@
        </div>
    </div>
 
-   {#if contextMenu.show}
+   {#if actionMenu?.show && actionMenuPosition}
        <div
            class="fixed bg-[#2a2a2a] border border-gray-600 rounded-lg shadow-lg py-2 z-50 min-w-[160px]"
-           style="left: {Math.min(contextMenu.x, window.innerWidth - 160)}px; top: {Math.min(contextMenu.y, window.innerHeight - 200)}px;"
+           style="left: {Math.min(actionMenuPosition.x, window.innerWidth - 160)}px; top: {Math.min(actionMenuPosition.y, window.innerHeight - 200)}px;"
        >
-           {#if contextMenu.item}
+           {#if actionMenu.item}
                {#if showRecentlyDeleted}
                    <button
-                       onclick={() => contextMenu.item && restoreItem(contextMenu.item)}
+                       onclick={() => actionMenu?.item && restoreItem(actionMenu.item)}
                        class="w-full text-left px-4 py-2 hover:bg-[#363636] text-green-400 text-sm"
                    >
                        Restore
                    </button>
                {:else}
                    <button
-                       onclick={() => contextMenu.item && startRename(contextMenu.item)}
+                       onclick={() => actionMenu && actionMenu.item && startRename(actionMenu.item)}
                        class="w-full text-left px-4 py-2 hover:bg-[#363636] text-white text-sm"
                    >
                        Rename
                    </button>
                    <hr class="border-gray-600 my-1" />
                    <button
-                       onclick={() => contextMenu.item && moveToTrash(contextMenu.item)}
+                       onclick={() => actionMenu && actionMenu.item && moveToTrash(actionMenu.item)}
                        class="w-full text-left px-4 py-2 hover:bg-red-600 text-red-400 hover:text-white text-sm"
                    >
                        Move to Trash
