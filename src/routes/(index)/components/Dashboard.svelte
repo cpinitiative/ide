@@ -568,17 +568,17 @@
                        </div>
                    {/each}
                {:else if filesToShow && filesToShow.length === 0}
-                   <div class="absolute inset-0 flex items-center justify-center text-gray-500">
-                       <div class="text-center px-4">
-                           <svg class="w-12 h-12 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                           </svg>
-                           <p>{showRecentlyDeleted ? 'No deleted files' : 'No files or folders'}</p>
-                           {#if !showRecentlyDeleted}
-                               <p class="text-sm mt-1">Tap the + buttons above to create new items</p>
-                           {/if}
-                       </div>
-                   </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+                        <div class="text-center px-4">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-base font-medium mb-2">{showRecentlyDeleted ? 'No deleted files' : 'No files or folders'}</p>
+                            {#if !showRecentlyDeleted}
+                                <p class="text-sm text-gray-400">Tap the + buttons above to create new items</p>
+                            {/if}
+                        </div>
+                    </div>
                {:else}
                    <div class="absolute inset-0 flex items-center justify-center text-gray-500">
                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
