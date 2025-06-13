@@ -5,7 +5,8 @@
    import type { UserFile } from '$lib/types';
    import { isFirebaseId } from '$lib/utils';
    import ConfirmOverrideAuthDialog from '$lib/components/ConfirmOverrideAuthDialog.svelte';
-   let actionMenuPosition = $state<{ x: number; y: number } | null>(null);
+   import { createDropdownMenu } from '@melt-ui/svelte'; 
+
    let selectedFile: string | null = $state(null);
    let lastTapTime = 0;
    let tapTimeout: number | null = null;
@@ -41,6 +42,16 @@
    let touchStartPos = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
    const userData = getUserData();
+
+   const {
+       elements: { trigger, menu, item: menuItem },
+       states: { open }
+   } = createDropdownMenu({
+       positioning: {
+           placement: 'bottom-end'
+       },
+       forceVisible: true
+   });
 
    const getFileIcon = (item: FileItem) => {
        if (item.type === 'folder') {
@@ -132,25 +143,6 @@
        });
    };
 
-   const toggleActionMenu = (item: FileItem, event: MouseEvent) => {
-       if (actionMenu?.item.id === item.id) {
-           actionMenu = null;
-           actionMenuPosition = null;
-       } else {
-           const button = event.currentTarget as HTMLElement;
-           const rect = button.getBoundingClientRect();
-           actionMenuPosition = {
-               x: rect.right - 180,
-               y: rect.bottom + 4
-           };
-           actionMenu = { item, show: true };
-       }
-   };
-
-   const closeMenus = () => {
-       actionMenu = null;
-   };
-
    const createFolder = async () => {
        const title = prompt('Folder name:');
        if (title) {
@@ -164,7 +156,7 @@
                isDeleted: false
            });
        }
-       closeMenus();
+       open.set(false);
    };
 
    const moveToTrash = async (item: FileItem) => {
@@ -172,7 +164,7 @@
            isDeleted: true,
            deletedAt: Date.now()
        });
-       closeMenus();
+       open.set(false);
    };
 
    const restoreItem = async (item: FileItem) => {
@@ -180,12 +172,12 @@
            isDeleted: false,
            deletedAt: null
        });
-       closeMenus();
+       open.set(false);
    };
 
    const startRename = (item: FileItem) => {
        renameInput = { id: item.id, value: item.title };
-       closeMenus();
+       open.set(false);
    };
 
    const confirmRename = async () => {
@@ -220,18 +212,9 @@
        lastTapTime = touchEndTime;
 
        if (touchDuration > 500) {
-           if (tapTimeout) {
-               clearTimeout(tapTimeout);
-               tapTimeout = null;
-           }
-
-           const button = e.currentTarget as HTMLElement;
-           const rect = button.getBoundingClientRect();
-           actionMenuPosition = {
-               x: rect.right - 180,
-               y: rect.bottom + 4
-           };
+           e.preventDefault();
            actionMenu = { item, show: true };
+           open.set(true);
        } else {
            if (timeSinceLastTap < 300 && tapTimeout) {
                clearTimeout(tapTimeout);
@@ -315,12 +298,6 @@
            return override;
        });
    };
-
-   $effect(() => {
-       const handleClick = () => closeMenus();
-       document.addEventListener('click', handleClick);
-       return () => document.removeEventListener('click', handleClick);
-   });
 </script>
 
 <div class="min-h-screen bg-[#1e1e1e] text-white">
@@ -421,31 +398,31 @@
                        <!-- svelte-ignore a11y_click_events_have_key_events -->
                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                        <div
-                            class="sm:grid sm:grid-cols-12 gap-4 px-4 py-3 border-b border-gray-700 transition-colors cursor-pointer group relative {selectedFile === item.id ? 'bg-gray-700/50' : 'hover:bg-[#363636]'}"
-                            draggable="true"
-                            ondragstart={(e) => handleDragStart(e, item)}
-                            ondragover={item.type === 'folder' ? handleDragOver : undefined}
-                            ondrop={item.type === 'folder' ? (e) => handleDrop(e, item) : undefined}
-                            onclick={(e) => {
-                                e.preventDefault();
-                                if (item.type === 'folder' && !showRecentlyDeleted) {
-                                    openFolder(item);
-                                } else if (item.type === 'file') {
-                                    window.location.href = `/${item.id.substring(1)}`;
-                                }
-                            }}
-                            ontouchstart={(e) => handleTouchStart(e, item)}
-                            ontouchmove={handleTouchMove}
-                            ontouchend={(e) => {
-                                e.preventDefault();
-                                if (item.type === 'folder' && !showRecentlyDeleted) {
-                                    openFolder(item);
-                                } else if (item.type === 'file') {
-                                    window.location.href = `/${item.id.substring(1)}`;
-                                }
-                            }}
-                            oncontextmenu={(e) => e.preventDefault()}
-                        >
+                           class="sm:grid sm:grid-cols-12 gap-4 px-4 py-3 border-b border-gray-700 transition-colors cursor-pointer group relative {selectedFile === item.id ? 'bg-gray-700/50' : 'hover:bg-[#363636]'}"
+                           draggable="true"
+                           ondragstart={(e) => handleDragStart(e, item)}
+                           ondragover={item.type === 'folder' ? handleDragOver : undefined}
+                           ondrop={item.type === 'folder' ? (e) => handleDrop(e, item) : undefined}
+                           onclick={(e) => {
+                               e.preventDefault();
+                               if (item.type === 'folder' && !showRecentlyDeleted) {
+                                   openFolder(item);
+                               } else if (item.type === 'file') {
+                                   window.location.href = `/${item.id.substring(1)}`;
+                               }
+                           }}
+                           ontouchstart={(e) => handleTouchStart(e, item)}
+                           ontouchmove={handleTouchMove}
+                           ontouchend={(e) => {
+                               e.preventDefault();
+                               if (item.type === 'folder' && !showRecentlyDeleted) {
+                                   openFolder(item);
+                               } else if (item.type === 'file') {
+                                   window.location.href = `/${item.id.substring(1)}`;
+                               }
+                           }}
+                           oncontextmenu={(e) => e.preventDefault()}
+                       >
                            <div class="hidden sm:block sm:col-span-8">
                                <div class="flex items-center space-x-3 h-full">
                                    {#if item.type === 'folder'}
@@ -492,17 +469,18 @@
                            </div>
                            <div class="hidden sm:flex sm:col-span-1 items-center justify-end">
                                <!-- svelte-ignore a11y_consider_explicit_label -->
-                               <button
-                                   onclick={(e) => {
-                                       e.stopPropagation();
-                                       toggleActionMenu(item, e);
-                                   }}
-                                   class="inline-flex items-center p-1.5 rounded-md hover:bg-gray-600 text-gray-400 hover:text-white transition-colors focus:outline-none"
-                               >
-                                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                   </svg>
-                               </button>
+                            <button
+                               use:trigger
+                               onclick={() => {
+                                   actionMenu = { item, show: true };
+                                   open.set(true);
+                               }}
+                               class="inline-flex items-center p-1.5 rounded-md hover:bg-gray-600 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                            >
+                               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                               </svg>
+                            </button>
                            </div>
                            <div class="sm:hidden {selectedFile === item.id ? 'border-l-4 border-indigo-500' : ''}">
                                <div class="flex items-center">
@@ -551,18 +529,19 @@
                                        </div>
                                    </div>
                                    <!-- svelte-ignore a11y_consider_explicit_label -->
-                                   <button
-                                       onclick={(e) => {
-                                           e.stopPropagation();
-                                           toggleActionMenu(item, e);
-                                       }}
-                                       ontouchend={(e) => e.stopPropagation()}
-                                       class="flex-shrink-0 p-2 rounded-md hover:bg-gray-600 transition-colors focus:outline-none"
-                                   >
-                                       <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                       </svg>
-                                   </button>
+                                <button
+                                     use:trigger
+                                     onclick={() => {
+                                         actionMenu = { item, show: true };
+                                         open.set(true);
+                                     }}
+                                     ontouchend={(e) => e.stopPropagation()}
+                                     class="flex-shrink-0 p-2 rounded-md hover:bg-gray-600 transition-colors focus:outline-none"
+                                 >
+                                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                     </svg>
+                                 </button>
                                </div>
                            </div>
                        </div>
@@ -589,57 +568,59 @@
        </div>
    </div>
 
-   {#if actionMenu?.show && actionMenuPosition}
-       <!-- svelte-ignore a11y_click_events_have_key_events -->
-       <!-- svelte-ignore a11y_no_static_element_interactions -->
-       <div onclick={closeMenus}></div>
-       <div
-           class="fixed bg-[#2a2a2a] border border-gray-600 rounded-lg shadow-xl py-1.5 z-50 min-w-[180px] divide-y divide-gray-600/50"
-           style="left: {actionMenuPosition.x}px; top: {actionMenuPosition.y}px;"
-       >
+   {#if $open && actionMenu?.show}
+       <div use:menu class="bg-[#2a2a2a] border border-gray-600 rounded-lg shadow-xl py-1.5 z-50 min-w-[180px] divide-y divide-gray-600/50">
            {#if showRecentlyDeleted}
-               <button
-                   onclick={() => actionMenu?.item && restoreItem(actionMenu.item)}
-                   class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-green-400 hover:text-green-300 text-sm transition-colors"
-               >
-                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                   </svg>
-                   Restore File
-               </button>
+               <div use:menuItem>
+                   <button
+                       onclick={() => actionMenu?.item && restoreItem(actionMenu.item)}
+                       class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-green-400 hover:text-green-300 text-sm transition-colors"
+                   >
+                       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                       </svg>
+                       Restore File
+                   </button>
+               </div>
            {:else}
                <div>
                    {#if actionMenu.item.type === 'file'}
-                       <a
-                           href="/{actionMenu.item.id.substring(1)}"
-                           class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-white hover:text-indigo-300 text-sm transition-colors"
+                       <div use:menuItem>
+                           <a
+                               href="/{actionMenu.item.id.substring(1)}"
+                               class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-white hover:text-indigo-300 text-sm transition-colors"
+                           >
+                               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                               </svg>
+                               Open Editor
+                           </a>
+                       </div>
+                   {/if}
+                   <div use:menuItem>
+                       <button
+                           onclick={() => actionMenu && startRename(actionMenu.item)}
+                           class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-white hover:text-blue-300 text-sm transition-colors"
                        >
                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                            </svg>
-                           Open Editor
-                       </a>
-                   {/if}
-                   <button
-                       onclick={() => actionMenu && startRename(actionMenu.item)}
-                       class="w-full flex items-center px-4 py-2 hover:bg-[#363636] text-white hover:text-blue-300 text-sm transition-colors"
-                   >
-                       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                       </svg>
-                       Rename
-                   </button>
+                           Rename
+                       </button>
+                   </div>
                </div>
                <div>
-                   <button
-                       onclick={() => actionMenu && moveToTrash(actionMenu.item)}
-                       class="w-full flex items-center px-4 py-2 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm transition-colors"
-                   >
-                       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                       </svg>
-                       Move to Trash
-                   </button>
+                   <div use:menuItem>
+                       <button
+                           onclick={() => actionMenu && moveToTrash(actionMenu.item)}
+                           class="w-full flex items-center px-4 py-2 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm transition-colors"
+                       >
+                           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                           </svg>
+                           Move to Trash
+                       </button>
+                   </div>
                </div>
            {/if}
        </div>
