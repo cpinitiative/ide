@@ -592,7 +592,7 @@
    {#if actionMenu?.show && actionMenuPosition}
        <!-- svelte-ignore a11y_click_events_have_key_events -->
        <!-- svelte-ignore a11y_no_static_element_interactions -->
-       <div class="fixed inset-0 z-40 bg-black/20" onclick={closeMenus}></div>
+       <div onclick={closeMenus}></div>
        <div
            class="fixed bg-[#2a2a2a] border border-gray-600 rounded-lg shadow-xl py-1.5 z-50 min-w-[180px] divide-y divide-gray-600/50"
            style="left: {actionMenuPosition.x}px; top: {actionMenuPosition.y}px;"
