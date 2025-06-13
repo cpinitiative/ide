@@ -41,7 +41,6 @@
    let touchStartTime = $state(0);
    let touchStartPos = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
-   const userData = getUserData();
 
    const {
        elements: { trigger, menu, item: menuItem },
@@ -52,49 +51,6 @@
        },
        forceVisible: true
    });
-
-   const getFileIcon = (item: FileItem) => {
-       if (item.type === 'folder') {
-           return { type: 'folder', color: 'text-blue-400' };
-       }
-       
-       const lang = item.language?.toLowerCase();
-       switch (lang) {
-           case 'python':
-           case 'py':
-               return { type: 'python', color: 'text-yellow-400' };
-           case 'cpp':
-           case 'c++':
-               return { type: 'cpp', color: 'text-blue-300' };
-           case 'java':
-               return { type: 'java', color: 'text-red-400' };
-           default:
-               return { type: 'file', color: 'text-gray-400' };
-       }
-   };
-
-   const renderFileIcon = (item: FileItem) => {
-       const iconInfo = getFileIcon(item);
-       
-       if (iconInfo.type === 'folder') {
-           return `<svg class="w-5 h-5 ${iconInfo.color}" fill="currentColor" viewBox="0 0 24 24">
-               <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
-           </svg>`;
-       }
-       
-       switch (iconInfo.type) {
-           case 'python':
-               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">Py</div>`;
-           case 'cpp':
-               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">C++</div>`;
-           case 'java':
-               return `<div class="w-5 h-5 ${iconInfo.color} flex items-center justify-center text-xs font-bold">J</div>`;
-           default:
-               return `<svg class="w-5 h-5 ${iconInfo.color}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-               </svg>`;
-       }
-   };
 
    $effect(() => {
        const userFilesRef = ref(database, `users/${firebaseUser.uid}/files`);
@@ -203,44 +159,6 @@
        if (draggedItem) {
            e.preventDefault();
        }
-   };
-
-   const handleTouchEnd = (e: TouchEvent, item: FileItem) => {
-       const touchEndTime = Date.now();
-       const touchDuration = touchEndTime - touchStartTime;
-       const timeSinceLastTap = touchEndTime - lastTapTime;
-       lastTapTime = touchEndTime;
-
-       if (touchDuration > 500) {
-           e.preventDefault();
-           actionMenu = { item, show: true };
-           open.set(true);
-       } else {
-           if (timeSinceLastTap < 300 && tapTimeout) {
-               clearTimeout(tapTimeout);
-               tapTimeout = null;
-               if (item.type === 'folder' && !showRecentlyDeleted) {
-                   openFolder(item);
-               } else if (item.type === 'file') {
-                   window.location.href = `/${item.id.substring(1)}`;
-               }
-           } else {
-               if (tapTimeout) {
-                   clearTimeout(tapTimeout);
-               }
-               tapTimeout = Number(setTimeout(() => {
-                   if (selectedFile === item.id) {
-                       selectedFile = null;
-                   } else {
-                       selectedFile = item.id;
-                   }
-                   tapTimeout = null;
-               }, 300));
-           }
-       }
-
-       draggedItem = null;
-       touchStartTime = 0;
    };
 
    const handleDragStart = (e: DragEvent, item: FileItem) => {
@@ -471,7 +389,8 @@
                                <!-- svelte-ignore a11y_consider_explicit_label -->
                             <button
                                use:trigger
-                               onclick={() => {
+                                onclick={(e) => {
+                                    e.stopPropagation();
                                    actionMenu = { item, show: true };
                                    open.set(true);
                                }}
@@ -531,7 +450,8 @@
                                    <!-- svelte-ignore a11y_consider_explicit_label -->
                                 <button
                                      use:trigger
-                                     onclick={() => {
+                                    onclick={(e) => {
+                                        e.stopPropagation();
                                          actionMenu = { item, show: true };
                                          open.set(true);
                                      }}
