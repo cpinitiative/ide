@@ -18,6 +18,7 @@ export const actions = {
 		const language = data.get('language') as string;
 		const compilerOptions = data.get('compilerOptions') as string;
 		const filename = data.get('filename') as string;
+		const kind = 'file';
 
 		if (!username || !userID || !defaultPermission || !language || compilerOptions === null) {
 			return fail(400, {
@@ -28,6 +29,7 @@ export const actions = {
 		const resp = await getDatabase(firebaseApp)
 			.ref('/files')
 			.push({
+				kind: kind,
 				users: {
 					[userID]: {
 						name: username,
