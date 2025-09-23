@@ -35,7 +35,7 @@ export const LANGUAGES = {
 export type UserData = {
 	editorMode: 'normal' | 'vim';
 	tabSize: 2 | 4 | 8;
-	theme: 'light' | 'dark';
+	theme: 'light' | 'dark' | 'huacat-pink';
 	defaultPermission: 'READ_WRITE' | 'READ' | 'PRIVATE';
 	defaultLanguage: Language;
 	inlayHints: 'on' | 'off';

@@ -52,6 +52,9 @@
 				extensions.push(vscodeDark);
 				break;
 			case 'light':
+			case 'huacat-pink':
+				// For huacat-pink theme, use the light theme as a base
+				// since pink themes are typically lighter in appearance
 				extensions.push(githubLight);
 				break;
 			default:

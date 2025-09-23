@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant huacat-pink (&:where([data-theme=huacat-pink], [data-theme=huacat-pink] *));
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
@@ -12,7 +13,7 @@ body {
 	/* Matches the color of monaco-editor */
 	/* background-color: var(--color-monaco-editor-bg); */
 
-	@apply bg-white text-gray-100 dark:bg-[var(--color-monaco-editor-bg)];
+	@apply bg-white text-gray-100 dark:bg-[var(--color-monaco-editor-bg)] huacat-pink:bg-[#F5EAF5] huacat-pink:text-gray-800;
 }
 
 /* Styles for remote cursors for monaco */

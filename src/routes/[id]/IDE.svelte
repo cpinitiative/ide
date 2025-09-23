@@ -184,6 +184,7 @@
 	const userId = $derived(firebaseUser.uid);
 	const compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
 	const theme = $derived(userData.theme);
+	$inspect(theme);
 	const tabSize = $derived(userData.tabSize);
 	const inlayHints = $derived(userData.inlayHints);
 </script>
@@ -236,6 +237,7 @@
 				...(fileData.settings.problem ? { judge: 'USACO Judge' } : {})
 			}}
 			bind:activeTab={inputPaneTab}
+			theme={userData.theme}
 		>
 			{#if inputPaneTab === 'input'}
 				<RealtimeEditor
@@ -262,6 +264,7 @@
 				scribble: 'scribble'
 			}}
 			bind:activeTab={outputPaneTab}
+			theme={userData.theme}
 		>
 			{#if outputPaneTab === 'scribble'}
 				<RealtimeEditor

@@ -54,10 +54,10 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 <div class="h-full overflow-x-hidden" data-theme={theme}>
 	<div class="flex h-full flex-col">
-		<div class="flex-shrink-0 bg-white dark:bg-[#1E1E1E]">
+		<div class="flex-shrink-0" class:bg-white={theme === 'light'} class:bg-[#1E1E1E]={theme === 'dark'} class:bg-[#F5EAF5]={theme === 'huacat-pink'}>
 			{@render navbar()}
 		</div>
-		<div class="min-h-0 flex-1 border-t border-neutral-100 dark:border-black">
+		<div class="min-h-0 flex-1 border-t" class:border-neutral-100={theme === 'light'} class:border-black={theme === 'dark'} class:border-[#E5D5E5]={theme === 'huacat-pink'}>
 			<div class="split-grid h-full">
 				<!-- Without min-w-0, we won't be able to reize the pane to make monaco-editor smaller. -->
 				<div
@@ -129,7 +129,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 		<!-- Mobile bottom bar -->
 		{#if layout === 'mobile'}
-			<div class="grid grid-cols-2 bg-white dark:bg-[#1E1E1E]">
+			<div class="grid grid-cols-2" class:bg-white={theme === 'light'} class:bg-[#1E1E1E]={theme === 'dark'} class:bg-[#F5EAF5]={theme === 'huacat-pink'}>
 				{#each ['main', 'inputOutput'] as const as tab}
 					<button
 						class="flex flex-col items-center py-1 transition focus:outline-none {mobileActiveTab ===

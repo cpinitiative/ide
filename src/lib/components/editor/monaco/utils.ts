@@ -9,7 +9,7 @@ import type { Language } from '$lib/types';
 
 export const getMonacoWrapperConfig = (
 	language: Language,
-	theme: 'light' | 'dark',
+	theme: 'light' | 'dark' | 'huacat-pink',
 	compilerOptions?: string,
 	editorOptions?: monaco.editor.IStandaloneEditorConstructionOptions
 ): WrapperConfig => {
@@ -39,7 +39,12 @@ export const getMonacoWrapperConfig = (
 			},
 			userConfiguration: {
 				json: JSON.stringify({
-					'workbench.colorTheme': theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
+					'workbench.colorTheme':
+						theme === 'dark'
+							? 'Default Dark Modern'
+							: theme === 'huacat-pink'
+								? 'Huacat Pink Theme'
+								: 'Default Light Modern',
 					'editor.guides.bracketPairsHorizontal': 'active',
 					'editor.lightbulb.enabled': 'On',
 					'editor.wordBasedSuggestions': 'off',
