@@ -191,7 +191,7 @@
 
 <Layout layout={useMobileLayout.current ? 'mobile' : 'desktop'} theme={userData.theme}>
 	{#snippet navbar()}
-		<IDENavbar showViewOnlyMessage={isReadOnly}>
+		<IDENavbar showViewOnlyMessage={isReadOnly} theme={userData.theme}>
 			{#snippet fileMenu()}
 				<FileMenu
 					{onDownloadFile}
@@ -209,6 +209,7 @@
 						: inputPaneTab === 'judge'
 							? 'Switch to the input tab to run code.'
 							: undefined}
+					theme={userData.theme}
 				/>
 			{/snippet}
 		</IDENavbar>
@@ -283,7 +284,7 @@
 						value={outputPaneValue}
 						{editorMode}
 					/>
-					<OutputStatusBar {judgeState} />
+					<OutputStatusBar {judgeState} theme={userData.theme} />
 				</div>
 			{/if}
 		</TabbedPane>

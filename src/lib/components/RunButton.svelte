@@ -1,13 +1,23 @@
 <script lang="ts">
 	import LoadingIndicator from "./LoadingIndicator.svelte";
 
-	let { showLoadingIndicator, ...props } = $props();
+	let { showLoadingIndicator, theme = 'dark', ...props } = $props();
+
+	function getButtonClasses(theme: string): string {
+		const baseClasses = 'relative inline-flex w-32 flex-shrink-0 items-center px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed';
+		
+		if (theme === 'huacat-pink') {
+			return `${baseClasses} bg-[#CF6BAE] focus:bg-[#B85A9E] enabled:hover:bg-[#B85A9E] disabled:bg-[#CF6BAE]/50 disabled:text-white/50`;
+		} else {
+			return `${baseClasses} bg-indigo-900 focus:bg-indigo-800 enabled:hover:bg-indigo-800 disabled:bg-indigo-900/50 disabled:text-indigo-300/50`;
+		}
+	}
 </script>
 
 <button
 	type="button"
-	class="relative inline-flex w-32 flex-shrink-0 items-center bg-indigo-900 px-4 py-2 text-sm font-medium text-white shadow-sm focus:bg-indigo-800 focus:outline-none enabled:hover:bg-indigo-800 cursor-pointer disabled:cursor-not-allowed disabled:bg-indigo-900/50 disabled:text-indigo-300/50"
-  {...props}
+	class={getButtonClasses(theme)}
+	{...props}
 >
 	{#if showLoadingIndicator}
 		<LoadingIndicator class="h-5 w-5 p-0.5 text-indigo-100" data-test-id="run-code-loading" />

@@ -73,7 +73,16 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:hidden={layout === 'mobile'}
 				>
 					<div
-						class="pointer-events-none absolute right-[6px] left-[6px] h-full bg-neutral-200 transition group-hover:bg-neutral-300 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600"
+						class="pointer-events-none absolute right-[6px] left-[6px] h-full transition"
+						class:bg-neutral-200={theme === 'light'}
+						class:group-hover:bg-neutral-300={theme === 'light'}
+						class:group-active:bg-neutral-300={theme === 'light'}
+						class:bg-black={theme === 'dark'}
+						class:group-hover:bg-neutral-600={theme === 'dark'}
+						class:group-active:bg-neutral-600={theme === 'dark'}
+						class:bg-[#E5D5E5]={theme === 'huacat-pink'}
+						class:group-hover:bg-[#D5C5D5]={theme === 'huacat-pink'}
+						class:group-active:bg-[#D5C5D5]={theme === 'huacat-pink'}
 					></div>
 				</div>
 				<div
@@ -91,11 +100,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:col-span-full={layout === 'mobile'}
 				>
 					<div
-						class={`gutter pointer-events-none absolute w-full ${
-							layout === 'desktop'
-								? 'top-[6px] bottom-[6px]'
-								: 'inset-y-0 flex items-center justify-center bg-neutral-800'
-						}`}
+					class={`gutter pointer-events-none absolute w-full ${
+						layout === 'desktop'
+							? 'top-[6px] bottom-[6px]'
+							: 'inset-y-0 flex items-center justify-center'
+					}`}
+					class:bg-neutral-800={layout === 'mobile' && theme === 'dark'}
+					class:bg-[#D5C5D5]={layout === 'mobile' && theme === 'huacat-pink'}
 					>
 						{#if layout === 'mobile'}
 							<!-- Ellipsis horizontal icon -->
@@ -161,6 +172,21 @@ This should be a "dumb", self-contained component that only contains UI logic.
 		grid-template-rows: 1fr 3px 1fr;
 	}
 	.gutter {
-		@apply bg-neutral-200 transition group-hover:bg-neutral-300 group-focus:bg-neutral-600 group-active:bg-neutral-300 dark:bg-black dark:group-hover:bg-neutral-600 dark:group-active:bg-neutral-600;
+		@apply transition group-focus:bg-neutral-600;
+	}
+	
+	/* Light theme gutters */
+	:global([data-theme='light']) .gutter {
+		@apply bg-neutral-200 group-hover:bg-neutral-300 group-active:bg-neutral-300;
+	}
+	
+	/* Dark theme gutters */
+	:global([data-theme='dark']) .gutter {
+		@apply bg-black group-hover:bg-neutral-600 group-active:bg-neutral-600;
+	}
+	
+	/* Huacat Pink theme gutters */
+	:global([data-theme='huacat-pink']) .gutter {
+		@apply bg-[#E5D5E5] group-hover:bg-[#D5C5D5] group-active:bg-[#D5C5D5];
 	}
 </style>
