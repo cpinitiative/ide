@@ -11,7 +11,7 @@
 	 * Props that both the Monaco editor and the Codemirror editor should accept.
 	 */
 	export type EditorProps = {
-		theme?: 'dark' | 'light';
+		theme?: 'dark' | 'light' | 'huacat-pink';
 		language?: 'cpp' | 'java' | 'py' | 'plaintext';
 		inlayHints?: 'on' | 'off';
 		tabSize?: number;

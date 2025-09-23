@@ -47,7 +47,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	const createMainMonacoWrapper = async (
 		language: Language,
 		compilerOptions: string,
-		theme: 'light' | 'dark',
+		theme: 'light' | 'dark' | 'huacat-pink',
 		readOnly: boolean,
 		editorElement: HTMLElement,
 		statusbarElement: HTMLElement,
@@ -99,6 +99,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	};
 
 	let isVimLoaded = false;
+	let isHuacatPinkLoaded = false;
 </script>
 
 <script lang="ts">
@@ -216,7 +217,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			.getConfiguration()
 			.update(
 				'workbench.colorTheme',
-				theme === 'dark' ? 'Default Dark Modern' : 'Default Light Modern',
+				theme === 'dark' ? 'Default Dark Modern' : theme === 'huacat-pink' ? 'Huacat Pink Theme' : 'Default Light Modern',
 				vscode.ConfigurationTarget.Global
 			);
 	});
@@ -256,6 +257,26 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		} else if (editorMode !== 'vim' && isVimLoaded) {
 			// Vim cannot be disabled once it is loaded.
 			alert('Please reload the page to disable vim.');
+		}
+	});
+
+	$effect(() => {
+		// For monaco, theme extensions have similar restrictions:
+		// - We cannot unload the extension once it is loaded.
+		// - It is either enabled for all editors or disabled for all editors.
+
+		// Wait for monaco's patches to apply before enabling the theme.
+		if (!mainMonacoState.isMonacoInitialized) return;
+
+		// Still loading the theme from Firebase
+		if (theme === undefined) return;
+
+		if (theme === 'huacat-pink' && !isHuacatPinkLoaded) {
+			isHuacatPinkLoaded = true;
+			// @ts-expect-error: don't need types for this
+			import('./huacat-pink.vsix').then(() => {
+				console.log('huacat-pink.vsix loaded');
+			});
 		}
 	});
 

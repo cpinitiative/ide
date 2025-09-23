@@ -54,7 +54,7 @@
 		const newUserData = {
 			editorMode: formData.get('editorMode') as 'normal' | 'vim',
 			tabSize,
-			theme: formData.get('theme') as 'light' | 'dark',
+			theme: formData.get('theme') as 'light' | 'dark' | 'huacat-pink',
 			inlayHints: formData.get('inlayHints') as 'on' | 'off',
 
 			// deprecated: for compatibility with old IDE only
@@ -93,7 +93,12 @@
 				transition:fade={{ duration: 150 }}
 			></div>
 			<div
-				class="inline-block w-full transform overflow-hidden bg-white text-left text-gray-800 shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg dark:bg-[#1E1E1E] dark:text-gray-200"
+				class="inline-block w-full transform overflow-hidden text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg"
+				class:bg-white={userData.theme === 'light'}
+				class:bg-[#1E1E1E]={userData.theme === 'dark'}
+				class:bg-[#F5EAF5]={userData.theme === 'huacat-pink'}
+				class:text-gray-800={userData.theme === 'light' || userData.theme === 'huacat-pink'}
+				class:text-gray-200={userData.theme === 'dark'}
 				use:melt={$content}
 				transition:fade={{ duration: 150 }}
 			>
@@ -101,7 +106,7 @@
 					<h2 use:melt={$title} class="text-center text-lg leading-6 font-medium">Settings</h2>
 				</div>
 
-				<div class="border-b border-gray-200 dark:border-gray-700">
+				<div class="border-b" class:border-gray-200={userData.theme === 'light'} class:border-gray-700={userData.theme === 'dark'} class:border-[#E5D5E5]={userData.theme === 'huacat-pink'}>
 					<nav class="-mb-px flex">
 						{@render SettingsTab(
 							'Workspace',
@@ -209,7 +214,7 @@
 						<RadioGroup
 							name="theme"
 							defaultValue={userData.theme}
-							options={{ light: 'Light', dark: 'Dark' }}
+							options={{ light: 'Light', dark: 'Dark', 'huacat-pink': 'Huacat Pink' }}
 							theme={userData.theme}
 						/>
 					</div>

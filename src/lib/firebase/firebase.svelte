@@ -168,7 +168,7 @@
 						if (data.tabSize === 2 || data.tabSize === 4 || data.tabSize === 8) {
 							userData.tabSize = data.tabSize;
 						}
-						if (data.theme === 'light' || data.theme === 'dark') {
+						if (data.theme === 'light' || data.theme === 'dark' || data.theme === 'huacat-pink') {
 							// write theme to localStorage to prevent flicker
 							localStorage.theme = userData.theme = data.theme;
 						}
