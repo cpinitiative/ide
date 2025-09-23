@@ -48,6 +48,15 @@
 	$effect(() => {
 		value = $meltValue;
 	});
+
+	function getRadioBorderClass(theme?: string): string {
+		switch (theme) {
+			case 'huacat-pink':
+				return 'border-[#D5C5D5] bg-white';
+			default:
+				return 'border-gray-300 bg-white';
+		}
+	}
 </script>
 
 <div use:melt={$root} class={orientation === 'vertical' ? 'space-y-2' : 'flex space-x-4'}>
@@ -56,7 +65,7 @@
 			<button
 				use:melt={$item(option)}
 				class={`mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-					$isChecked(option) ? 'border-transparent bg-indigo-600' : 'border-gray-300 bg-white'
+					$isChecked(option) ? 'border-transparent bg-indigo-600' : getRadioBorderClass(theme)
 				}`}
 				id={option}
 				aria-labelledby="{option}-label"

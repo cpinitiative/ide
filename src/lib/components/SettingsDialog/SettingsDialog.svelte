@@ -41,6 +41,17 @@
 	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
 	let fileName: string = $state(fileSettings.fileIOName || fileSettings.workspaceName || '');
 
+	const getInactiveTabClasses = () => {
+		switch (userData.theme) {
+			case 'dark':
+				return 'border-transparent text-gray-500 hover:border-gray-700 hover:text-neutral-200';
+			case 'huacat-pink':
+				return 'border-transparent text-gray-500 hover:border-[#D5C5D5] hover:text-gray-700';
+			default: // light
+				return 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700';
+		}
+	};
+
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
@@ -126,12 +137,13 @@
 
 				<form class="space-y-6 p-4 sm:p-6" onsubmit={onSubmit}>
 					<div class:hidden={activeTab !== 'workspace'}>
-						<TextField
-							label="Workspace Name"
-							name="workspaceName"
-							defaultValue={fileSettings.workspaceName}
-							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-						/>
+					<TextField
+						label="Workspace Name"
+						name="workspaceName"
+						defaultValue={fileSettings.workspaceName}
+						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+						theme={userData.theme}
+					/>
 					</div>
 					<div class:hidden={activeTab !== 'workspace'}>
 						<div class="mb-2 font-medium">Language</div>
@@ -146,12 +158,13 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'workspace'}>
-						<TextField
-							label={`${LANGUAGES[selectedLanguage]} Compiler Options`}
-							name="compiler_options"
-							defaultValue={fileSettings.compilerOptions[selectedLanguage]}
-							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-							placeholder="None"
+					<TextField
+						label={`${LANGUAGES[selectedLanguage]} Compiler Options`}
+						name="compiler_options"
+						defaultValue={fileSettings.compilerOptions[selectedLanguage]}
+						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+						placeholder="None"
+						theme={userData.theme}
 							className="font-mono"
 						/>
 					</div>
@@ -172,11 +185,12 @@
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
-						<TextField
-							label="User Name"
-							name="username"
-							defaultValue={firebaseUser.displayName || ''}
-						/>
+					<TextField
+						label="User Name"
+						name="username"
+						defaultValue={firebaseUser.displayName || ''}
+						theme={userData.theme}
+					/>
 					</div>
 
 					<div class:hidden={activeTab !== 'user'}>
@@ -233,12 +247,13 @@
 
 					<div class:hidden={activeTab !== 'judge'}>
 						{#if ioMethod === 'fileio'}
-							<TextField
-								label="File Name"
-								name="fileName"
-								bind:value={fileName}
-								readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-							/>
+						<TextField
+							label="File Name"
+							name="fileName"
+							bind:value={fileName}
+							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
+							theme={userData.theme}
+						/>
 							<p class="text-sm text-gray-500 pt-2">
 								You can optionally read/write from {fileName}.in and
 								{fileName}.out instead of standard input/output. You must use an alphanumeric
@@ -248,10 +263,18 @@
 					</div>
 
 					<div class="mt-6 flex items-center space-x-4">
-						<button
-							type="button"
-							class="inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
-							use:melt={$close}
+					<button
+						type="button"
+						class="inline-flex items-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+						class:border-gray-300={userData.theme === 'light'}
+						class:text-gray-700={userData.theme === 'light' || userData.theme === 'huacat-pink'}
+						class:hover:bg-gray-50={userData.theme === 'light'}
+						class:border-gray-600={userData.theme === 'dark'}
+						class:text-white={userData.theme === 'dark'}
+						class:hover:bg-gray-700={userData.theme === 'dark'}
+						class:border-[#D5C5D5]={userData.theme === 'huacat-pink'}
+						class:hover:bg-[#F0E5F0]={userData.theme === 'huacat-pink'}
+						use:melt={$close}
 						>
 							Cancel
 						</button>
@@ -288,9 +311,12 @@
 )}
 	<button
 		class={(selected
-			? 'border-indigo-500 text-indigo-600'
-			: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:hover:border-gray-700 dark:hover:text-neutral-200') +
-			' group flex w-1/2 cursor-pointer items-center justify-center border-b-2 px-1 py-3 text-sm font-medium focus:outline-none dark:text-neutral-300'}
+			? 'border-indigo-500'
+			: getInactiveTabClasses()) +
+			' group flex w-1/2 cursor-pointer items-center justify-center border-b-2 px-1 py-3 text-sm font-medium focus:outline-none'}
+		class:text-indigo-500={selected && userData.theme !== 'dark'}
+		class:text-neutral-200={selected && userData.theme === 'dark'}
+		class:text-neutral-300={!selected && userData.theme === 'dark'}
 		onclick={onClick}
 	>
 		<Icon

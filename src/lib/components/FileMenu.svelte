@@ -15,7 +15,15 @@
 
 <button
 	use:melt={$trigger}
-	class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+	class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium shadow-sm focus:outline-none"
+	class:text-gray-800={theme === 'light' || theme === 'huacat-pink'}
+	class:hover:bg-neutral-100={theme === 'light'}
+	class:focus:bg-neutral-100={theme === 'light'}
+	class:text-gray-200={theme === 'dark'}
+	class:hover:bg-neutral-800={theme === 'dark'}
+	class:focus:bg-neutral-800={theme === 'dark'}
+	class:hover:bg-[#F0E5F0]={theme === 'huacat-pink'}
+	class:focus:bg-[#F0E5F0]={theme === 'huacat-pink'}
 >
 	File
 	<!-- Chevron Down Icon -->
@@ -35,7 +43,10 @@
 </button>
 <!-- menu options -->
 <div
-	class="ring-opacity-5 w-56 bg-white py-1 shadow-lg focus:outline-none dark:bg-neutral-800"
+	class="ring-opacity-5 w-56 py-1 shadow-lg focus:outline-none"
+	class:bg-white={theme === 'light'}
+	class:bg-neutral-800={theme === 'dark'}
+	class:bg-[#F5EAF5]={theme === 'huacat-pink'}
 	data-theme={theme}
 	use:melt={$menu}
 >
@@ -45,9 +56,17 @@
 			{href}
 			{onclick}
 			target="_blank"
-			class="group flex w-full cursor-pointer items-center px-4 py-2
-		text-sm text-gray-800 focus:outline-none data-[highlighted]:bg-neutral-100 data-[highlighted]:text-gray-900
-		dark:bg-neutral-800 dark:text-gray-200 dark:data-[highlighted]:bg-neutral-700 dark:data-[highlighted]:text-gray-100"
+			class="group flex w-full cursor-pointer items-center px-4 py-2 text-sm focus:outline-none"
+			class:text-gray-800={theme === 'light' || theme === 'huacat-pink'}
+			class:data-[highlighted]:bg-neutral-100={theme === 'light'}
+			class:data-[highlighted]:text-gray-900={theme === 'light'}
+			class:bg-neutral-800={theme === 'dark'}
+			class:text-gray-200={theme === 'dark'}
+			class:data-[highlighted]:bg-neutral-700={theme === 'dark'}
+			class:data-[highlighted]:text-gray-100={theme === 'dark'}
+			class:bg-[#F5EAF5]={theme === 'huacat-pink'}
+			class:data-[highlighted]:bg-[#F0E5F0]={theme === 'huacat-pink'}
+			class:data-[highlighted]:text-gray-800={theme === 'huacat-pink'}
 		>
 			<Icon
 				class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"

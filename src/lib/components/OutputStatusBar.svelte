@@ -4,8 +4,9 @@
 	import type { JudgeState } from '../../routes/[id]/IDE.svelte';
 
 	const {
-		judgeState
-	}: { judgeState: JudgeState | null } = $props();
+		judgeState,
+		theme = 'dark'
+	}: { judgeState: JudgeState | null; theme?: 'light' | 'dark' | 'huacat-pink' } = $props();
 
 	function formatVerdict(verdict: Verdict) {
 		if (verdict === Verdict.Accepted) {
@@ -24,7 +25,12 @@
 
 <!-- Font family is copied from vscode to match the status bar font. -->
 <div
-	class="bg-white py-1 pr-4 text-right text-xs text-gray-800 dark:bg-[#1e1e1e] dark:text-gray-200"
+	class="py-1 pr-4 text-right text-xs"
+	class:bg-white={theme === 'light'}
+	class:text-gray-800={theme === 'light' || theme === 'huacat-pink'}
+	class:bg-[#1e1e1e]={theme === 'dark'}
+	class:text-gray-200={theme === 'dark'}
+	class:bg-[#F5EAF5]={theme === 'huacat-pink'}
 	data-test-id="code-execution-output-status"
 	style="font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,system-ui,Ubuntu,Droid Sans,sans-serif"
 >
