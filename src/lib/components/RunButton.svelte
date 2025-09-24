@@ -1,22 +1,15 @@
 <script lang="ts">
 	import LoadingIndicator from "./LoadingIndicator.svelte";
 
-	let { showLoadingIndicator, theme = 'dark', ...props } = $props();
+	let { showLoadingIndicator, ...props } = $props();
 
-	function getButtonClasses(theme: string): string {
-		const baseClasses = 'relative inline-flex w-32 flex-shrink-0 items-center px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed';
-		
-		if (theme === 'huacat-pink') {
-			return `${baseClasses} bg-[#CF6BAE] focus:bg-[#B85A9E] enabled:hover:bg-[#B85A9E] disabled:bg-[#CF6BAE]/50 disabled:text-white/50`;
-		} else {
-			return `${baseClasses} bg-indigo-900 focus:bg-indigo-800 enabled:hover:bg-indigo-800 disabled:bg-indigo-900/50 disabled:text-indigo-300/50`;
-		}
-	}
+	// Using semantic CSS variables for consistent theming
+	const buttonClasses = 'relative inline-flex w-32 flex-shrink-0 items-center px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] focus:bg-[var(--color-primary-hover)] disabled:opacity-50';
 </script>
 
 <button
 	type="button"
-	class={getButtonClasses(theme)}
+	class={buttonClasses}
 	{...props}
 >
 	{#if showLoadingIndicator}

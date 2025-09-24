@@ -209,7 +209,6 @@
 						: inputPaneTab === 'judge'
 							? 'Switch to the input tab to run code.'
 							: undefined}
-					theme={userData.theme}
 				/>
 			{/snippet}
 		</IDENavbar>

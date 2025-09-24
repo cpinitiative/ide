@@ -74,27 +74,27 @@
 	<div class="flex items-center space-x-4">
 		<a
 			href="/new"
-			class="inline-flex items-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-[#1E1E1E] huacat-pink:bg-[#CF6BAE] huacat-pink:hover:bg-[#B85A9E] huacat-pink:focus:ring-[#CF6BAE] huacat-pink:focus:ring-offset-[#F5EAF5]"
+			class="inline-flex items-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] focus:ring-2 focus:ring-[var(--color-primary-focus)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg-primary)] focus:outline-none"
 		>
 			Create New File
 		</a>
 	</div>
 
 	{#if firebaseUser.isAnonymous}
-		<div class="mt-6 text-gray-600 dark:text-gray-400 huacat-pink:text-gray-600">
+		<div class="mt-6 text-[var(--color-text-secondary)]">
 			Not signed in.{' '}
 			<button
-				class="cursor-pointer p-1 leading-none underline transition text-gray-900 hover:bg-neutral-100 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-700 huacat-pink:text-gray-800 huacat-pink:hover:bg-[#F0E5F0]"
+				class="cursor-pointer p-1 leading-none underline transition text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover-primary)] focus:outline-none"
 				onclick={onSignIn}
 			>
 				Sign in now
 			</button>
 		</div>
 	{:else}
-		<div class="mt-6 text-gray-700 dark:text-gray-400 huacat-pink:text-gray-600">
+		<div class="mt-6 text-[var(--color-text-secondary)]">
 			Signed in as {firebaseUser.displayName}.
 			<button
-				class="cursor-pointer p-1 leading-none underline transition text-gray-900 hover:bg-neutral-200 focus:outline-none dark:text-gray-200 dark:hover:bg-neutral-700 huacat-pink:text-gray-800 huacat-pink:hover:bg-[#F0E5F0]"
+				class="cursor-pointer p-1 leading-none underline transition text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover-primary)] focus:outline-none"
 				onclick={signOut}
 			>
 				Sign Out
@@ -104,10 +104,10 @@
 
 	<div class="h-12"></div>
 
-	<h2 class="text-2xl font-black text-black md:text-4xl dark:text-gray-100 huacat-pink:text-black">Your Workspaces</h2>
+	<h2 class="text-2xl font-black text-[var(--color-text-primary)] md:text-4xl">Your Workspaces</h2>
 	<div class="h-6"></div>
 
-	<div class="mb-2 font-medium text-black dark:text-gray-100 huacat-pink:text-black">Show Hidden Files?</div>
+	<div class="mb-2 font-medium text-[var(--color-text-primary)]">Show Hidden Files?</div>
 	<RadioGroup
 		value={userData.showHiddenFiles}
 		options={{
@@ -122,9 +122,9 @@
 	{#if filesToShow && filesToShow.length > 0}
 		<FilesList files={filesToShow} />
 	{:else if filesToShow && filesToShow.length === 0}
-		<div class="text-gray-800 dark:text-gray-400 huacat-pink:text-gray-800">No files found. Create a new file above!</div>
+		<div class="text-[var(--color-text-primary)]">No files found. Create a new file above!</div>
 	{:else}
-		<div class="text-gray-800 dark:text-gray-400 huacat-pink:text-gray-800">Loading files...</div>
+		<div class="text-[var(--color-text-primary)]">Loading files...</div>
 	{/if}
 </div>
 

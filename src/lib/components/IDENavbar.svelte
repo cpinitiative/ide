@@ -19,16 +19,10 @@
 </script>
 
 <div class="flex items-center overflow-x-auto text-gray-800 dark:text-gray-200">
-	<div class="flex items-center divide-x" class:divide-neutral-200={theme === 'light'} class:divide-neutral-700={theme === 'dark'} class:divide-[#D5C5D5]={theme === 'huacat-pink'}>
+	<div class="flex items-center divide-x divide-[var(--color-bg-border-primary)]">
 		<a
 			href="/"
-			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm focus:outline-none"
-			class:hover:bg-neutral-200={theme === 'light'}
-			class:focus:bg-neutral-200={theme === 'light'}
-			class:hover:bg-neutral-800={theme === 'dark'}
-			class:focus:bg-neutral-800={theme === 'dark'}
-			class:hover:bg-[#F0E5F0]={theme === 'huacat-pink'}
-			class:focus:bg-[#F0E5F0]={theme === 'huacat-pink'}
+			class="relative inline-flex items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-[var(--color-bg-hover-primary)] focus:bg-[var(--color-bg-hover-primary)] focus:outline-none"
 		>
 			<!-- Home Icon -->
 			<svg
@@ -47,12 +41,7 @@
 		{@render fileMenu()}
 		<button
 			type="button"
-			class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium shadow-sm focus:outline-none"
-			class:hover:bg-neutral-300={theme === 'light'}
-			class:hover:bg-neutral-800={theme === 'dark'}
-			class:focus:bg-neutral-800={theme === 'dark'}
-			class:hover:bg-[#F0E5F0]={theme === 'huacat-pink'}
-			class:focus:bg-[#F0E5F0]={theme === 'huacat-pink'}
+			class="relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-medium shadow-sm hover:bg-[var(--color-bg-hover-primary)] focus:bg-[var(--color-bg-hover-primary)] focus:outline-none"
 			onclick={handleShare}
 		>
 			<!-- Share Icon -->
@@ -71,7 +60,7 @@
 		</button>
 	</div>
 	{@render runButton()}
-	<div class="flex items-center divide-x" class:divide-neutral-200={theme === 'light'} class:divide-neutral-700={theme === 'dark'} class:divide-[#D5C5D5]={theme === 'huacat-pink'}>
+	<div class="flex items-center divide-x divide-[var(--color-bg-border-primary)]">
 		<a
 			href="https://github.com/cpinitiative/ide/issues"
 			target="_blank"

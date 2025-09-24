@@ -206,7 +206,7 @@
 		};
 	});
 	$effect(() => {
-		document.body.setAttribute('data-theme', userData.theme);
+		document.documentElement.setAttribute('data-theme', userData.theme);
 	});
 	const { children } = $props();
 </script>

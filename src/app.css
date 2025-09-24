@@ -7,13 +7,65 @@
 
 @theme {
 	--color-monaco-editor-bg: #1e1e1e;
+
+	/* Semantic colors for light theme (default) */
+	/* Colors used for primary actions like buttons */
+	--color-primary: var(--color-indigo-600);
+	--color-primary-hover: var(--color-indigo-700);
+	--color-primary-focus: var(--color-indigo-500);
+
+	/* Background color for the webpage */
+	--color-bg-primary: var(--color-white);
+
+	/* Border color for the webpage. Must go well with the background color. */
+	--color-bg-border-primary: var(--color-neutral-300);
+
+	/* Hover background color for the webpage */
+	--color-bg-hover-primary: var(--color-neutral-100);
+
+	/* Text color for the webpage */
+	--color-text-primary: var(--color-black);
+	--color-text-secondary: var(--color-neutral-500);
+}
+
+@layer theme {
+	:root,
+	:host {
+		/* Dark theme color overrides */
+		@variant dark {
+			--color-primary: var(--color-indigo-600);
+			--color-primary-hover: var(--color-indigo-700);
+			--color-primary-focus: var(--color-indigo-500);
+
+			--color-bg-primary: var(--color-monaco-editor-bg);
+			--color-bg-border-primary: var(--color-neutral-700);
+			--color-bg-hover-primary: var(--color-neutral-800);
+
+			--color-text-primary: var(--color-neutral-100);
+			--color-text-secondary: var(--color-neutral-400);
+		}
+
+		/* Huacat Pink theme color overrides */
+		@variant huacat-pink {
+			--color-primary: #cf6bae;
+			--color-primary-hover: #b85a9e;
+			--color-primary-focus: #cf6bae;
+
+			--color-bg-primary: #f5eaf5;
+			--color-bg-border-primary: #d5c5d5;
+			--color-bg-hover-primary: #f0e5f0;
+
+			--color-text-primary: var(--color-black);
+			--color-text-secondary: var(--color-neutral-600);
+		}
+	}
 }
 
 body {
 	/* Matches the color of monaco-editor */
 	/* background-color: var(--color-monaco-editor-bg); */
 
-	@apply bg-white text-gray-100 dark:bg-[var(--color-monaco-editor-bg)] huacat-pink:bg-[#F5EAF5] huacat-pink:text-gray-800;
+	@apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)];
 }
 
 /* Styles for remote cursors for monaco */
