@@ -41,16 +41,8 @@
 	let ioMethod: 'stdio' | 'fileio' = $state(fileSettings.fileIOName ? 'fileio' : 'stdio');
 	let fileName: string = $state(fileSettings.fileIOName || fileSettings.workspaceName || '');
 
-	const getInactiveTabClasses = () => {
-		switch (userData.theme) {
-			case 'dark':
-				return 'border-transparent text-gray-500 hover:border-gray-700 hover:text-neutral-200';
-			case 'huacat-pink':
-				return 'border-transparent text-gray-500 hover:border-[#D5C5D5] hover:text-gray-700';
-			default: // light
-				return 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700';
-		}
-	};
+	// Use semantic CSS variables for consistent theming
+	const inactiveTabClasses = 'border-transparent text-[var(--color-text-secondary)] hover:border-[var(--color-bg-border-primary)] hover:text-[var(--color-text-primary)]';
 
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault();
@@ -104,12 +96,7 @@
 				transition:fade={{ duration: 150 }}
 			></div>
 			<div
-				class="inline-block w-full transform overflow-hidden text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg"
-				class:bg-white={userData.theme === 'light'}
-				class:bg-[#1E1E1E]={userData.theme === 'dark'}
-				class:bg-[#F5EAF5]={userData.theme === 'huacat-pink'}
-				class:text-gray-800={userData.theme === 'light' || userData.theme === 'huacat-pink'}
-				class:text-gray-200={userData.theme === 'dark'}
+				class="inline-block w-full transform overflow-hidden text-left shadow-xl transition-all sm:my-8 sm:max-w-2xl md:rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]"
 				use:melt={$content}
 				transition:fade={{ duration: 150 }}
 			>
@@ -117,7 +104,7 @@
 					<h2 use:melt={$title} class="text-center text-lg leading-6 font-medium">Settings</h2>
 				</div>
 
-				<div class="border-b" class:border-gray-200={userData.theme === 'light'} class:border-gray-700={userData.theme === 'dark'} class:border-[#E5D5E5]={userData.theme === 'huacat-pink'}>
+				<div class="border-b border-[var(--color-bg-border-primary)]">
 					<nav class="-mb-px flex">
 						{@render SettingsTab(
 							'Workspace',
@@ -254,22 +241,14 @@
 					<div class="mt-6 flex items-center space-x-4">
 					<button
 						type="button"
-						class="inline-flex items-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-						class:border-gray-300={userData.theme === 'light'}
-						class:text-gray-700={userData.theme === 'light' || userData.theme === 'huacat-pink'}
-						class:hover:bg-gray-50={userData.theme === 'light'}
-						class:border-gray-600={userData.theme === 'dark'}
-						class:text-white={userData.theme === 'dark'}
-						class:hover:bg-gray-700={userData.theme === 'dark'}
-						class:border-[#D5C5D5]={userData.theme === 'huacat-pink'}
-						class:hover:bg-[#F0E5F0]={userData.theme === 'huacat-pink'}
+						class="inline-flex items-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium shadow-sm border-[var(--color-bg-border-primary)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover-primary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg-primary)] focus:outline-none"
 						use:melt={$close}
-						>
+					>
 							Cancel
 						</button>
 						<button
 							type="submit"
-							class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+							class="inline-flex justify-center rounded-md border border-transparent bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[var(--color-primary-hover)] focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg-primary)] focus:outline-none"
 						>
 							Save
 						</button>
@@ -300,16 +279,13 @@
 )}
 	<button
 		class={(selected
-			? 'border-indigo-500'
-			: getInactiveTabClasses()) +
+			? 'border-[var(--color-primary)] text-[var(--color-text-primary)]'
+			: inactiveTabClasses) +
 			' group flex w-1/2 cursor-pointer items-center justify-center border-b-2 px-1 py-3 text-sm font-medium focus:outline-none'}
-		class:text-indigo-500={selected && userData.theme !== 'dark'}
-		class:text-neutral-200={selected && userData.theme === 'dark'}
-		class:text-neutral-300={!selected && userData.theme === 'dark'}
 		onclick={onClick}
 	>
 		<Icon
-			class={(selected ? 'text-indigo-500' : 'text-gray-400 group-hover:text-gray-500') +
+			class={(selected ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)]') +
 				' mr-2 -ml-0.5 h-5 w-5'}
 		/>
 
