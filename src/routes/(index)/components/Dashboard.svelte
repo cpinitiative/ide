@@ -114,7 +114,6 @@
 			yes: 'Yes',
 			no: 'No'
 		}}
-		theme={userData.theme}
 		onchange={(e) => (onUpdateShowHiddenFiles(e))}
 	/>
 	<div class="h-6"></div>

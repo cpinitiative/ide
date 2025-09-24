@@ -142,7 +142,6 @@
 						name="workspaceName"
 						defaultValue={fileSettings.workspaceName}
 						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-						theme={userData.theme}
 					/>
 					</div>
 					<div class:hidden={activeTab !== 'workspace'}>
@@ -151,7 +150,6 @@
 							name="language"
 							defaultValue={fileSettings.language}
 							options={LANGUAGES}
-							theme={userData.theme}
 							bind:value={selectedLanguage}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						/>
@@ -164,7 +162,6 @@
 						defaultValue={fileSettings.compilerOptions[selectedLanguage]}
 						readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
 						placeholder="None"
-						theme={userData.theme}
 							className="font-mono"
 						/>
 					</div>
@@ -179,7 +176,6 @@
 								READ: 'Public View Only',
 								PRIVATE: 'Private'
 							}}
-							theme={userData.theme}
 							readonly={userPermission !== 'OWNER'}
 						/>
 					</div>
@@ -189,7 +185,6 @@
 						label="User Name"
 						name="username"
 						defaultValue={firebaseUser.displayName || ''}
-						theme={userData.theme}
 					/>
 					</div>
 
@@ -199,7 +194,6 @@
 							name="editorMode"
 							defaultValue={userData.editorMode}
 							options={{ normal: 'Normal', vim: 'Vim' }}
-							theme={userData.theme}
 						/>
 					</div>
 
@@ -209,7 +203,6 @@
 							name="tabSize"
 							defaultValue={userData.tabSize.toString()}
 							options={{ 2: '2', 4: '4', 8: '8' }}
-							theme={userData.theme}
 						/>
 					</div>
 
@@ -219,7 +212,6 @@
 							name="inlayHints"
 							defaultValue={userData.inlayHints}
 							options={{ on: 'On', off: 'Off' }}
-							theme={userData.theme}
 						/>
 					</div>
 
@@ -229,7 +221,6 @@
 							name="theme"
 							defaultValue={userData.theme}
 							options={{ light: 'Light', dark: 'Dark', 'huacat-pink': 'Huacat Pink' }}
-							theme={userData.theme}
 						/>
 					</div>
 
@@ -238,7 +229,6 @@
 						<RadioGroup
 							name="ioMethod"
 							options={{ fileio: 'Enabled', stdio: 'Disabled' }}
-							theme={userData.theme}
 							defaultValue={ioMethod}
 							bind:value={ioMethod}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
@@ -252,7 +242,6 @@
 							name="fileName"
 							bind:value={fileName}
 							readonly={!(userPermission === 'OWNER' || userPermission === 'READ_WRITE')}
-							theme={userData.theme}
 						/>
 							<p class="text-sm text-gray-500 pt-2">
 								You can optionally read/write from {fileName}.in and
