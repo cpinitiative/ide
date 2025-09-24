@@ -33,13 +33,13 @@
 <div class="flex flex-col">
 	<div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
 		<div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-			<table class="min-w-full divide-y divide-gray-300 text-gray-500 dark:divide-gray-600 dark:text-gray-400 huacat-pink:divide-[#D5C5D5] huacat-pink:text-gray-600">
+			<table class="min-w-full divide-y divide-[var(--color-bg-border-primary)] text-[var(--color-text-secondary)]">
 				<thead>
 					<tr>
 						{#each ['Name', 'Last Accessed', 'Created', 'Language'] as col, i (col)}
 							<th
 								scope="col"
-							class="{i == 0 ? 'pr-2 pl-4 sm:pl-6 md:pl-0' : 'px-2'} py-3.5 text-left text-sm font-semibold text-black dark:text-gray-100 huacat-pink:text-black"
+							class="{i == 0 ? 'pr-2 pl-4 sm:pl-6 md:pl-0' : 'px-2'} py-3.5 text-left text-sm font-semibold text-[var(--color-text-primary)]"
 							>
 								{col}
 							</th>
@@ -49,7 +49,7 @@
 						</th>
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-300 dark:divide-gray-700 huacat-pink:divide-[#D5C5D5]">
+				<tbody class="divide-y divide-[var(--color-bg-border-primary)]">
 					{#each files as file (file.id)}
 						<tr>
 							<td class="py-4 pr-2 pl-4 text-sm whitespace-nowrap sm:pl-6 md:pl-0">
@@ -60,7 +60,7 @@
 								{:else}
 									<a
 										href={`/${file.id.substring(1)}`}
-										class="text-gray-900 hover:text-black dark:text-gray-100 dark:hover:text-white huacat-pink:text-gray-800 huacat-pink:hover:text-gray-900"
+										class="text-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] opacity-90 hover:opacity-100"
 									>
 										{file.title || '(Unnamed File)'}
 									</a>
@@ -80,7 +80,7 @@
 							>
 								<button
 									onclick={() => handleToggleHideFile(file)}
-									class="text-indigo-400 hover:text-indigo-100 huacat-pink:text-[#CF6BAE] huacat-pink:hover:text-[#B85A9E]"
+									class="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
 								>
 									{file.hidden ? 'Unhide' : 'Hide'}
 								</button>
