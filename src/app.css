@@ -16,10 +16,8 @@
 
 	/* Background color for the webpage */
 	--color-bg-primary: var(--color-white);
-
 	/* Border color for the webpage. Must go well with the background color. */
 	--color-bg-border-primary: var(--color-neutral-300);
-
 	/* Hover background color for the webpage */
 	--color-bg-hover-primary: var(--color-neutral-100);
 
