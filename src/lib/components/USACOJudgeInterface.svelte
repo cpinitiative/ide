@@ -32,7 +32,7 @@
 	}
 
 	const submitButtonLoadingClasses =
-		'cursor-not-allowed bg-[var(--color-primary)] bg-opacity-50 text-white opacity-50';
+		'cursor-not-allowed bg-[var(--color-primary)]/50 text-white opacity-50';
 	const submitButtonNormalClasses =
 		'text-text-primary hover:bg-[var(--color-primary-hover)]/50 bg-[var(--color-primary)]/50';
 </script>
