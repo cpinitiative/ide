@@ -24,6 +24,10 @@
 	/* Text color for the webpage */
 	--color-text-primary: var(--color-black);
 	--color-text-secondary: var(--color-neutral-500);
+
+	/* Gutter colors for IDE layout dividers */
+	--color-gutter: var(--color-neutral-200);
+	--color-gutter-hover: var(--color-neutral-300);
 }
 
 @layer theme {
@@ -41,6 +45,9 @@
 
 			--color-text-primary: var(--color-neutral-100);
 			--color-text-secondary: var(--color-neutral-400);
+
+			--color-gutter: var(--color-black);
+			--color-gutter-hover: var(--color-neutral-600);
 		}
 
 		/* Huacat Pink theme color overrides */
@@ -55,6 +62,9 @@
 
 			--color-text-primary: var(--color-black);
 			--color-text-secondary: var(--color-neutral-600);
+
+			--color-gutter: #e5d5e5;
+			--color-gutter-hover: #d5c5d5;
 		}
 	}
 }

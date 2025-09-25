@@ -54,10 +54,10 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 <div class="h-full overflow-x-hidden" data-theme={theme}>
 	<div class="flex h-full flex-col">
-		<div class="flex-shrink-0" class:bg-white={theme === 'light'} class:bg-[#1E1E1E]={theme === 'dark'} class:bg-[#F5EAF5]={theme === 'huacat-pink'}>
+		<div class="flex-shrink-0 bg-[var(--color-bg-primary)]">
 			{@render navbar()}
 		</div>
-		<div class="min-h-0 flex-1 border-t" class:border-neutral-100={theme === 'light'} class:border-black={theme === 'dark'} class:border-[#E5D5E5]={theme === 'huacat-pink'}>
+		<div class="min-h-0 flex-1 border-t border-[var(--color-bg-border-primary)]">
 			<div class="split-grid h-full">
 				<!-- Without min-w-0, we won't be able to reize the pane to make monaco-editor smaller. -->
 				<div
@@ -73,16 +73,7 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class:hidden={layout === 'mobile'}
 				>
 					<div
-						class="pointer-events-none absolute right-[6px] left-[6px] h-full transition"
-						class:bg-neutral-200={theme === 'light'}
-						class:group-hover:bg-neutral-300={theme === 'light'}
-						class:group-active:bg-neutral-300={theme === 'light'}
-						class:bg-black={theme === 'dark'}
-						class:group-hover:bg-neutral-600={theme === 'dark'}
-						class:group-active:bg-neutral-600={theme === 'dark'}
-						class:bg-[#E5D5E5]={theme === 'huacat-pink'}
-						class:group-hover:bg-[#D5C5D5]={theme === 'huacat-pink'}
-						class:group-active:bg-[#D5C5D5]={theme === 'huacat-pink'}
+						class="pointer-events-none absolute right-[6px] left-[6px] h-full transition bg-[var(--color-gutter)] group-hover:bg-[var(--color-gutter-hover)] group-active:bg-[var(--color-gutter-hover)]"
 					></div>
 				</div>
 				<div
@@ -103,10 +94,8 @@ This should be a "dumb", self-contained component that only contains UI logic.
 					class={`gutter pointer-events-none absolute w-full ${
 						layout === 'desktop'
 							? 'top-[6px] bottom-[6px]'
-							: 'inset-y-0 flex items-center justify-center'
+							: 'inset-y-0 flex items-center justify-center bg-[var(--color-gutter)]'
 					}`}
-					class:bg-neutral-800={layout === 'mobile' && theme === 'dark'}
-					class:bg-[#D5C5D5]={layout === 'mobile' && theme === 'huacat-pink'}
 					>
 						{#if layout === 'mobile'}
 							<!-- Ellipsis horizontal icon -->
@@ -140,13 +129,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 
 		<!-- Mobile bottom bar -->
 		{#if layout === 'mobile'}
-			<div class="grid grid-cols-2" class:bg-white={theme === 'light'} class:bg-[#1E1E1E]={theme === 'dark'} class:bg-[#F5EAF5]={theme === 'huacat-pink'}>
+			<div class="grid grid-cols-2 bg-[var(--color-bg-primary)]">
 				{#each ['main', 'inputOutput'] as const as tab}
 					<button
 						class="flex flex-col items-center py-1 transition focus:outline-none {mobileActiveTab ===
 						tab
-							? 'text-gray-800 dark:text-gray-200'
-							: 'text-gray-500 dark:text-gray-400'}"
+							? 'text-[var(--color-text-primary)]'
+							: 'text-[var(--color-text-secondary)]'}"
 						onclick={() => (mobileActiveTab = tab)}
 						data-testid="mobile-bottom-nav-{tab}-button"
 					>
@@ -172,21 +161,13 @@ This should be a "dumb", self-contained component that only contains UI logic.
 		grid-template-rows: 1fr 3px 1fr;
 	}
 	.gutter {
-		@apply transition group-focus:bg-neutral-600;
+		background-color: var(--color-gutter);
+		@apply transition;
 	}
 	
-	/* Light theme gutters */
-	:global([data-theme='light']) .gutter {
-		@apply bg-neutral-200 group-hover:bg-neutral-300 group-active:bg-neutral-300;
-	}
-	
-	/* Dark theme gutters */
-	:global([data-theme='dark']) .gutter {
-		@apply bg-black group-hover:bg-neutral-600 group-active:bg-neutral-600;
-	}
-	
-	/* Huacat Pink theme gutters */
-	:global([data-theme='huacat-pink']) .gutter {
-		@apply bg-[#E5D5E5] group-hover:bg-[#D5C5D5] group-active:bg-[#D5C5D5];
+	.gutter:hover,
+	.group:hover .gutter,
+	.group:active .gutter {
+		background-color: var(--color-gutter-hover);
 	}
 </style>
