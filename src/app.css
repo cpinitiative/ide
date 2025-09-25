@@ -9,7 +9,7 @@
 	--color-monaco-editor-bg: #1e1e1e;
 
 	/* Semantic colors for light theme (default) */
-	/* Colors used for primary actions like buttons */
+	/* Colors used for primary actions like button background color */
 	--color-primary: var(--color-indigo-600);
 	--color-primary-hover: var(--color-indigo-700);
 	--color-primary-focus: var(--color-indigo-500);
@@ -24,6 +24,9 @@
 	/* Text color for the webpage */
 	--color-text-primary: var(--color-black);
 	--color-text-secondary: var(--color-neutral-500);
+
+	/* Link colors */
+	--color-link: var(--color-indigo-600);
 
 	/* Gutter colors for IDE layout dividers */
 	--color-gutter: var(--color-neutral-200);
@@ -46,6 +49,8 @@
 			--color-text-primary: var(--color-neutral-100);
 			--color-text-secondary: var(--color-neutral-400);
 
+			--color-link: var(--color-indigo-300);
+
 			--color-gutter: var(--color-black);
 			--color-gutter-hover: var(--color-neutral-600);
 		}
@@ -62,6 +67,8 @@
 
 			--color-text-primary: var(--color-black);
 			--color-text-secondary: var(--color-neutral-600);
+
+			--color-link: var(--color-pink-700);
 
 			--color-gutter: #e5d5e5;
 			--color-gutter-hover: #d5c5d5;

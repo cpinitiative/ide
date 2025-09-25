@@ -2,6 +2,7 @@
 	import type { JudgeTestCaseResponse, ProblemData } from '$lib/types';
 	import { PlayIcon } from 'lucide-svelte';
 	import LoadingIndicator from './LoadingIndicator.svelte';
+	import { getUserData } from '$lib/firebase/firebase.svelte';
 
 	let {
 		problem,
@@ -31,37 +32,37 @@
 	}
 
 	const submitButtonLoadingClasses =
-		'cursor-not-allowed bg-indigo-900 bg-opacity-50 text-indigo-200 opacity-50';
+		'cursor-not-allowed bg-[var(--color-primary)] bg-opacity-50 text-white opacity-50';
 	const submitButtonNormalClasses =
-		'text-indigo-200 hover:text-indigo-100 hover:bg-indigo-800 hover:bg-opacity-50 bg-indigo-900 bg-opacity-50';
+		'text-text-primary hover:bg-[var(--color-primary-hover)]/50 bg-[var(--color-primary)]/50';
 </script>
 
 <div class="relative flex h-full flex-col">
 	<div class="flex-1 overflow-y-auto">
 		<div class="p-4">
-			<p class="text-lg font-bold text-gray-100">
+			<p class="text-lg font-bold text-[var(--color-text-primary)]">
 				<a
 					href={getUSACOContestURL(problem.source || '')}
-					class="text-indigo-300"
+					class="text-[var(--color-link)]"
 					target="_blank"
 					rel="noreferrer"
 				>
 					{problem.source}
 				</a>
 			</p>
-			<p class="text-lg font-bold text-gray-100">
-				<a href={problem.url} class="text-indigo-300" target="_blank" rel="noreferrer">
+			<p class="text-lg font-bold text-[var(--color-text-primary)]">
+				<a href={problem.url} class="text-[var(--color-link)]" target="_blank" rel="noreferrer">
 					{problem.title}
 				</a>
 			</p>
-			<p class="text-sm text-gray-100">
+			<p class="text-sm text-[var(--color-text-primary)]">
 				<span class="font-bold">I/O:</span>
 				{problem.input}/{problem.output}
 				{#if problem.input.includes('.in')}
 					(&quot;Run Samples&quot; supports both file I/O and stdin/stdout)
 				{/if}
 			</p>
-			<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+			<p class="mt-2 text-sm text-[var(--color-text-secondary)]">
 				The Online Judge is in early beta. Not all problems are supported. Timing and correctness
 				information may not be perfectly accurate. Report issues <a
 					href="https://github.com/cpinitiative/online-judge-modal/issues"
@@ -111,13 +112,13 @@
 {#snippet TestCase(data: JudgeTestCaseResponse | null)}
 	{@const containerClasses =
 		data?.verdict === 'accepted'
-			? 'bg-green-700/50 border-green-700'
+			? 'bg-green-600/50 border-green-600'
 			: data?.verdict === 'time_limit_exceeded'
-				? 'bg-yellow-700/50 border-yellow-700'
+				? 'bg-yellow-600/50 border-yellow-600'
 				: data
-					? 'bg-red-700/50 border-red-700'
-					: 'bg-gray-700/50 border-gray-700'}
-	{@const textColor = data?.verdict === 'accepted' ? 'text-green-100' : 'text-red-100'}
+					? 'bg-red-600/50 border-red-600'
+					: 'bg-[var(--color-bg-border-primary)] border-[var(--color-bg-border-primary)]'}
+	{@const textColor = data?.verdict === 'accepted' ? 'text-green-100' : data?.verdict === 'time_limit_exceeded' ? 'text-yellow-100' : 'text-red-100'}
 	<div class={`m-1 inline-block h-[60px] w-[70px] border ${containerClasses} relative`}>
 		<div
 			class={`flex items-center justify-center text-[2rem] font-bold ${textColor} font-[Arial] leading-6`}
