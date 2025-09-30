@@ -184,7 +184,6 @@
 	const userId = $derived(firebaseUser.uid);
 	const compilerOptions = $derived(fileData.settings.compilerOptions[fileData.settings.language]);
 	const theme = $derived(userData.theme);
-	$inspect(theme);
 	const tabSize = $derived(userData.tabSize);
 	const inlayHints = $derived(userData.inlayHints);
 </script>
@@ -245,6 +244,7 @@
 					{userId}
 					language="plaintext"
 					{editorMode}
+					{theme}
 					Editor={SecondaryEditor}
 					bind:this={inputEditor}
 					readOnly={isReadOnly}
@@ -272,6 +272,7 @@
 					{userId}
 					language="plaintext"
 					{editorMode}
+					{theme}
 					Editor={SecondaryEditor}
 					readOnly={isReadOnly}
 				/>
@@ -282,6 +283,7 @@
 						language="plaintext"
 						value={outputPaneValue}
 						{editorMode}
+						{theme}
 					/>
 					<OutputStatusBar {judgeState} theme={userData.theme} />
 				</div>

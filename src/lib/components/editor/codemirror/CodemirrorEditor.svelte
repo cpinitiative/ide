@@ -6,6 +6,7 @@
 	import { java } from '@codemirror/lang-java';
 	import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 	import { githubLight } from '@uiw/codemirror-theme-github';
+	import { huacatPink } from './huacat-theme';
 	import type { EditorProps } from '../RealtimeEditor.svelte';
 	import { vim } from '@replit/codemirror-vim';
 	import * as Y from 'yjs';
@@ -52,10 +53,10 @@
 				extensions.push(vscodeDark);
 				break;
 			case 'light':
-			case 'huacat-pink':
-				// For huacat-pink theme, use the light theme as a base
-				// since pink themes are typically lighter in appearance
 				extensions.push(githubLight);
+				break;
+			case 'huacat-pink':
+				extensions.push(huacatPink);
 				break;
 			default:
 				throw new Error('Unsupported theme');
