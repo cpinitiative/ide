@@ -114,6 +114,10 @@
 		downloadFile(code, fileData.settings.language, fileData.settings.workspaceName ?? 'main');
 	};
 
+	const onCloneFile = () => {
+		window.open(`${window.location.href}/copy`, '_blank');
+	};
+
 	const onUpdateUserSettings = (
 		newUserData: Partial<UserData>,
 		newFileSettings: FileSettings,
@@ -170,7 +174,7 @@
 				? (await import('$lib/components/editor/codemirror/CodemirrorEditor.svelte')).default
 				: (await import('$lib/components/editor/monaco/SecondaryMonacoEditor.svelte')).default;
 		})();
-		// Listen for run code shortcut from Monaco editor
+		// Keyboard shortcut handlers for Monaco editor events
 		const handleRunShortcut = () => {
 			if (!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge') {
 				runCode();
@@ -179,11 +183,20 @@
 		const handleDownloadShortcut = () => {
 			onDownloadFile();
 		};
+		const handleCloneShortcut = () => {
+			onCloneFile();
+		};
+
+		// Register keyboard shortcut listeners
 		window.addEventListener('monaco-run-code', handleRunShortcut);
 		window.addEventListener('monaco-download-file', handleDownloadShortcut);
+		window.addEventListener('monaco-clone-file', handleCloneShortcut);
+
+		// Cleanup listeners on component unmount
 		return () => {
 			window.removeEventListener('monaco-run-code', handleRunShortcut);
 			window.removeEventListener('monaco-download-file', handleDownloadShortcut);
+			window.removeEventListener('monaco-clone-file', handleCloneShortcut);
 		};
 	});
 
