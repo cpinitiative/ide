@@ -176,9 +176,14 @@
 				runCode();
 			}
 		};
+		const handleDownloadShortcut = () => {
+			onDownloadFile();
+		};
 		window.addEventListener('monaco-run-code', handleRunShortcut);
+		window.addEventListener('monaco-download-file', handleDownloadShortcut);
 		return () => {
 			window.removeEventListener('monaco-run-code', handleRunShortcut);
+			window.removeEventListener('monaco-download-file', handleDownloadShortcut);
 		};
 	});
 
