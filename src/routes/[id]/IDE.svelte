@@ -244,7 +244,7 @@
 						? "You can't run code in a view-only document."
 						: inputPaneTab === 'judge'
 							? 'Switch to the input tab to run code.'
-							: undefined}
+							: 'Ctrl+Enter'}
 				/>
 			{/snippet}
 		</IDENavbar>
