@@ -50,13 +50,13 @@
 	data-theme={theme}
 	use:melt={$menu}
 >
-	{#each [[Plus, 'New File', '/new', null], [Download, 'Download File', null, onDownloadFile], [Files, 'Clone File', `${window.location.href}/copy`, null], [Cog, 'Settings', null, onOpenSettings]] as [Icon, text, href, onclick] (text)}
+	{#each [[Plus, 'New File', '/new', null, 'Ctrl+Alt+N'], [Download, 'Download File', null, onDownloadFile, 'Ctrl+S'], [Files, 'Clone File', `${window.location.href}/copy`, null, 'Ctrl+Alt+C'], [Cog, 'Settings', null, onOpenSettings, null]] as [Icon, text, href, onclick, shortcut] (text)}
 		<a
 			use:melt={$item}
 			{href}
 			{onclick}
 			target="_blank"
-			class="group flex w-full cursor-pointer items-center px-4 py-2 text-sm focus:outline-none"
+			class="group flex w-full cursor-pointer items-center justify-between px-4 py-2 text-sm focus:outline-none"
 			class:text-gray-800={theme === 'light' || theme === 'huacat-pink'}
 			class:data-[highlighted]:bg-neutral-100={theme === 'light'}
 			class:data-[highlighted]:text-gray-900={theme === 'light'}
@@ -68,10 +68,15 @@
 			class:data-[highlighted]:bg-[#F0E5F0]={theme === 'huacat-pink'}
 			class:data-[highlighted]:text-gray-800={theme === 'huacat-pink'}
 		>
-			<Icon
-				class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"
-			/>
-			{text}
+			<div class="flex items-center">
+				<Icon
+					class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"
+				/>
+				{text}
+			</div>
+			{#if shortcut}
+				<span class="ml-4 text-xs text-gray-400 opacity-75">{shortcut}</span>
+			{/if}
 		</a>
 	{/each}
 </div>
