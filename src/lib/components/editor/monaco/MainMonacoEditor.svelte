@@ -266,7 +266,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		});
 		return () => disposable.dispose();
 	});
-	// Ctrl+Shift+C shortcut to clone file
+	// Ctrl+Alt+C shortcut to clone file
 	$effect(() => {
 		if (!editor) return;
 		const disposable = editor.addAction({
@@ -276,6 +276,20 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			run: () => {
 				// Dispatch custom event to notify IDE.svelte to clone file
 				window.dispatchEvent(new CustomEvent('monaco-clone-file'));
+			}
+		});
+		return () => disposable.dispose();
+	});
+	// Ctrl+Alt+N shortcut to create new file
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: 'new-file',
+			label: 'New File',
+			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KeyN],
+			run: () => {
+				// Dispatch custom event to notify IDE.svelte to new file
+				window.dispatchEvent(new CustomEvent('monaco-new-file'));
 			}
 		});
 		return () => disposable.dispose();
