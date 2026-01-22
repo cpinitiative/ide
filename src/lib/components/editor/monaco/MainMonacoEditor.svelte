@@ -252,6 +252,21 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		return () => disposable.dispose();
 	});
 
+	// Ctrl+S shortcut to download file
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: 'download-file',
+			label: 'Download File',
+			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+			run: () => {
+				// Dispatch custom event to notify IDE.svelte to download file
+				window.dispatchEvent(new CustomEvent('monaco-download-file'));
+			}
+		});
+		return () => disposable.dispose();
+	});
+
 	$effect(() => {
 		// For monaco, vim mode has the following restrictions:
 		// - We cannot unload the extension once it is loaded.
