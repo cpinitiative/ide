@@ -118,6 +118,10 @@
 		window.open(`${window.location.href}/copy`, '_blank');
 	};
 
+	const onNewFile = () => {
+		window.open('/new', '_blank');
+	};
+
 	const onUpdateUserSettings = (
 		newUserData: Partial<UserData>,
 		newFileSettings: FileSettings,
@@ -186,17 +190,22 @@
 		const handleCloneShortcut = () => {
 			onCloneFile();
 		};
+		const handleNewShortcut = () => {
+			onNewFile();
+		};
 
 		// Register keyboard shortcut listeners
 		window.addEventListener('monaco-run-code', handleRunShortcut);
 		window.addEventListener('monaco-download-file', handleDownloadShortcut);
 		window.addEventListener('monaco-clone-file', handleCloneShortcut);
+		window.addEventListener('monaco-new-file', handleNewShortcut);
 
 		// Cleanup listeners on component unmount
 		return () => {
 			window.removeEventListener('monaco-run-code', handleRunShortcut);
 			window.removeEventListener('monaco-download-file', handleDownloadShortcut);
 			window.removeEventListener('monaco-clone-file', handleCloneShortcut);
+			window.removeEventListener('monaco-new-file', handleNewShortcut);
 		};
 	});
 
