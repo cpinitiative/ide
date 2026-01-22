@@ -170,6 +170,16 @@
 				? (await import('$lib/components/editor/codemirror/CodemirrorEditor.svelte')).default
 				: (await import('$lib/components/editor/monaco/SecondaryMonacoEditor.svelte')).default;
 		})();
+		// Listen for run code shortcut from Monaco editor
+		const handleRunShortcut = () => {
+			if (!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge') {
+				runCode();
+			}
+		};
+		window.addEventListener('monaco-run-code', handleRunShortcut);
+		return () => {
+			window.removeEventListener('monaco-run-code', handleRunShortcut);
+		};
 	});
 
 	const useMobileLayout = new MediaQuery('(max-width: 1023px)');

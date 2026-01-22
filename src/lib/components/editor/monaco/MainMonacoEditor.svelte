@@ -237,6 +237,21 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		});
 	});
 
+	// Ctrl+Enter / Cmd+Enter shortcut to run code
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: 'run-code',
+			label: 'Run Code',
+			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+			run: () => {
+				//dispatch custom event to notify IDE.svelte to run code
+				window.dispatchEvent(new CustomEvent('monaco-run-code'));
+			}
+		});
+		return () => disposable.dispose();
+	});
+
 	$effect(() => {
 		// For monaco, vim mode has the following restrictions:
 		// - We cannot unload the extension once it is loaded.
