@@ -28,6 +28,11 @@
 		 * If provided, connect this editor to YJS.
 		 */
 		yjsInfo?: YjsInfo;
+
+		/**
+		 * Callback for keyboard shortcuts triggered in the editor.
+		 */
+		onShortcut?: (shortcutName: string) => void;
 	};
 
 	const createWebsocketInterceptorClass = (
