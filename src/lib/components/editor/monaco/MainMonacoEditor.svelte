@@ -129,7 +129,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		tabSize,
 		theme = 'dark',
 		yjsInfo,
-		inlayHints
+		inlayHints,
+		onShortcut
 	}: EditorProps = $props();
 
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
@@ -245,8 +246,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			label: 'Run Code',
 			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
 			run: () => {
-				//dispatch custom event to notify IDE.svelte to run code
-				window.dispatchEvent(new CustomEvent('monaco-run-code'));
+				// Call the callback prop to notify parent component
+				onShortcut?.('run-code');
 			}
 		});
 		return () => disposable.dispose();
@@ -260,8 +261,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			label: 'Download File',
 			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
 			run: () => {
-				// Dispatch custom event to notify IDE.svelte to download file
-				window.dispatchEvent(new CustomEvent('monaco-download-file'));
+				// Call the callback prop to notify parent component
+				onShortcut?.('download-file');
 			}
 		});
 		return () => disposable.dispose();
@@ -274,8 +275,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			label: 'Clone File',
 			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KeyC],
 			run: () => {
-				// Dispatch custom event to notify IDE.svelte to clone file
-				window.dispatchEvent(new CustomEvent('monaco-clone-file'));
+				// Call the callback prop to notify parent component
+				onShortcut?.('clone-file');
 			}
 		});
 		return () => disposable.dispose();
@@ -288,8 +289,8 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 			label: 'New File',
 			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KeyN],
 			run: () => {
-				// Dispatch custom event to notify IDE.svelte to new file
-				window.dispatchEvent(new CustomEvent('monaco-new-file'));
+				// Call the callback prop to notify parent component
+				onShortcut?.('new-file');
 			}
 		});
 		return () => disposable.dispose();

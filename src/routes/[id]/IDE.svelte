@@ -168,6 +168,21 @@
 	let PrimaryEditor = $state<Component>(EditorLoadingPlaceholder);
 	let SecondaryEditor = $state<Component>(EditorLoadingPlaceholder);
 
+	// Keyboard shortcut handler for Monaco editor
+	const handleShortcut = (shortcutName: string) => {
+		if (shortcutName === 'run-code') {
+			if (!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge') {
+				runCode();
+			}
+		} else if (shortcutName === 'download-file') {
+			onDownloadFile();
+		} else if (shortcutName === 'clone-file') {
+			onCloneFile();
+		} else if (shortcutName === 'new-file') {
+			onNewFile();
+		}
+	};
+
 	onMount(() => {
 		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 		(async () => {
@@ -178,35 +193,6 @@
 				? (await import('$lib/components/editor/codemirror/CodemirrorEditor.svelte')).default
 				: (await import('$lib/components/editor/monaco/SecondaryMonacoEditor.svelte')).default;
 		})();
-		// Keyboard shortcut handlers for Monaco editor events
-		const handleRunShortcut = () => {
-			if (!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge') {
-				runCode();
-			}
-		};
-		const handleDownloadShortcut = () => {
-			onDownloadFile();
-		};
-		const handleCloneShortcut = () => {
-			onCloneFile();
-		};
-		const handleNewShortcut = () => {
-			onNewFile();
-		};
-
-		// Register keyboard shortcut listeners
-		window.addEventListener('monaco-run-code', handleRunShortcut);
-		window.addEventListener('monaco-download-file', handleDownloadShortcut);
-		window.addEventListener('monaco-clone-file', handleCloneShortcut);
-		window.addEventListener('monaco-new-file', handleNewShortcut);
-
-		// Cleanup listeners on component unmount
-		return () => {
-			window.removeEventListener('monaco-run-code', handleRunShortcut);
-			window.removeEventListener('monaco-download-file', handleDownloadShortcut);
-			window.removeEventListener('monaco-clone-file', handleCloneShortcut);
-			window.removeEventListener('monaco-new-file', handleNewShortcut);
-		};
 	});
 
 	const useMobileLayout = new MediaQuery('(max-width: 1023px)');
@@ -263,6 +249,7 @@
 			Editor={PrimaryEditor}
 			bind:this={mainEditor}
 			readOnly={isReadOnly}
+			onShortcut={handleShortcut}
 		/>
 	{/snippet}
 
