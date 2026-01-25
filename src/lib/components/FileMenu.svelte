@@ -50,7 +50,7 @@
 	data-theme={theme}
 	use:melt={$menu}
 >
-	{#each [[Plus, 'New File', '/new', null, 'Ctrl+Alt+N'], [Download, 'Download File', null, onDownloadFile, 'Ctrl+S'], [Files, 'Clone File', `${window.location.href}/copy`, null, 'Ctrl+Alt+C'], [Cog, 'Settings', null, onOpenSettings, null]] as [Icon, text, href, onclick, shortcut] (text)}
+	{#each [[Plus, 'New File', '/new', null, 'Ctrl+Alt+N'], [Download, 'Download File', null, onDownloadFile, 'Ctrl+S'], [Files, 'Clone File', `${window.location.origin}${window.location.pathname}/copy`, null, 'Ctrl+Alt+C'], [Cog, 'Settings', null, onOpenSettings, null]] as [Icon, text, href, onclick, shortcut] (text)}
 		<a
 			use:melt={$item}
 			{href}
