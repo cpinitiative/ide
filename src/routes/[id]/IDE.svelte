@@ -55,6 +55,7 @@
 	const fileId = $derived(fileData.id);
 	const userPermission = $derived(computePermission(fileData, firebaseUserId));
 	const isReadOnly = $derived(userPermission === 'READ');
+	const canRunCode = $derived(!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge');
 
 	const runCode = async () => {
 		const code = mainEditor?.getValue();
@@ -115,7 +116,7 @@
 	};
 
 	const onCloneFile = () => {
-		window.open(`${window.location.href}/copy`, '_blank');
+		window.open(`${window.location.origin}${window.location.pathname}/copy`, '_blank');
 	};
 
 	const onNewFile = () => {
@@ -171,7 +172,7 @@
 	// Keyboard shortcut handler for Monaco editor
 	const handleShortcut = (shortcutName: string) => {
 		if (shortcutName === 'run-code') {
-			if (!isReadOnly && !judgeState.isRunning && inputPaneTab !== 'judge') {
+			if (canRunCode) {
 				runCode();
 			}
 		} else if (shortcutName === 'download-file') {
@@ -225,7 +226,7 @@
 				<RunButton
 					showLoadingIndicator={judgeState.isRunning}
 					onclick={runCode}
-					disabled={isReadOnly || judgeState.isRunning || inputPaneTab === 'judge'}
+					disabled={!canRunCode}
 					title={isReadOnly
 						? "You can't run code in a view-only document."
 						: inputPaneTab === 'judge'
