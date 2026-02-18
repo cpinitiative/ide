@@ -244,7 +244,7 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		const disposable = editor.addAction({
 			id: 'run-code',
 			label: 'Run Code',
-			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+			keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Enter],
 			run: () => {
 				// Call the callback prop to notify parent component
 				onShortcut?.('run-code');
