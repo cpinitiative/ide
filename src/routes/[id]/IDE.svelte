@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
 	import { isExecuteResponse, type CommandOutput, type ExecuteResponse, type FileData, type FileSettings, type JudgeResponse, type USACOJudgeSubmissionResult, type UserData } from '$lib/types';
 
 	export type JudgeState = {
@@ -30,6 +30,8 @@
 
 	let mainEditor: RealtimeEditor | undefined = $state(undefined);
 	let inputEditor: RealtimeEditor | undefined = $state(undefined);
+  let outputEditor: any = $state(undefined);
+  let scribbleEditor: RealtimeEditor | undefined = $state(undefined);
 
 	let inputPaneTab: 'input' | 'judge' = $state(fileData.settings.problem ? 'judge' : 'input');
 	let outputPaneTab = $state('stdout');
@@ -172,15 +174,20 @@
 	// Keyboard shortcut handler for Monaco editor
 	const handleShortcut = (shortcutName: string) => {
 		if (shortcutName === 'run-code') {
-			if (canRunCode) {
-				runCode();
-			}
+			if (canRunCode) runCode();
 		} else if (shortcutName === 'download-file') {
 			onDownloadFile();
 		} else if (shortcutName === 'clone-file') {
 			onCloneFile();
 		} else if (shortcutName === 'new-file') {
 			onNewFile();
+		} else if (shortcutName === 'focus-main') {
+			mainEditor?.focus?.();
+		} else if (shortcutName === 'focus-input') {
+			if (inputPaneTab === 'input') inputEditor?.focus?.();
+		} else if (shortcutName === 'focus-output') {
+			if (outputPaneTab === 'scribble') scribbleEditor?.focus?.();
+			else outputEditor?.focus?.();
 		}
 	};
 
@@ -273,6 +280,7 @@
 					Editor={SecondaryEditor}
 					bind:this={inputEditor}
 					readOnly={isReadOnly}
+          onShortcut={handleShortcut}
 				/>
 			{:else if inputPaneTab === 'judge'}
 				<USACOJudgePane {fileData} {mainEditor} bind:judgeState={judgeState} />
@@ -300,6 +308,8 @@
 					{theme}
 					Editor={SecondaryEditor}
 					readOnly={isReadOnly}
+          bind:this={scribbleEditor}
+					onShortcut={handleShortcut}
 				/>
 			{:else}
 				<div class="flex h-full min-h-0 flex-col">
@@ -309,6 +319,8 @@
 						value={outputPaneValue}
 						{editorMode}
 						{theme}
+            bind:this={outputEditor}
+						onShortcut={handleShortcut}
 					/>
 					<OutputStatusBar {judgeState} theme={userData.theme} />
 				</div>

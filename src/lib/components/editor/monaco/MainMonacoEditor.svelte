@@ -238,6 +238,51 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 		});
 	});
 
+	// Ctrl+1 / Cmd+1 to focus main editor
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: 'focus-main',
+			label: 'Focus Main Editor',
+			keybindings: [
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit1,
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad1
+			],
+			run: () => onShortcut?.('focus-main')
+		});
+		return () => disposable.dispose();
+	});
+
+	// Ctrl+2 / Cmd+2 to focus input editor
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: 'focus-input',
+			label: 'Focus Input Editor',
+			keybindings: [
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit2,
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad2
+			],
+			run: () => onShortcut?.('focus-input')
+		});
+		return () => disposable.dispose();
+	});
+
+	// Ctrl+3 / Cmd+3 to focus output editor
+	$effect(() => {
+		if (!editor) return;
+		const disposable = editor.addAction({
+			id: "focus-output",
+			label: "Focus Output Editor",
+			keybindings: [
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit3,
+				monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad3
+			],
+			run: () => onShortcut?.('focus-output')
+		});
+		return () => disposable.dispose();
+	});
+
 	// Ctrl+Enter / Cmd+Enter shortcut to run code
 	$effect(() => {
 		if (!editor) return;
@@ -391,6 +436,10 @@ attached to the promise, so when the promise is cancelled, it logs an error.
 	export const getValue = () => {
 		return editor?.getValue();
 	};
+
+	export function focus() {
+		editor?.focus();
+	}
 </script>
 
 <div class="dark:bg-monaco-editor-bg flex h-full min-h-0 flex-col bg-white">
