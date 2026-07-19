@@ -36,7 +36,7 @@
 		>
 			<div>
 				Looking to get better at USACO? Check out the
-				<a href="https://usaco.guide/" rel="noreferrer" class="underline hover:text-[var(--color-text-primary)]">
+				<a href="https://usaco.guide/" target="_blank" rel="noreferrer" class="underline hover:text-[var(--color-text-primary)]">
 					USACO Guide
 				</a>!<br />
 				Not for commercial use.
@@ -47,6 +47,7 @@
 					Infrastructure monitoring powered by Datadog. View our
 					<a
 						href="https://p.datadoghq.com/sb/fbf273aa-1551-11ef-87da-da7ad0900002-1c22ffc7d27083c1529726831826065e"
+						target="_blank"
 						rel="noreferrer"
 						class="underline hover:text-[var(--color-text-primary)]"
 					>
@@ -55,6 +56,7 @@
 					or learn more about
 					<a
 						href="https://github.com/cpinitiative/ide/blob/master/Datadog.md"
+						target="_blank"
 						rel="noreferrer"
 						class="underline hover:text-[var(--color-text-primary)]"
 					>
