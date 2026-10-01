@@ -14,7 +14,7 @@
           ".read": "root.child('files').child($secretid).child('settings').child('defaultPermission').val() !== 'PRIVATE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ_WRITE' || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'READ'",
           "$user": {
             ".read": "$user === auth.uid",
-            ".write": "(auth.uid === $user && !root.child('files').child($secretid).child('settings').child('users').exists()) || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || (auth.uid === $user && data.child('permission').val() === newData.child('permission').val())"
+            ".write": "(auth.uid === $user && !root.child('files').child($secretid).child('users').exists()) || root.child('files').child($secretid).child('users').child(auth.uid).child('permission').val() === 'OWNER' || (auth.uid === $user && data.child('permission').val() === newData.child('permission').val())"
           }
         },
 
