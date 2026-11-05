@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
 	import { isExecuteResponse, type CommandOutput, type ExecuteResponse, type FileData, type FileSettings, type JudgeResponse, type USACOJudgeSubmissionResult, type UserData } from '$lib/types';
 
 	export type JudgeState = {
