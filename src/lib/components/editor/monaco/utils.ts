@@ -13,15 +13,15 @@ export const getMonacoWrapperConfig = (
 	compilerOptions?: string,
 	editorOptions?: monaco.editor.IStandaloneEditorConstructionOptions
 ): WrapperConfig => {
-	let lspUrl = undefined;
 
-	if (language === 'cpp' || language === 'py') {
-		lspUrl = `wss://thecodingwizard--lsp-server-main.modal.run:443/${
-			language === 'cpp' ? 'clangd' : 'pyright'
-		}`;
-		if (compilerOptions) {
-			lspUrl += `?compiler_options=${encodeURIComponent(compilerOptions)}`;
-		}
+	let lspUrl = `wss://thecodingwizard--lsp-server-main.modal:443/${
+			language === "java" ? "jdtls" :
+			language === "cpp" ? "clangd" :
+			"pyright"
+	}`;
+
+	if (compilerOptions) {
+		lspUrl += `?compiler_options=${encodeURIComponent(compilerOptions)}`;
 	}
 
 	const monacoLanguage = language === 'py' ? 'python' : language;
@@ -80,7 +80,7 @@ export const getMonacoWrapperConfig = (
 			editorOptions,
 			codeResources: {
 				modified: {
-					uri: `/workspace/main.${language}`,
+					uri: language === 'java' ? 'file:///workspace/main.java' : `/workspace/main.${language}`,
 					text: ''
 				}
 			}
