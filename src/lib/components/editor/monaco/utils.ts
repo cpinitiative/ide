@@ -14,7 +14,7 @@ export const getMonacoWrapperConfig = (
 	editorOptions?: monaco.editor.IStandaloneEditorConstructionOptions
 ): WrapperConfig => {
 
-	let lspUrl = `wss://thecodingwizard--lsp-server-main.modal:443/${
+	let lspUrl = `wss://cpinitiative--lsp-server-main.modal.run:443/${
 			language === "java" ? "jdtls" :
 			language === "cpp" ? "clangd" :
 			"pyright"
