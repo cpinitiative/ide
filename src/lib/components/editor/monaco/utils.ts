@@ -15,13 +15,14 @@ export const getMonacoWrapperConfig = (
 ): WrapperConfig => {
 	let lspUrl = undefined;
 
-	if (language === 'cpp' || language === 'py') {
-		lspUrl = `wss://thecodingwizard--lsp-server-main.modal.run:443/${
-			language === 'cpp' ? 'clangd' : 'pyright'
-		}`;
-		if (compilerOptions) {
-			lspUrl += `?compiler_options=${encodeURIComponent(compilerOptions)}`;
-		}
+	let lspUrl = `wss://cpinitiative--lsp-server-main.modal.run:443/${
+			language === "java" ? "jdtls" :
+			language === "cpp" ? "clangd" :
+			"pyright"
+	}`;
+
+	if (compilerOptions) {
+		lspUrl += `?compiler_options=${encodeURIComponent(compilerOptions)}`;
 	}
 
 	const monacoLanguage = language === 'py' ? 'python' : language;
