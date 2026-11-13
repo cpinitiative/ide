@@ -178,6 +178,10 @@
 	};
 
 	let isSynced = $derived(connectionStatus !== 'connecting');
+
+	export function focus() {
+		editor?.focus();
+	}
 </script>
 
 <div class={`tw-forms-disable tw-forms-disable-all-descendants relative h-full ${className}`}>

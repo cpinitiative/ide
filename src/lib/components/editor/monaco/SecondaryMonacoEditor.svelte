@@ -22,16 +22,16 @@
 		language = 'plaintext',
 		readOnly = false,
 		value,
-
-		yjsInfo
+		yjsInfo,
+		onShortcut,
 	}: {
 		language?: Language | 'plaintext';
 		readOnly?: boolean;
 		value?: string;
 		yjsInfo?: YjsInfo;
-
 		// Ignored: Only the main editor can configure the global editor mode
 		editorMode?: 'normal' | 'vim';
+		onShortcut?: (name: string) => void;
 	} = $props();
 
 	let editor: monaco.editor.IStandaloneCodeEditor | null = $state.raw(null);
@@ -78,6 +78,18 @@
 
 	$effect(() => {
 		if (!editor) return;
+
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit1, () => onShortcut?.('focus-main'));
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit2, () => onShortcut?.('focus-input'));
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit3, () => onShortcut?.('focus-output'));
+
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad1, () => onShortcut?.('focus-main'));
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad2, () => onShortcut?.('focus-input'));
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Numpad3, () => onShortcut?.('focus-output'));
+	});
+
+	$effect(() => {
+		if (!editor) return;
 		editor.updateOptions({
 			readOnly
 		});
@@ -91,6 +103,10 @@
 	export const getValue = () => {
 		return editor?.getValue();
 	};
+
+	export function focus() {
+		editor?.focus();
+	}
 </script>
 
 <div bind:this={editorElement} class="h-full min-h-0 w-full bg-white dark:bg-monaco-editor-bg"></div>
